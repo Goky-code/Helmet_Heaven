@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Helmet Haven - My Addresses</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg-main: #0d1117;
+      --bg-card: #161b22;
+      --bg-input: #0d1117;
+      --border-color: #2a3240;
+      --text-primary: #e6edf3;
+      --text-muted: #8b949e;
+      --text-label: #4a5568;
+      --accent-blue: #1f6feb;
+      --accent-blue-hover: #388bfd;
+      --danger-color: #f85149;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar-custom {
+      background-color: var(--bg-main);
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .navbar-brand-text {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text-primary) !important;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .navbar-brand-text i { color: var(--accent-blue); font-size: 22px; }
+    .nav-link-custom {
+      color: var(--text-primary) !important;
+      font-size: 14px;
+      padding: 6px 14px !important;
+      text-decoration: none;
+    }
+    .nav-link-custom:hover { color: var(--accent-blue) !important; }
+
+    .search-wrapper { position: relative; }
+    .search-wrapper i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .search-input {
+      background-color: #161b22;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 6px;
+      padding: 6px 14px 6px 36px;
+      font-size: 13px;
+      width: 320px;
+      outline: none;
+    }
+    .search-input:focus { border-color: var(--accent-blue); }
+    .search-input::placeholder { color: var(--text-muted); }
+
+    .icon-btn {
+      background: #161b22;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 8px;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      position: relative;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .icon-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .badge-dot {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--accent-blue);
+      color: #fff;
+      font-size: 9px;
+      border-radius: 10px;
+      padding: 1px 5px;
+      font-weight: 700;
+      border: 1px solid var(--bg-main);
+    }
+
+    /* ── LAYOUT ── */
+    .page-wrapper { display: flex; flex: 1; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--bg-main);
+      border-right: 1px solid var(--border-color);
+      padding: 28px 0;
+    }
+    .sidebar-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 0 20px 20px;
+      color: var(--text-primary);
+    }
+    .sidebar-heading i { color: var(--accent-blue); font-size: 18px; }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 20px;
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 14px;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background 0.15s, color 0.15s;
+    }
+    .sidebar-item:hover { background: var(--bg-card); color: var(--accent-blue); }
+    .sidebar-item.active {
+      background: var(--bg-card);
+      color: var(--accent-blue);
+      border-left-color: var(--accent-blue);
+    }
+    .sidebar-item i { font-size: 16px; width: 18px; text-align: center; }
+    .sidebar-divider { border-top: 1px solid var(--border-color); margin: 12px 0; }
+    .sidebar-item.logout { color: var(--danger-color); }
+    .sidebar-item.logout:hover { background: rgba(248,81,73,0.08); color: var(--danger-color); }
+
+    /* ── MAIN ── */
+    .main-content {
+      flex: 1;
+      padding: 36px 40px;
+      background: var(--bg-main);
+    }
+
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .page-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .page-subtitle { color: var(--text-muted); font-size: 13px; }
+
+    .btn-add-address {
+      background: var(--accent-blue);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 11px 22px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+    .btn-add-address:hover { background: var(--accent-blue-hover); }
+
+    /* ── ADDRESS CARDS ── */
+    .address-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px 22px 22px;
+      height: 100%;
+    }
+
+    /* tag badge */
+    .addr-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      color: var(--text-muted);
+      background: transparent;
+      margin-bottom: 18px;
+    }
+    .addr-tag i { font-size: 12px; }
+
+    /* card action icons */
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .action-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .action-icon:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .action-icon.del:hover { border-color: var(--danger-color); color: var(--danger-color); }
+
+    /* field labels */
+    .field-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--text-label);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .field-value {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 14px;
+    }
+    .field-value.address-lines {
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+    .field-value.phone {
+      font-size: 14px;
+      font-weight: 400;
+      margin-bottom: 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg-main);
+      border-top: 1px solid var(--border-color);
+      padding: 44px 40px 20px;
+    }
+    .footer-brand { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .footer-brand i { color: var(--accent-blue); }
+    .footer-desc { color: var(--text-muted); font-size: 12.5px; max-width: 200px; line-height: 1.6; }
+    .footer-heading { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; }
+    .footer-link { display: block; color: var(--text-muted); text-decoration: none; font-size: 12.5px; margin-bottom: 8px; }
+    .footer-link:hover { color: var(--accent-blue); }
+    .newsletter-desc { color: var(--text-muted); font-size: 12.5px; margin-bottom: 12px; }
+    .footer-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 6px 0 0 6px;
+      color: var(--text-primary);
+      font-size: 13px;
+      padding: 8px 12px;
+      outline: none;
+      flex: 1;
+    }
+    .footer-input:focus { border-color: var(--accent-blue); }
+    .footer-input::placeholder { color: var(--text-muted); }
+    .btn-join {
+      background: var(--accent-blue);
+      color: #fff;
+      border: none;
+      border-radius: 0 6px 6px 0;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-join:hover { background: var(--accent-blue-hover); }
+    .footer-bottom {
+      border-top: 1px solid var(--border-color);
+      margin-top: 30px;
+      padding-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-bottom-text { color: var(--text-muted); font-size: 12px; }
+    .footer-bottom-link { color: var(--text-muted); font-size: 12px; text-decoration: none; }
+    .footer-bottom-link:hover { color: var(--text-primary); }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar-custom">
+    <div class="d-flex align-items-center gap-4">
+      <a class="navbar-brand-text" href="#">
+        <i class="bi bi-arrow-repeat"></i> Helmet Haven
+      </a>
+      <div class="d-flex">
+        <a href="#" class="nav-link-custom">Home</a>
+        <a href="#" class="nav-link-custom">About Us</a>
+        <a href="#" class="nav-link-custom">Contact Us</a>
+      </div>
+    </div>
+
+    <div class="search-wrapper">
+      <i class="bi bi-search"></i>
+      <input type="text" class="search-input" placeholder="Search premium helmets..."/>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <a href="#" class="icon-btn">
+        <i class="bi bi-cart3"></i>
+        <span class="badge-dot">2</span>
+      </a>
+      <a href="#" class="icon-btn"><i class="bi bi-suit-heart"></i></a>
+      <a href="#" class="icon-btn"><i class="bi bi-person-fill"></i></a>
+    </div>
+  </nav>
+
+  <!-- ── PAGE BODY ── -->
+  <div class="page-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-heading">
+        <i class="bi bi-person-circle"></i> My Account
+      </div>
+      <a href="#" class="sidebar-item"><i class="bi bi-person"></i> Profile Info</a>
+      <a href="#" class="sidebar-item"><i class="bi bi-globe"></i> My Orders</a>
+      <a href="#" class="sidebar-item active"><i class="bi bi-geo-alt-fill"></i> Address</a>
+      <a href="#" class="sidebar-item"><i class="bi bi-grid"></i> Wallet</a>
+      <a href="#" class="sidebar-item"><i class="bi bi-scissors"></i> Coupon</a>
+      <a href="#" class="sidebar-item"><i class="bi bi-shield-lock"></i> Password Change</a>
+      <div class="sidebar-divider"></div>
+      <a href="#" class="sidebar-item logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">My Addresses</h1>
+          <p class="page-subtitle">Manage your shipping and billing locations.</p>
+        </div>
+        <button class="btn-add-address"
+      onclick="window.location.href='/user/addNewaddress'">
+  <i class="bi bi-geo-alt-fill"></i> Add New Address
+</button>
+      </div>
+
+     <div class="row">
+
+  <% addresses.forEach((address, index) => { %>
+
+  <div class="col-lg-6 mb-4">
+    <div class="address-card">
+
+      <% if(address.isDefault){ %>
+    <span class="badge bg-success">DEFAULT</span>
+  <% } %>
+      <span class="badge bg-primary">
+        Address <%= index + 1 %>
+      </span>
+
+      <!-- DETAILS -->
+      <p><strong><%= address.name %></strong></p>
+
+      <p>
+        <%= address.street %><br>
+        <%= address.city %>, <%= address.state %><br>
+        <%= address.zip %>
+      </p>
+
+      <p><%= address.phone %></p>
+
+      <!-- ACTIONS -->
+      <div class="d-flex gap-2">
+
+        <a href="/user/editAddress/<%= address._id %>" class="btn btn-sm btn-outline-light">
+          <i class="bi bi-pencil"></i>
+        </a>
+
+        <a href="/user/deleteAddress/<%= address._id %>" onclick="return confirm('Delete this address?')"class="btn btn-sm btn-outline-danger">
+          <i class="bi bi-trash"></i>
+        </a>
+          <% if(!address.isDefault){ %>
+    <a href="/user/setdefault/<%= address._id %>" 
+       class="btn btn-sm btn-outline-primary">
+       Set Default
+    </a>
+  <% } %>
+      </div>
+
+    </div>
+  </div>
+
+  <% }) %>
+
+</div>
+
+        
+
+        
+      </div>
+    </main>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="row g-4">
+      <div class="col-lg-3">
+        <div class="footer-brand">
+          <i class="bi bi-arrow-repeat"></i> Helmet Haven
+        </div>
+        <p class="footer-desc">The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
+      </div>
+
+      <div class="col-lg-2 offset-lg-1">
+        <p class="footer-heading">Shop</p>
+        <a href="#" class="footer-link">Full Face</a>
+        <a href="#" class="footer-link">Off-Road</a>
+        <a href="#" class="footer-link">Modular</a>
+        <a href="#" class="footer-link">Accessories</a>
+      </div>
+
+      <div class="col-lg-2">
+        <p class="footer-heading">Support</p>
+        <a href="#" class="footer-link">Shipping Policy</a>
+        <a href="#" class="footer-link">Return &amp; Exchange</a>
+        <a href="#" class="footer-link">Size Guide</a>
+        <a href="#" class="footer-link">FAQ</a>
+      </div>
+
+      <div class="col-lg-3">
+        <p class="footer-heading">Newsletter</p>
+        <p class="newsletter-desc">Get early access to drops and exclusive offers.</p>
+        <div class="d-flex">
+          <input type="email" class="footer-input" placeholder="Email address"/>
+          <button class="btn-join">Join</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span class="footer-bottom-text">© 2024 Helmet Haven. All rights reserved.</span>
+      <div class="d-flex gap-3">
+        <a href="#" class="footer-bottom-link">Privacy Policy</a>
+        <a href="#" class="footer-bottom-link">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

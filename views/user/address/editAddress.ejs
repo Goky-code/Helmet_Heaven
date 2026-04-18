@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Helmet Haven — Edit Address</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg:        #0d1219;
+      --bg2:       #111720;
+      --bg3:       #141b27;
+      --bg-input:  #182030;
+      --accent:    #1d7fea;
+      --accent-h:  #1568c9;
+      --border:    #1e2a3a;
+      --muted:     #3d5268;
+      --body:      #8fa3b8;
+      --white:     #eef2f7;
+      --sidebar-w: 240px;
+      --nav-h:     54px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ══════════════════════════
+       TOP NAV
+    ══════════════════════════ */
+    .top-nav {
+      height: var(--nav-h);
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .nav-brand-name {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--white);
+      white-space: nowrap;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.15rem;
+      flex-shrink: 0;
+    }
+    .nav-links a {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--body);
+      text-decoration: none;
+      padding: 0.32rem 0.7rem;
+      border-radius: 6px;
+      transition: color .2s, background .2s;
+    }
+    .nav-links a:hover { color: var(--white); background: rgba(255,255,255,.05); }
+
+    .nav-search {
+      flex: 1;
+      position: relative;
+      max-width: 400px;
+    }
+    .nav-search i {
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .nav-search input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-size: 0.84rem;
+      padding: 0.42rem 0.9rem 0.42rem 2.1rem;
+      outline: none;
+    }
+    .nav-search input::placeholder { color: var(--muted); }
+    .nav-search input:focus { border-color: var(--accent); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-left: auto;
+    }
+    .nav-icon-btn {
+      position: relative;
+      width: 36px; height: 36px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--body);
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .2s, border-color .2s;
+    }
+    .nav-icon-btn:hover { color: var(--white); border-color: var(--accent); }
+    .nav-icon-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .badge-dot {
+      position: absolute;
+      top: -5px; right: -5px;
+      width: 17px; height: 17px;
+      background: var(--accent);
+      border-radius: 50%;
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--bg2);
+    }
+
+    /* ══════════════════════════
+       LAYOUT
+    ══════════════════════════ */
+    .body-wrap {
+      display: flex;
+      flex: 1;
+    }
+
+    /* ══════════════════════════
+       SIDEBAR
+    ══════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 1.4rem 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar-head {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0 1.2rem 1rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .sidebar-head i { color: var(--accent); font-size: 1.1rem; }
+
+    .s-nav { list-style: none; padding: 0; margin: 0; }
+    .s-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      padding: 0.62rem 1.2rem;
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--body);
+      text-decoration: none;
+      transition: background .15s, color .15s;
+      border-right: 3px solid transparent;
+    }
+    .s-nav li a:hover { background: rgba(255,255,255,.04); color: var(--white); }
+    .s-nav li a.active {
+      background: rgba(29,127,234,.13);
+      color: var(--accent);
+      border-right-color: var(--accent);
+    }
+    .s-nav li a i { font-size: 1rem; width: 18px; text-align: center; flex-shrink: 0; }
+    .s-divider { height: 1px; background: var(--border); margin: 0.7rem 1.2rem; }
+    .s-nav .logout a { color: #e85555; }
+    .s-nav .logout a:hover { background: rgba(232,85,85,.08); color: #ff6b6b; }
+
+    /* ══════════════════════════
+       MAIN
+    ══════════════════════════ */
+    .main-content {
+      flex: 1;
+      padding: 1.6rem 2rem 3rem;
+      overflow-y: auto;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      margin-bottom: 1rem;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    .page-title {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+    }
+    .page-sub {
+      font-size: 0.84rem;
+      color: var(--muted);
+      margin-bottom: 1.4rem;
+    }
+
+    /* ── ADDRESS CARD ── */
+    .addr-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.8rem 1.8rem 1.8rem;
+    }
+
+    .field-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .hh-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      padding: 0.72rem 0.85rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .hh-input::placeholder { color: transparent; }
+    .hh-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(29,127,234,.12);
+    }
+
+    /* checkbox */
+    .primary-check {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 1rem 0 1.4rem;
+    }
+    .primary-check input[type="checkbox"] {
+      width: 17px; height: 17px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: 4px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .primary-check label {
+      font-size: 0.87rem;
+      font-weight: 500;
+      color: var(--white);
+      cursor: pointer;
+    }
+
+    /* action buttons */
+    .btn-save-addr {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.75rem 1.6rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .btn-save-addr:hover { background: var(--accent-h); transform: translateY(-1px); }
+    .btn-cancel-addr {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.75rem 1.6rem;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-cancel-addr:hover { border-color: var(--body); background: rgba(255,255,255,.04); }
+
+    /* ══════════════════════════
+       FOOTER
+    ══════════════════════════ */
+    .site-footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 2.2rem 2rem 0;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr 1fr 1.4fr;
+      gap: 2rem;
+      padding-bottom: 2rem;
+    }
+    .footer-brand-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.55rem; }
+    .footer-brand-name { font-size: 0.95rem; font-weight: 700; color: var(--white); }
+    .footer-brand-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.7; }
+    .footer-col-title { font-size: 0.84rem; font-weight: 600; color: var(--white); margin-bottom: 0.85rem; }
+    .footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.48rem; }
+    .footer-col ul li a { font-size: 0.78rem; color: var(--muted); text-decoration: none; transition: color .2s; }
+    .footer-col ul li a:hover { color: var(--body); }
+    .footer-nl-desc { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.75rem; line-height: 1.6; }
+    .footer-nl-row { display: flex; gap: 0.45rem; }
+    .footer-nl-input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--white);
+      font-size: 0.8rem;
+      padding: 0.5rem 0.75rem;
+      outline: none;
+    }
+    .footer-nl-input::placeholder { color: var(--muted); }
+    .footer-nl-input:focus { border-color: var(--accent); }
+    .btn-join {
+      background: var(--accent);
+      border: none;
+      border-radius: 7px;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.5rem 0.9rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-join:hover { background: var(--accent-h); }
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding: 0.95rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-bottom-copy { font-size: 0.76rem; color: var(--muted); }
+    .footer-bottom-links { display: flex; gap: 1.4rem; }
+    .footer-bottom-links a { font-size: 0.76rem; color: var(--muted); text-decoration: none; }
+    .footer-bottom-links a:hover { color: var(--body); }
+
+    /* field group spacing */
+    .field-group { margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <a href="#" class="nav-brand">
+      <svg width="32" height="32" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="20" stroke="#1d7fea" stroke-width="2" fill="none"/>
+        <path d="M13 26 C13 18 16 13 22 13 C28 13 31 18 31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M13 26 L13 28 C13 29.1 13.9 30 15 30 L29 30 C30.1 30 31 29.1 31 28 L31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M16 23 C17 20 20 18 22 18 C24 18 27 20 28 23" stroke="#1d7fea" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <circle cx="19" cy="28" r="0.8" fill="#1d7fea"/>
+        <circle cx="22" cy="28" r="0.8" fill="#1d7fea"/>
+        <circle cx="25" cy="28" r="0.8" fill="#1d7fea"/>
+      </svg>
+      <span class="nav-brand-name">Helmet Haven</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">About Us</a>
+      <a href="#">Contact Us</a>
+    </div>
+
+    <div class="nav-search">
+      <i class="bi bi-search"></i>
+      <input type="text" placeholder="Search premium helmets..."/>
+    </div>
+
+    <div class="nav-right">
+      <a href="#" class="nav-icon-btn">
+        <i class="bi bi-cart3"></i>
+        <span class="badge-dot">2</span>
+      </a>
+      <a href="#" class="nav-icon-btn">
+        <i class="bi bi-heart"></i>
+      </a>
+      <a href="#" class="nav-icon-btn active">
+        <i class="bi bi-person"></i>
+      </a>
+    </div>
+  </nav>
+
+  <!-- BODY -->
+  <div class="body-wrap">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-head">
+        <i class="bi bi-person-circle"></i>
+        My Account
+      </div>
+      <ul class="s-nav">
+        <li>
+          <a href="#">
+            <i class="bi bi-person"></i> Profile Info
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bi bi-bag"></i> My Orders
+          </a>
+        </li>
+        <li>
+          <a href="#" class="active">
+            <i class="bi bi-geo-alt"></i> Address
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bi bi-wallet2"></i> Wallet
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bi bi-tag"></i> Coupon
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bi bi-shield-lock"></i> Password Change
+          </a>
+        </li>
+      </ul>
+      <div class="s-divider"></div>
+      <ul class="s-nav">
+        <li class="logout">
+          <a href="#">
+            <i class="bi bi-box-arrow-left"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+
+      <a href="/user/addressPage" class="back-link">
+        <i class="bi bi-arrow-left"></i> Back to Addresses
+      </a>
+
+      <h1 class="page-title">Edit Address</h1>
+      <p class="page-sub">Provide your shipping details for faster checkout.</p>
+
+      <div class="addr-card">
+        <form action="/user/editAddress/<%= address._id %>" method="POST">
+
+         <!-- Recipient Name -->
+<div class="field-group">
+  <label class="field-label">Recipient Name</label>
+  <input type="text" name="name" class="hh-input"
+  value="<%= address.name %>">
+</div>
+
+<!-- Street Address -->
+<div class="field-group">
+  <label class="field-label">Street Address</label>
+  <input type="text" name="street" class="hh-input"
+  value="<%= address.street %>">
+</div>
+
+<!-- Apartment/Suite -->
+<div class="field-group">
+  <label class="field-label">Apartment/Suite (Optional)</label>
+  <input type="text" name="apartment" class="hh-input"
+  value="<%= address.apartment %>">
+</div>
+
+<!-- City + State -->
+<div class="row g-3 mb-3">
+  <div class="col-6">
+    <label class="field-label">City</label>
+    <input type="text" name="city" class="hh-input"
+    value="<%= address.city %>">
+  </div>
+  <div class="col-6">
+    <label class="field-label">State/Province</label>
+    <input type="text" name="state" class="hh-input"
+    value="<%= address.state %>">
+  </div>
+</div>
+
+<!-- ZIP + Phone -->
+<div class="row g-3 mb-1">
+  <div class="col-6">
+    <label class="field-label">Zip/Postal Code</label>
+    <input type="text" name="zip" class="hh-input"
+    value="<%= address.zip %>">
+  </div>
+  <div class="col-6">
+    <label class="field-label">Phone Number</label>
+    <input type="tel" name="phone" class="hh-input"
+    value="<%= address.phone %>">
+  </div>
+</div>
+
+          <!-- Primary checkbox -->
+          <div class="primary-check">
+            <input type="checkbox" id="primaryAddr" name="isDefault"
+              <%= address.isDefault ? "checked" : "" %> />
+              
+  
+            <label for="primaryAddr">Set as Default Address</label>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex align-items-center gap-3">
+            <button type="submit" class="btn-save-addr">
+              <i class="bi bi-floppy"></i> Save Address
+            </button>
+           <button type="button" class="btn-cancel-addr"
+           onclick="window.location.href='/user/addressPage'">
+              Cancel
+             </button>
+             </form>
+          </div>
+
+        </form>
+      </div>
+    </main>
+
+  </div><!-- /body-wrap -->
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+
+      <!-- Brand -->
+      <div>
+        <div class="footer-brand-row">
+          <svg width="28" height="28" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="22" cy="22" r="20" stroke="#1d7fea" stroke-width="2" fill="none"/>
+            <path d="M13 26 C13 18 16 13 22 13 C28 13 31 18 31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M13 26 L13 28 C13 29.1 13.9 30 15 30 L29 30 C30.1 30 31 29.1 31 28 L31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+          </svg>
+          <span class="footer-brand-name">Helmet Haven</span>
+        </div>
+        <p class="footer-brand-desc">The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
+      </div>
+
+      <!-- Shop -->
+      <div class="footer-col">
+        <div class="footer-col-title">Shop</div>
+        <ul>
+          <li><a href="#">Full Face</a></li>
+          <li><a href="#">Off-Road</a></li>
+          <li><a href="#">Modular</a></li>
+          <li><a href="#">Accessories</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div class="footer-col">
+        <div class="footer-col-title">Support</div>
+        <ul>
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Return &amp; Exchange</a></li>
+          <li><a href="#">Size Guide</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="footer-col">
+        <div class="footer-col-title">Newsletter</div>
+        <p class="footer-nl-desc">Get early access to drops and exclusive offers.</p>
+        <div class="footer-nl-row">
+          <input type="email" class="footer-nl-input" placeholder="Email address"/>
+          <button class="btn-join">Join</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <span class="footer-bottom-copy">© 2024 Helmet Haven. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

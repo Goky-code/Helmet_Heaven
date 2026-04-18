@@ -264,28 +264,25 @@
       <div class="email-icon-wrap">
         <i class="bi bi-envelope-check-fill"></i>
       </div>
-       <form action="/auth/verifyOtp" method="POST" id="otpForm">
+
       <!-- Heading -->
       <h1 class="card-title">Verify Your Email</h1>
       <p class="card-sub">We've sent a 6-digit verification code to your<br>registered email address.</p>
 
       <!-- OTP inputs -->
-      
+      <div class="otp-inputs">
+        <input class="otp-box active" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+      </div>
 
-  <div class="otp-inputs">
-    <input class="otp-box active" name="otp" maxlength="1" inputmode="numeric"/>
-    <input class="otp-box" name="otp" maxlength="1" inputmode="numeric"/>
-    <input class="otp-box" name="otp" maxlength="1" inputmode="numeric"/>
-    <input class="otp-box" name="otp" maxlength="1" inputmode="numeric"/>
-    <input class="otp-box" name="otp" maxlength="1" inputmode="numeric"/>
-    <input class="otp-box" name="otp" maxlength="1" inputmode="numeric"/>
-  </div>
-
-  <button type="submit" class="btn-verify">
-    Verify Code <i class="bi bi-arrow-right"></i>
-  </button>
-
-</form>
+      <!-- Verify button -->
+      <button class="btn-verify" onclick="return false;">
+        Verify Code <i class="bi bi-arrow-right"></i>
+      </button>
 
       <!-- Divider -->
       <div class="divider"></div>
@@ -304,7 +301,7 @@
         </div>
       </div>
 
-      <a href="/auth/resendOtp" class="resend-link disabled" id="resendBtn">
+      <a href="#" class="resend-link disabled" id="resendBtn">
         <i class="bi bi-arrow-clockwise"></i> Resend Code
       </a>
 

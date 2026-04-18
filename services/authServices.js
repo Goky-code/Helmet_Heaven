@@ -9,9 +9,6 @@ const loginUser = async (email, password) => {
     return{success:false,message:"user not found"}
   }
 
-  if(!user.isVerified){
-    return {success:false, message:"please verify OTP first"}
-  }
 
   if(user.isBlocked){
      return{success:false,message:"user is blocked"}
