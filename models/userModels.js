@@ -1,14 +1,64 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose"
 
 const userSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  password: String,
-  phone: String,
-  isVerified: { type: Boolean, default: false },
-  isBlocked: { type: Boolean, default: false },
-  otp: String,
-  otpExpiry: Date
+  
+   firstName: {
+    type: String,
+    required: true,
+  },
+
+  lastName: {
+    type: String,
+    required: true,
+  },
+
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+
+  phone: {
+  type: String
+},
+
+profileImage: {
+  type: String
+},
+
+  password: {
+    type: String,
+    required: function () {
+      return this.authType === "local";
+    },
+  },
+
+  authType: {
+    type: String,
+    enum: ["local", "google"],
+    default: "local",
+  },
+
+  isBlocked: {
+    type: Boolean,
+    default: false,
+  },
+
+  isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    otp: {
+      type: String,
+    },
+
+    otpExpiry: {
+      type: Date,
+    }
+
 }, { timestamps: true });
 
-module.exports = mongoose.model("User", userSchema);
+const User=mongoose.model("User",userSchema)
+
+export default User

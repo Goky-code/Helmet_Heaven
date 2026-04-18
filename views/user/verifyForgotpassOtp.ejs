@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Helmet Haven — Verify Email</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg-dark:   #0d1117;
+      --bg-card:   #161c26;
+      --bg-input:  #1c242f;
+      --bg-timer:  #1a2230;
+      --accent:    #1d7fea;
+      --border:    #2a3545;
+      --text-muted:#6b7a8d;
+      --text-body: #c8d2de;
+      --text-white:#f0f4f8;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-dark);
+      font-family: 'Barlow', sans-serif;
+      color: var(--text-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── NAVBAR ── */
+    .hh-nav {
+      background: var(--bg-dark);
+      border-bottom: 1px solid var(--border);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+    }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: var(--accent);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 0.14em;
+      color: var(--text-white);
+      text-transform: uppercase;
+    }
+
+    /* ── MAIN ── */
+    .hh-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── CARD ── */
+    .otp-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.8rem 2.5rem 2.5rem;
+      width: 100%;
+      max-width: 460px;
+      text-align: center;
+    }
+
+    /* email icon circle */
+    .email-icon-wrap {
+      width: 56px; height: 56px;
+      background: rgba(29,127,234,0.18);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.8rem;
+    }
+    .email-icon-wrap i {
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+
+    .card-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.9rem;
+      color: var(--text-white);
+      margin-bottom: 0.7rem;
+    }
+    .card-sub {
+      font-size: 0.88rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    /* ── OTP BOXES ── */
+    .otp-inputs {
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+      margin-bottom: 1.8rem;
+    }
+    .otp-box {
+      width: 62px; height: 62px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-white);
+      font-size: 1.4rem;
+      font-weight: 600;
+      text-align: center;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      caret-color: var(--accent);
+    }
+    .otp-box:focus,
+    .otp-box.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(29,127,234,.2);
+    }
+
+    /* ── VERIFY BUTTON ── */
+    .btn-verify {
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 0.82rem;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      transition: background .2s, transform .15s;
+      cursor: pointer;
+      margin-bottom: 1.8rem;
+    }
+    .btn-verify:hover { background: #1568c9; transform: translateY(-1px); }
+    .btn-verify:active { transform: translateY(0); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 1.3rem;
+    }
+
+    /* ── RESEND ROW ── */
+    .resend-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    /* timer boxes */
+    .timer-row {
+      display: flex;
+      justify-content: center;
+      gap: 0.8rem;
+      margin-bottom: 1.2rem;
+    }
+    .timer-box {
+      background: var(--bg-timer);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.65rem 0;
+      width: 120px;
+      text-align: center;
+    }
+    .timer-val {
+      display: block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      color: var(--text-white);
+      line-height: 1;
+      margin-bottom: 0.2rem;
+    }
+    .timer-unit {
+      display: block;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* resend link */
+    .resend-link {
+      font-size: 0.88rem;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .resend-link:hover { text-decoration: underline; }
+    .resend-link.disabled {
+      pointer-events: none;
+      opacity: 0.45;
+    }
+
+    /* ── FOOTER ── */
+    .hh-footer {
+      text-align: center;
+      padding: 1.2rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="hh-nav">
+    <a href="#" class="brand">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C8.5 2 5.5 4.5 5 8H4a2 2 0 0 0-2 2v1a2 2 0 0 0 2 2h.27A7 7 0 0 0 12 18a7 7 0 0 0 7.73-5H20a2 2 0 0 0 2-2v-1a2 2 0 0 0-2-2h-1C18.5 4.5 15.5 2 12 2zm0 2c2.76 0 5 2.24 5 5H7c0-2.76 2.24-5 5-5zm-7 7h14v1a5 5 0 0 1-10 0H5v-1z"/>
+        </svg>
+      </div>
+      <span class="brand-name">Helmet Haven</span>
+    </a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="hh-main">
+    <div class="otp-card">
+
+      <!-- Icon -->
+      <div class="email-icon-wrap">
+        <i class="bi bi-envelope-check-fill"></i>
+      </div>
+
+      <!-- Heading -->
+      <h1 class="card-title">Verify Your Email</h1>
+      <p class="card-sub">We've sent a 6-digit verification code to your<br>registered email address.</p>
+
+      <!-- OTP inputs -->
+      <div class="otp-inputs">
+        <input class="otp-box active" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+        <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
+      </div>
+
+      <!-- Verify button -->
+      <button class="btn-verify" onclick="return false;">
+        Verify Code <i class="bi bi-arrow-right"></i>
+      </button>
+
+      <!-- Divider -->
+      <div class="divider"></div>
+
+      <!-- Resend section -->
+      <p class="resend-label">Didn't receive the code?</p>
+
+      <div class="timer-row">
+        <div class="timer-box">
+          <span class="timer-val" id="mins">02</span>
+          <span class="timer-unit">Minutes</span>
+        </div>
+        <div class="timer-box">
+          <span class="timer-val" id="secs">00</span>
+          <span class="timer-unit">Seconds</span>
+        </div>
+      </div>
+
+      <a href="#" class="resend-link disabled" id="resendBtn">
+        <i class="bi bi-arrow-clockwise"></i> Resend Code
+      </a>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="hh-footer">
+    <i class="bi bi-lock-fill" style="font-size:0.75rem;"></i>
+    Secure 256-Bit Encrypted Verification
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    /* ── OTP auto-advance ── */
+    const boxes = document.querySelectorAll('.otp-box');
+    boxes.forEach((box, i) => {
+      box.addEventListener('input', () => {
+        box.value = box.value.replace(/\D/g, '');
+        if (box.value && i < boxes.length - 1) {
+          boxes[i + 1].focus();
+        }
+      });
+      box.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !box.value && i > 0) {
+          boxes[i - 1].focus();
+        }
+      });
+      box.addEventListener('focus', () => {
+        boxes.forEach(b => b.classList.remove('active'));
+        box.classList.add('active');
+      });
+    });
+
+    /* ── Countdown timer ── */
+    let total = 120; // 02:00 → counts down to 0
+    const minsEl  = document.getElementById('mins');
+    const secsEl  = document.getElementById('secs');
+    const resendBtn = document.getElementById('resendBtn');
+
+    const tick = setInterval(() => {
+      total--;
+      if (total <= 0) {
+        clearInterval(tick);
+        minsEl.textContent = '00';
+        secsEl.textContent = '00';
+        resendBtn.classList.remove('disabled');
+        return;
+      }
+      const m = Math.floor(total / 60);
+      const s = total % 60;
+      minsEl.textContent = String(m).padStart(2, '0');
+      secsEl.textContent = String(s).padStart(2, '0');
+    }, 1000);
+
+    resendBtn.addEventListener('click', e => {
+      if (resendBtn.classList.contains('disabled')) { e.preventDefault(); return; }
+      // reset timer
+      total = 120;
+      resendBtn.classList.add('disabled');
+      boxes.forEach(b => { b.value = ''; b.classList.remove('active'); });
+      boxes[0].focus();
+      boxes[0].classList.add('active');
+      const t2 = setInterval(() => {
+        total--;
+        if (total <= 0) { clearInterval(t2); resendBtn.classList.remove('disabled'); minsEl.textContent='00'; secsEl.textContent='00'; return; }
+        minsEl.textContent = String(Math.floor(total/60)).padStart(2,'0');
+        secsEl.textContent = String(total%60).padStart(2,'0');
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Helmet Haven — Admin Portal</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg-dark:   #0b0f18;
+      --bg-card:   #111720;
+      --bg-input:  #161d2a;
+      --accent:    #1d7fea;
+      --accent-h:  #1568c9;
+      --border:    #1e2a3a;
+      --text-muted:#3d5268;
+      --text-dim:  #4a6070;
+      --text-body: #7a92a8;
+      --text-white:#eef2f7;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg-dark);
+      font-family: 'Inter', sans-serif;
+      color: var(--text-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── WRAPPER ── */
+    .page-wrap {
+      width: 100%;
+      max-width: 520px;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ── BRAND ── */
+    .brand-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .brand-icon {
+      width: 44px; height: 44px;
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .brand-name {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text-white);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .brand-sub {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    /* ── CARD ── */
+    .admin-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.2rem 2rem 2rem;
+      width: 100%;
+    }
+
+    /* ── FORM LABELS ── */
+    .form-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-body);
+      display: block;
+      margin-bottom: 0.45rem;
+    }
+    .pw-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.45rem;
+    }
+    .forgot-link {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .forgot-link:hover { text-decoration: underline; }
+
+    /* ── INPUTS ── */
+    .input-wrap {
+      position: relative;
+      margin-bottom: 1.1rem;
+    }
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+    .eye-icon {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+      line-height: 1;
+    }
+    .eye-icon:hover { color: var(--text-body); }
+    .hh-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      padding: 0.85rem 1rem 0.85rem 2.8rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .hh-input.has-eye { padding-right: 2.8rem; }
+    .hh-input::placeholder { color: transparent; }
+    .hh-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(29,127,234,.13);
+    }
+
+    /* ── BUTTON ── */
+    .btn-access {
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.88rem;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background .2s, transform .15s;
+      cursor: pointer;
+      margin-top: 0.3rem;
+    }
+    .btn-access:hover { background: var(--accent-h); transform: translateY(-1px); }
+    .btn-access:active { transform: translateY(0); }
+
+    /* ── SECURITY NOTICE ── */
+    .security-block {
+      margin-top: 2rem;
+      text-align: center;
+      max-width: 420px;
+    }
+    .sec-title {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.85rem;
+    }
+    .sec-text {
+      font-size: 0.8rem;
+      font-weight: 400;
+      line-height: 1.75;
+      color: var(--text-muted);
+    }
+
+    /* ── FOOTER ── */
+    .hh-footer {
+      margin-top: 2rem;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 520px;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    .foot-copy {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .foot-version {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrap">
+
+    <!-- BRAND -->
+    <div class="brand-block">
+      <div class="brand-row">
+        <!-- Helmet SVG logo matching the image — circular helmet outline in blue -->
+        <div class="brand-icon">
+          <svg width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- outer circle ring -->
+            <circle cx="22" cy="22" r="20" stroke="#1d7fea" stroke-width="2" fill="none"/>
+            <!-- helmet shell -->
+            <path d="M13 26 C13 18 16 13 22 13 C28 13 31 18 31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <!-- visor / face opening -->
+            <path d="M13 26 L13 28 C13 29.1 13.9 30 15 30 L29 30 C30.1 30 31 29.1 31 28 L31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <!-- visor window line -->
+            <path d="M16 23 C17 20 20 18 22 18 C24 18 27 20 28 23" stroke="#1d7fea" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <!-- chin vent dots -->
+            <circle cx="19" cy="28" r="0.8" fill="#1d7fea"/>
+            <circle cx="22" cy="28" r="0.8" fill="#1d7fea"/>
+            <circle cx="25" cy="28" r="0.8" fill="#1d7fea"/>
+          </svg>
+        </div>
+        <span class="brand-name">Helmet Haven</span>
+      </div>
+      <span class="brand-sub">Admin Portal</span>
+    </div>
+
+    <!-- CARD -->
+    <div class="admin-card">
+      <form action="/admin/adminLogin" method="POST">
+             <% if(error){ %>
+    <p style="color:red;"><%= error %></p>
+  <% } %>
+
+        <!-- Admin Email -->
+        <label class="form-label">Admin Email</label>
+        <div class="input-wrap">
+          <i class="bi bi-person input-icon"></i>
+          <input type="email" name="email" class="hh-input" placeholder="admin@gmail.com" required/>
+        </div>
+
+        <!-- Password -->
+        <div class="pw-row">
+          <label class="form-label mb-0">Password</label>
+          <a href="#" class="forgot-link">Forgot Password</a>
+        </div>
+        <div class="input-wrap">
+          <i class="bi bi-lock input-icon"></i>
+          <input type="password" name="password" class="hh-input has-eye" id="pwInput" placeholder="••••••••"/>
+          <button type="button" class="eye-icon" onclick="togglePw()" id="eyeBtn">
+            <i class="bi bi-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+
+        <!-- CTA -->
+        <button type="submit" class="btn-access">
+          Access Dashboard <i class="bi bi-box-arrow-in-right"></i>
+        </button>
+
+      </form>
+    </div>
+
+    <!-- SECURITY NOTICE -->
+    <div class="security-block">
+      <div class="sec-title">
+        <i class="bi bi-shield-fill" style="font-size:0.75rem; color:var(--text-muted);"></i>
+        Security Notice
+      </div>
+      <p class="sec-text">
+        This is a restricted administrative interface. Unauthorized access attempts are logged and strictly prohibited. By proceeding, you acknowledge compliance with company security protocols and data privacy policies.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="hh-footer">
+    <span class="foot-copy">© 2024 Helmet Haven HQ</span>
+    <span class="foot-version">V4.2.0-ADMIN</span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function togglePw() {
+      const input = document.getElementById('pwInput');
+      const icon  = document.getElementById('eyeIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'bi bi-eye-slash';
+      } else {
+        input.type = 'password';
+        icon.className = 'bi bi-eye';
+      }
+    }
+  </script>
+</body>
+</html>
