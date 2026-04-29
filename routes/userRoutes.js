@@ -1,25 +1,27 @@
 import express from "express";
 import upload from "../middlewares/upload.js";
-
 import * as userController from "../controllers/userController.js";
- const router  = express.Router();
+import { nocache, isUserAuth, preventUserLogin } from "../middlewares/userAuth.js"; 
+
+
+const router  = express.Router();
  
 
 
-router.get('/login',userController.getLogin)
+router.get('/login',nocache,preventUserLogin,userController.getLogin)
 router.get('/signup',userController.getsignup);
 router.get('/homepage',userController.getHome)
 router.get('/logout',userController.logout)
 router.get('/verifyOtp',userController.getOtp)
 router.get('/forgotPassword',userController.getforgotPassword)
-router.get('/verifyforgotOtp',userController.getVerifyforgotOtp)
+// router.get('/verifyForgotOtp',userController.getVerifyforgotOtp)
 router.get('/resetPassword',userController.getresetPassword)
-router.get("/profileinformation", userController.getProfile);
+router.get("/profileinformation",nocache,isUserAuth,userController.getProfile);
 router.post("/profileinformation", userController.updateProfile);
 router.post("/profile", upload.single("profileImage"), userController.updateProfile);
 
 
-router.get("/addressPage", userController.getAddresses)
+router.get("/address/addressPage", userController.getAddresses)
 
 router.get("/addNewaddress", userController.getAddAddress);
 router.post("/addNewaddress", userController.addAddress);

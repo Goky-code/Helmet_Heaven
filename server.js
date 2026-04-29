@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from "url"
 import adminRoutes from "./routes/adminRoutes.js";
 
+
 const app = express();
 
 import userRoutes from "./routes/userRoutes.js"
@@ -21,6 +22,7 @@ const __dirname = path.dirname(__filename);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 app.use(
   session({
     secret: "mysecret",
@@ -30,13 +32,14 @@ app.use(
   })
 )
 app.use(passport.initialize());
+
+console.log("Client ID:", process.env.GOOGLE_CLIENT_ID);
+console.log("Client Secret:", process.env.GOOGLE_CLIENT_SECRET);
+
 app.use(passport.session());
 app.use(express.static(path.join(__dirname,'public')));
 app.set("view engine", "ejs");                                       
 app.set("views", "views");
-
-
-
 
 
 app.use("/user",userRoutes);

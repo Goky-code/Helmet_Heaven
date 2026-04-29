@@ -268,8 +268,11 @@
       <!-- Heading -->
       <h1 class="card-title">Verify Your Email</h1>
       <p class="card-sub">We've sent a 6-digit verification code to your<br>registered email address.</p>
-
-      <!-- OTP inputs -->
+<main class="hh-main">
+  <form action="/auth/verifyForgotpassOtp" method="POST" id="otpForm">
+    <div class="otp-card">
+      <input type="hidden" name="otp" id="otpInput">
+      
       <div class="otp-inputs">
         <input class="otp-box active" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" autocomplete="one-time-code"/>
         <input class="otp-box" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"/>
@@ -280,10 +283,12 @@
       </div>
 
       <!-- Verify button -->
-      <button class="btn-verify" onclick="return false;">
+      <button type="submit" class="btn-verify" >
         Verify Code <i class="bi bi-arrow-right"></i>
       </button>
-
+</div>
+  </form>
+</main>
       <!-- Divider -->
       <div class="divider"></div>
 
@@ -301,7 +306,7 @@
         </div>
       </div>
 
-      <a href="#" class="resend-link disabled" id="resendBtn">
+      <a href="/auth/resendOtpforgot" class="resend-link disabled" id="resendBtn">
         <i class="bi bi-arrow-clockwise"></i> Resend Code
       </a>
 
@@ -315,63 +320,89 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    /* ── OTP auto-advance ── */
-    const boxes = document.querySelectorAll('.otp-box');
-    boxes.forEach((box, i) => {
-      box.addEventListener('input', () => {
-        box.value = box.value.replace(/\D/g, '');
-        if (box.value && i < boxes.length - 1) {
-          boxes[i + 1].focus();
-        }
-      });
-      box.addEventListener('keydown', e => {
-        if (e.key === 'Backspace' && !box.value && i > 0) {
-          boxes[i - 1].focus();
-        }
-      });
-      box.addEventListener('focus', () => {
-        boxes.forEach(b => b.classList.remove('active'));
-        box.classList.add('active');
-      });
-    });
+ <script>
+  const inputs = document.querySelectorAll('.otp-box');
+  const otpInput = document.getElementById('otpInput');
+  const form = document.getElementById('otpForm');
 
-    /* ── Countdown timer ── */
-    let total = 120; // 02:00 → counts down to 0
-    const minsEl  = document.getElementById('mins');
-    const secsEl  = document.getElementById('secs');
-    const resendBtn = document.getElementById('resendBtn');
+  inputs[0].focus();
 
-    const tick = setInterval(() => {
-      total--;
-      if (total <= 0) {
-        clearInterval(tick);
-        minsEl.textContent = '00';
-        secsEl.textContent = '00';
-        resendBtn.classList.remove('disabled');
-        return;
+  inputs.forEach((input, index) => {
+
+    input.addEventListener('input', (e) => {
+      const value = e.target.value.replace(/[^0-9]/g, '');
+      input.value = value;
+
+      if (value && inputs[index + 1]) {
+        inputs[index + 1].focus();
       }
-      const m = Math.floor(total / 60);
-      const s = total % 60;
-      minsEl.textContent = String(m).padStart(2, '0');
-      secsEl.textContent = String(s).padStart(2, '0');
-    }, 1000);
 
-    resendBtn.addEventListener('click', e => {
-      if (resendBtn.classList.contains('disabled')) { e.preventDefault(); return; }
-      // reset timer
-      total = 120;
-      resendBtn.classList.add('disabled');
-      boxes.forEach(b => { b.value = ''; b.classList.remove('active'); });
-      boxes[0].focus();
-      boxes[0].classList.add('active');
-      const t2 = setInterval(() => {
-        total--;
-        if (total <= 0) { clearInterval(t2); resendBtn.classList.remove('disabled'); minsEl.textContent='00'; secsEl.textContent='00'; return; }
-        minsEl.textContent = String(Math.floor(total/60)).padStart(2,'0');
-        secsEl.textContent = String(total%60).padStart(2,'0');
-      }, 1000);
+      updateOtp();
     });
-  </script>
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !input.value && inputs[index - 1]) {
+        inputs[index - 1].focus();
+      }
+    });
+
+    input.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasteData = e.clipboardData.getData('text').replace(/\D/g, '');
+
+      inputs.forEach((box, i) => {
+        box.value = pasteData[i] || '';
+      });
+
+      updateOtp();
+    });
+  });
+
+  function updateOtp() {
+    const otp = Array.from(inputs).map(i => i.value).join('');
+    otpInput.value = otp;
+
+   
+    if (otp.length === inputs.length) {
+      form.submit();
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    if (otpInput.value.length !== inputs.length) {
+      e.preventDefault();
+      alert("Please enter complete OTP");
+    }
+  });
+
+  let time = 120;
+  const minsEl = document.getElementById('mins');
+  const secsEl = document.getElementById('secs');
+  const resendBtn = document.getElementById('resendBtn');
+
+  resendBtn.classList.add('disabled');
+
+  const timer = setInterval(() => {
+    time--;
+
+    const m = Math.floor(time / 60);
+    const s = time % 60;
+
+    minsEl.innerText = m.toString().padStart(2, '0');
+    secsEl.innerText = s.toString().padStart(2, '0');
+
+    if (time <= 0) {
+      clearInterval(timer);
+      resendBtn.classList.remove('disabled');
+    }
+  }, 1000);
+
+  resendBtn.addEventListener("click", function (e) {
+    if (resendBtn.classList.contains("disabled")) {
+      e.preventDefault(); 
+    }
+  });
+</script>
+</script>
 </body>
 </html>

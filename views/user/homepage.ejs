@@ -17,6 +17,8 @@
             --border-color: #21262d;
         }
 
+        * { box-sizing: border-box; }
+
         body {
             background-color: var(--bg-dark);
             color: white;
@@ -24,260 +26,453 @@
             overflow-x: hidden;
         }
 
-        /* Navbar */
+        /* ── NAVBAR ── */
         .navbar {
             background-color: var(--bg-dark);
-            padding: 15px 5%;
+            padding: 14px 5%;
             border-bottom: 1px solid var(--border-color);
         }
-        .nav-link { color: var(--text-gray) !important; font-size: 0.9rem; margin: 0 10px; }
+        .navbar-brand { font-weight: 800; font-size: 1rem; white-space: nowrap; }
+        .nav-link { color: var(--text-gray) !important; font-size: 0.9rem; padding: 6px 10px !important; }
         .nav-link:hover { color: white !important; }
+
         .search-bar {
             background: #1c2128;
-            border: none;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
             color: white;
-            padding: 8px 15px;
-            width: 250px;
+            padding: 8px 14px;
             font-size: 0.8rem;
+            width: 100%;
+            max-width: 260px;
+            outline: none;
+        }
+        .search-bar::placeholder { color: var(--text-gray); }
+        .search-bar:focus { border-color: var(--accent-blue); }
+
+        .nav-icons { display: flex; align-items: center; gap: 18px; font-size: 1.1rem; flex-shrink: 0; }
+        .nav-icons a, .nav-icons i { color: var(--text-gray); text-decoration: none; cursor: pointer; }
+        .nav-icons a:hover, .nav-icons i:hover { color: white; }
+
+        /* Hamburger */
+        .navbar-toggler {
+            border: 1px solid var(--border-color);
+            color: var(--text-gray);
+            padding: 6px 10px;
+            background: #1c2128;
+            border-radius: 8px;
+        }
+        .navbar-toggler:focus { box-shadow: none; }
+        .navbar-toggler-icon { filter: invert(1); }
+
+        .mobile-search-wrapper {
+            padding: 10px 0 4px;
+            display: none;
+        }
+        .mobile-search-wrapper .search-bar { max-width: 100%; }
+
+        /* ── HERO ── */
+        .hero-section {
+            padding: clamp(40px, 8vw, 90px) 5%;
+        }
+        .hero-tagline {
+            color: var(--accent-blue);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 2.5px;
+        }
+        .hero-title {
+            font-size: clamp(2.2rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.08;
+        }
+        .hero-desc { color: var(--text-gray); max-width: 460px; line-height: 1.7; }
+        .btn-blue {
+            background: var(--accent-blue);
+            border: none;
+            padding: 12px 24px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+        .btn-blue:hover { background: #0066dd; }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            white-space: nowrap;
+        }
+        .btn-outline:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+        .hero-img-wrapper { text-align: center; }
+        .hero-img-wrapper img {
+            max-height: 460px;
+            width: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 60px rgba(0,123,255,0.18));
         }
 
-        /* Hero Section */
-        .hero-section { padding: 80px 5%; }
-        .hero-title { font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 800; line-height: 1.1; }
-        .hero-tagline { color: var(--accent-blue); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 2px; }
-        .btn-blue { background: var(--accent-blue); border: none; padding: 12px 25px; font-weight: 600; color: white; border-radius: 8px; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: white; padding: 12px 25px; border-radius: 8px; }
-        
-        /* Features */
+        /* ── FEATURES ── */
+        .section-wrap { padding: clamp(30px, 5vw, 60px) 5%; }
         .feature-card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            padding: 30px;
+            padding: clamp(20px, 3vw, 30px);
             border-radius: 12px;
             height: 100%;
+            transition: border-color 0.2s;
         }
+        .feature-card:hover { border-color: var(--accent-blue); }
         .feature-icon {
-            width: 45px;
-            height: 45px;
-            background: rgba(0, 123, 255, 0.1);
+            width: 44px;
+            height: 44px;
+            background: rgba(0,123,255,0.12);
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--accent-blue);
-            margin-bottom: 20px;
+            font-size: 1.1rem;
+            margin-bottom: 18px;
+            flex-shrink: 0;
         }
 
-        /* Summer Sale Banner */
+        /* ── SALE BANNER ── */
         .sale-banner {
-            background: linear-gradient(90deg, #0062ff, #00a2ff);
-            border-radius: 15px;
-            padding: 50px;
-            margin: 40px 5%;
+            background: linear-gradient(120deg, #0051d5 0%, #00a2ff 100%);
+            border-radius: 16px;
+            padding: clamp(28px, 5vw, 50px) clamp(24px, 5vw, 50px);
+            margin: 20px 5% 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
         }
-        .btn-white { background: white; color: var(--accent-blue); font-weight: 700; border: none; padding: 10px 25px; border-radius: 8px; }
+        .sale-left { flex: 1; min-width: 200px; }
+        .sale-right { text-align: center; flex-shrink: 0; }
+        .sale-title { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; margin: 10px 0 4px; line-height: 1.1; }
+        .sale-discount { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; }
+        .btn-white {
+            background: white;
+            color: var(--accent-blue);
+            font-weight: 700;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            transition: opacity 0.2s;
+        }
+        .btn-white:hover { opacity: 0.9; }
 
-        /* Product Cards */
+        /* ── PRODUCTS ── */
         .product-img-box {
             background: #161b22;
             border-radius: 12px;
-            padding: 30px;
-            margin-bottom: 15px;
+            padding: clamp(18px, 3vw, 30px);
+            margin-bottom: 14px;
             position: relative;
-            transition: 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
         }
-        .product-img-box:hover { transform: translateY(-5px); }
+        .product-img-box:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,123,255,0.12); }
+        .product-img-box img { max-height: 100%; max-width: 100%; object-fit: contain; }
         .badge-sale {
             position: absolute;
-            top: 15px;
-            left: 15px;
+            top: 12px;
+            left: 12px;
             background: var(--accent-blue);
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             padding: 4px 10px;
             border-radius: 4px;
             font-weight: 700;
+            letter-spacing: 0.04em;
         }
-        .price-current { font-weight: 700; color: #fff; }
-        .price-old { font-size: 0.8rem; text-decoration: line-through; color: var(--text-gray); margin-left: 8px; }
+        .product-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
+        .product-sub { font-size: 0.78rem; color: var(--text-gray); margin-bottom: 6px; }
+        .price-current { font-weight: 700; font-size: 0.95rem; }
+        .price-old { font-size: 0.78rem; text-decoration: line-through; color: var(--text-gray); margin-left: 6px; }
 
-        /* Footer */
-        footer { border-top: 1px solid var(--border-color); padding: 60px 5% 30px; margin-top: 80px; }
-        .footer-link-list { list-style: none; padding: 0; color: var(--text-gray); font-size: 0.85rem; }
-        .footer-link-list li { margin-bottom: 10px; cursor: pointer; }
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: clamp(40px, 6vw, 60px) 5% 28px;
+            margin-top: 40px;
+        }
+        .footer-link-list { list-style: none; padding: 0; color: var(--text-gray); font-size: 0.84rem; }
+        .footer-link-list li { margin-bottom: 10px; cursor: pointer; transition: color 0.15s; }
         .footer-link-list li:hover { color: white; }
+        .footer-newsletter-input {
+            background: #1c2128;
+            border: 1px solid var(--border-color);
+            color: white;
+            font-size: 0.82rem;
+            padding: 9px 14px;
+        }
+        .footer-newsletter-input:focus { border-color: var(--accent-blue); outline: none; box-shadow: none; background: #1c2128; color: white; }
+        .footer-newsletter-input::placeholder { color: var(--text-gray); }
+        .footer-bottom { font-size: 0.72rem; }
 
-        @media (max-width: 768px) {
-            .sale-banner { flex-direction: column; text-align: center; gap: 20px; }
-            .hero-title { font-size: 2.8rem; }
+        /* ═══════════════════════════════════
+           RESPONSIVE BREAKPOINTS
+        ═══════════════════════════════════ */
+
+        /* Medium screens */
+        @media (max-width: 991px) {
+            .mobile-search-wrapper { display: block; }
+            /* hide desktop search inside collapse */
+            .desktop-search { display: none !important; }
+
+            .sale-banner { flex-direction: column; text-align: center; }
+            .sale-right { width: 100%; }
+        }
+
+        /* Tablet */
+        @media (max-width: 767px) {
+            .hero-desc { max-width: 100%; }
+            .hero-img-wrapper img { max-height: 320px; margin-top: 30px; }
+            .hero-btns { flex-wrap: wrap; }
+        }
+
+        /* Small phones */
+        @media (max-width: 575px) {
+            .navbar { padding: 12px 16px; }
+            .section-wrap { padding: 28px 16px; }
+            footer { padding: 36px 16px 24px; }
+            .sale-banner { margin: 16px 16px 32px; border-radius: 12px; }
+
+            .hero-btns { gap: 10px !important; }
+            .btn-blue, .btn-outline { width: 100%; text-align: center; }
+        }
+
+        /* Very small */
+        @media (max-width: 360px) {
+            .navbar-brand { font-size: 0.85rem; }
+            .hero-title { font-size: 2rem; }
         }
     </style>
 </head>
 <body>
 
+    <!-- ── NAVBAR ── -->
     <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container-fluid p-0">
-            <a class="navbar-brand fw-bold text-white" href="#"><i class="bi bi-shield-shaded text-primary me-2"></i>HELMET HAVEN</a>
-            <div class="collapse navbar-collapse justify-content-center">
-                <ul class="navbar-nav">
+        <div class="container-fluid px-0">
+
+            <a class="navbar-brand text-white" href="#">
+                <i class="bi bi-shield-shaded text-primary me-2"></i>HELMET HAVEN
+            </a>
+
+            <!-- Right icons always visible -->
+            <div class="nav-icons ms-auto me-3 d-lg-none">
+                <a href="#" class="position-relative">
+                    <i class="bi bi-cart3"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size:0.45rem; padding:2px 5px;">2</span>
+                </a>
+                <a href="/user/profileinformation"><i class="bi bi-person"></i></a>
+                <a href="#"><i class="bi bi-heart"></i></a>
+            </div>
+
+            <button class="navbar-toggler d-lg-none me-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav mx-auto">
                     <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">About Us</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
                 </ul>
-                <input type="text" class="search-bar ms-lg-3" placeholder="Search premium helmets...">
+
+                <!-- Search inside collapse for medium screens -->
+                <div class="mobile-search-wrapper d-lg-none">
+                    <input type="text" class="search-bar" placeholder="Search premium helmets...">
+                </div>
             </div>
-            <div class="d-flex align-items-center gap-3">
-                <i class="bi bi-cart3 position-relative"><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size: 0.5rem;">2</span></i>
-                <i class="bi bi-person"></i>
-                <i class="bi bi-heart"></i>
+
+            <!-- Desktop: search + icons -->
+            <div class="desktop-search d-none d-lg-flex align-items-center gap-3 ms-3">
+                <input type="text" class="search-bar" placeholder="Search premium helmets...">
+                <div class="nav-icons">
+                    <a href="#" class="position-relative">
+                        <i class="bi bi-cart3"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size:0.45rem; padding:2px 5px;">2</span>
+                    </a>
+                    <a href="/user/profileinformation"><i class="bi bi-person"></i></a>
+                    <a href="#"><i class="bi bi-heart"></i></a>
+                </div>
             </div>
+
         </div>
     </nav>
 
+    <!-- ── HERO ── -->
     <section class="hero-section">
         <div class="row align-items-center">
-            <div class="col-lg-6">
+            <div class="col-lg-6 mb-4 mb-lg-0">
                 <span class="hero-tagline">Premium Protection</span>
                 <h1 class="hero-title mt-3 mb-4">Safety<br>Redefined</h1>
-                <p class="text-secondary mb-5" style="max-width: 480px;">Experience the pinnacle of protection with our premium, high-end motorcycle helmets designed for the modern rider. Purity in design, excellence in safety.</p>
-                <div class="d-flex gap-3">
+                <p class="hero-desc mb-4 mb-lg-5">Experience the pinnacle of protection with our premium, high-end motorcycle helmets designed for the modern rider. Purity in design, excellence in safety.</p>
+                <div class="d-flex gap-3 hero-btns">
                     <button class="btn-blue">Explore Collection</button>
                     <button class="btn-outline">Our Technology</button>
                 </div>
             </div>
-            <div class="col-lg-6 text-center mt-5 mt-lg-0">
-                <img src="/user/Image.png" alt="White Helmet" class="img-fluid" style="max-height: 500px; filter: drop-shadow(0 20px 50px rgba(0,0,0,0.5));">
+            <div class="col-lg-6 hero-img-wrapper">
+                <img src="/user/Image.png" alt="Premium Helmet">
             </div>
         </div>
     </section>
 
-    <section class="container-fluid px-5 pb-5">
+    <!-- ── WHY US ── -->
+    <section class="section-wrap">
         <h2 class="fw-bold mb-1">Why Us</h2>
-        <p class="text-secondary mb-5">Our commitment to safety and innovation is reflected in every detail.</p>
-        <div class="row g-4">
-            <div class="col-md-4">
+        <p class="text-secondary mb-4" style="font-size:0.9rem;">Our commitment to safety and innovation is reflected in every detail.</p>
+        <div class="row g-3 g-md-4">
+            <div class="col-12 col-sm-6 col-md-4">
                 <div class="feature-card">
                     <div class="feature-icon"><i class="bi bi-shield-lock"></i></div>
-                    <h5 class="fw-bold">Impact Protection</h5>
-                    <p class="text-secondary small">Advanced multi-density EPS liners for maximum energy absorption in all conditions.</p>
+                    <h5 class="fw-bold mb-2" style="font-size:1rem;">Impact Protection</h5>
+                    <p class="text-secondary mb-0" style="font-size:0.83rem; line-height:1.65;">Advanced multi-density EPS liners for maximum energy absorption in all conditions.</p>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-12 col-sm-6 col-md-4">
                 <div class="feature-card">
                     <div class="feature-icon"><i class="bi bi-wind"></i></div>
-                    <h5 class="fw-bold">Aerodynamic Design</h5>
-                    <p class="text-secondary small">Wind-tunnel tested shapes for perfect stability at high speeds and reduced wind noise.</p>
+                    <h5 class="fw-bold mb-2" style="font-size:1rem;">Aerodynamic Design</h5>
+                    <p class="text-secondary mb-0" style="font-size:0.83rem; line-height:1.65;">Wind-tunnel tested shapes for perfect stability at high speeds and reduced wind noise.</p>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-12 col-sm-6 col-md-4">
                 <div class="feature-card">
                     <div class="feature-icon"><i class="bi bi-airplane"></i></div>
-                    <h5 class="fw-bold">Ultra Lightweight</h5>
-                    <p class="text-secondary small">Carbon fiber and aerospace composites used to reduce neck fatigue during long rides.</p>
+                    <h5 class="fw-bold mb-2" style="font-size:1rem;">Ultra Lightweight</h5>
+                    <p class="text-secondary mb-0" style="font-size:0.83rem; line-height:1.65;">Carbon fiber and aerospace composites reduce neck fatigue during long rides.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="sale-banner">
-        <div>
-            <span class="badge bg-white text-primary rounded-pill px-3 py-1 fw-bold" style="font-size: 0.6rem;">LIMITED TIME OFFER</span>
-            <h2 class="display-4 fw-bold mt-3 mb-0">Summer Blast Sale</h2>
-            <p class="mb-0">Gear up for the season with our biggest discount yet.</p>
+    <!-- ── SALE BANNER ── -->
+    <div class="sale-banner">
+        <div class="sale-left">
+            <span class="badge bg-white text-primary rounded-pill px-3 py-1 fw-bold" style="font-size:0.6rem;">LIMITED TIME OFFER</span>
+            <div class="sale-title">Summer Blast Sale</div>
+            <p class="mb-0" style="font-size:0.9rem; opacity:0.88;">Gear up for the season with our biggest discount yet.</p>
         </div>
-        <div class="text-center">
-            <h2 class="display-3 fw-bold">Up to 40% <small class="fs-4">OFF</small></h2>
-            <button class="btn-white mt-2">Shop the Sale</button>
+        <div class="sale-right">
+            <div class="sale-discount">Up to 40% <span style="font-size:1.2rem; font-weight:600;">OFF</span></div>
+            <button class="btn-white">Shop the Sale</button>
         </div>
-    </section>
+    </div>
 
-    <section class="container-fluid px-5 py-5">
-        <div class="d-flex justify-content-between align-items-end mb-4">
+    <!-- ── PRODUCTS ── -->
+    <section class="section-wrap pt-0">
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
             <div>
-                <h2 class="fw-bold">Trending Now</h2>
-                <p class="text-secondary small">The most sought-after safety equipment of the season.</p>
+                <h2 class="fw-bold mb-1" style="font-size:clamp(1.2rem,3vw,1.6rem);">Trending Now</h2>
+                <p class="text-secondary mb-0" style="font-size:0.83rem;">The most sought-after safety equipment of the season.</p>
             </div>
-            <a href="#" class="text-primary text-decoration-none fw-bold small">View All <i class="bi bi-arrow-right"></i></a>
+            <a href="#" class="text-primary text-decoration-none fw-bold" style="font-size:0.83rem; white-space:nowrap;">
+                View All <i class="bi bi-arrow-right"></i>
+            </a>
         </div>
-        <div class="row g-4">
-            <div class="col-md-3">
+
+        <div class="row g-3 g-md-4">
+            <div class="col-6 col-md-3">
                 <div class="product-img-box">
                     <span class="badge-sale">20% OFF</span>
-                    <img src="/user/Image1.png" class="img-fluid" alt="Aura White">
+                    <img src="/user/Image1.png" alt="Aura White">
                 </div>
-                <h6 class="mb-1 fw-bold">Aura Carbon White</h6>
-                <p class="text-secondary small mb-2">Ultra-light carbon fiber shell</p>
+                <div class="product-name">Aura Carbon White</div>
+                <div class="product-sub">Ultra-light carbon fiber shell</div>
                 <div class="price-current">$479.20 <span class="price-old">$599.00</span></div>
             </div>
-            <div class="col-md-3">
+            <div class="col-6 col-md-3">
                 <div class="product-img-box">
                     <span class="badge-sale">15% OFF</span>
-                    <img src="/user/Image 2.png" class="img-fluid" style="filter: hue-rotate(150deg);" alt="Nebula Gloss">
+                    <img src="/user/Image 2.png" alt="Nebula Gloss" style="filter:hue-rotate(150deg);">
                 </div>
-                <h6 class="mb-1 fw-bold">Nebula Gloss</h6>
-                <p class="text-secondary small mb-2">Anti-fog dual visor included</p>
+                <div class="product-name">Nebula Gloss</div>
+                <div class="product-sub">Anti-fog dual visor included</div>
                 <div class="price-current">$382.50 <span class="price-old">$450.00</span></div>
             </div>
-            <div class="col-md-3">
+            <div class="col-6 col-md-3">
                 <div class="product-img-box">
-                    <img src="/user/Image3.png" class="img-fluid" alt="Phantom Matte">
+                    <img src="/user/Image3.png" alt="Phantom Matte">
                 </div>
-                <h6 class="mb-1 fw-bold">Phantom Matte</h6>
-                <p class="text-secondary small mb-2">Reinforced aerodynamic shell</p>
+                <div class="product-name">Phantom Matte</div>
+                <div class="product-sub">Reinforced aerodynamic shell</div>
                 <div class="price-current">$480.00</div>
             </div>
-            <div class="col-md-3">
+            <div class="col-6 col-md-3">
                 <div class="product-img-box">
                     <span class="badge-sale">30% OFF</span>
-                    <img src="/user/Image4.png" class="img-fluid" alt="Apex Racer">
+                    <img src="/user/Image4.png" alt="Apex Racer">
                 </div>
-                <h6 class="mb-1 fw-bold">Apex Racer</h6>
-                <p class="text-secondary small mb-2">Professional racing specification</p>
+                <div class="product-name">Apex Racer</div>
+                <div class="product-sub">Professional racing specification</div>
                 <div class="price-current">$434.00 <span class="price-old">$620.00</span></div>
             </div>
         </div>
     </section>
 
+    <!-- ── FOOTER ── -->
     <footer>
-        <div class="row">
-            <div class="col-lg-4 mb-4">
-                <div class="fw-bold mb-3"><i class="bi bi-shield-shaded text-primary me-2"></i>HELMET HAVEN</div>
-                <p class="text-secondary small">Designing the future of rider safety with uncompromising style and technology since 2012.</p>
+        <div class="row g-4">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="fw-bold mb-3" style="font-size:0.95rem;">
+                    <i class="bi bi-shield-shaded text-primary me-2"></i>HELMET HAVEN
+                </div>
+                <p class="text-secondary" style="font-size:0.83rem; line-height:1.7; max-width:240px;">Designing the future of rider safety with uncompromising style and technology since 2012.</p>
             </div>
-            <div class="col-6 col-lg-2 mb-4">
-                <h6 class="fw-bold mb-3 small">Shop</h6>
+            <div class="col-6 col-sm-3 col-lg-2">
+                <h6 class="fw-bold mb-3" style="font-size:0.82rem;">Shop</h6>
                 <ul class="footer-link-list">
                     <li>Street Helmets</li>
                     <li>Racing Series</li>
                     <li>Accessories</li>
                 </ul>
             </div>
-            <div class="col-6 col-lg-2 mb-4">
-                <h6 class="fw-bold mb-3 small">Company</h6>
+            <div class="col-6 col-sm-3 col-lg-2">
+                <h6 class="fw-bold mb-3" style="font-size:0.82rem;">Company</h6>
                 <ul class="footer-link-list">
                     <li>About Us</li>
                     <li>Technology</li>
                     <li>Safety Standards</li>
                 </ul>
             </div>
-            <div class="col-lg-4 mb-4">
-                <h6 class="fw-bold mb-3 small">Newsletter</h6>
-                <p class="text-secondary small">Join for updates and early access.</p>
-                <div class="input-group">
-                    <input type="text" class="form-control bg-dark border-secondary text-white small" placeholder="Email address">
-                    <button class="btn btn-primary"><i class="bi bi-send"></i></button>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <h6 class="fw-bold mb-3" style="font-size:0.82rem;">Newsletter</h6>
+                <p class="text-secondary mb-3" style="font-size:0.83rem;">Join for updates and early access.</p>
+                <div class="input-group" style="max-width:300px;">
+                    <input type="text" class="form-control footer-newsletter-input" placeholder="Email address">
+                    <button class="btn btn-primary px-3"><i class="bi bi-send"></i></button>
                 </div>
             </div>
         </div>
-        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top border-secondary">
-            <p class="text-secondary xsmall mb-0" style="font-size: 0.7rem;">&copy; 2026 Helmet Haven. All rights reserved.</p>
-            <div class="d-flex gap-3 text-secondary">
-                <i class="bi bi-globe"></i>
-                <i class="bi bi-instagram"></i>
-                <i class="bi bi-twitter-x"></i>
+
+        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top border-secondary footer-bottom flex-wrap gap-3">
+            <p class="text-secondary mb-0">&copy; 2026 Helmet Haven. All rights reserved.</p>
+            <div class="d-flex gap-3 text-secondary fs-5">
+                <i class="bi bi-globe" style="cursor:pointer;" title="Web"></i>
+                <i class="bi bi-instagram" style="cursor:pointer;" title="Instagram"></i>
+                <i class="bi bi-twitter-x" style="cursor:pointer;" title="Twitter/X"></i>
             </div>
         </div>
     </footer>
