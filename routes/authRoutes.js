@@ -38,8 +38,8 @@ router.get('/google/callback',
   }
 );
 
-router.post('/request-email-change', isUserAuth, authController.requestEmailChange);
-router.post('/verify-email-change', isUserAuth, authController.verifyEmailChange);
+// router.post('/request-email-change', isUserAuth, authController.requestEmailChange);
+// router.post('/verify-email-change', isUserAuth, authController.verifyEmailChange);
 
 
 export default router;

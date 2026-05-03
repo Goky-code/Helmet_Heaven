@@ -321,7 +321,7 @@
         </button>
         <a class="navbar-brand-text" href="#"><i class="bi bi-shield-fill"></i> Helmet Haven</a>
         <div class="nav-links">
-          <a href="#" class="nav-link-custom">Home</a>
+          <a href="/user/homepage" class="nav-link-custom">Home</a>
           <a href="#" class="nav-link-custom">About Us</a>
           <a href="#" class="nav-link-custom">Contact Us</a>
         </div>
@@ -349,7 +349,7 @@
       <a href="/user/address/addressPage" class="sidebar-item"><i class="bi bi-geo-alt"></i> Address</a>
       <a href="#" class="sidebar-item"><i class="bi bi-wallet2"></i> Wallet</a>
       <a href="#" class="sidebar-item"><i class="bi bi-scissors"></i> Coupon</a>
-      <a href="#" class="sidebar-item"><i class="bi bi-lock"></i> Password Change</a>
+      <a href="/user/passwordChange" class="sidebar-item"><i class="bi bi-lock"></i> Password Change</a>
       <div class="sidebar-divider"></div>
       <a href="/user/logout" class="sidebar-item logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
     </aside>
@@ -578,17 +578,8 @@
       statusEl.className = 'status-msg';
       statusEl.textContent = '';
 
-      /* ════════════════════════════════════════
-         REAL IMPLEMENTATION
-         POST the new email to your backend.
-         The backend should:
-           1. Generate & store the OTP against this email/session
-           2. Send the OTP email
-           3. Return { success: true }
-         Then redirect the browser to your OTP verification page.
-
-         Replace the fetch URL and redirect URL to match your routes.
-      ════════════════════════════════════════ */
+  
+      
       fetch('/user/send-email-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -601,7 +592,7 @@
           statusEl.className = 'status-msg success';
           statusEl.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>OTP sent! Redirecting…';
           setTimeout(() => {
-            window.location.href = '/user/verify-email-otp'; // ← your OTP page route
+            window.location.href = '/user/editEmailotp'; // ← your OTP page route
           }, 900);
         } else {
           sendBtn.disabled = false;
@@ -667,6 +658,40 @@
       if (cropper) { cropper.destroy(); cropper = null; }
       fileInput.value = '';
     }
+
+    
+// async function sendOtp() {
+//   const newEmail = document.getElementById("newEmailInput").value;
+
+//   if (!newEmail) {
+//     alert("Please enter email");
+//     return;
+//   }
+
+//   try {
+//     const res = await fetch("/change-email", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({ newEmail })
+//     });
+
+//     const data = await res.json();
+
+//     if (data.success) {
+//       // redirect to OTP page
+//       window.location.href = "/editEmailotp";
+//     } else {
+//       alert(data.message);
+//     }
+
+//   } catch (error) {
+//     console.log(error);
+//     alert("Something went wrong");
+//   }
+// }
+
 
   </script>
 </body>

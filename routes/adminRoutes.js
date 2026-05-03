@@ -1,7 +1,7 @@
 import express from "express"
 import * as adminController from "../controllers/adminController.js"
  import {noCache,preventLogin} from "../middlewares/adminAuth.js"
-import { isAdminAuth } from "../middlewares/isadminLogin"
+import { isAdminAuth } from "../middlewares/isadminLogin.js"
 const router=express.Router()
 
 router.get('/adminLogin',noCache,preventLogin,adminController.getLogin)

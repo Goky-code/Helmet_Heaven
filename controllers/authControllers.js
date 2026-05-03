@@ -306,54 +306,54 @@ export const resetPassword = async (req, res) => {
 };
 
 
-export const requestEmailChange = async (req, res) => {
-    try {
-        const { newEmail } = req.body;
-        const userId = req.session.user._id;
+// export const requestEmailChange = async (req, res) => {
+//     try {
+//         const { newEmail } = req.body;
+//         const userId = req.session.user._id;
 
         
-        const userExists = await User.findOne({ email: newEmail });
-        if (userExists) return res.status(400).json({ message: "This email already exists" });
+//         const userExists = await User.findOne({ email: newEmail });
+//         if (userExists) return res.status(400).json({ message: "This email already exists" });
 
        
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+//         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         
        
-        req.session.emailChangeData = {
-            newEmail,
-            otp,
-            expiresAt: Date.now() + 10 * 60 * 1000 
-        };
+//         req.session.emailChangeData = {
+//             newEmail,
+//             otp,
+//             expiresAt: Date.now() + 10 * 60 * 1000 
+//         };
 
        
-        await sendEmail(newEmail, otp); 
-        res.status(200).json({ message: "OTP send" });
-    } catch (error) {
-        res.status(500).json({ message: "Server error" });
-    }
-};
+//         await sendEmail(newEmail, otp); 
+//         res.status(200).json({ message: "OTP send" });
+//     } catch (error) {
+//         res.status(500).json({ message: "Server error" });
+//     }
+// };
 
-export const verifyEmailChange = async (req, res) => {
-    try {
-        const { otp } = req.body;
-        const sessionData = req.session.emailChangeData;
-
-        
-        if (!sessionData) return res.status(400).json({ message: "Timeout." });
-        if (Date.now() > sessionData.expiresAt) return res.status(400).json({ message: "OTP Expired" });
-        if (sessionData.otp !== otp) return res.status(400).json({ message: "wrong OTP." });
+// export const verifyEmailChange = async (req, res) => {
+//     try {
+//         const { otp } = req.body;
+//         const sessionData = req.session.emailChangeData;
 
         
-        await User.findByIdAndUpdate(req.session.user._id, { email: sessionData.newEmail });
+//         if (!sessionData) return res.status(400).json({ message: "Timeout." });
+//         if (Date.now() > sessionData.expiresAt) return res.status(400).json({ message: "OTP Expired" });
+//         if (sessionData.otp !== otp) return res.status(400).json({ message: "wrong OTP." });
 
         
-        req.session.user.email = sessionData.newEmail;
+//         await User.findByIdAndUpdate(req.session.user._id, { email: sessionData.newEmail });
+
+        
+//         req.session.user.email = sessionData.newEmail;
 
        
-        delete req.session.emailChangeData;
+//         delete req.session.emailChangeData;
 
-        res.status(200).json({ message: "email successfully changed" });
-    } catch (error) {
-        res.status(500).json({ message: "Server error" });
-    }
-};
+//         res.status(200).json({ message: "email successfully changed" });
+//     } catch (error) {
+//         res.status(500).json({ message: "Server error" });
+//     }
+// };
