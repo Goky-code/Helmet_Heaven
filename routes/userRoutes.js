@@ -26,8 +26,8 @@ router.get("/address/addressPage", userController.getAddresses)
 router.get("/addNewaddress", userController.getAddAddress);
 router.post("/addNewaddress", userController.addAddress);
 
-// router.get("/editAddress/:id", userController.getEditAddress);
-// router.post("/editAddress/:id", userController.updateAddress);
+router.get("/editAddress/:id", userController.getEditAddress);
+router.post("/editAddress/:id", userController.updateAddress);
 
 router.get("/deleteAddress/:id", userController.deleteAddress);
 router.get("/setdefault/:id", userController.setDefaultAddress);

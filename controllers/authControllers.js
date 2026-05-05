@@ -8,24 +8,33 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email || !emailRegex.test(email)) {
       return res.status(400).json({ success: false, error: 'Enter a valid email' });
     }
+
     if (!password || password.length < 6) {
       return res.status(400).json({ success: false, error: 'Minimum 6 characters required' });
     }
 
     const result = await authServices.loginUser(email, password);
+
     if (result.success) {
       req.session.user = result.user;
       return res.status(200).json({ success: true });
     } else {
-      return res.status(401).json({ success: false, error: 'Invalid email or password' });
+     
+      return res.status(401).json({
+        success: false,
+        error: result.message || 'Login failed'
+      });
     }
+
   } catch (error) {
-    return res.status(500).json({ success: false, error: 'Something went wrong. Please try again.' });
+    return res.status(500).json({
+      success: false,
+      error: 'Something went wrong. Please try again.'
+    });
   }
 };
 
@@ -77,7 +86,7 @@ export const signup = async (req, res) => {
       password,
       referalcode,
       otp,
-      otpExpiry: Date.now() + 2 * 60 * 1000,
+      otpExpiry: Date.now() + 60 * 1000,
     };
 
     
@@ -94,7 +103,6 @@ export const signup = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
-
     const signupData = req.session.signupData;
 
     if (!signupData) {
@@ -103,17 +111,23 @@ export const verifyOtp = async (req, res) => {
       });
     }
 
-   
-    if (String(signupData.otp) !== String(otp)) {
-      return res.render("user/verifyOtp", { message: "Invalid OTP" });
-    }
-
-   
+    // OTP expired check FIRST (better UX)
     if (Date.now() > signupData.otpExpiry) {
-      return res.render("user/verifyOtp", { message: "OTP expired" });
+      return res.render("user/verifyOtp", {
+        otpError: "OTP has expired. Please request a new one.",
+        newEmail: signupData.email,
+         otpExpiry: signupData.otpExpiry,
+      });
     }
 
-   
+    if (String(signupData.otp) !== String(otp)) {
+      return res.render("user/verifyOtp", {
+        otpError: "Invalid OTP. Please try again.",
+        newEmail: signupData.email,
+        otpExpiry: signupData.otpExpiry,
+      });
+    }
+
     const result = await authServices.registerUser({
       firstname: signupData.firstname,
       lastname: signupData.lastname,
@@ -126,9 +140,7 @@ export const verifyOtp = async (req, res) => {
       return res.render("user/signup", { message: result.message });
     }
 
-
     req.session.signupData = null;
-
     res.redirect("/user/login");
 
   } catch (error) {

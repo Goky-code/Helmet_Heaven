@@ -40,7 +40,13 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
+    .navbar-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     .navbar-brand-text {
       font-weight: 700;
       font-size: 18px;
@@ -49,20 +55,20 @@
       align-items: center;
       gap: 8px;
       text-decoration: none;
+      white-space: nowrap;
     }
-    .navbar-brand-text .brand-icon {
-      color: var(--accent-blue);
-      font-size: 22px;
-    }
+    .navbar-brand-text .brand-icon { color: var(--accent-blue); font-size: 22px; }
+    .navbar-links { display: flex; flex-wrap: wrap; gap: 2px; }
     .nav-link-custom {
       color: var(--text-primary);
       font-size: 14px;
       padding: 6px 14px;
       text-decoration: none;
+      white-space: nowrap;
     }
     .nav-link-custom:hover { color: var(--accent-blue); }
 
-    .search-wrapper { position: relative; }
+    .search-wrapper { position: relative; flex: 1; min-width: 180px; max-width: 320px; }
     .search-wrapper .si {
       position: absolute;
       left: 11px;
@@ -78,12 +84,13 @@
       border-radius: 20px;
       padding: 7px 16px 7px 34px;
       font-size: 13px;
-      width: 300px;
+      width: 100%;
       outline: none;
     }
     .search-input:focus { border-color: var(--accent-blue); }
     .search-input::placeholder { color: var(--text-muted); }
 
+    .navbar-right { display: flex; align-items: center; gap: 8px; }
     .icon-btn {
       background: #161b22;
       border: 1px solid var(--border-color);
@@ -98,6 +105,7 @@
       position: relative;
       cursor: pointer;
       text-decoration: none;
+      flex-shrink: 0;
     }
     .icon-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
     .badge-dot {
@@ -113,6 +121,22 @@
       border: 1px solid var(--bg-main);
     }
 
+    /* Mobile hamburger */
+    .navbar-toggle {
+      display: none;
+      background: #161b22;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 6px;
+      width: 38px;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
     /* ── LAYOUT ── */
     .page-wrapper { display: flex; flex: 1; }
 
@@ -123,6 +147,7 @@
       background: var(--bg-main);
       border-right: 1px solid var(--border-color);
       padding: 28px 0;
+      flex-shrink: 0;
     }
     .sidebar-heading {
       display: flex;
@@ -156,11 +181,22 @@
     .sidebar-item.logout { color: var(--danger-color); }
     .sidebar-item.logout:hover { background: rgba(248,81,73,0.08); }
 
+    /* Sidebar mobile drawer */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 199;
+    }
+    .sidebar-overlay.active { display: block; }
+
     /* ── MAIN ── */
     .main-content {
       flex: 1;
       padding: 28px 44px 44px;
       background: var(--bg-main);
+      min-width: 0;
     }
 
     .back-link {
@@ -173,8 +209,6 @@
       margin-bottom: 18px;
     }
     .back-link:hover { color: var(--accent-blue-hover); }
-    .back-link i { font-size: 13px; }
-
     .page-title {
       font-size: 28px;
       font-weight: 800;
@@ -204,6 +238,7 @@
       text-transform: uppercase;
       margin-bottom: 8px;
     }
+
     .form-control-custom {
       background: var(--bg-input);
       border: 1px solid var(--border-color);
@@ -216,7 +251,17 @@
       transition: border-color 0.15s;
     }
     .form-control-custom:focus { border-color: var(--accent-blue); }
-    .form-control-custom::placeholder { color: transparent; }
+    .form-control-custom::placeholder { color: var(--text-muted); }
+    .form-control-custom.is-invalid { border-color: var(--danger-color) !important; }
+
+    /* Error message */
+    .err-msg {
+      display: none;
+      color: var(--danger-color);
+      font-size: 11.5px;
+      margin-top: 5px;
+    }
+    .err-msg.visible { display: block; }
 
     /* ── CHECKBOX ── */
     .checkbox-row {
@@ -261,22 +306,26 @@
       align-items: center;
       gap: 8px;
       transition: background 0.15s;
+      white-space: nowrap;
     }
     .btn-save:hover { background: var(--accent-blue-hover); }
     .btn-save i { font-size: 15px; }
 
-    .btn-cancel {
+    .btn-cancel-addr {
       background: transparent;
-      border: 1px solid var(--border);
-      color: var(--white);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 14px;
       font-weight: 500;
-      padding:0.75rem 1.6rem;
+      padding: 13px 28px;
       cursor: pointer;
-      transition: border-color .2s, background .2s;
+      transition: border-color 0.2s, background 0.2s;
+      white-space: nowrap;
     }
-    .btn-cancel:hover { border-color: var(--body); }
+    .btn-cancel-addr:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+    .mb-form { margin-bottom: 18px; }
 
     /* ── FOOTER ── */
     footer {
@@ -300,9 +349,11 @@
       padding: 8px 12px;
       outline: none;
       flex: 1;
+      min-width: 0;
     }
     .footer-input:focus { border-color: var(--accent-blue); }
     .footer-input::placeholder { color: var(--text-muted); }
+    .footer-input.input-error { border-color: var(--danger-color); }
     .btn-join {
       background: var(--accent-blue);
       color: #fff;
@@ -312,6 +363,7 @@
       font-size: 13px;
       font-weight: 600;
       cursor: pointer;
+      white-space: nowrap;
     }
     .btn-join:hover { background: var(--accent-blue-hover); }
     .footer-bottom {
@@ -321,23 +373,111 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .footer-bottom-text { color: var(--text-muted); font-size: 12px; }
     .footer-bottom-link { color: var(--text-muted); font-size: 12px; text-decoration: none; }
     .footer-bottom-link:hover { color: var(--text-primary); }
 
-    .mb-form { margin-bottom: 18px; }
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast-msg {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 18px;
+      color: var(--text-primary);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+      min-width: 240px;
+    }
+    .toast-msg.error { border-left: 3px solid var(--danger-color); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to   { transform: translateX(0);   opacity: 1; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 991px) {
+      .navbar-links { display: none; }
+      .navbar-toggle { display: flex; }
+      .search-wrapper { max-width: 100%; }
+
+      .sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100vh;
+        z-index: 200;
+        transition: left 0.25s ease;
+        overflow-y: auto;
+        padding-top: 60px;
+        width: 248px;
+      }
+      .sidebar.open { left: 0; }
+
+      .main-content { padding: 24px 20px 36px; }
+      .form-card { padding: 24px 20px 28px; }
+      footer { padding: 36px 20px 16px; }
+      .page-title { font-size: 22px; }
+    }
+
+    @media (max-width: 767px) {
+      .navbar-custom { padding: 10px 14px; }
+      .search-wrapper { order: 3; flex-basis: 100%; max-width: 100%; }
+
+      .main-content { padding: 18px 14px 32px; }
+      .form-card { padding: 20px 16px 24px; }
+
+      /* Stack city/state and zip/phone to full width on small screens */
+      .row.g-3 .col-6 { flex: 0 0 100%; max-width: 100%; }
+
+      footer { padding: 28px 14px 14px; }
+      .footer-desc { max-width: 100%; }
+
+      .d-flex.gap-3.btn-row { flex-direction: column; }
+      .btn-save, .btn-cancel-addr { width: 100%; justify-content: center; }
+
+      .newsletter-wrap { flex-direction: column; }
+      .footer-input { border-radius: 6px 6px 0 0; }
+      .btn-join { border-radius: 0 0 6px 6px; width: 100%; }
+    }
+
+    @media (max-width: 480px) {
+      .page-title { font-size: 19px; }
+    }
   </style>
 </head>
 <body>
 
+  <!-- Toast container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
   <!-- ── NAVBAR ── -->
   <nav class="navbar-custom">
-    <div class="d-flex align-items-center gap-4">
+    <div class="navbar-left">
+      <button class="navbar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+        <i class="bi bi-list"></i>
+      </button>
       <a class="navbar-brand-text" href="#">
         <i class="bi bi-arrow-repeat brand-icon"></i> Helmet Haven
       </a>
-      <div class="d-flex">
+      <div class="navbar-links">
         <a href="#" class="nav-link-custom">Home</a>
         <a href="#" class="nav-link-custom">About Us</a>
         <a href="#" class="nav-link-custom">Contact Us</a>
@@ -349,13 +489,13 @@
       <input type="text" class="search-input" placeholder="Search premium helmets..."/>
     </div>
 
-    <div class="d-flex align-items-center gap-2">
-      <a href="#" class="icon-btn">
+    <div class="navbar-right">
+      <a href="#" class="icon-btn" aria-label="Cart">
         <i class="bi bi-cart3"></i>
         <span class="badge-dot">2</span>
       </a>
-      <a href="#" class="icon-btn"><i class="bi bi-suit-heart"></i></a>
-      <a href="#" class="icon-btn"><i class="bi bi-person-fill"></i></a>
+      <a href="#" class="icon-btn" aria-label="Wishlist"><i class="bi bi-suit-heart"></i></a>
+      <a href="#" class="icon-btn" aria-label="Profile"><i class="bi bi-person-fill"></i></a>
     </div>
   </nav>
 
@@ -363,7 +503,7 @@
   <div class="page-wrapper">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-heading">
         <i class="bi bi-person-circle"></i> My Account
       </div>
@@ -380,8 +520,7 @@
     <!-- MAIN -->
     <main class="main-content">
 
-      <!-- Back Link -->
-      <a href="/user/addressPage" class="back-link">
+      <a href="/user/address/addressPage" class="back-link">
         <i class="bi bi-arrow-left"></i> Back to Addresses
       </a>
 
@@ -390,71 +529,89 @@
 
       <!-- Form Card -->
       <div class="form-card">
-    <form action="/user/addNewaddress" method="POST">
-        <!-- Recipient Name -->
-        <div class="mb-form">
-          <label class="field-label">Recipient Name</label>
-          <input type="text" name="name" class="form-control-custom"/>
-        </div>
+        <form action="/user/addNewaddress" method="POST" id="addressForm" novalidate>
 
-        <!-- Street Address -->
-        <div class="mb-form">
-          <label class="field-label">Street Address</label>
-          <input type="text" name="street" class="form-control-custom"/>
-        </div>
-
-        <!-- Apartment / Suite (Optional) -->
-        <div class="mb-form">
-          <label class="field-label">Apartment/Suite (Optional)</label>
-          <input type="text" name="apartment" class="form-control-custom"/>
-        </div>
-
-        <!-- City + State/Province -->
-        <div class="row g-3 mb-form">
-          <div class="col-6">
-            <label class="field-label">City</label>
-            <input type="text" name="city" class="form-control-custom"/>
+          <!-- Recipient Name -->
+          <div class="mb-form">
+            <label class="field-label" for="name">Recipient Name</label>
+            <input type="text" name="name" id="name"
+                   class="form-control-custom" placeholder="e.g. John Doe"
+                   oninput="clearErr('name')"/>
+            <span class="err-msg" id="err-name"></span>
           </div>
-          <div class="col-6">
-            <label class="field-label">State/Province</label>
-            <input type="text" name="state" class="form-control-custom"/>
-          </div>
-        </div>
 
-        <!-- ZIP + Phone -->
-        <div class="row g-3">
-          <div class="col-6">
-            <label class="field-label">Zip/Postal Code</label>
-            <input type="text" name="zip" class="form-control-custom"/>
+          <!-- Street Address -->
+          <div class="mb-form">
+            <label class="field-label" for="street">Street Address</label>
+            <input type="text" name="street" id="street"
+                   class="form-control-custom" placeholder="e.g. 123 Main Street"
+                   oninput="clearErr('street')"/>
+            <span class="err-msg" id="err-street"></span>
           </div>
-          <div class="col-6">
-            <label class="field-label">Phone Number</label>
-            <input type="tel" name="phone" class="form-control-custom"/>
+
+          <!-- Apartment / Suite (Optional) -->
+          <div class="mb-form">
+            <label class="field-label" for="apartment">Apartment / Suite (Optional)</label>
+            <input type="text" name="apartment" id="apartment"
+                   class="form-control-custom" placeholder="e.g. Apt 4B"/>
           </div>
-        </div>
 
-        <!-- Set as Primary -->
-        <div class="checkbox-row">
-  <input type="checkbox" class="custom-checkbox" id="primaryCheck" name="isDefault"/>
-  
-  
-  <label class="checkbox-label" for="primaryCheck">
-    Set as Default Address
-  </label>
-</div>
+          <!-- City + State/Province -->
+          <div class="row g-3 mb-form">
+            <div class="col-6">
+              <label class="field-label" for="city">City</label>
+              <input type="text" name="city" id="city"
+                     class="form-control-custom" placeholder="e.g. Mumbai"
+                     oninput="clearErr('city')"/>
+              <span class="err-msg" id="err-city"></span>
+            </div>
+            <div class="col-6">
+              <label class="field-label" for="state">State / Province</label>
+              <input type="text" name="state" id="state"
+                     class="form-control-custom" placeholder="e.g. Maharashtra"
+                     oninput="clearErr('state')"/>
+              <span class="err-msg" id="err-state"></span>
+            </div>
+          </div>
 
-        <!-- Action Buttons -->
-        <div class="d-flex gap-3">
-          <button type="submit" class="btn-save">
-            <i class="bi bi-floppy"></i> Save Address
-          </button>
-          <button type="button" class="btn-cancel-addr"
-           onclick="window.location.href='/user/addressPage'">
+          <!-- ZIP + Phone -->
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="field-label" for="zip">Zip / Postal Code</label>
+              <input type="text" name="zip" id="zip"
+                     class="form-control-custom" placeholder="e.g. 400001"
+                     maxlength="10"
+                     oninput="clearErr('zip'); this.value=this.value.replace(/[^0-9]/g,'')"/>
+              <span class="err-msg" id="err-zip"></span>
+            </div>
+            <div class="col-6">
+              <label class="field-label" for="phone">Phone Number</label>
+              <input type="tel" name="phone" id="phone"
+                     class="form-control-custom" placeholder="e.g. 9876543210"
+                     maxlength="15"
+                     oninput="clearErr('phone'); this.value=this.value.replace(/[^0-9+\-\s]/g,'')"/>
+              <span class="err-msg" id="err-phone"></span>
+            </div>
+          </div>
+
+          <!-- Set as Default -->
+          <div class="checkbox-row">
+            <input type="checkbox" class="custom-checkbox" id="primaryCheck" name="isDefault"/>
+            <label class="checkbox-label" for="primaryCheck">Set as Default Address</label>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-flex gap-3 btn-row">
+            <button type="submit" class="btn-save">
+              <i class="bi bi-floppy"></i> Save Address
+            </button>
+            <button type="button" class="btn-cancel-addr"
+                    onclick="window.location.href='/user/addressPage'">
               Cancel
-             </button>
-             </form>
-        </div>
+            </button>
+          </div>
 
+        </form>
       </div>
     </main>
   </div>
@@ -462,14 +619,14 @@
   <!-- ── FOOTER ── -->
   <footer>
     <div class="row g-4">
-      <div class="col-lg-3">
+      <div class="col-lg-3 col-sm-6 col-12">
         <div class="footer-brand">
           <i class="bi bi-arrow-repeat"></i> Helmet Haven
         </div>
         <p class="footer-desc">The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
       </div>
 
-      <div class="col-lg-2 offset-lg-1">
+      <div class="col-lg-2 col-sm-6 col-6 offset-lg-1">
         <p class="footer-heading">Shop</p>
         <a href="#" class="footer-link">Full Face</a>
         <a href="#" class="footer-link">Off-Road</a>
@@ -477,7 +634,7 @@
         <a href="#" class="footer-link">Accessories</a>
       </div>
 
-      <div class="col-lg-2">
+      <div class="col-lg-2 col-sm-6 col-6">
         <p class="footer-heading">Support</p>
         <a href="#" class="footer-link">Shipping Policy</a>
         <a href="#" class="footer-link">Return &amp; Exchange</a>
@@ -485,19 +642,20 @@
         <a href="#" class="footer-link">FAQ</a>
       </div>
 
-      <div class="col-lg-3">
+      <div class="col-lg-3 col-sm-6 col-12">
         <p class="footer-heading">Newsletter</p>
         <p class="newsletter-desc">Get early access to drops and exclusive offers.</p>
-        <div class="d-flex">
-          <input type="email" class="footer-input" placeholder="Email address"/>
-          <button class="btn-join">Join</button>
+        <div class="d-flex newsletter-wrap">
+          <input type="email" class="footer-input" id="newsletterEmail" placeholder="Email address"/>
+          <button class="btn-join" onclick="handleNewsletter()">Join</button>
         </div>
+        <small id="newsletterError" style="color:var(--danger-color);font-size:11px;display:none;margin-top:5px;"></small>
       </div>
     </div>
 
     <div class="footer-bottom">
       <span class="footer-bottom-text">© 2024 Helmet Haven. All rights reserved.</span>
-      <div class="d-flex gap-3">
+      <div class="d-flex gap-3 flex-wrap">
         <a href="#" class="footer-bottom-link">Privacy Policy</a>
         <a href="#" class="footer-bottom-link">Terms of Service</a>
       </div>
@@ -505,5 +663,146 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    /* ── SIDEBAR ── */
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('active');
+    }
+
+    /* ── TOAST ── */
+    function showToast(message, type = 'error') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast-msg ${type}`;
+      t.innerHTML = `<i class="bi bi-exclamation-circle-fill" style="color:var(--danger-color);font-size:16px;"></i> ${message}`;
+      c.appendChild(t);
+      setTimeout(() => {
+        t.style.transition = 'opacity 0.4s';
+        t.style.opacity = '0';
+        setTimeout(() => t.remove(), 400);
+      }, 3500);
+    }
+
+    /* ── FIELD HELPERS ── */
+    function setErr(id, msg) {
+      const el = document.getElementById(id);
+      const err = document.getElementById('err-' + id);
+      if (el) el.classList.add('is-invalid');
+      if (err) { err.textContent = msg; err.classList.add('visible'); }
+    }
+    function clearErr(id) {
+      const el = document.getElementById(id);
+      const err = document.getElementById('err-' + id);
+      if (el) el.classList.remove('is-invalid');
+      if (err) { err.textContent = ''; err.classList.remove('visible'); }
+    }
+
+    /* ── FORM VALIDATION ── */
+    document.getElementById('addressForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      let valid = true;
+
+      const name  = document.getElementById('name').value.trim();
+      const street = document.getElementById('street').value.trim();
+      const city   = document.getElementById('city').value.trim();
+      const state  = document.getElementById('state').value.trim();
+      const zip    = document.getElementById('zip').value.trim();
+      const phone  = document.getElementById('phone').value.trim();
+
+      // Name
+      if (!name) {
+        setErr('name', 'Recipient name is required.'); valid = false;
+      } else if (name.length < 2) {
+        setErr('name', 'Name must be at least 2 characters.'); valid = false;
+      } else if (!/^[a-zA-Z\s.'-]+$/.test(name)) {
+        setErr('name', 'Name can only contain letters and spaces.'); valid = false;
+      }
+
+      // Street
+      if (!street) {
+        setErr('street', 'Street address is required.'); valid = false;
+      } else if (street.length < 5) {
+        setErr('street', 'Please enter a complete street address.'); valid = false;
+      }
+
+      // City
+      if (!city) {
+        setErr('city', 'City is required.'); valid = false;
+      } else if (!/^[a-zA-Z\s\-]+$/.test(city)) {
+        setErr('city', 'City name is not valid.'); valid = false;
+      }
+
+      // State
+      if (!state) {
+        setErr('state', 'State is required.'); valid = false;
+      } else if (!/^[a-zA-Z\s\-]+$/.test(state)) {
+        setErr('state', 'State name is not valid.'); valid = false;
+      }
+
+      // ZIP — 4 to 10 digits
+      if (!zip) {
+        setErr('zip', 'Zip/Postal code is required.'); valid = false;
+      } else if (!/^\d{4,10}$/.test(zip)) {
+        setErr('zip', 'Enter a valid zip code (4–10 digits).'); valid = false;
+      }
+
+      // Phone — 7 to 15 digits (allows leading +)
+      const digitsOnly = phone.replace(/[\s\-]/g, '');
+      if (!phone) {
+        setErr('phone', 'Phone number is required.'); valid = false;
+      } else if (!/^\+?\d{7,15}$/.test(digitsOnly)) {
+        setErr('phone', 'Enter a valid phone number (7–15 digits).'); valid = false;
+      }
+
+      if (!valid) {
+        // Scroll to first error
+        const firstErr = document.querySelector('.form-control-custom.is-invalid');
+        if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
+      // All valid — submit the form
+      this.submit();
+    });
+
+    /* ── NEWSLETTER ── */
+    function handleNewsletter() {
+      const input = document.getElementById('newsletterEmail');
+      const errEl = document.getElementById('newsletterError');
+      const val   = input.value.trim();
+      const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      input.classList.remove('input-error');
+      errEl.style.display = 'none';
+
+      if (!val) {
+        input.classList.add('input-error');
+        errEl.textContent = 'Please enter your email address.';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (!emailRe.test(val)) {
+        input.classList.add('input-error');
+        errEl.textContent = 'Please enter a valid email address.';
+        errEl.style.display = 'block';
+        return;
+      }
+      input.value = '';
+      // Show brief inline confirmation
+      errEl.style.color = '#3fb950';
+      errEl.textContent = '✓ Subscribed successfully!';
+      errEl.style.display = 'block';
+      setTimeout(() => { errEl.style.display = 'none'; errEl.style.color = 'var(--danger-color)'; }, 3000);
+    }
+
+    document.getElementById('newsletterEmail').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleNewsletter();
+    });
+  </script>
 </body>
 </html>

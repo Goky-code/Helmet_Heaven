@@ -8,18 +8,29 @@ export const getLogin = (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
-  
-  if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
-    
-    req.session.admin = true;
-     console.log("sucess")
-    return res.redirect("/admin/adminDashboard");
+  // Check if fields are empty
+  if (!email || !password) {
+    return res.render("admin/adminLogin", { error: "Email and password are required" });
   }
 
-  res.render("admin/adminLogin", { error: "Invalid credentials" });
+  // Check email first
+  if (email !== process.env.ADMIN_EMAIL) {
+    return res.render("admin/adminLogin", { error: "Invalid email address" });
+  }
+
+  // Then check password
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.render("admin/adminLogin", { error: "Invalid password" });
+  }
+
+  // Both correct
+  req.session.admin = true;
+  console.log("success");
+  return res.redirect("/admin/adminDashboard");
 };
 
 export const getDashboard = (req, res) => {
+  console.log("Session:", req.session.admin);
   if (!req.session.admin) {
     return res.redirect("/admin/adminLogin");
   }
@@ -33,7 +44,7 @@ export const logout = (req, res) => {
       console.error('logout error',err)
       return res.redirect('/admin/adminDashboard')
     }
-    res.clearCookie('coonect.sid')
+    res.clearCookie('connect.sid')
  
   res.redirect("/admin/adminLogin");
    })
@@ -41,33 +52,98 @@ export const logout = (req, res) => {
 
 export const listCustomers = async (req, res) => {
   try {
-    await User.updateMany(
-      { isBlocked: { $exists: false } },
-      { $set: { isBlocked: false } }
-    );
+    const page   = parseInt(req.query.page) || 1;
+    const limit  = 5;
+    const search = req.query.search || '';
+    const status = req.query.status || '';
+    const conditions = [];
 
-    const customers = await User.find({ authType: "local" });
-    res.render('admin/adminCustomer', { customers });
-  } catch (error) {
-    res.status(500).send('error fetching customers');
-  }
-};
+    if (status === 'active')  conditions.push({ isBlocked: false });
+    if (status === 'blocked') conditions.push({ isBlocked: true });
 
-export const toggleBlockCustomer = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findByIdAndUpdate(
-      id,
-      [{ $set: { isBlocked: { $not: "$isBlocked" } } }],
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).send('User not found');
+    if (search) {
+      conditions.push({
+        $or: [
+          { firstName: { $regex: search, $options: 'i' } },
+          { lastName:  { $regex: search, $options: 'i' } },
+          { email:     { $regex: search, $options: 'i' } },
+          { phone:     { $regex: search, $options: 'i' } },
+        ]
+      });
     }
 
-    res.redirect("/admin/adminCustomer");
+    const filter = conditions.length > 0 ? { $and: conditions } : {};
+
+    const totalUsers = await User.countDocuments(filter);
+    
+    const users = await User.find(filter)
+                            .skip((page - 1) * limit)
+                            .limit(limit);
+
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    res.render("admin/adminCustomer", {
+      users,
+      currentPage: page,
+      totalPages,
+      totalUsers,
+      status,
+      search
+    });
+
   } catch (error) {
-    res.status(500).send('Error updating user status');
+    console.log(error);
+    res.status(500).send("Server Error");
   }
 };
+
+export const toggleBlockUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    const user = await User.findById(userId);
+
+    user.isBlocked = !user.isBlocked;
+
+    await user.save();
+
+    res.redirect('/admin/adminCustomer');
+
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// export const loadCustomers = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = 5;
+
+//     let filter = {};
+
+//     if (req.query.status === 'active') {
+//       filter.isBlocked = false;
+//     }
+
+//     if (req.query.status === 'blocked') {
+//       filter.isBlocked = true;
+//     }
+
+//     const totalUsers = await User.countDocuments(filter);
+
+//     const users = await User.find(filter)
+//       .skip((page - 1) * limit)
+//       .limit(limit);
+
+//     const totalPages = Math.ceil(totalUsers / limit);
+
+//     res.render('adminCustomer', {
+//       users,
+//       currentPage: page,
+//       totalPages
+//     });
+
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };

@@ -329,9 +329,11 @@
         </div>
 
         <!-- Inline validation message -->
-        <div class="otp-msg info" id="otpMsg">
-          <i class="bi bi-info-circle" style="font-size:0.72rem;"></i>
-          Enter the 6-digit code from your email
+        <div class="otp-msg <%= typeof otpError !== 'undefined' && otpError ? 'error' : 'info' %>"id="otpMsg">
+          <i class="bi bi-<%= typeof otpError !== 'undefined' && otpError ? 'exclamation-circle-fill' : 'info-circle' %>"  style="font-size:0.72rem;"></i>
+        <%= typeof otpError !== 'undefined' && otpError 
+      ? otpError 
+      : 'Enter the 6-digit code from your email' %>
         </div>
 
         <button type="submit" class="btn-verify" id="btnVerify">
@@ -368,169 +370,164 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
+<script>
 
-    const boxes     = Array.from(document.querySelectorAll('.otp-box'));
-    const finalOtp  = document.getElementById('finalOtp');
-    const otpForm   = document.getElementById('otpForm');
-    const otpMsg    = document.getElementById('otpMsg');
-    const btnVerify = document.getElementById('btnVerify');
-    const resendBtn = document.getElementById('resendBtn');
-    const minsEl    = document.getElementById('mins');
-    const secsEl    = document.getElementById('secs');
+  const boxes     = Array.from(document.querySelectorAll('.otp-box'));
+  const finalOtp  = document.getElementById('finalOtp');
+  const otpForm   = document.getElementById('otpForm');
+  const otpMsg    = document.getElementById('otpMsg');
+  const btnVerify = document.getElementById('btnVerify');
+  const resendBtn = document.getElementById('resendBtn');
+  const minsEl    = document.getElementById('mins');
+  const secsEl    = document.getElementById('secs');
 
-    /* ── Helpers ── */
-    function setMsg(text, type = 'info', icon = 'info-circle') {
-      otpMsg.className = `otp-msg ${type}`;
-      otpMsg.innerHTML = `<i class="bi bi-${icon}" style="font-size:0.72rem;"></i> ${text}`;
-    }
-    function clearBoxStates(cls) {
-      boxes.forEach(b => b.classList.remove(cls));
-    }
-    function getCode() {
-      return boxes.map(b => b.value).join('');
-    }
-    function isFull() {
-      return boxes.every(b => b.value !== '');
-    }
+  /* ── Helpers ── */
+  function setMsg(text, type = 'info', icon = 'info-circle') {
+    otpMsg.className = `otp-msg ${type}`;
+    otpMsg.innerHTML = `<i class="bi bi-${icon}" style="font-size:0.72rem;"></i> ${text}`;
+  }
+  function clearBoxStates(cls) {
+    boxes.forEach(b => b.classList.remove(cls));
+  }
+  function getCode() {
+    return boxes.map(b => b.value).join('');
+  }
+  function isFull() {
+    return boxes.every(b => b.value !== '');
+  }
 
-    /* ── Input: digits only, auto-advance ── */
-    boxes.forEach((box, i) => {
-      box.addEventListener('input', () => {
-        // Strip non-digits
-        box.value = box.value.replace(/\D/g, '').slice(-1);
-        box.classList.toggle('filled', !!box.value);
+  /* ── Input: digits only, auto-advance ── */
+  boxes.forEach((box, i) => {
+    box.addEventListener('input', () => {
+      box.value = box.value.replace(/\D/g, '').slice(-1);
+      box.classList.toggle('filled', !!box.value);
+      clearBoxStates('otp-error');
+      if (isFull()) {
+        setMsg('Code complete — click Verify to continue', 'info', 'check-circle');
+      } else {
+        setMsg('Enter the 6-digit code from your email', 'info', 'info-circle');
+      }
+      if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
+    });
 
-        // Clear any error state as user types
+    box.addEventListener('keydown', e => {
+      if (e.key === 'Backspace') {
+        if (!box.value && i > 0) {
+          boxes[i - 1].value = '';
+          boxes[i - 1].classList.remove('filled');
+          boxes[i - 1].focus();
+        }
+        box.classList.remove('filled');
+      }
+      if (!/^\d$/.test(e.key) && !['Backspace','Tab','ArrowLeft','ArrowRight','Delete'].includes(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    box.addEventListener('focus', () => box.select());
+  });
+
+  /* ── Paste ── */
+  document.getElementById('otpInputs').addEventListener('paste', e => {
+    e.preventDefault();
+    const pasted = (e.clipboardData || window.clipboardData)
+      .getData('text').replace(/\D/g, '').slice(0, 6);
+    if (!pasted) return;
+    pasted.split('').forEach((ch, i) => {
+      if (boxes[i]) {
+        boxes[i].value = ch;
+        boxes[i].classList.add('filled');
         clearBoxStates('otp-error');
-        if (isFull()) {
-          setMsg('Code complete — click Verify to continue', 'info', 'check-circle');
-        } else {
-          setMsg('Enter the 6-digit code from your email', 'info', 'info-circle');
-        }
-
-        // Auto-advance
-        if (box.value && i < boxes.length - 1) boxes[i + 1].focus();
-      });
-
-      box.addEventListener('keydown', e => {
-        if (e.key === 'Backspace') {
-          if (!box.value && i > 0) {
-            boxes[i - 1].value = '';
-            boxes[i - 1].classList.remove('filled');
-            boxes[i - 1].focus();
-          }
-          box.classList.remove('filled');
-        }
-        // Allow only digits and control keys
-        if (!/^\d$/.test(e.key) && !['Backspace','Tab','ArrowLeft','ArrowRight','Delete'].includes(e.key)) {
-          e.preventDefault();
-        }
-      });
-
-      // Select all on focus for easy overwrite
-      box.addEventListener('focus', () => box.select());
+      }
     });
+    const next = boxes[pasted.length] || boxes[boxes.length - 1];
+    next.focus();
+    if (isFull()) setMsg('Code complete — click Verify to continue', 'info', 'check-circle');
+  });
 
-    /* ── Paste: fill all boxes at once ── */
-    document.getElementById('otpInputs').addEventListener('paste', e => {
+  /* ── Form submit ── */
+  otpForm.addEventListener('submit', (e) => {
+    const code = getCode();
+
+    if (code.length < 6 || !isFull()) {
       e.preventDefault();
-      const pasted = (e.clipboardData || window.clipboardData)
-        .getData('text').replace(/\D/g, '').slice(0, 6);
-      if (!pasted) return;
-      pasted.split('').forEach((ch, i) => {
-        if (boxes[i]) {
-          boxes[i].value = ch;
-          boxes[i].classList.add('filled');
-          clearBoxStates('otp-error');
-        }
-      });
-      const next = boxes[pasted.length] || boxes[boxes.length - 1];
-      next.focus();
-      if (isFull()) setMsg('Code complete — click Verify to continue', 'info', 'check-circle');
-    });
-
-   
-   /* ── Form submit validation ── */
-otpForm.addEventListener('submit', (e) => {
-  console.log("FORM SUBMIT TRIGGERED");
-
-  const code = getCode();
-
-  // Guard: all 6 filled
-  if (code.length < 6 || !isFull()) {
-    e.preventDefault();
-    boxes.forEach(b => { if (!b.value) b.classList.add('otp-error'); });
-    setMsg('Please fill in all 6 digits', 'error', 'exclamation-circle-fill');
-    const first = boxes.find(b => !b.value);
-    if (first) first.focus();
-    return;
-  }
-
-  // Guard: digits only
-  if (!/^\d{6}$/.test(code)) {
-    e.preventDefault();
-    boxes.forEach(b => b.classList.add('otp-error'));
-    setMsg('Only numbers are allowed', 'error', 'exclamation-circle-fill');
-    return;
-  }
-
-  // ✅ SET OTP VALUE
-  document.getElementById("finalOtp").value = code;
-
-  console.log("Submitting OTP:", code);
-
-  // ⚠️ IMPORTANT: DO NOT block submit
-  // ⚠️ REMOVE immediate disable
-
-  // OPTIONAL: delay UI change (safe)
-  setTimeout(() => {
-    btnVerify.disabled = true;
-    btnVerify.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying…';
-  }, 50);
-});
-
-    /* ── Countdown timer ── */
-    let total = 60;
-    let timerInterval;
-
-    function startTimer() {
-      clearInterval(timerInterval);
-      total = 60;
-      resendBtn.classList.add('disabled');
-      minsEl.textContent = '01';
-      secsEl.textContent = '00';
-
-      timerInterval = setInterval(() => {
-        total--;
-        if (total <= 0) {
-          clearInterval(timerInterval);
-          resendBtn.classList.remove('disabled');
-          minsEl.textContent = '00';
-          secsEl.textContent = '00';
-          return;
-        }
-        minsEl.textContent = String(Math.floor(total / 60)).padStart(2, '0');
-        secsEl.textContent = String(total % 60).padStart(2, '0');
-      }, 1000);
+      boxes.forEach(b => { if (!b.value) b.classList.add('otp-error'); });
+      setMsg('Please fill in all 6 digits', 'error', 'exclamation-circle-fill');
+      const first = boxes.find(b => !b.value);
+      if (first) first.focus();
+      return;
     }
 
-    startTimer();
+    if (!/^\d{6}$/.test(code)) {
+      e.preventDefault();
+      boxes.forEach(b => b.classList.add('otp-error'));
+      setMsg('Only numbers are allowed', 'error', 'exclamation-circle-fill');
+      return;
+    }
 
-    /* ── Resend ── */
-    resendBtn.addEventListener('click', e => {
-      if (resendBtn.classList.contains('disabled')) { e.preventDefault(); return; }
-      // Clear boxes and restart
-      boxes.forEach(b => { b.value = ''; b.classList.remove('filled', 'otp-error', 'otp-success'); });
-      boxes[0].focus();
-      setMsg('A new code has been sent to your email', 'success', 'check-circle-fill');
-      startTimer();
-      // Let the default href navigate for the actual resend request
-    });
+    document.getElementById("finalOtp").value = code;
 
-    /* ── Auto-focus first box on load ── */
-    boxes[0].focus();
+    setTimeout(() => {
+      btnVerify.disabled = true;
+      btnVerify.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying…';
+    }, 50);
+  });
 
-  </script>
+  /* ── Countdown timer ── */
+  let timerInterval;
+
+  // ✅ FIX 1: startTimer now accepts seconds parameter
+  function startTimer(seconds) {
+    clearInterval(timerInterval);
+    let total = seconds;
+
+    resendBtn.classList.add('disabled');
+    minsEl.textContent = String(Math.floor(total / 60)).padStart(2, '0');
+    secsEl.textContent = String(total % 60).padStart(2, '0');
+
+    timerInterval = setInterval(() => {
+      total--;
+      if (total <= 0) {
+        clearInterval(timerInterval);
+        resendBtn.classList.remove('disabled');
+        minsEl.textContent = '00';
+        secsEl.textContent = '00';
+        return;
+      }
+      minsEl.textContent = String(Math.floor(total / 60)).padStart(2, '0');
+      secsEl.textContent = String(total % 60).padStart(2, '0');
+    }, 1000);
+  }
+
+  /* ── Startup ── */
+
+  // ✅ FIX 2: otpExpiry as a NUMBER not a string (no backticks)
+  const serverError = `<%= typeof otpError !== 'undefined' ? otpError : '' %>`;
+  const otpExpiry   = `<%= typeof otpExpiry !== 'undefined' ? otpExpiry : 'null' %>`;
+
+  // ✅ FIX 3: calculate real remaining seconds from expiry timestamp
+  let remainingSeconds;
+  if (otpExpiry) {
+    remainingSeconds = Math.max(0, Math.floor((otpExpiry - Date.now()) / 1000));
+  } else {
+    remainingSeconds = 60; // fresh visit
+  }
+
+  // ✅ FIX 4: only ONE startTimer call
+  startTimer(remainingSeconds);
+
+  // Show error state on boxes if server returned error
+  if (serverError) {
+    boxes.forEach(b => b.classList.add('otp-error'));
+  }
+
+  // If already expired on page load, unlock resend immediately
+  if (remainingSeconds <= 0) {
+    resendBtn.classList.remove('disabled');
+  }
+
+  setTimeout(() => boxes[0].focus(), 100);
+
+</script>
 </body>
 </html>
