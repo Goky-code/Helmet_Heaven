@@ -18,7 +18,7 @@ const connectDB = async () => {
     const conn = await mongoose.connect(MONGO_URI);
   
     console.log(`MongoDB Connected: ${conn.connection.host}`);
-    // console.log(conn.connection)
+    
     return conn;
   } catch (error) {
     console.error(`Error: ${error.message}`);
@@ -26,8 +26,7 @@ const connectDB = async () => {
   }
 };
 
-// Handle MongoDB connection errors after initial connection
-// monitor the db status in real time in the terminal 
+
 mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error:', err);
 });

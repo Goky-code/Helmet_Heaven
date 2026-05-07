@@ -1,42 +1,50 @@
-import express from "express";
+
 import dotenv from "dotenv"
+dotenv.config()
+import express from "express";
 import connectDB from "./config/db.js"
 import session from "express-session"
 import passport from "./config/passport.js";
 import path from 'path';
 import { fileURLToPath } from "url"
 import adminRoutes from "./routes/adminRoutes.js";
+import userRoutes from "./routes/userRoutes.js"
+import authRoutes from "./routes/authRoutes.js"
+
 
 const app = express();
 
-import userRoutes from "./routes/userRoutes.js"
-import authRoutes from "./routes/authRoutes.js"
 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
- dotenv.config()
-
+ 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
 app.use(
   session({
-    secret: "mysecret",
+    secret: process.env.SESSION_SECRET || "mysecret",
     resave: false,
-    saveUninitialized: true,
-    
+    saveUninitialized: false, // ← changed from true
+    cookie: {
+      secure: false,        // set true only if using HTTPS
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 // 24 hours
+    }
   })
 )
 app.use(passport.initialize());
+
+// console.log("Client ID:", process.env.GOOGLE_CLIENT_ID);
+// console.log("Client Secret:", process.env.GOOGLE_CLIENT_SECRET);
+
 app.use(passport.session());
 app.use(express.static(path.join(__dirname,'public')));
 app.set("view engine", "ejs");                                       
 app.set("views", "views");
-
-
-
 
 
 app.use("/user",userRoutes);

@@ -1,6 +1,6 @@
 import User from "../models/userModels.js"
 import bcrypt from "bcryptjs"
-import generateOTP from "../utils/generateOtp.js";
+
 
 const loginUser = async (email, password) => {
   const user = await User.findOne({ email });
@@ -8,7 +8,6 @@ const loginUser = async (email, password) => {
   if(!user){
     return{success:false,message:"user not found"}
   }
-
 
   if(user.isBlocked){
      return{success:false,message:"user is blocked"}
@@ -34,17 +33,16 @@ const registerUser = async (userData) => {
     
     const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-   const otp = generateOTP();
 
     const newUser = new User({
-        firstName: userData.firstName +" " + userData.lastName,
+        firstName: userData.firstname,
+        lastName: userData.lastname,
         email: userData.email,
         password: hashedPassword,
         referralCode: userData.referralCode,
         isVerified: false 
     })
     await newUser.save();
-    console.log("OTP:", otp);
 
     return { success: true,email:newUser.email };
 };

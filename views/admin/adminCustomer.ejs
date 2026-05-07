@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Helmet Haven – Customers</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:        #0f1117;
+      --bg-sidebar:     #13151e;
+      --bg-card:        #1a1d2b;
+      --bg-input:       #1e2130;
+      --border:         #2a2d3e;
+      --text-primary:   #e8eaf2;
+      --text-muted:     #6b7094;
+      --text-label:     #9395a5;
+      --accent-blue:    #4a9eff;
+      --btn-block-bg:   rgba(255,80,80,.12);
+      --btn-block-clr:  #dc3545;
+      --btn-unblock-bg: rgba(0,200,160,.12);
+      --btn-unblock-clr:#00c8a0;
+      --sidebar-w:      240px;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ─── SIDEBAR ─────────────────────────────────── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      z-index: 300;
+      transition: transform .28s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .brand-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg,#4a9eff,#006bdb);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #fff;
+      flex-shrink: 0;
+    }
+    .brand-name {
+      font-size: 13px; font-weight: 700;
+      letter-spacing: 1.8px; text-transform: uppercase;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .sidebar-nav { padding: 14px 10px; flex: 1; }
+
+    .nav-item-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 7px;
+      color: var(--text-muted);
+      font-size: 12.5px; font-weight: 500;
+      letter-spacing: .6px; text-decoration: none;
+      text-transform: uppercase;
+      transition: background .15s, color .15s;
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+    .nav-item-link i { font-size: 15px; flex-shrink: 0; }
+    .nav-item-link:hover { background: rgba(255,255,255,.05); color: var(--text-primary); }
+    .nav-item-link.active { background: rgba(74,158,255,.13); color: var(--accent-blue); }
+
+    /* ─── OVERLAY ─────────────────────────────────── */
+    .sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 290;
+      background: rgba(0,0,0,.55);
+    }
+    .sidebar-overlay.show { display: block; }
+
+    /* ─── MAIN WRAP ───────────────────────────────── */
+    .main-wrap {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── TOPBAR ──────────────────────────────────── */
+    .topbar {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-sidebar);
+      position: sticky; top: 0; z-index: 100;
+      gap: 12px;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar h1 { font-size: 20px; font-weight: 700; white-space: nowrap; }
+
+    .menu-toggle {
+      display: none;
+      background: transparent; border: none;
+      color: var(--text-muted); font-size: 22px;
+      cursor: pointer; padding: 2px; line-height: 1;
+    }
+
+    .bell-btn {
+      background: transparent; border: none;
+      color: var(--text-muted); font-size: 20px;
+      position: relative; cursor: pointer; padding: 4px;
+      flex-shrink: 0;
+    }
+    .badge-dot {
+      width: 7px; height: 7px; background: #ff5f5f;
+      border-radius: 50%;
+      position: absolute; top: 4px; right: 3px;
+      border: 1.5px solid var(--bg-sidebar);
+    }
+
+    /* ─── CONTENT ─────────────────────────────────── */
+    .content-area { padding: 22px 28px 32px; flex: 1; }
+
+    /* ─── FILTER BAR ──────────────────────────────── */
+    .filter-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .search-wrap {
+      flex: 1;
+      min-width: 160px;
+      position: relative;
+    }
+    .search-wrap i {
+      position: absolute; left: 11px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted); font-size: 13px;
+      pointer-events: none;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-primary);
+      font-size: 13px;
+      padding: 8px 11px 8px 32px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus { border-color: var(--accent-blue); }
+
+    .status-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-primary);
+      font-size: 13px;
+      padding: 8px 28px 8px 11px;
+      outline: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7094' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 9px center;
+      cursor: pointer;
+      min-width: 120px;
+    }
+
+    .filter-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-primary);
+      font-size: 13px; font-weight: 500;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: border-color .15s;
+      white-space: nowrap;
+    }
+    .filter-btn:hover { border-color: var(--accent-blue); }
+
+    /* ─── TABLE CARD ──────────────────────────────── */
+    .table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    /* Desktop table */
+    .desktop-table { width: 100%; border-collapse: collapse; }
+    .desktop-table th {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 20px; text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.015);
+      white-space: nowrap;
+    }
+    .desktop-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .desktop-table tr:last-child td { border-bottom: none; }
+    .desktop-table tbody tr:hover { background: rgba(255,255,255,.025); }
+
+    .cust-id {
+      font-size: 12px; font-weight: 500;
+      color: var(--text-muted); letter-spacing: .2px;
+      white-space: nowrap;
+    }
+    .cust-name-wrap { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+      color: #fff;
+    }
+    .av-a { background: linear-gradient(135deg,#4a9eff,#2060c0); }
+    .av-b { background: linear-gradient(135deg,#f5a623,#d4780f); }
+    .av-c { background: linear-gradient(135deg,#50e3c2,#1aa380); }
+    .av-d { background: linear-gradient(135deg,#c77dff,#7b2fbe); }
+    .av-e { background: linear-gradient(135deg,#ff6b6b,#c0392b); }
+
+    .cust-name { font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+    .cust-email { font-size: 13px; color: var(--text-label); }
+    .cust-phone { font-size: 13px; color: var(--text-label); white-space: nowrap; }
+    .cust-addr  { font-size: 13px; color: var(--text-label); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .btn-block-c, .btn-unblock-c {
+      font-size: 11px; font-weight: 600; letter-spacing: .5px;
+      padding: 5px 13px; border-radius: 5px;
+      cursor: pointer; text-transform: uppercase;
+      transition: opacity .15s; white-space: nowrap;
+    }
+    .btn-block-c   { border: 1px solid var(--btn-block-clr);   background: var(--btn-block-bg);   color: var(--btn-block-clr); }
+    .btn-unblock-c { border: 1px solid var(--btn-unblock-clr); background: var(--btn-unblock-bg); color: var(--btn-unblock-clr); }
+    .btn-block-c:hover, .btn-unblock-c:hover { opacity: .8; }
+
+    /* ─── MOBILE CARDS ────────────────────────────── */
+    .mobile-cards { display: none; }
+
+    .m-card {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .m-card:last-child { border-bottom: none; }
+
+    .m-card-head {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      gap: 10px; margin-bottom: 10px;
+    }
+    .m-card-identity { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .m-card-identity .cust-name { overflow: hidden; text-overflow: ellipsis; }
+
+    .m-card-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      font-size: 12px; color: var(--text-label);
+    }
+    .m-card-body span { display: flex; align-items: center; gap: 5px; overflow: hidden; }
+    .m-card-body span i { font-size: 12px; flex-shrink: 0; }
+    .m-card-body .full-col { grid-column: 1 / -1; }
+    .m-id-badge {
+      font-size: 10.5px; font-weight: 600;
+      color: var(--text-muted); letter-spacing: .3px;
+      margin-bottom: 2px;
+    }
+
+    /* ─── PAGINATION ──────────────────────────────── */
+    .table-footer {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 10px;
+    }
+    .showing-text { font-size: 12px; color: var(--text-muted); }
+    .pagination-wrap { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+    .page-btn {
+      min-width: 32px; height: 32px;
+      border-radius: 6px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted);
+      font-size: 12.5px; font-weight: 500;
+      cursor: pointer; padding: 0 10px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .12s, color .12s, background .12s;
+      white-space: nowrap;
+    }
+    .page-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .page-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
+
+    /* ─── FOOTER ──────────────────────────────────── */
+    .site-footer {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 8px;
+    }
+    .site-footer span, .site-footer a {
+      font-size: 11px; color: var(--text-muted);
+      letter-spacing: .4px; text-decoration: none;
+    }
+    .site-footer a:hover { color: var(--text-primary); }
+    .footer-links { display: flex; gap: 16px; align-items: center; }
+
+    /* ─── RESPONSIVE BREAKPOINTS ──────────────────── */
+
+    /* Tablet: hide sidebar, show hamburger */
+    @media (max-width: 960px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-wrap { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 18px 16px 28px; }
+      .topbar { padding: 14px 16px; }
+      .site-footer { padding: 14px 16px; }
+    }
+
+    /* Switch to card layout below 768px */
+    @media (max-width: 768px) {
+      .desktop-table { display: none; }
+      .mobile-cards  { display: block; }
+      .filter-bar    { gap: 8px; }
+      .status-select { min-width: 100px; }
+    }
+
+    /* Very small screens */
+    @media (max-width: 480px) {
+      .topbar h1 { font-size: 17px; }
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .filter-bar .search-wrap,
+      .filter-bar .status-select,
+      .filter-bar .filter-btn { width: 100%; }
+      .filter-btn { justify-content: center; }
+      .m-card-body { grid-template-columns: 1fr; }
+      .m-card-body .full-col { grid-column: 1; }
+      .table-footer { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .site-footer { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Overlay -->
+<div class="sidebar-overlay" id="overlay"></div>
+
+<!-- ─── SIDEBAR ──────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-shield-fill"></i></div>
+    <span class="brand-name">Helmet Haven</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/admin/adminDashboard " class="nav-item-link"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    <a href="#" class="nav-item-link"><i class="bi bi-box-seam"></i> Products</a>
+    <a href="#" class="nav-item-link active"><i class="bi bi-people"></i> Customers</a>
+    <a href="#" class="nav-item-link"><i class="bi bi-cart3"></i> Orders</a>
+    <a href="#" class="nav-item-link"><i class="bi bi-tag"></i> Coupons</a>
+    <a href="#" class="nav-item-link"><i class="bi bi-diagram-3"></i> Category</a>
+    <a href="#" class="nav-item-link"><i class="bi bi-award"></i> Brands</a>
+    <a href="#" class="nav-item-link"><i class="bi bi-arrow-return-left"></i> Return Requests</a>
+    <a href="#" class="nav-item-link"><i class="bi bi-percent"></i> Offers</a>
+    <a href="#" class="nav-item-link"><i class="bi bi-image"></i> Banner</a>
+    <a href="#" class="nav-item-link"><i class="bi bi-bar-chart-line"></i> Sales Report</a>
+    <a href="/admin/logout" class="nav-item-link"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </nav>
+</aside>
+
+<!-- ─── MAIN ─────────────────────────────────────────────── -->
+<div class="main-wrap">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <h1>Customers</h1>
+    </div>
+    <button class="bell-btn" aria-label="Notifications">
+      <i class="bi bi-bell"></i>
+      <span class="badge-dot"></span>
+    </button>
+  </div>
+
+  <div class="content-area">
+
+    <!-- Filter bar -->
+    <div class="filter-bar">
+
+  <!-- Search Form -->
+  <form method="GET" action="/admin/adminCustomer" id="searchForm" style="flex:1; min-width:160px;">
+    <div class="search-wrap">
+      <i class="bi bi-search"></i>
+      <input
+        class="search-input"
+        type="text"
+        name="search"
+        placeholder="Search customers..."
+        value="<%= search %>"
+      />
+      <input type="hidden" name="status" value="<%= status %>" />
+    </div>
+  </form>
+      <form method="GET" action="/admin/adminCustomer">
+  <select class="status-select" name="status" onchange="this.form.submit()">
+    <option value=""       <%= status === ''        ? 'selected' : '' %>>Status: All</option>
+      <option value="active"  <%= status === 'active'  ? 'selected' : '' %>>Active</option>
+      <option value="blocked" <%= status === 'blocked' ? 'selected' : '' %>>Blocked</option>
+  </select>
+  <input type="hidden" name="search" value="<%= search %>" />
+</form>
+      <button class="filter-btn">
+        <i class="bi bi-funnel"></i> Filter
+      </button>
+    </div>
+
+    <!-- Table Card -->
+    <div class="table-card">
+
+      <!-- ── DESKTOP TABLE ── -->
+      <table class="desktop-table">
+        <thead>
+          <tr>
+            <th>Customer ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Address</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        
+        <tbody>
+  <% users.forEach(user => { %>
+    <tr>
+      <!-- USER ID -->
+      <td>
+        <span class="cust-id"><%= user._id %></span>
+      </td>
+
+      <!-- NAME -->
+      <td>
+        <div class="cust-name-wrap">
+          <% if (user.firstName) { %>
+  <div class="avatar av-a">
+    <%= user.firstName[0] %>
+  </div>
+  <span class="cust-name">
+    <%= user.firstName %> <%= user.lastName %>
+  </span>
+  <% } else { %>
+  <div class="avatar av-a">?</div>
+  <span class="cust-name">Unknown User</span>
+<% } %>
+        </div>
+      </td>
+
+      <!-- EMAIL -->
+      <td>
+        <span class="cust-email"><%= user.email %></span>
+      </td>
+
+      <!-- PHONE -->
+      <td>
+        <span class="cust-phone">
+          <%= user.phone || "N/A" %>
+        </span>
+      </td>
+
+      <!-- ADDRESS (optional placeholder) -->
+      <td>
+        <span class="cust-addr">—</span>
+      </td>
+
+      <!-- ACTION BUTTON -->
+      <td>
+        <form action="/admin/blockCustomer/<%= user._id %>" method="POST">
+          <% if(user.isBlocked) { %>
+            <button class="btn-unblock-c" type="submit">
+              Unblock
+            </button>
+          <% } else { %>
+            <button class="btn-block-c" type="submit">
+              Block
+            </button>
+          <% } %>
+        </form>
+      </td>
+    </tr>
+  <% }) %>
+</tbody>
+
+         
+    
+      <!-- Pagination -->
+      <div class="table-footer">
+        <span class="showing-text">Showing 1 to 4 of 2,450 customers</span>
+        <div class="pagination-wrap">
+          <% if (currentPage > 1) { %>
+    <a class="page-btn" href="?page=<%= currentPage - 1 %>&status=<%= status %>&search=<%= search %>">← Previous</a>
+  <% } else { %>
+    <button class="page-btn" disabled>← Previous</button>
+  <% } %>
+
+  <!-- Current page indicator -->
+  <span class="page-btn active">Page <%= currentPage %> of <%= totalPages %></span>
+
+  <!-- Next -->
+  <% if (currentPage < totalPages) { %>
+    <a class="page-btn" href="?page=<%= currentPage + 1 %>&status=<%= status %>&search=<%= search %>">Next →</a>
+  <% } else { %>
+    <button class="page-btn" disabled>Next →</button>
+  <% } %>
+        </div>
+      </div>
+
+    </div><!-- /table-card -->
+  </div><!-- /content-area -->
+
+  <footer class="site-footer">
+    <span>© 2024 HELMET HAVEN HQ — ADMINISTRATIVE PANEL</span>
+    <div class="footer-links">
+      <a href="#">System Status</a>
+      <a href="#">Security Policy</a>
+      <span>V4.2.0-ADMIN</span>
+    </div>
+  </footer>
+
+</div><!-- /main-wrap -->
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('overlay');
+  const menuToggle = document.getElementById('menuToggle');
+
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+  overlay.addEventListener('click', () => {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+</script>
+</body>
+</html>

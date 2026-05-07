@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Helmet Haven — Profile Information</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --bg:        #0d1219;
+      --bg2:       #111720;
+      --bg3:       #151d2a;
+      --bg-input:  #1a2232;
+      --accent:    #1d7fea;
+      --accent-h:  #1568c9;
+      --border:    #1e2a3a;
+      --muted:     #3d5268;
+      --body:      #8fa3b8;
+      --white:     #eef2f7;
+      --sidebar-w: 275px;
+      --nav-h:     56px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ════════════════════════════
+       TOP NAV
+    ════════════════════════════ */
+    .top-nav {
+      height: var(--nav-h);
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    /* brand */
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .nav-brand-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+      white-space: nowrap;
+    }
+
+    /* nav links */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex-shrink: 0;
+    }
+    .nav-links a {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--body);
+      text-decoration: none;
+      padding: 0.35rem 0.7rem;
+      border-radius: 6px;
+      transition: color .2s, background .2s;
+    }
+    .nav-links a:hover { color: var(--white); background: rgba(255,255,255,.05); }
+
+    /* search */
+    .nav-search {
+      flex: 1;
+      position: relative;
+      max-width: 420px;
+    }
+    .nav-search i {
+      position: absolute;
+      left: 0.85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .nav-search input {
+      width: 100%;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-size: 0.85rem;
+      padding: 0.45rem 0.9rem 0.45rem 2.2rem;
+      outline: none;
+    }
+    .nav-search input::placeholder { color: var(--muted); }
+    .nav-search input:focus { border-color: var(--accent); }
+
+    /* right icons */
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+    .nav-icon-btn {
+      position: relative;
+      width: 38px; height: 38px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--body);
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .2s, border-color .2s;
+    }
+    .nav-icon-btn:hover { color: var(--white); border-color: var(--accent); }
+    .nav-icon-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .badge-dot {
+      position: absolute;
+      top: -4px; right: -4px;
+      width: 18px; height: 18px;
+      background: var(--accent);
+      border-radius: 50%;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      border: 2px solid var(--bg2);
+    }
+
+    /* ════════════════════════════
+       BODY LAYOUT
+    ════════════════════════════ */
+    .body-wrap {
+      display: flex;
+      flex: 1;
+    }
+
+    /* ════════════════════════════
+       SIDEBAR
+    ════════════════════════════ */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--bg2);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.2rem 1.3rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .sidebar-section-title i { color: var(--accent); font-size: 1.1rem; }
+
+    .sidebar-nav { list-style: none; padding: 0; margin: 0; }
+    .sidebar-nav li a {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.65rem 1.3rem;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--body);
+      text-decoration: none;
+      transition: background .15s, color .15s;
+    }
+    .sidebar-nav li a:hover { background: rgba(255,255,255,.04); color: var(--white); }
+    .sidebar-nav li a.active {
+      background: rgba(29,127,234,.15);
+      color: var(--accent);
+      border-right: 3px solid var(--accent);
+    }
+    .sidebar-nav li a i { font-size: 1rem; width: 18px; text-align: center; }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0.8rem 1.3rem;
+    }
+
+    .sidebar-nav .logout a { color: #e85555; }
+    .sidebar-nav .logout a:hover { background: rgba(232,85,85,.08); color: #ff6b6b; }
+
+    /* ════════════════════════════
+       MAIN CONTENT
+    ════════════════════════════ */
+    .main-content {
+      flex: 1;
+      padding: 2rem 2rem 3rem;
+      overflow-y: auto;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--white);
+      margin-bottom: 0.35rem;
+    }
+    .page-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── PROFILE CARD ── */
+    .profile-card {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2rem 2rem 2rem;
+    }
+
+    /* form labels */
+    .field-label {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--body);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+    .hh-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+      padding: 0.72rem 0.9rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .hh-input::placeholder { color: var(--muted); }
+    .hh-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(29,127,234,.12);
+    }
+
+    /* avatar column */
+    .avatar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    .avatar-wrap {
+      position: relative;
+      width: 110px; height: 110px;
+    }
+    .avatar-circle {
+      width: 110px; height: 110px;
+      border-radius: 50%;
+      background: var(--bg-input);
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted);
+      font-size: 2.8rem;
+      overflow: hidden;
+    }
+    .avatar-edit {
+      position: absolute;
+      bottom: 4px; right: 4px;
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 0.75rem;
+      cursor: pointer;
+      border: 2px solid var(--bg3);
+    }
+    .avatar-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .btn-change-photo {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-change-photo:hover { border-color: var(--accent); background: rgba(29,127,234,.08); }
+
+    /* action buttons */
+    .btn-save {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 0.72rem 1.8rem;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .btn-save:hover { background: var(--accent-h); transform: translateY(-1px); }
+    .btn-cancel {
+      background: transparent;
+      border: none;
+      color: var(--body);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.72rem 1.2rem;
+      cursor: pointer;
+      transition: color .2s;
+    }
+    .btn-cancel:hover { color: var(--white); }
+
+    /* ════════════════════════════
+       FOOTER
+    ════════════════════════════ */
+    .site-footer {
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem 0;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.4fr;
+      gap: 2rem;
+      padding-bottom: 2rem;
+    }
+    .footer-brand-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .footer-brand-desc {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.7;
+      margin-top: 0.6rem;
+    }
+    .footer-col-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--white);
+      margin-bottom: 0.9rem;
+    }
+    .footer-col ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-col ul li a {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .footer-col ul li a:hover { color: var(--body); }
+    .footer-nl-desc { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.8rem; line-height: 1.6; }
+    .footer-nl-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .footer-nl-input {
+      flex: 1;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--white);
+      font-size: 0.82rem;
+      padding: 0.55rem 0.8rem;
+      outline: none;
+    }
+    .footer-nl-input::placeholder { color: var(--muted); }
+    .footer-nl-input:focus { border-color: var(--accent); }
+    .btn-join {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 0.55rem 1rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-join:hover { background: var(--accent-h); }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding: 1rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-bottom-copy { font-size: 0.78rem; color: var(--muted); }
+    .footer-bottom-links { display: flex; gap: 1.5rem; }
+    .footer-bottom-links a { font-size: 0.78rem; color: var(--muted); text-decoration: none; }
+    .footer-bottom-links a:hover { color: var(--body); }
+  </style>
+</head>
+<body>
+
+  <!-- ══ TOP NAV ══ -->
+  <nav class="top-nav">
+    <a href="#" class="nav-brand">
+      <!-- Helmet SVG logo -->
+      <svg width="34" height="34" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="22" cy="22" r="20" stroke="#1d7fea" stroke-width="2" fill="none"/>
+        <path d="M13 26 C13 18 16 13 22 13 C28 13 31 18 31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M13 26 L13 28 C13 29.1 13.9 30 15 30 L29 30 C30.1 30 31 29.1 31 28 L31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <path d="M16 23 C17 20 20 18 22 18 C24 18 27 20 28 23" stroke="#1d7fea" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+        <circle cx="19" cy="28" r="0.8" fill="#1d7fea"/>
+        <circle cx="22" cy="28" r="0.8" fill="#1d7fea"/>
+        <circle cx="25" cy="28" r="0.8" fill="#1d7fea"/>
+      </svg>
+      <span class="nav-brand-name">Helmet Haven</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#">About Us</a>
+      <a href="#">Contact Us</a>
+    </div>
+
+    <div class="nav-search">
+      <i class="bi bi-search"></i>
+      <input type="text" placeholder="Search premium helmets..."/>
+    </div>
+
+    <div class="nav-right">
+      <a href="#" class="nav-icon-btn">
+        <i class="bi bi-cart3"></i>
+        <span class="badge-dot">2</span>
+      </a>
+      <a href="#" class="nav-icon-btn">
+        <i class="bi bi-heart"></i>
+      </a>
+      <a href="#" class="nav-icon-btn active">
+        <i class="bi bi-person"></i>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ══ BODY ══ -->
+  <div class="body-wrap">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section-title">
+        <i class="bi bi-person-circle"></i>
+        My Account
+      </div>
+
+      <ul class="sidebar-nav">
+        <li>
+          <a href="#" class="active">
+            <i class="bi bi-person"></i> Profile Info
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bi bi-bag"></i> My Orders
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bi bi-geo-alt"></i> Address
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bi bi-wallet2"></i> Wallet
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bi bi-tag"></i> Coupon
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <i class="bi bi-shield-lock"></i> Password Change
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-divider"></div>
+
+      <ul class="sidebar-nav">
+        <li class="logout">
+          <a href="#">
+            <i class="bi bi-box-arrow-left"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <h1 class="page-title">Profile Information</h1>
+      <p class="page-sub">Manage your personal details and account settings.</p>
+
+      <div class="profile-card">
+        <div class="row g-3">
+
+          <!-- Form fields column -->
+          <div class="col-lg-8">
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="field-label">First Name</label>
+                <input type="text" class="hh-input" placeholder=""/>
+              </div>
+              <div class="col-6">
+                <label class="field-label">Last Name</label>
+                <input type="text" class="hh-input" placeholder=""/>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="field-label">Email Address</label>
+              <input type="email" class="hh-input" placeholder=""/>
+            </div>
+
+            <div class="mb-4">
+              <label class="field-label">Phone Number</label>
+              <input type="tel" class="hh-input" placeholder=""/>
+            </div>
+          </div>
+
+          <!-- Avatar column -->
+          <div class="col-lg-4">
+            <div class="avatar-col">
+              <div class="avatar-wrap">
+                <div class="avatar-circle">
+                  <i class="bi bi-person"></i>
+                </div>
+                <div class="avatar-edit">
+                  <i class="bi bi-pencil-fill"></i>
+                </div>
+              </div>
+              <p class="avatar-hint">JPG, PNG or GIF. Max size 2MB.</p>
+              <button class="btn-change-photo">Change Photo</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Action buttons -->
+        <div class="d-flex align-items-center gap-2 mt-2">
+          <button class="btn-save">Save Changes</button>
+          <button class="btn-cancel">Cancel</button>
+        </div>
+      </div>
+    </main>
+
+  </div><!-- /body-wrap -->
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+
+      <!-- Brand -->
+      <div>
+        <div style="display:flex;align-items:center;gap:0.55rem;margin-bottom:0.5rem;">
+          <svg width="30" height="30" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="22" cy="22" r="20" stroke="#1d7fea" stroke-width="2" fill="none"/>
+            <path d="M13 26 C13 18 16 13 22 13 C28 13 31 18 31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M13 26 L13 28 C13 29.1 13.9 30 15 30 L29 30 C30.1 30 31 29.1 31 28 L31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
+          </svg>
+          <span class="footer-brand-name">Helmet Haven</span>
+        </div>
+        <p class="footer-brand-desc">The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
+      </div>
+
+      <!-- Shop -->
+      <div class="footer-col">
+        <div class="footer-col-title">Shop</div>
+        <ul>
+          <li><a href="#">Full Face</a></li>
+          <li><a href="#">Off-Road</a></li>
+          <li><a href="#">Modular</a></li>
+          <li><a href="#">Accessories</a></li>
+        </ul>
+      </div>
+
+      <!-- Support -->
+      <div class="footer-col">
+        <div class="footer-col-title">Support</div>
+        <ul>
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Return &amp; Exchange</a></li>
+          <li><a href="#">Size Guide</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="footer-col">
+        <div class="footer-col-title">Newsletter</div>
+        <p class="footer-nl-desc">Get early access to drops and exclusive offers.</p>
+        <div class="footer-nl-row">
+          <input type="email" class="footer-nl-input" placeholder="Email address"/>
+          <button class="btn-join">Join</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <span class="footer-bottom-copy">© 2024 Helmet Haven. All rights reserved.</span>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

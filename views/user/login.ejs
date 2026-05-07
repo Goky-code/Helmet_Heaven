@@ -10,17 +10,15 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
     <style>
-        /* CSS STYLES */
         body, html {
             height: 100%;
             margin: 0;
             font-family: 'Inter', sans-serif;
-            background-color: #0b1119; /* Match image background */
+            background-color: #0b1119;
             color: white;
             overflow-x: hidden;
         }
 
-        /* Left Side Image */
         .hero-side {
             background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), 
                         url("/user/login.png");
@@ -47,7 +45,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Right Side Form */
         .login-side {
             background-color: #0b1119;
             height: 100vh;
@@ -62,7 +59,6 @@
             width: 100%;
         }
 
-        /* Input Styling */
         .input-group-text {
             background-color: transparent !important;
             border: 1px solid #2c343f !important;
@@ -76,13 +72,17 @@
             padding: 12px;
         }
 
-        .form-control::placeholder {
-            color: #495057;
-        }
+        .form-control::placeholder { color: #495057; }
 
         .form-control:focus {
             box-shadow: none;
             border-color: #1a73e8 !important;
+        }
+
+        .form-control:-webkit-autofill,
+        .form-control:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0 1000px #0b1119 inset !important;
+            -webkit-text-fill-color: white !important;
         }
 
         .form-label {
@@ -91,7 +91,6 @@
             color: #6c757d;
         }
 
-        /* Buttons and Links */
         .btn-primary {
             background-color: #1a73e8;
             border: none;
@@ -110,7 +109,6 @@
             text-decoration: none;
         }
 
-        /* Divider */
         .divider {
             display: flex;
             align-items: center;
@@ -127,9 +125,8 @@
         }
 
         .divider:not(:empty)::before { margin-right: .5em; }
-        .divider:not(:empty)::after { margin-left: .5em; }
+        .divider:not(:empty)::after  { margin-left:  .5em; }
 
-        /* Footer Links */
         .footer-links {
             margin-top: auto;
             padding-bottom: 30px;
@@ -144,82 +141,189 @@
             margin: 0 10px;
         }
 
-        /* Mobile View Adjustment */
         @media (max-width: 991px) {
-            .hero-side { display: none; }
+            .hero-side  { display: none; }
             .login-side { height: auto; min-height: 100vh; padding: 40px 20px; }
+        }
+
+        /* ── Toast ── */
+        .toast-container-custom {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast-msg {
+            min-width: 280px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            animation: toastIn 0.3s ease forwards;
+        }
+
+        .toast-error   { background: #2a1215; border: 1px solid #f44336; color: #f44336; }
+        .toast-success { background: #0d2318; border: 1px solid #4caf50; color: #4caf50; }
+
+        @keyframes toastIn {
+            from { transform: translateX(110%); opacity: 0; }
+            to   { transform: translateX(0);    opacity: 1; }
+        }
+        @keyframes toastOut {
+            from { transform: translateX(0);    opacity: 1; }
+            to   { transform: translateX(110%); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div class="container-fluid p-0">
-        <div class="row g-0">
-            
-            <div class="col-lg-6 hero-side d-none d-lg-block">
-                <div class="overlay px-5">
-                    <div class="brand-logo">
-                        <i class="bi bi-shield-shaded" style="font-size: 1.5rem;"></i> HELMET HAVEN
-                    </div>
-                    <h1 class="display-4 fw-bold mb-3">The ultimate guard<br>for your journey.</h1>
-                    <p class="text-secondary mb-0" style="max-width: 450px;">Join the community of elite riders choosing premium protection without compromising on style.</p>
+<div class="toast-container-custom" id="toastContainer"></div>
+
+<div class="container-fluid p-0">
+    <div class="row g-0">
+
+        <!-- Left hero -->
+        <div class="col-lg-6 hero-side d-none d-lg-block">
+            <div class="overlay px-5">
+                <div class="brand-logo">
+                    <i class="bi bi-shield-shaded" style="font-size:1.5rem;"></i> HELMET HAVEN
                 </div>
+                <h1 class="display-4 fw-bold mb-3">The ultimate guard<br>for your journey.</h1>
+                <p class="text-secondary mb-0" style="max-width:450px;">
+                    Join the community of elite riders choosing premium protection without compromising on style.
+                </p>
             </div>
-
-            <div class="col-lg-6 login-side">
-                <div class="form-container px-4">
-                    <h2 class="fw-bold mb-2">Welcome Back</h2>
-                    <p class="text-muted mb-5">Enter your credentials to access your account</p>
-
-                    <form action="/auth/login" method="POST">
-    
-    <% if (typeof message != 'undefined') { %>
-        <div class="alert alert-danger py-2 small"><%= message %></div>
-    <% } %>
-                        <div class="mb-4">
-                            <label class="form-label fw-bold">EMAIL ADDRESS</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input type="email" class="form-control" placeholder="Enter your email">
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <div class="d-flex justify-content-between">
-                                <label class="form-label fw-bold">PASSWORD</label>
-                                <a href="" class="blue-text small">Forgot Password?</a>
-                            </div>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input type="password" class="form-control" placeholder="••••••••">
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 d-flex justify-content-center align-items-center gap-2">
-                            Log In <i class="bi bi-box-arrow-in-right"></i>
-                        </button>
-
-                        <div class="divider">Or continue with</div>
-
-                       <a href="/auth/google" class="btn btn-outline-secondary w-100 d-flex justify-content-center align-items-center gap-2">
-        <i class="bi bi-google"></i> Google
-    </a>
-                        <p class="text-center mt-4 text-muted small">
-                            New to Helmet Haven? <a href="#" class="blue-text fw-bold">Create an account</a>
-                        </p>
-                    </form>
-                </div>
-
-                <div class="footer-links">
-                    <a href="#">PRIVACY POLICY</a>
-                    <a href="#">TERMS OF SERVICE</a>
-                    <a href="#">CONTACT SUPPORT</a>
-                </div>
-            </div>
-
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Right form -->
+        <div class="col-lg-6 login-side">
+            <div class="form-container px-4">
+                <h2 class="fw-bold mb-2">Welcome Back</h2>
+                <p class="text-muted mb-5">Enter your credentials to access your account</p>
+
+                <form id="loginForm" novalidate>
+
+                    <!-- Email -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">EMAIL ADDRESS</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                            <input type="email" name="email" id="emailInput"
+                                   class="form-control" placeholder="Enter your email">
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                            <label class="form-label fw-bold">PASSWORD</label>
+                            <a href="/user/forgotPassword" class="blue-text small">Forgot Password?</a>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                            <input type="password" name="password" id="passwordInput"
+                                   class="form-control" placeholder="••••••••">
+                            <span class="input-group-text" id="togglePassword" style="cursor:pointer;">
+                                <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 d-flex justify-content-center align-items-center gap-2">
+                        Log In <i class="bi bi-box-arrow-in-right"></i>
+                    </button>
+
+                    <div class="divider">Or</div>
+
+                    <a href="/auth/google" class="btn btn-outline-secondary w-100 d-flex justify-content-center align-items-center gap-2">
+                        <i class="bi bi-google"></i>Continue With Google
+                    </a>
+
+                    <p class="text-center mt-4 text-muted small">
+                        New to Helmet Haven? <a href="/user/signup" class="blue-text fw-bold">Create an account</a>
+                    </p>
+                </form>
+            </div>
+
+            <div class="footer-links">
+                <a href="#">PRIVACY POLICY</a>
+                <a href="#">TERMS OF SERVICE</a>
+                <a href="#">CONTACT SUPPORT</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    const showToast = (message, type = 'error') => {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast-msg toast-${type}`;
+        toast.innerHTML = `<i class="bi ${type === 'error' ? 'bi-x-circle-fill' : 'bi-check-circle-fill'}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'toastOut 0.3s ease forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 3500);
+    };
+
+    window.addEventListener("pageshow", function (event) {
+    if (event.persisted || window.performance.navigation.type === 2) {
+      window.location.reload();
+    }
+  });
+
+    // Password toggle
+    document.getElementById('togglePassword').addEventListener('click', () => {
+        const passwordInput = document.getElementById('passwordInput');
+        const hidden = passwordInput.type === 'password';
+        passwordInput.type = hidden ? 'text' : 'password';
+        document.getElementById('toggleIcon').className = hidden ? 'bi bi-eye' : 'bi bi-eye-slash';
+    });
+
+    // Submit
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email    = document.getElementById('emailInput').value.trim();
+        const password = document.getElementById('passwordInput').value;
+
+        try {
+            const res = await fetch('/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+             if (res.redirected) {
+            window.location.href = res.url;
+            return; 
+        }
+
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                showToast('Login successful! Redirecting...', 'success');
+                setTimeout(() => window.location.href = '/user/homepage', 1000);
+            } else {
+                showToast(data.error || 'Invalid email or password');
+            }
+        } catch (err) {
+            showToast('Something went wrong. Please try again.');
+        }
+    });
+
+</script>
 </body>
 </html>
