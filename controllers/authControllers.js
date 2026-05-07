@@ -160,7 +160,7 @@ export const resendOtp = async (req, res) => {
     const otp = generateOTP();
 
     signupData.otp = otp;
-    signupData.otpExpiry = Date.now() + 2 * 60 * 1000;
+    signupData.otpExpiry = Date.now() + 1 * 60 * 1000;
 
     req.session.signupData = signupData;
 
@@ -178,18 +178,20 @@ export const resendOtp = async (req, res) => {
 };
 
 export const forgotPassword = async (req, res) => {
-    
+  
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.render("auth/forgotPassword", { message: "user not found" });
+      return res.render("user/forgotPassword", {error: "No account found with that email address." 
+
+      });
     }
     const otp = generateOTP();
 
     user.otp = otp;
-    user.otpExpiry = Date.now() +30 * 1000;
+    user.otpExpiry = Date.now() + 1 *60 * 1000;
 
     await user.save();
     await sendEmail(email, "Your OTP", `Your OTP is ${otp}`);
@@ -235,7 +237,8 @@ export const verifyForgotOtp = async (req, res) => {
       return res.redirect("/user/resetPassword");
     } else {
       return res.render("user/verifyForgotpassOtp", {
-        message: "Invalid or Expired OTP",
+        otpError: "Invalid or Expired OTP",   
+        otpExpiry: user?.otpExpiry ?? null, 
       });
     }
   } catch (error) {
@@ -261,7 +264,7 @@ export const resendOtpforgot = async (req, res) => {
     const otp = generateOTP();
 
     user.otp = otp;
-    user.otpExpiry = Date.now() + 2 * 60 * 1000;
+    user.otpExpiry = Date.now() + 1 * 60 * 1000;
 
     await user.save();
 

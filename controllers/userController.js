@@ -28,8 +28,13 @@ export const getsignup = async(req,res)=>{
      return res.render('user/signup')
 }
 
-export const getOtp=(req,res)=>{
-     res.render('user/verifyOtp')
+export const getOtp = (req, res) => {
+  const signupData = req.session.signupData;
+  res.render('user/verifyOtp', {
+    newEmail: signupData?.email || null,
+    otpExpiry: signupData?.otpExpiry || null,
+    otpError: null
+  });
 }
 
 export const getHome=async(req,res)=>{
@@ -41,11 +46,17 @@ export const getHome=async(req,res)=>{
 };
 
 export const getforgotPassword=(req,res)=>{
-     res.render('user/forgotPassword')
+     res.render('user/forgotPassword', { message: null })
 }
 
-export const getVerifyforgotOtp=(req,res)=>{
-     res.render('user/verifyForgotpassOtp')
+export const getVerifyforgotOtp=async(req,res)=>{
+      const email = req.session.resetEmail;
+  const user = await User.findOne({ email });
+
+     res.render('user/verifyForgotpassOtp',{
+      otpExpiry: user?.otpExpiry ?? null, 
+    otpError: null,
+     })
 }
 
 export const getresetPassword=(req,res)=>{
@@ -221,11 +232,12 @@ export const setDefaultAddress = async (req, res) => {
 export const sendEmailOTP = async (req, res) => {
   try {
     const { newEmail } = req.body;
-    const userId = req.session.user._id;  // ✅ was req.session.userId
+    const userId = req.session.user._id;
 
+    // Check if email already taken by any user
     const existingUser = await User.findOne({ email: newEmail });
-    if (existingUser && existingUser._id.toString() !== userId.toString()) {
-      return res.json({ success: false, message: "Email already exists" });
+    if (existingUser) {
+      return res.json({ success: false, message: "This email is already registered." });
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -237,14 +249,15 @@ export const sendEmailOTP = async (req, res) => {
 
     req.session.newEmail = newEmail;
 
-    await sendEmail(newEmail, "Email Change OTP", otp);
+    // Fixed: proper message string
+    await sendEmail(newEmail, "Email Change OTP", `Your OTP for email change is: ${otp}`);
 
-    console.log("OTP saved for userId:", userId);  // verify this prints
+    console.log("OTP sent to:", newEmail, "OTP:", otp);
 
     res.json({ success: true });
 
   } catch (error) {
-    console.log(error);
+    console.error("sendEmailOTP error:", error); // ← shows exact error
     res.json({ success: false, message: "Server error" });
   }
 };

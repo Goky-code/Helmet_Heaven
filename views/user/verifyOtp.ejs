@@ -370,8 +370,8 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-
   const boxes     = Array.from(document.querySelectorAll('.otp-box'));
   const finalOtp  = document.getElementById('finalOtp');
   const otpForm   = document.getElementById('otpForm');
@@ -476,44 +476,47 @@
   /* ── Countdown timer ── */
   let timerInterval;
 
-  // ✅ FIX 1: startTimer now accepts seconds parameter
   function startTimer(seconds) {
     clearInterval(timerInterval);
-    let total = seconds;
+    let total = Math.max(0, Math.floor(seconds));
+
+    function update() {
+      minsEl.textContent = String(Math.floor(total / 60)).padStart(2, '0');
+      secsEl.textContent = String(total % 60).padStart(2, '0');
+    }
+
+    update(); // render immediately on load
+
+    if (total <= 0) {
+      resendBtn.classList.remove('disabled');
+      return;
+    }
 
     resendBtn.classList.add('disabled');
-    minsEl.textContent = String(Math.floor(total / 60)).padStart(2, '0');
-    secsEl.textContent = String(total % 60).padStart(2, '0');
 
     timerInterval = setInterval(() => {
       total--;
+      update();
       if (total <= 0) {
         clearInterval(timerInterval);
         resendBtn.classList.remove('disabled');
-        minsEl.textContent = '00';
-        secsEl.textContent = '00';
-        return;
       }
-      minsEl.textContent = String(Math.floor(total / 60)).padStart(2, '0');
-      secsEl.textContent = String(total % 60).padStart(2, '0');
     }, 1000);
   }
 
-  /* ── Startup ── */
+  /* ── KEY FIX: Read otpExpiry as a real number from EJS ── */
+  // Using JSON output (not backtick string) so it's always a number or null
+  const otpExpiry   = `<%- typeof otpExpiry !== 'undefined' && otpExpiry ? JSON.stringify(otpExpiry) : 'null' %>`;
+  const serverError = `<%- typeof otpError  !== 'undefined' && otpError  ? JSON.stringify(otpError)  : 'null' %>`;
 
-  // ✅ FIX 2: otpExpiry as a NUMBER not a string (no backticks)
-  const serverError = `<%= typeof otpError !== 'undefined' ? otpError : '' %>`;
-  const otpExpiry   = `<%= typeof otpExpiry !== 'undefined' ? otpExpiry : 'null' %>`;
-
-  // ✅ FIX 3: calculate real remaining seconds from expiry timestamp
   let remainingSeconds;
   if (otpExpiry) {
-    remainingSeconds = Math.max(0, Math.floor((otpExpiry - Date.now()) / 1000));
+    // Calculate from real server timestamp — survives page refresh correctly
+    remainingSeconds = Math.floor((otpExpiry - Date.now()) / 1000);
   } else {
-    remainingSeconds = 60; // fresh visit
+    remainingSeconds = 60; // fresh signup visit, no expiry in session yet
   }
 
-  // ✅ FIX 4: only ONE startTimer call
   startTimer(remainingSeconds);
 
   // Show error state on boxes if server returned error
@@ -521,13 +524,7 @@
     boxes.forEach(b => b.classList.add('otp-error'));
   }
 
-  // If already expired on page load, unlock resend immediately
-  if (remainingSeconds <= 0) {
-    resendBtn.classList.remove('disabled');
-  }
-
   setTimeout(() => boxes[0].focus(), 100);
-
 </script>
 </body>
 </html>

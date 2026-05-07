@@ -9,10 +9,10 @@ const router  = express.Router();
 
 
 router.get('/login',nocache,preventUserLogin,userController.getLogin)
-router.get('/signup',userController.getsignup);
+router.get('/signup',nocache,preventUserLogin,userController.getsignup);
 router.get('/homepage',userController.getHome)
 router.get('/logout',userController.logout)
-router.get('/verifyOtp',userController.getOtp)
+router.get('/verifyOtp',nocache,preventUserLogin,userController.getOtp)
 router.get('/forgotPassword',userController.getforgotPassword)
 // router.get('/verifyForgotOtp',userController.getVerifyforgotOtp)
 router.get('/resetPassword',userController.getresetPassword)

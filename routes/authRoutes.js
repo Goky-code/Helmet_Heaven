@@ -16,7 +16,7 @@ router.get('/resendOtp',authController.resendOtp)
 
 router.get('/forgotPassword', getforgotPassword);
 router.get('/verifyForgotpassOtp', getVerifyforgotOtp);
- router.get('/resendOtpforgot', authController.resendOtpforgot)
+router.get('/resendOtpforgot', authController.resendOtpforgot)
 
 router.post('/forgotPassword',authController.forgotPassword)
 router.post('/verifyForgotpassOtp',authController.verifyForgotOtp)
@@ -25,18 +25,18 @@ router.post('/verifyForgotpassOtp',authController.verifyForgotOtp)
 
 router.post('/resetPassword',authController.resetPassword)
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email']
-  // prompt: 'select_account'
- }));
+  router.get('/google', passport.authenticate('google', { scope: ['profile', 'email']
+    // prompt: 'select_account'
+  }));
 
 
-router.get('/google/callback', 
-  passport.authenticate('google', { failureRedirect: '/user/login' }),
-  (req, res) => {
-    req.session.user=req.user
-    res.redirect('/user/homepage');
-  }
-);
+  router.get('/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/user/login' }),
+    (req, res) => {
+      req.session.user=req.user
+      res.redirect('/user/homepage');
+    }
+  );
 
 // router.post('/request-email-change', isUserAuth, authController.requestEmailChange);
 // router.post('/verify-email-change', isUserAuth, authController.verifyEmailChange);
