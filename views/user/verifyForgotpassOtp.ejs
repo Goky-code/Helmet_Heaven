@@ -414,7 +414,7 @@
     });
   });
 
-  /* ── Form submit ── */
+  
   otpForm.addEventListener('submit', (e) => {
     const code = getCode();
     if (code.length < 6) {
@@ -427,7 +427,7 @@
     btnVerify.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verifying…';
   });
 
-  /* ── TIMER LOGIC (THE FIX) ── */
+  
   let timerInterval;
 
   function startTimer(seconds) {
@@ -460,26 +460,26 @@
   const rawValue = <%- typeof otpExpiry !== 'undefined' ? JSON.stringify(otpExpiry) : 'null' %>;
   const serverError = <%- typeof otpError !== 'undefined' ? JSON.stringify(otpError) : 'null' %>;
 
-  // 2. Parse the value into a valid Number
+  
   let expiryTimestamp = NaN;
 
   if (rawValue) {
-    // Check if it's already a number/timestamp, or a date string
+    
     const parsed = new Date(rawValue).getTime();
     if (!isNaN(parsed)) {
       expiryTimestamp = parsed;
     }
   }
 
-  // 3. Calculate remaining seconds
+  
   let remainingSeconds;
   if (!isNaN(expiryTimestamp)) {
     remainingSeconds = Math.floor((expiryTimestamp - Date.now()) / 1000);
   } else {
-    remainingSeconds = 60; // Fallback if no expiry is found
+    remainingSeconds = 60;
   }
 
-  // 4. Start
+  
   startTimer(remainingSeconds);
 
   if (serverError) {

@@ -89,37 +89,36 @@ console.log("User Data from Database:", user);
 export const updateProfile = async (req, res) => {
   try {
     const userId = req.session.user._id;
-    const { firstName, lastName, phone } = req.body;
+    const { firstname, lastname, phone } = req.body;
 
-    // 1. Prepare data only for fields that were sent
+    
     const updateData = {};
-    if (firstName) updateData.firstName = firstName;
-    if (lastName) updateData.lastName = lastName;
+    if (firstname) updateData.firstName = firstname;
+    if (lastname) updateData.lastName = lastname;
     if (phone) updateData.phone = phone;
 
-    // 2. Handle Image Upload
     if (req.file) {
-      // NOTE: Ensure this matches the field name in your Database!
-      // If your EJS uses 'profileImage', change this key to 'profileImage'
+      
       updateData.profileImage = `/uploads/${req.file.filename}`;
     }
 
-    // 3. Update the user
-    await User.findByIdAndUpdate(userId, updateData);
+    const updatedUser =await User.findByIdAndUpdate(userId, updateData,
+      {new: true}
+    );
 
-    // 4. Decide how to respond
-    // If there is an image, it was likely an AJAX (Fetch) call from the Crop Modal
+     req.session.user = updatedUser;
+
     if (req.file) {
       return res.json({ success: true });
     }
 
-    // Otherwise, it was a standard form submission
+    
     res.redirect("/user/profileinformation");
 
   } catch (error) {
     console.error("Update profile error:", error);
     
-    // Send JSON error if it was an AJAX request
+    
     if (req.headers['x-requested-with'] === 'XMLHttpRequest' || req.file) {
       return res.status(500).json({ success: false, message: "Server Error" });
     }
@@ -129,7 +128,7 @@ export const updateProfile = async (req, res) => {
 };
 
 
-// address page
+
 export const getAddresses = async (req, res) => {
   try {
     if (!req.session.user) {
@@ -145,7 +144,7 @@ export const getAddresses = async (req, res) => {
     res.status(500).send("Server Error");
   }
 }
-// add new address
+
 export const getAddAddress = (req, res) => {
   res.render("user/address/addNewaddress");
 };
@@ -175,7 +174,7 @@ export const addAddress = async (req, res) => {
 
   res.redirect("/user/address/addressPage");
 };
-// edit address
+
 export const getEditAddress = async (req, res) => {
   const address = await Address.findById(req.params.id);
 
@@ -216,10 +215,10 @@ export const deleteAddress = async (req, res) => {
 export const setDefaultAddress = async (req, res) => {
   const userId = req.session.user._id;
 
-  // remove old default
+
   await Address.updateMany({ userId }, { isDefault: false });
 
-  // set new default
+
   await Address.findByIdAndUpdate(req.params.id, {
     isDefault: true
   });
@@ -234,7 +233,7 @@ export const sendEmailOTP = async (req, res) => {
     const { newEmail } = req.body;
     const userId = req.session.user._id;
 
-    // Check if email already taken by any user
+    
     const existingUser = await User.findOne({ email: newEmail });
     if (existingUser) {
       return res.json({ success: false, message: "This email is already registered." });
@@ -249,7 +248,7 @@ export const sendEmailOTP = async (req, res) => {
 
     req.session.newEmail = newEmail;
 
-    // Fixed: proper message string
+    
     await sendEmail(newEmail, "Email Change OTP", `Your OTP for email change is: ${otp}`);
 
     console.log("OTP sent to:", newEmail, "OTP:", otp);
@@ -257,7 +256,7 @@ export const sendEmailOTP = async (req, res) => {
     res.json({ success: true });
 
   } catch (error) {
-    console.error("sendEmailOTP error:", error); // ← shows exact error
+    console.error("sendEmailOTP error:", error); 
     res.json({ success: false, message: "Server error" });
   }
 };
@@ -272,7 +271,7 @@ export const loadOTPPage = (req, res) => {
 export const verifyEmailOTP = async (req, res) => {
   try {
     const { otp } = req.body;
-    const userId = req.session.user?._id;  // ✅ fixed
+    const userId = req.session.user?._id;  
     const newEmail = req.session.newEmail;
 
     if (!otp) {
@@ -299,7 +298,7 @@ export const verifyEmailOTP = async (req, res) => {
     await user.save();
 
     req.session.destroy();
-    res.redirect("/user/login");  // ✅ fixed
+    res.redirect("/user/login"); 
 
   } catch (error) {
     console.log(error);
@@ -316,16 +315,16 @@ export const resendEmailOTP = async (req, res) => {
       return res.json({ success: false, message: "Session expired, please try again" });
     }
 
-    // Generate new OTP
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // Save new OTP to user
+  
     await User.findByIdAndUpdate(userId, {
       otp: otp,
-      otpExpiry: Date.now() + 5 * 60 * 1000 // 5 minutes
+      otpExpiry: Date.now() + 5 * 60 * 1000 
     });
 
-    // Send email
+  
     await sendEmail(newEmail, "Email Change OTP", otp);
 
     console.log("Resend OTP for userId:", userId);

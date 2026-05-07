@@ -504,22 +504,21 @@
     }, 1000);
   }
 
-  /* ── KEY FIX: Read otpExpiry as a real number from EJS ── */
-  // Using JSON output (not backtick string) so it's always a number or null
+ 
   const otpExpiry   = `<%- typeof otpExpiry !== 'undefined' && otpExpiry ? JSON.stringify(otpExpiry) : 'null' %>`;
   const serverError = `<%- typeof otpError  !== 'undefined' && otpError  ? JSON.stringify(otpError)  : 'null' %>`;
 
   let remainingSeconds;
   if (otpExpiry) {
-    // Calculate from real server timestamp — survives page refresh correctly
+   
     remainingSeconds = Math.floor((otpExpiry - Date.now()) / 1000);
   } else {
-    remainingSeconds = 60; // fresh signup visit, no expiry in session yet
+    remainingSeconds = 60; 
   }
 
   startTimer(remainingSeconds);
 
-  // Show error state on boxes if server returned error
+  
   if (serverError) {
     boxes.forEach(b => b.classList.add('otp-error'));
   }

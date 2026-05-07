@@ -111,7 +111,7 @@ export const verifyOtp = async (req, res) => {
       });
     }
 
-    // OTP expired check FIRST (better UX)
+    
     if (Date.now() > signupData.otpExpiry) {
       return res.render("user/verifyOtp", {
         otpError: "OTP has expired. Please request a new one.",
@@ -160,7 +160,7 @@ export const resendOtp = async (req, res) => {
     const otp = generateOTP();
 
     signupData.otp = otp;
-    signupData.otpExpiry = Date.now() + 1 * 60 * 1000;
+    signupData.otpExpiry = Date.now() +  60 * 1000;
 
     req.session.signupData = signupData;
 

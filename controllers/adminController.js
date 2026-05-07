@@ -8,22 +8,22 @@ export const getLogin = (req, res) => {
 export const login = async (req, res) => {
   const { email, password } = req.body;
 
-  // Check if fields are empty
+  
   if (!email || !password) {
     return res.render("admin/adminLogin", { error: "Email and password are required" });
   }
 
-  // Check email first
+
   if (email !== process.env.ADMIN_EMAIL) {
     return res.render("admin/adminLogin", { error: "Invalid email address" });
   }
 
-  // Then check password
+  
   if (password !== process.env.ADMIN_PASSWORD) {
     return res.render("admin/adminLogin", { error: "Invalid password" });
   }
 
-  // Both correct
+  
   req.session.admin = true;
   console.log("success");
   return res.redirect("/admin/adminDashboard");
