@@ -3,9 +3,16 @@ import Address from "../models/addressModel.js"
 import sendEmail from "../utils/sendEmail.js";
 import bcrypt from 'bcrypt';
 
-export const getLogin = async(req,res)=>{
-     return res.render('user/login')
-}
+// export const getLogin = async(req,res)=>{
+//      return res.render('user/login')
+// }
+
+export const getLogin = (req, res) => {
+    const blocked = req.query.blocked === 'true';
+    res.render("user/login", {
+        error: blocked ? "You have been blocked. Please contact support." : null
+    });
+};
 
 export const logout =(req,res)=>{
     
