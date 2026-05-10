@@ -10,6 +10,9 @@ import { fileURLToPath } from "url"
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
+import categoryRouter from "./routes/categoryRoutes.js";
+import brandRouter from "./routes/brandRoutes.js";
+
 
 
 const app = express();
@@ -51,7 +54,9 @@ app.use("/user",userRoutes);
 app.use("/auth",authRoutes)
 
 app.use("/admin", adminRoutes);
+app.use("/admin", categoryRouter);
 
+app.use("/admin",brandRouter)
 
 const startServer = async () => {
   try {
