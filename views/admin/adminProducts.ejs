@@ -1654,40 +1654,41 @@
         formData.append("brand", brand);
         formData.append("category", cat);
         formData.append("description", desc);
+        formData.append("productImages",[]);
 
-        // Filter out empty slots from our uploads array
-        const finalImages = [];
+        // // Filter out empty slots from our uploads array
+        // const finalImages = [];
 
-        for (let i = 0; i < 3; i++) {
-          const input = document.getElementById(`photo-input-${i}`);
+        // for (let i = 0; i < 3; i++) {
+        //   const input = document.getElementById(`photo-input-${i}`);
 
-          if (input.files.length > 0) {
-            finalImages.push(input.files[0]);
-          }
-        }
+        //   if (input.files.length > 0) {
+        //     finalImages.push(input.files[0]);
+        //   }
+        // }
 
-        if (!editingId) {
-          // ── NEW PRODUCT RULES ──
-          if (finalImages.length < 3) {
-            alert(
-              "Minimum 3 cropped photos are required to save a new product.",
-            );
-            return;
-          }
-          if (!editingId && !validateImages()) {
-            return;
-          }
-          // Add all 3 required images
-          finalImages.forEach((file) => {
-            formData.append("productImages", file);
-          });
-        } else {
-          // ── EDIT PRODUCT RULES ──
-          // If the user picked new photos while editing, append them to update the existing slots
-          finalImages.forEach((file) => {
-            formData.append("productImages", file);
-          });
-        }
+        // if (!editingId) {
+        //   // ── NEW PRODUCT RULES ──
+        //   if (finalImages.length < 3) {
+        //     alert(
+        //       "Minimum 3 cropped photos are required to save a new product.",
+        //     );
+        //     return;
+        //   }
+        //   if (!editingId && !validateImages()) {
+        //     return;
+        //   }
+        //   // Add all 3 required images
+        //   finalImages.forEach((file) => {
+        //     formData.append("productImages", file);
+        //   });
+        // } else {
+        //   // ── EDIT PRODUCT RULES ──
+        //   // If the user picked new photos while editing, append them to update the existing slots
+        //   finalImages.forEach((file) => {
+        //     formData.append("productImages", file | []);
+        //   });
+        // }
 
         const targetUrl = editingId
           ? `/admin/edit-product/${editingId}`
