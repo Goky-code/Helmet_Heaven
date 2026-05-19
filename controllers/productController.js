@@ -1,4 +1,4 @@
-
+  
 import Product from "../models/productModel.js";
 import Brand from "../models/brandModels.js"
 import Category from "../models/categoryModel.js";
@@ -50,29 +50,14 @@ export const addProduct = async (req, res) => {
   try {
     const { productName, brand, category, description } = req.body;
 
-    // if (!req.files || req.files.length < 3) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: "Minimum 3 images are required.",
-    //   });
-    // }
-
-    // let images = [];
-    // for (let file of req.files) {
-    //   const resizedImage = `resized-${file.filename}`;
-    //   await sharp(file.path)
-    //     .resize(800, 800)
-    //     .toFile(path.join("public/uploads/products", resizedImage));
-    //   fs.unlinkSync(file.path);
-    //   images.push(resizedImage);
-    // }
+    const images = req.files.map(file => file.path);
 
     const product = new Product({
       productName,
       brand,
       category,
       description,
-      productImage: "",
+      productImage: images,
     });
 
     await product.save();

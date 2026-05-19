@@ -2,11 +2,11 @@
 <html lang="en">
   <head>
     <link
-      rel="stylesheet"
-      href="https://unpkg.com/cropperjs/dist/cropper.min.css"
-    />
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"
+/>
 
-    <script src="https://unpkg.com/cropperjs"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Helmet Haven – Products</title>
@@ -22,6 +22,13 @@
         margin: 0;
         padding: 0;
       }
+      #cropModal {
+  z-index: 99999;
+}
+
+.cropper-container {
+  z-index: 999999 !important;
+}
 
       :root {
         --bg: #0d0f14;
@@ -914,23 +921,26 @@
           <div class="field-group">
             <label>Category</label>
             <select id="catFilter" onchange="filterTable()">
-              <option value="">All Categories</option>
-              <option>Full Face</option>
-              <option>Half Face</option>
-              <option>Modular</option>
-              <option>Racing</option>
-              <option>Open Face</option>
-            </select>
+  <option value="">All Categories</option>
+
+  <% categories.forEach((category) => { %>
+    <option value="<%= category.name %>">
+      <%= category.name %>
+    </option>
+  <% }) %>
+</select>
           </div>
           <div class="field-group">
             <label>Brand</label>
             <select id="brandFilter" onchange="filterTable()">
-              <option value="">All Brands</option>
-              <option>Arai</option>
-              <option>Shoei</option>
-              <option>Bell</option>
-              <option>AGV</option>
-            </select>
+  <option value="">All Brands</option>
+
+  <% brands.forEach((brand) => { %>
+    <option value="<%= brand.name %>">
+      <%= brand.name %>
+    </option>
+  <% }) %>
+</select>
           </div>
           <div class="field-group">
             <label>Status</label>
@@ -947,6 +957,7 @@
           <table id="productTable">
             <thead>
               <tr>
+                <th>Preview</th>
                 <th>Product Name</th>
                 <th>Brand</th>
                 <th>Category</th>
@@ -1046,151 +1057,118 @@
         </div>
 
         <!-- Product Photos -->
-        <div style="margin-top: 18px">
-          <label
-            style="
-              font-size: 11px;
-              font-weight: 600;
-              letter-spacing: 0.07em;
-              text-transform: uppercase;
-              color: var(--muted);
-              display: block;
-              margin-bottom: 10px;
-            "
-            >Product Photos (up to 3)</label
-          >
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(3, 1fr);
-              gap: 12px;
-            "
-          >
-            <div class="photo-slot">
-              <input
-                type="file"
-                id="photo-input-0"
-                name="productImages"
-                accept="image/*"
-                hidden
-                onchange="previewPhoto(this, 0)"
-              />
+  <div style="margin-top: 18px">
+  <label
+    style="
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 10px;
+    "
+  >
+    Product Photos (up to 3)
+  </label>
 
-              <div
-                class="photo-preview"
-                id="photo-preview-0"
-                onclick="openFilePicker(0)"
-              >
-                <span>Photo 1</span>
-              </div>
+  <div
+    style="
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    "
+  >
 
-              <button
-                type="button"
-                class="photo-remove"
-                id="photo-remove-0"
-                onclick="removePhoto(event, 0)"
-              >
-                ✕
-              </button>
-            </div>
-            <div class="photo-slot">
-              <input
-                type="file"
-                id="photo-input-1"
-                name="productImages"
-                accept="image/*"
-                hidden
-                onchange="previewPhoto(this, 1)"
-              />
+    <!-- PHOTO 1 -->
+    <div class="photo-slot">
+      <input
+        type="file"
+        id="photo-input-0"
+        name="images"
+        accept="image/*"
+        hidden
+        onchange="previewPhoto(this, 0)"
+      />
 
-              <div
-                class="photo-preview"
-                id="photo-preview-1"
-                onclick="openFilePicker(1)"
-              >
-                <span>Photo 2</span>
-              </div>
+      <div
+        class="photo-preview"
+        id="photo-preview-0"
+        onclick="openFilePicker(0)"
+      >
+        <span>Photo 1</span>
+      </div>
 
-              <button
-                type="button"
-                class="photo-remove"
-                id="photo-remove-1"
-                onclick="removePhoto(event, 1)"
-              >
-                ✕
-              </button><div class="photo-slot">
-              <input
-                type="file"
-                id="photo-input-0"
-                name="productImages"
-                accept="image/*"
-                hidden
-                onchange="previewPhoto(this, 0)"
-              />
+      <button
+        type="button"
+        class="photo-remove"
+        id="photo-remove-0"
+        onclick="removePhoto(event, 0)"
+      >
+        ✕
+      </button>
+    </div>
 
-              <div
-                class="photo-preview"
-                id="photo-preview-0"
-                onclick="openFilePicker(0)"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  viewBox="0 0 24 24"
-                  style="color: var(--muted)"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" />
-                  <circle cx="8.5" cy="8.5" r="1.5" />
-                  <polyline points="21 15 16 10 5 21" />
-                </svg>
+    <!-- PHOTO 2 -->
+    <div class="photo-slot">
+      <input
+        type="file"
+        id="photo-input-1"
+        name="images"
+        accept="image/*"
+        hidden
+        onchange="previewPhoto(this, 1)"
+      />
 
-                <span>Photo 3</span>
-              </div>
+      <div
+        class="photo-preview"
+        id="photo-preview-1"
+        onclick="openFilePicker(1)"
+      >
+        <span>Photo 2</span>
+      </div>
 
-              <button
-                type="button"
-                class="photo-remove"
-                id="photo-remove-0"
-                onclick="removePhoto(event, 0)"
-              >
-                ✕
-              </button>
-            </div>
-            </div>
+      <button
+        type="button"
+        class="photo-remove"
+        id="photo-remove-1"
+        onclick="removePhoto(event, 1)"
+      >
+        ✕
+      </button>
+    </div>
 
-            <div class="photo-slot">
-              <input
-                type="file"
-                id="photo-input-2"
-                name="productImages"
-                accept="image/*"
-                hidden
-                onchange="previewPhoto(this, 2)"
-              />
+    <!-- PHOTO 3 -->
+    <div class="photo-slot">
+      <input
+        type="file"
+        id="photo-input-2"
+        name="images"
+        accept="image/*"
+        hidden
+        onchange="previewPhoto(this, 2)"
+      />
 
-              <div
-                class="photo-preview"
-                id="photo-preview-2"
-                onclick="openFilePicker(2)"
-              >
-                <span>Photo 3</span>
-              </div>
+      <div
+        class="photo-preview"
+        id="photo-preview-2"
+        onclick="openFilePicker(2)"
+      >
+        <span>Photo 3</span>
+      </div>
 
-              <button
-                type="button"
-                class="photo-remove"
-                id="photo-remove-2"
-                onclick="removePhoto(event, 2)"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        </div>
+      <button
+        type="button"
+        class="photo-remove"
+        id="photo-remove-2"
+        onclick="removePhoto(event, 2)"
+      >
+        ✕
+      </button>
+    </div>
 
+  </div>
+</div>
         <div class="modal-actions">
           <button class="btn-cancel" onclick="closeModal()">Cancel</button>
           <button class="btn-primary" onclick="saveProduct()">
@@ -1347,96 +1325,9 @@
 
     <script>
       // ── Data ──────────────────────────────────────────
-      let products = [
-        {
-          id: 1,
-          name: "Arai Corsair-X Ghost",
-          sku: "AR-CX-001",
-          brand: "Arai",
-          cat: "Full Face",
-          status: "ACTIVE",
-          variants: [
-            { size: "M", stock: 5, price: 89000, status: "ACTIVE" },
-            { size: "L", stock: 2, price: 89000, status: "ACTIVE" },
-          ],
-        },
-        {
-          id: 2,
-          name: "Shoei RF-1400 White",
-          sku: "SH-RF-140",
-          brand: "Shoei",
-          cat: "Full Face",
-          status: "ACTIVE",
-          variants: [
-            { size: "S", stock: 8, price: 72000, status: "ACTIVE" },
-            { size: "XL", stock: 0, price: 72000, status: "INACTIVE" },
-          ],
-        },
-        {
-          id: 3,
-          name: "Bell Qualifier DLX",
-          sku: "BL-QD-992",
-          brand: "Bell",
-          cat: "Full Face",
-          status: "INACTIVE",
-          variants: [{ size: "M", stock: 12, price: 32000, status: "ACTIVE" }],
-        },
-        {
-          id: 4,
-          name: "AGV Pista GP RR",
-          sku: "AG-PGR-56",
-          brand: "AGV",
-          cat: "Racing",
-          status: "ACTIVE",
-          variants: [
-            { size: "L", stock: 3, price: 120000, status: "ACTIVE" },
-            { size: "XL", stock: 1, price: 120000, status: "ACTIVE" },
-          ],
-        },
-        {
-          id: 5,
-          name: "Shoei X-SPR Pro",
-          sku: "SH-XP-210",
-          brand: "Shoei",
-          cat: "Racing",
-          status: "ACTIVE",
-          variants: [{ size: "M", stock: 6, price: 95000, status: "ACTIVE" }],
-        },
-        {
-          id: 6,
-          name: "Bell MX-9 Adventure",
-          sku: "BL-MX-900",
-          brand: "Bell",
-          cat: "Modular",
-          status: "INACTIVE",
-          variants: [],
-        },
-        {
-          id: 7,
-          name: "Arai Profile-V",
-          sku: "AR-PV-330",
-          brand: "Arai",
-          cat: "Half Face",
-          status: "ACTIVE",
-          variants: [
-            { size: "S", stock: 4, price: 56000, status: "ACTIVE" },
-            { size: "M", stock: 9, price: 56000, status: "ACTIVE" },
-          ],
-        },
-        {
-          id: 8,
-          name: "AGV K6 S",
-          sku: "AG-K6-77",
-          brand: "AGV",
-          cat: "Full Face",
-          status: "INACTIVE",
-          variants: [
-            { size: "XXL", stock: 0, price: 48000, status: "INACTIVE" },
-          ],
-        },
-      ];
+      let products = <%- JSON.stringify(products) %>;
 
-      let filteredProducts = [...products];
+     let filteredProducts = [...products];
       let currentPage = 1;
       const perPage = 8;
       let editingId = null;
@@ -1446,39 +1337,116 @@
 
       // ── Render ────────────────────────────────────────
       function render() {
-        const start = (currentPage - 1) * perPage;
-        const slice = filteredProducts.slice(start, start + perPage);
-        const tbody = document.getElementById("tableBody");
-        tbody.innerHTML = "";
+  const start = (currentPage - 1) * perPage;
 
-        if (slice.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--muted);">No products found.</td></tr>`;
-        } else {
-          slice.forEach((p) => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-          <td>
-            <span class="product-name">${escHtml(p.name)}</span>
-            <span class="product-sku">SKU: ${escHtml(p.sku)}</span>
-          </td>
-          <td>${escHtml(p.brand)}</td>
-          <td>${escHtml(p.cat)}</td>
-          <td><span class="badge badge-${p.status === "ACTIVE" ? "active" : "inactive"}">${p.status}</span></td>
-          <td>
-            <div class="actions">
-              <button class="btn-variants" onclick="openVariantsModal(${p.id})">VARIANTS</button>
-              <button class="btn-icon edit" title="Edit" onclick="openEditModal(${p.id})">✏️</button>
-              <button class="btn-icon del"  title="Delete" onclick="openDeleteModal(${p.id})">🗑️</button>
-            </div>
-          </td>`;
-            tbody.appendChild(tr);
-          });
-        }
+  const slice = filteredProducts.slice(start, start + perPage);
 
-        renderPagination();
-        document.getElementById("resultsCount").textContent =
-          `Showing ${Math.min(start + slice.length, filteredProducts.length)} of ${filteredProducts.length} result${filteredProducts.length !== 1 ? "s" : ""}`;
-      }
+  const tbody = document.getElementById("tableBody");
+
+  tbody.innerHTML = "";
+
+  if (slice.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5"
+          style="text-align:center; padding:40px; color:var(--muted);">
+          No products found.
+        </td>
+      </tr>
+    `;
+  } else {
+
+    slice.forEach((p) => {
+
+      const status =
+        p.isBlocked || p.isDeleted
+          ? "INACTIVE"
+          : "ACTIVE";
+
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+      <td>
+    <img
+      src="${
+        p.productImage?.[0]?.url ||
+        p.productImage?.[0] ||
+        '/images/no-image.png'
+      }"
+      alt="product"
+      style="
+        width:60px;
+        height:60px;
+        object-fit:cover;
+        border-radius:8px;
+        border:1px solid var(--border);
+      "
+    />
+  </td>
+        <td>
+          <span class="product-name">
+            ${escHtml(p.productName || "N/A")}
+          </span>
+
+          <span class="product-sku">
+            ID: ${escHtml(p._id)}
+          </span>
+        </td>
+
+        <td>
+          ${escHtml(p.brand?.name || "N/A")}
+        </td>
+
+        <td>
+          ${escHtml(p.category?.name || "N/A")}
+        </td>
+
+        <td>
+          <span class="badge badge-${status === "ACTIVE" ? "active" : "inactive"}">
+            ${status}
+          </span>
+        </td>
+
+        <td>
+          <div class="actions">
+
+            <button
+              class="btn-variants"
+              onclick="openVariantsModal('${p._id}')"
+            >
+              VARIANTS
+            </button>
+
+            <button
+              class="btn-icon edit"
+              title="Edit"
+              onclick="openEditModal('${p._id}')"
+            >
+              ✏️
+            </button>
+
+            <button
+              class="btn-icon del"
+              title="Delete"
+              onclick="openDeleteModal('${p._id}')"
+            >
+              🗑️
+            </button>
+
+          </div>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  renderPagination();
+
+  document.getElementById("resultsCount").textContent =
+    `Showing ${Math.min(start + slice.length, filteredProducts.length)}
+     of ${filteredProducts.length} results`;
+}
 
       function renderPagination() {
         const total = Math.ceil(filteredProducts.length / perPage);
@@ -1521,21 +1489,50 @@
 
       // ── Filter ────────────────────────────────────────
       function filterTable() {
-        const q = document.getElementById("searchInput").value.toLowerCase();
-        const cat = document.getElementById("catFilter").value;
-        const brand = document.getElementById("brandFilter").value;
-        const status = document.getElementById("statusFilter").value;
-        filteredProducts = products.filter(
-          (p) =>
-            (p.name.toLowerCase().includes(q) ||
-              p.sku.toLowerCase().includes(q)) &&
-            (!cat || p.cat === cat) &&
-            (!brand || p.brand === brand) &&
-            (!status || p.status === status),
-        );
-        currentPage = 1;
-        render();
-      }
+
+  const q =
+    document.getElementById("searchInput")
+      .value
+      .toLowerCase();
+
+  const cat =
+    document.getElementById("catFilter").value;
+
+  const brand =
+    document.getElementById("brandFilter").value;
+
+  const status =
+    document.getElementById("statusFilter").value;
+
+  filteredProducts = products.filter((p) => {
+
+    const productStatus =
+      p.isBlocked || p.isDeleted
+        ? "INACTIVE"
+        : "ACTIVE";
+
+    return (
+
+      (p.productName?.toLowerCase().includes(q) ||
+
+      p._id?.toLowerCase().includes(q)) &&
+
+      (!cat ||
+        p.category?.name === cat) &&
+
+      (!brand ||
+        p.brand?.name === brand) &&
+
+      (!status ||
+        productStatus === status)
+
+    );
+  });
+
+  currentPage = 1;
+
+  render();
+}
 
       // ── Product Modal ─────────────────────────────────
       function openAddModal() {
@@ -1558,20 +1555,33 @@
       }
 
       function openEditModal(id) {
-        editingId = id;
-        document.getElementById("modalTitle").textContent = "Edit Product";
-        clearErrors();
 
-        const p = products.find((x) => x.id === id);
-        if (!p) return;
+  editingId = id;
 
-        document.getElementById("m-name").value = p.name;
-        document.getElementById("m-brand").value = p.brand;
-        document.getElementById("m-cat").value = p.cat;
-        document.getElementById("m-desc").value = p.desc || "";
+  document.getElementById("modalTitle").textContent =
+    "Edit Product";
 
-        document.getElementById("productModal").classList.add("open");
-      }
+  clearErrors();
+
+  const p = products.find((x) => x._id === id);
+
+  if (!p) return;
+
+  document.getElementById("m-name").value =
+    p.productName || "";
+
+  document.getElementById("m-brand").value =
+    p.brand?._id || "";
+
+  document.getElementById("m-cat").value =
+    p.category?._id || "";
+
+  document.getElementById("m-desc").value =
+    p.description || "";
+
+  document.getElementById("productModal")
+    .classList.add("open");
+}
 
       function openFilePicker(index) {
         document.getElementById(`photo-input-${index}`).click();
@@ -1654,41 +1664,20 @@
         formData.append("brand", brand);
         formData.append("category", cat);
         formData.append("description", desc);
-        formData.append("productImages",[]);
 
-        // // Filter out empty slots from our uploads array
-        // const finalImages = [];
 
-        // for (let i = 0; i < 3; i++) {
-        //   const input = document.getElementById(`photo-input-${i}`);
+        const uploadedImages = croppedFiles.filter(file => file !== null);
 
-        //   if (input.files.length > 0) {
-        //     finalImages.push(input.files[0]);
-        //   }
-        // }
+if (uploadedImages.length < 3 && !editingId) {
+  showToast("Minimum 3 product images required", false);
+  return;
+}
 
-        // if (!editingId) {
-        //   // ── NEW PRODUCT RULES ──
-        //   if (finalImages.length < 3) {
-        //     alert(
-        //       "Minimum 3 cropped photos are required to save a new product.",
-        //     );
-        //     return;
-        //   }
-        //   if (!editingId && !validateImages()) {
-        //     return;
-        //   }
-        //   // Add all 3 required images
-        //   finalImages.forEach((file) => {
-        //     formData.append("productImages", file);
-        //   });
-        // } else {
-        //   // ── EDIT PRODUCT RULES ──
-        //   // If the user picked new photos while editing, append them to update the existing slots
-        //   finalImages.forEach((file) => {
-        //     formData.append("productImages", file | []);
-        //   });
-        // }
+uploadedImages.forEach((file) => {
+  formData.append("images", file);
+});
+
+ 
 
         const targetUrl = editingId
           ? `/admin/edit-product/${editingId}`
@@ -1723,20 +1712,30 @@
       }
       // ── Variants Modal ────────────────────────────────
       function openVariantsModal(id) {
-        variantProductId = id;
-        const p = products.find((x) => x.id === id);
-        document.getElementById("variantsTitle").textContent =
-          p.name + " — Variants";
-        // clear add-form
-        document.getElementById("v-size").value = "";
-        document.getElementById("v-stock").value = "";
-        document.getElementById("v-price").value = "";
-        ["vfg-size", "vfg-stock", "vfg-price"].forEach((i) =>
-          document.getElementById(i).classList.remove("has-error"),
-        );
-        renderVariantsTable(p);
-        document.getElementById("variantsModal").classList.add("open");
-      }
+
+  variantProductId = id;
+
+  const p = products.find((x) => x._id === id);
+
+  if (!p) return;
+
+  document.getElementById("variantsTitle").textContent =
+    (p.productName || "Product") + " — Variants";
+
+  document.getElementById("v-size").value = "";
+  document.getElementById("v-stock").value = "";
+  document.getElementById("v-price").value = "";
+
+  ["vfg-size", "vfg-stock", "vfg-price"].forEach((i) =>
+    document.getElementById(i).classList.remove("has-error"),
+  );
+
+  renderVariantsTable(p);
+
+  document
+    .getElementById("variantsModal")
+    .classList.add("open");
+}
 
       function renderVariantsTable(p) {
         const tbody = document.getElementById("variantsBody");
@@ -1855,37 +1854,85 @@
 
       // 1. Triggered when an image is selected from a slot
       function previewPhoto(input, index) {
-        if (!input.files || !input.files[0]) return;
 
-        currentInputIndex = index;
+  if (!input.files || !input.files[0]) return;
 
-        const file = input.files[0];
+  const file = input.files[0];
 
-        const reader = new FileReader();
+  // Allowed image types
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/jpg"
+  ];
 
-        reader.onload = function (e) {
-          const cropImage = document.getElementById("cropImage");
+  // Max size = 5MB
+  const maxSize = 5 * 1024 * 1024;
 
-          cropImage.src = e.target.result;
+  // FILE TYPE VALIDATION
+  if (!allowedTypes.includes(file.type)) {
 
-          document.getElementById("cropModal").classList.add("open");
+    showToast(
+      "Only JPG, PNG and WEBP images are allowed",
+      false
+    );
 
-          // destroy old cropper
-          if (cropper) {
-            cropper.destroy();
-          }
+    input.value = "";
 
-          cropper = new Cropper(cropImage, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 1,
-            responsive: true,
-            background: false,
-          });
-        };
+    return;
+  }
 
-        reader.readAsDataURL(file);
-      }
+  // FILE SIZE VALIDATION
+  if (file.size > maxSize) {
+
+    showToast(
+      "Image size must be less than 5MB",
+      false
+    );
+
+    input.value = "";
+
+    return;
+  }
+
+  currentInputIndex = index;
+
+  const reader = new FileReader();
+  
+
+  reader.onload = function (e) {
+
+    const cropImage = document.getElementById("cropImage");
+
+    // destroy old cropper FIRST
+    if (cropper) {
+      cropper.destroy();
+      cropper = null;
+    }
+
+    cropImage.src = e.target.result;
+
+    // wait until image fully loads
+    cropImage.onload = function () {
+
+      document
+        .getElementById("cropModal")
+        .classList.add("open");
+
+      cropper = new Cropper(cropImage, {
+        aspectRatio: 1,
+        viewMode: 1,
+        autoCropArea: 1,
+        responsive: true,
+        background: false,
+      });
+
+    };
+  };
+
+  reader.readAsDataURL(file);
+}
 
       function removePhoto(event, index) {
         // Prevent JS crash
@@ -1938,72 +1985,83 @@
       render();
 
       function cropCurrentImage() {
-        if (!cropper) return;
 
-        const canvas = cropper.getCroppedCanvas({
-          width: 800,
-          height: 800,
-        });
+  if (!cropper) {
+    showToast("Cropper not initialized", false);
+    return;
+  }
 
-        if (!canvas) {
-          showToast("Crop failed", false);
-          return;
-        }
+  const canvas = cropper.getCroppedCanvas({
+    width: 800,
+    height: 800,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: "high",
+  });
 
-        canvas.toBlob(
-          function (blob) {
-            if (!blob) {
-              showToast("Image processing failed", false);
-              return;
-            }
+  if (!canvas) {
+    showToast("Failed to crop image", false);
+    return;
+  }
 
-            const croppedFile = new File([blob], `cropped-${Date.now()}.jpg`, {
-              type: "image/jpeg",
-            });
+  canvas.toBlob(
+    function (blob) {
 
-            // save cropped file
-            croppedFiles[currentInputIndex] = croppedFile;
-
-            // preview image
-            const preview = document.getElementById(
-              `photo-preview-${currentInputIndex}`,
-            );
-
-            preview.innerHTML = `
-      <img 
-        src="${URL.createObjectURL(blob)}"
-        style="
-          width:100%;
-          height:100%;
-          object-fit:cover;
-        "
-      >
-    `;
-
-            // active border
-            const slot = document.getElementById(
-              `photo-input-${currentInputIndex}`,
-            ).parentElement;
-
-            slot.classList.add("has-photo");
-
-            closeCropModal();
-          },
-          "image/jpeg",
-          0.9,
-        );
+      if (!blob) {
+        showToast("Blob creation failed", false);
+        return;
       }
 
+      const croppedFile = new File(
+        [blob],
+        `cropped-${Date.now()}.jpg`,
+        {
+          type: "image/jpeg",
+        }
+      );
+
+      croppedFiles[currentInputIndex] = croppedFile;
+
+      const preview = document.getElementById(
+        `photo-preview-${currentInputIndex}`
+      );
+
+      preview.innerHTML = `
+        <img
+          src="${URL.createObjectURL(blob)}"
+          style="
+            width:100%;
+            height:100%;
+            object-fit:cover;
+          "
+        />
+      `;
+
+      const slot = document.getElementById(
+        `photo-input-${currentInputIndex}`
+      ).parentElement;
+
+      slot.classList.add("has-photo");
+
+      closeCropModal();
+
+      showToast("Image cropped successfully");
+
+    },
+    "image/jpeg",
+    0.9
+  );
+}
       function closeCropModal() {
-        document.getElementById("cropModal").classList.remove("open");
 
-        if (cropper) {
-          cropper.destroy();
-          cropper = null;
-        }
+  document
+    .getElementById("cropModal")
+    .classList.remove("open");
 
-        currentInputIndex = null;
-      }
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+}
 
       function validateImages() {
         const uploadedCount = croppedFiles.filter(
