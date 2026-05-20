@@ -696,6 +696,202 @@
       .cropper-container {
         z-index: 9999 !important;
       }
+      /* ───────── VARIANTS SECTION DESIGN ───────── */
+
+.variant-content{
+  margin-top: 10px;
+}
+
+.variant-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.variant-header h2{
+  font-family: var(--font-head);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+#closeVariantModal{
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: .2s;
+}
+
+#closeVariantModal:hover{
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+}
+
+.variant-table{
+  width: 100%;
+  border-collapse: collapse;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.variant-table thead{
+  background: var(--surface);
+}
+
+.variant-table th{
+  padding: 14px 18px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.variant-table td{
+  padding: 18px;
+  border-top: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.variant-table tbody tr{
+  transition: .2s;
+}
+
+.variant-table tbody tr:hover{
+  background: rgba(255,255,255,.03);
+}
+
+
+/* ───── ADD VARIANT AREA ───── */
+
+.add-variant-form{
+
+  margin-top: 22px;
+
+  padding-top: 20px;
+
+  border-top: 1px solid var(--border);
+
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    1fr
+    1fr
+    auto;
+
+  gap: 12px;
+
+  align-items: end;
+}
+
+.add-variant-form select,
+.add-variant-form input{
+
+  width: 100%;
+
+  height: 44px;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+
+  border-radius: 10px;
+
+  padding: 0 14px;
+
+  color: var(--text);
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition: .2s;
+}
+
+.add-variant-form input::placeholder{
+  color: var(--muted);
+}
+
+.add-variant-form select:focus,
+.add-variant-form input:focus{
+
+  border-color: var(--accent);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(59,110,245,.12);
+}
+
+.add-variant-form button{
+
+  height: 44px;
+
+  padding: 0 22px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: var(--accent);
+
+  color: white;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: .2s;
+}
+
+.add-variant-form button:hover{
+
+  background: var(--accent2);
+
+  transform: translateY(-1px);
+}
+
+.add-variant-form button:active{
+
+  transform: scale(.98);
+}
+
+
+/* ───── VARIANT ACTION BUTTONS ───── */
+
+.variant-table .actions{
+  display: flex;
+  gap: 8px;
+}
+
+.variant-table .btn-icon{
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+}
+
+
+/* ───── RESPONSIVE ───── */
+
+@media(max-width:700px){
+
+  .add-variant-form{
+
+    grid-template-columns: 1fr;
+  }
+
+  .add-variant-form button{
+    width: 100%;
+  }
+}
     </style>
   </head>
   <body>
@@ -787,7 +983,7 @@
           </svg>
           Coupons
         </a>
-        <a class="nav-item" href="#">
+        <a class="nav-item" href="/admin/categories">
           <svg
             width="16"
             height="16"
@@ -800,7 +996,7 @@
           </svg>
           Category
         </a>
-        <a class="nav-item" href="#">
+        <a class="nav-item" href="/admin/brands">
           <svg
             width="16"
             height="16"
@@ -1203,85 +1399,88 @@
           "
         >
           ✕
-        </button>
-        <h2 class="modal-title" id="variantsTitle">Variants</h2>
-        <div
-          class="table-wrap"
-          style="margin-bottom: 18px; max-height: 340px; overflow-y: auto"
-        >
-          <table id="variantsTable" style="width: 100%">
-            <thead>
-              <tr>
-                <th>Size</th>
-                <th>Stock</th>
-                <th>Price (₹)</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="variantsBody"></tbody>
-          </table>
-        </div>
-        <div style="border-top: 1px solid var(--border); padding-top: 16px">
-          <p
-            style="
-              font-size: 12px;
-              font-weight: 700;
-              letter-spacing: 0.07em;
-              text-transform: uppercase;
-              color: var(--muted);
-              margin-bottom: 12px;
-            "
-          >
-            Add Variant
-          </p>
-          <div
-            style="
-              display: grid;
-              grid-template-columns: 1fr 1fr 1fr auto;
-              gap: 10px;
-              align-items: end;
-            "
-          >
-            <div class="field-group" id="vfg-size">
-              <label>Size *</label>
-              <select id="v-size">
-                <option value="">Select</option>
-                <option>XS</option>
-                <option>S</option>
-                <option>M</option>
-                <option>L</option>
-                <option>XL</option>
-                <option>XXL</option>
-              </select>
-              <span class="error-msg">Required.</span>
-            </div>
-            <div class="field-group" id="vfg-stock">
-              <label>Stock *</label>
-              <input type="number" id="v-stock" placeholder="e.g. 10" min="0" />
-              <span class="error-msg">Enter valid stock (≥ 0).</span>
-            </div>
-            <div class="field-group" id="vfg-price">
-              <label>Price (₹) *</label>
-              <input
-                type="number"
-                id="v-price"
-                placeholder="e.g. 45000"
-                min="1"
-              />
-              <span class="error-msg">Enter valid price (> 0).</span>
-            </div>
-            <button
-              class="btn-primary"
-              style="height: 42px"
-              onclick="addVariant()"
-            >
-              + Add
-            </button>
-          </div>
-        </div>
-      </div>
+          </button>
+      <!-- <% products.forEach(product => { %>
+
+<tr>
+
+  <td>
+    <%= product.productName %>
+  </td>
+
+  <td>
+
+    <button
+      class="variant-btn"
+      data-product-id="<%= product._id %>"
+      data-product-name="<%= product.productName %>"
+    >
+      VARIANTS
+    </button>
+
+  </td>
+
+</tr>
+
+<% }) %> -->
+       <div class="variant-modal" id="variantModal">
+
+  <div class="variant-content">
+
+    <div class="variant-header">
+     <h2 id="variantsTitle"></h2>
+      <!-- <button id="closeVariantModal">✕</button> -->
     </div>
+
+    <table class="variant-table">
+
+      <thead>
+        <tr>
+          <th>SIZE</th>
+          <th>STOCK</th>
+          <th>PRICE</th>
+          <th>STATUS</th>
+          <th>ACTION</th>
+        </tr>
+      </thead>
+
+     <tbody id="variantsBody">
+
+      </tbody>
+
+    </table>
+
+    <div class="add-variant-form">
+
+      <select id="v-size">
+        <option value="">Select Size</option>
+        <option value="S">S</option>
+        <option value="M">M</option>
+        <option value="L">L</option>
+        <option value="XL">XL</option>
+      </select>
+
+      <input
+        type="number"
+        id="v-stock"
+        placeholder="Stock"
+      >
+
+      <input
+        type="number"
+        id="v-price"
+        placeholder="Price"
+      >
+
+      <button onclick="addVariant()">
+        + Add
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
 
     <!-- ── DELETE CONFIRM MODAL ── -->
     <div class="overlay" id="deleteModal">
@@ -1726,10 +1925,14 @@ uploadedImages.forEach((file) => {
   document.getElementById("v-stock").value = "";
   document.getElementById("v-price").value = "";
 
-  ["vfg-size", "vfg-stock", "vfg-price"].forEach((i) =>
-    document.getElementById(i).classList.remove("has-error"),
-  );
+  // clear variant errors safely
+["vfg-size", "vfg-stock", "vfg-price"].forEach((i) => {
+  const el = document.getElementById(i);
 
+  if (el) {
+    el.classList.remove("has-error");
+  }
+});
   renderVariantsTable(p);
 
   document
@@ -1763,51 +1966,113 @@ uploadedImages.forEach((file) => {
         });
       }
 
-      function addVariant() {
-        ["vfg-size", "vfg-stock", "vfg-price"].forEach((i) =>
-          document.getElementById(i).classList.remove("has-error"),
-        );
-        let valid = true;
-        const size = document.getElementById("v-size").value;
-        const stock = parseInt(document.getElementById("v-stock").value);
-        const price = parseFloat(document.getElementById("v-price").value);
-        if (!size) {
-          document.getElementById("vfg-size").classList.add("has-error");
-          valid = false;
-        }
-        if (isNaN(stock) || stock < 0) {
-          document.getElementById("vfg-stock").classList.add("has-error");
-          valid = false;
-        }
-        if (isNaN(price) || price <= 0) {
-          document.getElementById("vfg-price").classList.add("has-error");
-          valid = false;
-        }
-        if (!valid) return;
+async function addVariant() {
 
-        const p = products.find((x) => x.id === variantProductId);
-        p.variants.push({
+  const size =
+    document.getElementById("v-size").value;
+
+  const stock =
+    parseInt(
+      document.getElementById("v-stock").value
+    );
+
+  const price =
+    parseFloat(
+      document.getElementById("v-price").value
+    );
+
+  // VALIDATION
+  if (!size) {
+
+    showToast("Select size", false);
+
+    return;
+  }
+
+  if (isNaN(stock) || stock < 0) {
+
+    showToast("Invalid stock", false);
+
+    return;
+  }
+
+  if (isNaN(price) || price <= 0) {
+
+    showToast("Invalid price", false);
+
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+
+      `/admin/product/${variantProductId}/variant`,
+
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
           size,
           stock,
-          price,
-          status: stock > 0 ? "ACTIVE" : "INACTIVE",
-        });
-        document.getElementById("v-size").value = "";
-        document.getElementById("v-stock").value = "";
-        document.getElementById("v-price").value = "";
-        renderVariantsTable(p);
-        showToast("Variant added!");
+          price
+        })
       }
+    );
+
+    const data = await response.json();
+
+    if (!data.success) {
+
+      showToast(
+        data.message || "Failed to add variant",
+        false
+      );
+
+      return;
+    }
+
+    // UPDATE LOCAL PRODUCT
+    const p = products.find(
+      (x) => x._id === variantProductId
+    );
+
+    if (p) {
+      p.variants = data.variants;
+    }
+
+    renderVariantsTable(p);
+
+    // CLEAR INPUTS
+    document.getElementById("v-size").value = "";
+
+    document.getElementById("v-stock").value = "";
+
+    document.getElementById("v-price").value = "";
+
+    showToast("Variant added successfully");
+
+  } catch (error) {
+
+    console.log(error);
+
+    showToast("Server error", false);
+  }
+}
 
       function toggleVariantStatus(idx) {
-        const p = products.find((x) => x.id === variantProductId);
+        const p = products.find((x) => x._id === variantProductId)
         p.variants[idx].status =
           p.variants[idx].status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
         renderVariantsTable(p);
       }
 
       function deleteVariant(idx) {
-        const p = products.find((x) => x.id === variantProductId);
+       const p = products.find((x) => x._id === variantProductId);
         p.variants.splice(idx, 1);
         renderVariantsTable(p);
         showToast("Variant removed.");
@@ -1820,7 +2085,7 @@ uploadedImages.forEach((file) => {
       }
 
       function confirmDelete() {
-        products = products.filter((p) => p.id !== deletingId);
+        products = products.filter((p) => p._id !== deletingId);
         deletingId = null;
         document.getElementById("deleteModal").classList.remove("open");
         filterTable();
@@ -1932,6 +2197,192 @@ uploadedImages.forEach((file) => {
   };
 
   reader.readAsDataURL(file);
+}
+
+// let currentProductId = null
+
+// const modal = document.getElementById("variantModal")
+
+// const tableBody = document.getElementById("variantTableBody")
+
+
+// OPEN MODAL
+// document.querySelectorAll(".variant-btn")
+// .forEach(button => {
+
+//   button.addEventListener("click", async () => {
+
+//     currentProductId = button.dataset.productId
+
+//     document.getElementById("variantTitle").innerText =
+//       `${button.dataset.productName} - Variants`
+
+//     modal.style.display = "flex"
+
+//     loadVariants()
+//   })
+// })
+
+
+// // CLOSE
+// document.getElementById("closeVariantModal")
+// .addEventListener("click", () => {
+
+//   modal.style.display = "none"
+// })
+
+
+
+
+// // LOAD VARIANTS
+// async function loadVariants() {
+
+//   const response = await fetch(
+//     `/admin/product/${currentProductId}/variants`
+//   )
+
+//   const data = await response.json()
+
+//   tableBody.innerHTML = ""
+
+//   if (data.variants.length === 0) {
+
+//     tableBody.innerHTML = `
+//       <tr>
+//         <td colspan="5">
+//           No variants added
+//         </td>
+//       </tr>
+//     `
+
+//     return
+//   }
+
+//   data.variants.forEach(variant => {
+
+//     tableBody.innerHTML += `
+
+//       <tr>
+
+//         <td>${variant.size}</td>
+
+//         <td>${variant.stock}</td>
+
+//         <td>₹${variant.price}</td>
+
+//         <td>
+//           <button
+//             onclick="toggleStatus(
+//               '${variant._id}'
+//             )"
+//           >
+//             ${variant.status}
+//           </button>
+//         </td>
+
+//         <td>
+
+//           <button
+//             onclick="deleteVariant(
+//               '${variant._id}'
+//             )"
+//           >
+//             Delete
+//           </button>
+
+//         </td>
+
+//       </tr>
+//     `
+//   })
+// }
+
+
+
+// // ADD VARIANT
+// document.getElementById("addVariantBtn")
+// .addEventListener("click", async () => {
+
+//   const size = document.getElementById("variantSize").value
+
+//   const stock = document.getElementById("variantStock").value
+
+//   const price = document.getElementById("variantPrice").value
+
+
+//   const response = await fetch(
+//     `/admin/product/${currentProductId}/variant`,
+//     {
+//       method: "POST",
+
+//       headers: {
+//         "Content-Type": "application/json"
+//       },
+
+//       body: JSON.stringify({
+//         size,
+//         stock,
+//         price
+//       })
+//     }
+//   )
+
+//   const data = await response.json()
+
+//   if (data.success) {
+
+//     loadVariants()
+
+//     document.getElementById("variantSize").value = ""
+
+//     document.getElementById("variantStock").value = ""
+
+//     document.getElementById("variantPrice").value = ""
+
+//   } else {
+
+//     alert(data.message)
+//   }
+// })
+
+
+
+
+// // DELETE
+// async function deleteVariant(variantId) {
+
+//   const response = await fetch(
+//     `/admin/product/${currentProductId}/variant/${variantId}`,
+//     {
+//       method: "DELETE"
+//     }
+//   )
+
+//   const data = await response.json()
+
+//   if (data.success) {
+//     loadVariants()
+//   }
+// }
+
+
+
+
+// STATUS CHANGE
+async function toggleStatus(variantId) {
+
+  const response = await fetch(
+    `/admin/product/${currentProductId}/variant/${variantId}/status`,
+    {
+      method: "PATCH"
+    }
+  )
+
+  const data = await response.json()
+
+  if (data.success) {
+    loadVariants()
+  }
 }
 
       function removePhoto(event, index) {

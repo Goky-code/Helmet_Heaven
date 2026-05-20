@@ -175,3 +175,154 @@ export const deleteProduct = async (req, res) => {
     });
   }
 };
+
+export const getVariants = async (req, res) => {
+  try {
+
+    const product = await Product.findById(req.params.id)
+
+    if (!product) {
+      return res.json({
+        success: false
+      })
+    }
+
+    res.json({
+      success: true,
+      variants: product.variants
+    })
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.json({
+      success: false
+    })
+  }
+}
+
+export const addVariant = async (req, res) => {
+
+  try {
+
+    const { size, stock, price } = req.body
+
+    const product = await Product.findById(req.params.id)
+
+    if (!product) {
+      return res.json({
+        success: false,
+        message: "Product not found"
+      })
+    }
+
+    // CHECK DUPLICATE SIZE
+    const existingVariant = product.variants.find(
+      variant => variant.size === size
+    )
+
+    if (existingVariant) {
+      return res.json({
+        success: false,
+        message: "Variant already exists"
+      })
+    }
+
+    product.variants.push({
+      size,
+      stock,
+      price
+    })
+
+    await product.save()
+
+    res.json({
+      success: true,
+      message: "Variant added successfully",
+      variants: product.variants
+    })
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.json({
+      success: false,
+      message: "Server error"
+    })
+  }
+}
+
+export const deleteVariant = async (req, res) => {
+
+  try {
+
+    const { productId, variantId } = req.params
+
+    const product = await Product.findById(productId)
+
+    if (!product) {
+      return res.json({
+        success: false
+      })
+    }
+
+    product.variants = product.variants.filter(
+      variant => variant._id.toString() !== variantId
+    )
+
+    await product.save()
+
+    res.json({
+      success: true,
+      message: "Variant deleted"
+    })
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.json({
+      success: false
+    })
+  }
+}
+
+export const changeVariantStatus = async (req, res) => {
+
+  try {
+
+    const { productId, variantId } = req.params
+
+    const product = await Product.findById(productId)
+
+    const variant = product.variants.id(variantId)
+
+    if (!variant) {
+      return res.json({
+        success: false
+      })
+    }
+
+    variant.status =
+      variant.status === "ACTIVE"
+        ? "INACTIVE"
+        : "ACTIVE"
+
+    await product.save()
+
+    res.json({
+      success: true,
+      status: variant.status
+    })
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.json({
+      success: false
+    })
+  }
+}
