@@ -4,28 +4,27 @@ import Category from "../models/categoryModel.js";
 export const loadCategory = async (req, res) => {
   try {
 
-    // SEARCH
+   
     const search = req.query.search || "";
 
-    // PAGINATION
+   
     const page = parseInt(req.query.page) || 1;
     const limit = 4;
 
     const skip = (page - 1) * limit;
 
-    // SEARCH QUERY
+    
     const searchQuery = {
       isDeleted: false,
       name: { $regex: search, $options: "i" },
     };
 
-    // TOTAL COUNT
     const totalCategories = await Category.countDocuments(searchQuery);
 
-    // TOTAL PAGES
+  
     const totalPages = Math.ceil(totalCategories / limit);
 
-    // CATEGORY DATA
+  
     const categories = await Category.find(searchQuery)
       .sort({ createdAt: -1 }) // DESCENDING
       .skip(skip)

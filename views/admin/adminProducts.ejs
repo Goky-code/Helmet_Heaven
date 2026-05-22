@@ -921,7 +921,7 @@
           </svg>
           Dashboard
         </a>
-        <a class="nav-item active" href="#">
+        <a class="nav-item active" href="/admin/adminDashboard">
           <svg
             width="16"
             height="16"
@@ -936,7 +936,7 @@
           </svg>
           Products
         </a>
-        <a class="nav-item" href="#">
+        <a class="nav-item" href="/admin/adminCustomer">
           <svg
             width="16"
             height="16"
@@ -2170,7 +2170,7 @@ async function addVariant() {
 
     const cropImage = document.getElementById("cropImage");
 
-    // destroy old cropper FIRST
+    
     if (cropper) {
       cropper.destroy();
       cropper = null;

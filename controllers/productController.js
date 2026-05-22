@@ -62,7 +62,7 @@ export const addProduct = async (req, res) => {
 
     await product.save();
 
-    // ✅ Return JSON so the frontend fetch() can parse it
+  
     return res.status(200).json({
       success: true,
       message: "Product added successfully!",
@@ -95,7 +95,7 @@ export const editProduct = async (req, res) => {
     product.category     = req.body.category;
     product.description  = req.body.description;
 
-    // ✅ Guard against undefined req.files before checking length
+   
     if (req.files && req.files.length > 0) {
       let newImages = [];
       for (let file of req.files) {
@@ -111,7 +111,7 @@ export const editProduct = async (req, res) => {
 
     await product.save();
 
-    // ✅ Always send a JSON response
+    
     return res.status(200).json({
       success: true,
       message: "Product updated successfully!",
@@ -217,7 +217,7 @@ export const addVariant = async (req, res) => {
       })
     }
 
-    // CHECK DUPLICATE SIZE
+   
     const existingVariant = product.variants.find(
       variant => variant.size === size
     )

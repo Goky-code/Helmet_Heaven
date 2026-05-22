@@ -26,7 +26,7 @@ router.post('/verifyForgotpassOtp',authController.verifyForgotOtp)
 router.post('/resetPassword',authController.resetPassword)
 
   router.get('/google', passport.authenticate('google', { scope: ['profile', 'email']
-    // prompt: 'select_account'
+    
   }));
 
 

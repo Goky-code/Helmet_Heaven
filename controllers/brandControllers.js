@@ -1,7 +1,7 @@
 import Brand from "../models/brandModels.js";
 
 
-// LOAD BRAND PAGE
+
 
 export const loadBrand = async (req, res) => {
   try {
@@ -49,7 +49,7 @@ export const loadBrand = async (req, res) => {
 
 
 
-// ADD BRAND
+
 
 export const addBrand = async (req, res) => {
   try {
@@ -87,7 +87,7 @@ export const addBrand = async (req, res) => {
 
 
 
-// EDIT BRAND
+
 
 export const editBrand = async (req, res) => {
   try {
@@ -113,7 +113,6 @@ export const editBrand = async (req, res) => {
 
 
 
-// SOFT DELETE BRAND
 
 export const deleteBrand = async (req, res) => {
   try {
