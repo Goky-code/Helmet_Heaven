@@ -10,6 +10,10 @@ import { fileURLToPath } from "url"
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
+import categoryRouter from "./routes/categoryRoutes.js";
+import brandRouter from "./routes/brandRoutes.js";
+import productRouter from "./routes/productRoutes.js"
+
 
 
 const app = express();
@@ -39,19 +43,21 @@ app.use(
 app.use(passport.initialize());
 
 // console.log("Client ID:", process.env.GOOGLE_CLIENT_ID);
-// console.log("Client Secret:", process.env.GOOGLE_CLIENT_SECRET);
+// console.log("Client Secret:", process.env.GOOGLE_CLIENT_SECRET); 
 
 app.use(passport.session());
 app.use(express.static(path.join(__dirname,'public')));
 app.set("view engine", "ejs");                                       
-app.set("views", "views");
-
+app.set("views", path.join(__dirname, "views")); 
 
 app.use("/user",userRoutes);
 app.use("/auth",authRoutes)
 
 app.use("/admin", adminRoutes);
+app.use("/admin", categoryRouter);
 
+app.use("/admin",brandRouter)
+app.use("/admin",productRouter)
 
 const startServer = async () => {
   try {
