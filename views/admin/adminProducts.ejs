@@ -1627,7 +1627,7 @@
             <button
               class="btn-icon del"
               title="Delete"
-              onclick="openDeleteModal('${p._id}')"
+              onclick="deleteProduct('${p._id}')"
             >
               🗑️
             </button>
@@ -2064,19 +2064,45 @@ async function addVariant() {
   }
 }
 
-      function toggleVariantStatus(idx) {
-        const p = products.find((x) => x._id === variantProductId)
-        p.variants[idx].status =
-          p.variants[idx].status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
-        renderVariantsTable(p);
-      }
+     async function toggleVariantStatus(idx) {
+  const p = products.find((x) => x._id === variantProductId);
+  const variant = p.variants[idx];
 
-      function deleteVariant(idx) {
-       const p = products.find((x) => x._id === variantProductId);
-        p.variants.splice(idx, 1);
-        renderVariantsTable(p);
-        showToast("Variant removed.");
-      }
+  const response = await fetch(
+    `/admin/product/${variantProductId}/variant/${variant._id}/status`,
+    { method: "PATCH" }
+  );
+
+  const data = await response.json();
+
+  if (data.success) {
+    p.variants[idx].status = data.status;
+    renderVariantsTable(p);
+    showToast("Status updated.");
+  } else {
+    showToast("Failed to update status", false);
+  }
+}
+
+   async function deleteVariant(idx) {
+  const p = products.find((x) => x._id === variantProductId);
+  const variant = p.variants[idx];
+
+  const response = await fetch(
+    `/admin/product/${variantProductId}/variant/${variant._id}`,
+    { method: "DELETE" }
+  );
+
+  const data = await response.json();
+
+  if (data.success) {
+    p.variants.splice(idx, 1);
+    renderVariantsTable(p);
+    showToast("Variant removed.");
+  } else {
+    showToast(data.message || "Failed to delete variant", false);
+  }
+}
 
       // ── Delete Product ────────────────────────────────
       function openDeleteModal(id) {
@@ -2384,7 +2410,20 @@ async function toggleStatus(variantId) {
     loadVariants()
   }
 }
+async function deleteProduct(id) {
 
+  const response = await fetch(`/admin/delete-product/${id}`, {
+    method: "PATCH"
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    location.reload();
+  } else {
+    alert(data.message);
+  }
+}
       function removePhoto(event, index) {
         // Prevent JS crash
         if (event) {
