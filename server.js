@@ -13,7 +13,7 @@ import authRoutes from "./routes/authRoutes.js"
 import categoryRouter from "./routes/categoryRoutes.js";
 import brandRouter from "./routes/brandRoutes.js";
 import productRouter from "./routes/productRoutes.js"
-
+import shopRoutes from "./routes/shopRoutes.js"
 
 
 const app = express();
@@ -58,6 +58,7 @@ app.use("/admin", categoryRouter);
 
 app.use("/admin",brandRouter)
 app.use("/admin",productRouter)
+app.use("/", shopRoutes)
 
 const startServer = async () => {
   try {
