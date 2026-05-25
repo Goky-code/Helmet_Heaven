@@ -9,6 +9,12 @@ const categorySchema = new mongoose.Schema(
       trim: true,
     },
 
+    description: {
+      type: String,
+      trim: true,
+      default:"",
+    },
+
     isListed: {
       type: Boolean,
       default: true,

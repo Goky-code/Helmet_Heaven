@@ -48,7 +48,11 @@ export const loadCategory = async (req, res) => {
 export const addCategory = async (req, res) => {
   try {
 
-    const { name } = req.body;
+    const {
+      name,
+      description,
+      isListed
+    } = req.body;
 
     if (!name || name.trim() === "") {
       return res.status(400).json({
@@ -70,6 +74,8 @@ export const addCategory = async (req, res) => {
 
     const newCategory = new Category({
       name: name.trim(),
+      description: description?.trim(),
+      isListed,
     });
 
     await newCategory.save();
@@ -80,6 +86,7 @@ export const addCategory = async (req, res) => {
     });
 
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({
@@ -93,11 +100,25 @@ export const editCategory = async (req, res) => {
   try {
 
     const { id } = req.params;
-    const { name } = req.body;
+
+    const {
+      name,
+      description,
+      isListed
+    } = req.body;
+
+    if (!name || name.trim() === "") {
+      return res.status(400).json({
+        success: false,
+        message: "Category name is required",
+      });
+    }
 
     const existingCategory = await Category.findOne({
       _id: { $ne: id },
-      name: { $regex: new RegExp("^" + name + "$", "i") },
+      name: {
+        $regex: new RegExp("^" + name + "$", "i"),
+      },
     });
 
     if (existingCategory) {
@@ -109,6 +130,8 @@ export const editCategory = async (req, res) => {
 
     await Category.findByIdAndUpdate(id, {
       name: name.trim(),
+      description: description?.trim(),
+      isListed,
     });
 
     res.status(200).json({
@@ -117,6 +140,7 @@ export const editCategory = async (req, res) => {
     });
 
   } catch (error) {
+
     console.log(error);
 
     res.status(500).json({

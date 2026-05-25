@@ -500,17 +500,17 @@
 
       <!-- EDIT -->
 
-      <button
-        class="icon-btn edit-btn"
-        onclick="openEditModal(
-          '<%= cat._id %>',
-          '<%= cat.name %>',
-          '<%= cat.description %>',
-          '<%= cat.isListed ? "active" : "inactive" %>'
-        )"
-      >
-        ✏️
-      </button>
+     <button
+  class="icon-btn edit-btn"
+  onclick="openEditModal(
+    '<%= cat._id %>',
+    '<%= cat.name %>',
+    '<%= cat.description || "" %>',
+    '<%= cat.isListed ? "active" : "inactive" %>'
+  )"
+>
+  ✏️
+</button>
 
       <!-- DELETE -->
 
@@ -739,17 +739,30 @@
 
   editingId = id;
 
-  document.getElementById('modalTitle').textContent = 'Edit Category';
+  document.getElementById('modalTitle').textContent =
+    'Edit Category';
 
-  document.getElementById('saveBtn').textContent = 'Update Category';
+  document.getElementById('saveBtn').textContent =
+    'Update Category';
 
-  document.getElementById('catName').value = name;
+  document.getElementById('catName').value =
+    name || '';
 
-  document.getElementById('catDesc').value = description;
+  document.getElementById('catDesc').value =
+    description || '';
 
-  document.getElementById('catStatus').value = status;
+  document.getElementById('catStatus').value =
+    status || '';
 
-  document.getElementById('categoryOverlay').classList.add('open');
+  updateCharCount('catName','catNameCount',60);
+
+  updateCharCount('catDesc','catDescCount',300);
+
+  clearErrors();
+
+  document
+    .getElementById('categoryOverlay')
+    .classList.add('open');
 }
 
   function closeModal() {
