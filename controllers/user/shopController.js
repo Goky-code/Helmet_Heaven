@@ -58,13 +58,13 @@ export const loadShop = async (req, res) => {
 
     switch (sort) {
 
-      case "low-high":
-        sortOption.createdAt = 1
-        break
+     case "low-high":
+  sortOption["variants.price"] = 1
+  break
 
-      case "high-low":
-        sortOption.createdAt = -1
-        break
+case "high-low":
+  sortOption["variants.price"] = -1
+  break
 
       case "a-z":
         sortOption.productName = 1
@@ -155,7 +155,7 @@ export const loadShop = async (req, res) => {
     // ======================
     // RENDER
     // ======================
-
+console.log(validProducts)
     res.render("user/product/productCategory", {
 
       products: validProducts,

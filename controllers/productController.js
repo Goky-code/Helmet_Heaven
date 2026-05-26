@@ -51,13 +51,15 @@ export const addProduct = async (req, res) => {
     const { productName, brand, category, description } = req.body;
 
     const images = req.files.map(file => file.path);
-
+    console.log(images)
+console.log(req.files)
     const product = new Product({
       productName,
       brand,
       category,
       description,
       productImage: images,
+      variants
     });
 
     await product.save();
@@ -76,6 +78,7 @@ export const addProduct = async (req, res) => {
       message: "Server error while adding product.",
     });
   }
+  
 };
 
 export const editProduct = async (req, res) => {
