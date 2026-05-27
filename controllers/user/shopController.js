@@ -3,184 +3,76 @@ import Category from "../../models/categoryModel.js"
 import Brand from "../../models/brandModels.js"
 
 export const loadShop = async (req, res) => {
-
   try {
-
     const {
-      search = "",
-      category = "",
-      brand = "",
-      sort = "",
-      page = 1
+      search = "", category = "", brand = "",
+      size = "", minPrice = "", maxPrice = "",
+      sort = "", page = 1
     } = req.query
 
-    const limit = 6
-
+    const limit       = 6
     const currentPage = Number(page)
-
-    const skip = (currentPage - 1) * limit
-
-    // ======================
-    // FILTER
-    // ======================
+    const skip        = (currentPage - 1) * limit
 
     let filter = {
-      isDeleted: false
+      isDeleted: false,
+      isBlocked:{ $ne: true }    // ← inactive products excluded
     }
 
-    // SEARCH
+    if (search)   filter.productName       = { $regex: search, $options: "i" }
+    if (category) filter.category          = category
+    if (brand)    filter.brand             = brand
+    if (size)     filter["variants.size"]  = size
 
-    if (search) {
-
-      filter.productName = {
-        $regex: search,
-        $options: "i"
-      }
+    if (minPrice || maxPrice) {
+      filter["variants.price"] = {}
+      if (minPrice) filter["variants.price"].$gte = Number(minPrice)
+      if (maxPrice) filter["variants.price"].$lte = Number(maxPrice)
     }
-
-    // CATEGORY
-
-    if (category) {
-      filter.category = category
-    }
-
-    // BRAND
-
-    if (brand) {
-      filter.brand = brand
-    }
-
-    // ======================
-    // SORT
-    // ======================
 
     let sortOption = {}
-
     switch (sort) {
-
-     case "low-high":
-  sortOption["variants.price"] = 1
-  break
-
-case "high-low":
-  sortOption["variants.price"] = -1
-  break
-
-      case "a-z":
-        sortOption.productName = 1
-        break
-
-      case "z-a":
-        sortOption.productName = -1
-        break
-
-      default:
-        sortOption.createdAt = -1
+      case "low-high": sortOption = { "variants.price": 1  }; break
+      case "high-low": sortOption = { "variants.price": -1 }; break
+      case "a-z":      sortOption = { productName: 1       }; break
+      case "z-a":      sortOption = { productName: -1      }; break
+      default:         sortOption = { createdAt: -1        }
     }
 
-    // ======================
-    // PRODUCTS
-    // ======================
-
-    const products = await Product.find(filter)
-
-      .populate({
-        path: "category",
-        match: {
-          isListed: true,
-          isDeleted: false
-        }
-      })
-
-      .populate({
-        path: "brand",
-        match: {
-          isListed: true,
-          isDeleted: false
-        }
-      })
-
+    // Fetch all, then filter, then paginate
+    const allProducts = await Product.find(filter)
+      .populate({ path: "category", match: { isListed: true, isDeleted: false } })
+      .populate({ path: "brand",    match: { isListed: true, isDeleted: false } })
       .sort(sortOption)
 
-      .skip(skip)
+    const allValidProducts = allProducts.filter(product => {
+      if (!product.category || !product.brand) return false
 
-      .limit(limit)
-
-    // ======================
-    // REMOVE INVALID
-    // ======================
-
-    const validProducts = products.filter(product => {
-
-      if (!product.category) return false
-
-      if (!product.brand) return false
-
-      const activeVariants =
-        product.variants.filter(
-          variant =>
-            variant.status === "ACTIVE" &&
-            variant.stock > 0
-        )
-
-      return activeVariants.length > 0
+      return product.variants.some(v =>
+        v.status === "ACTIVE" &&
+        v.stock > 0 &&
+        (!size     || v.size  === size) &&
+        (!minPrice || v.price >= Number(minPrice)) &&
+        (!maxPrice || v.price <= Number(maxPrice))
+      )
     })
 
-    // ======================
-    // TOTAL
-    // ======================
+    const totalPages    = Math.ceil(allValidProducts.length / limit)
+    const validProducts = allValidProducts.slice(skip, skip + limit)
 
-    const totalProducts =
-      await Product.countDocuments(filter)
+    const categories = await Category.find({ isListed: true, isDeleted: false })
+    const brands     = await Brand.find({    isListed: true, isDeleted: false })
 
-    const totalPages =
-      Math.ceil(totalProducts / limit)
-
-    // ======================
-    // FILTER DATA
-    // ======================
-
-    const categories =
-      await Category.find({
-        isListed: true,
-        isDeleted: false
-      })
-
-    const brands =
-      await Brand.find({
-        isListed: true,
-        isDeleted: false
-      })
-
-    // ======================
-    // RENDER
-    // ======================
-console.log(validProducts)
     res.render("user/product/productCategory", {
-
       products: validProducts,
-
-      categories,
-
-      brands,
-
-      currentPage,
-
-      totalPages,
-
-      search,
-
-      category,
-
-      brand,
-
-      sort
+      categories, brands,
+      currentPage, totalPages,
+      search, category, brand,
+      size, minPrice, maxPrice, sort
     })
 
   } catch (error) {
-
     console.log(error)
-
     res.redirect("/pageNotFound")
   }
 }

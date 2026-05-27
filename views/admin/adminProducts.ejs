@@ -1778,6 +1778,9 @@
   document.getElementById("m-desc").value =
     p.description || "";
 
+     const currentStatus = p.isBlocked || p.isDeleted ? "INACTIVE" : "ACTIVE";
+  document.getElementById("m-status").value = currentStatus;
+
   document.getElementById("productModal")
     .classList.add("open");
 }
@@ -1855,14 +1858,22 @@
           document.getElementById("fg-cat").classList.add("has-error");
           hasErr = true;
         }
+         const status = document.getElementById("m-status").value; 
 
-        if (hasErr) return;
+  if (!status) {
+    document.getElementById("fg-status").classList.add("has-error");
+    hasErr = true;
+  }
+
+  if (hasErr) return;
+
 
         const formData = new FormData();
         formData.append("productName", name);
         formData.append("brand", brand);
         formData.append("category", cat);
         formData.append("description", desc);
+        formData.append("status", status); 
 
 
         const uploadedImages = croppedFiles.filter(file => file !== null);

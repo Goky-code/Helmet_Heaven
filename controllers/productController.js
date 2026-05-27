@@ -59,7 +59,7 @@ console.log(req.files)
       category,
       description,
       productImage: images,
-      variants
+      variants:[]
     });
 
     await product.save();
@@ -98,6 +98,9 @@ export const editProduct = async (req, res) => {
     product.category     = req.body.category;
     product.description  = req.body.description;
 
+     if (req.body.status) {
+      product.isBlocked = req.body.status === "INACTIVE";
+    }
    
     if (req.files && req.files.length > 0) {
       let newImages = [];

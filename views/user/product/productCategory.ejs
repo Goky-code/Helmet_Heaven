@@ -99,7 +99,7 @@
 
     /* ── SIDEBAR ── */
     .sidebar {
-      width: 200px; flex-shrink: 0;
+      width: 220px; flex-shrink: 0;
       display: flex; flex-direction: column; gap: 28px;
     }
     .sidebar-title {
@@ -112,38 +112,44 @@
       font-size: 0.72rem; font-weight: 600; letter-spacing: .09em;
       text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
     }
-    /* Custom checkbox */
-    .check-item { display: flex; align-items: center; gap: 9px; cursor: pointer; user-select: none; padding: 2px 0; }
-    .check-item input[type="checkbox"] { display: none; }
-    .check-box {
-      width: 18px; height: 18px; border-radius: 5px;
-      border: 2px solid var(--border); background: var(--bg3);
-      display: flex; align-items: center; justify-content: center;
-      transition: border-color var(--trans), background var(--trans);
-      flex-shrink: 0;
-    }
-    .check-item input:checked ~ .check-box { background: var(--blue); border-color: var(--blue); }
-    .check-item input:checked ~ .check-box::after { content: ''; display: block; width: 5px; height: 9px; border: 2px solid #fff; border-top: none; border-left: none; transform: rotate(42deg) translate(-1px,-1px); }
-    .check-item span { font-size: 0.9rem; color: var(--text); }
+
     /* Category pills */
     .cat-pill {
+      display: block;
       padding: 7px 12px; border-radius: 7px;
       background: none; border: 1px solid var(--border);
       color: var(--muted); font-size: 0.88rem; cursor: pointer;
-      text-align: left; transition: all var(--trans);
+      text-align: left; text-decoration: none;
+      transition: all var(--trans);
     }
     .cat-pill:hover { border-color: var(--blue); color: var(--blue); }
     .cat-pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
+    /* Brand pills */
+    .brand-pill {
+      display: block;
+      padding: 7px 12px; border-radius: 7px;
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); font-size: 0.88rem; cursor: pointer;
+      text-align: left; text-decoration: none;
+      transition: all var(--trans);
+    }
+    .brand-pill:hover { border-color: var(--blue); color: var(--blue); }
+    .brand-pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
     /* Size */
     .size-row { display: flex; gap: 8px; flex-wrap: wrap; }
     .size-btn {
       width: 38px; height: 38px; border-radius: 7px;
       background: var(--bg3); border: 1px solid var(--border);
       color: var(--text); font-size: 0.82rem; font-weight: 600;
-      cursor: pointer; transition: all var(--trans);
+      cursor: pointer; text-decoration: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--trans);
     }
     .size-btn:hover { border-color: var(--blue); color: var(--blue); }
     .size-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
     /* Price range */
     .price-range-wrap { position: relative; height: 28px; }
     .range-track {
@@ -152,7 +158,7 @@
       background: var(--border); border-radius: 2px;
     }
     .range-fill {
-      position: absolute; left: 4%; right: 10%;
+      position: absolute; left: 0; right: 0;
       top: 0; bottom: 0; background: var(--blue); border-radius: 2px;
     }
     input[type="range"].price-slider {
@@ -168,6 +174,27 @@
     }
     .price-labels { display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.8rem; color: var(--muted); }
     .price-labels span { color: var(--text); font-weight: 500; }
+
+    /* Apply price btn */
+    .apply-price-btn {
+      margin-top: 10px; width: 100%;
+      padding: 7px 12px; border-radius: 7px;
+      background: var(--blue); border: none;
+      color: #fff; font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: background var(--trans);
+    }
+    .apply-price-btn:hover { background: var(--blue-h); }
+
+    /* All Products / Clear filters */
+    .clear-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border-radius: 7px;
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--muted); font-size: 0.88rem; text-decoration: none;
+      transition: all var(--trans);
+    }
+    .clear-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .clear-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
 
     /* ── MAIN ── */
     .main { flex: 1; min-width: 0; }
@@ -191,6 +218,21 @@
       transition: border-color var(--trans);
     }
     .sort-select:focus { border-color: var(--blue); }
+
+    /* Active filters bar */
+    .active-filters {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .active-filters-label { font-size: 0.8rem; color: var(--muted); }
+    .filter-tag {
+      display: flex; align-items: center; gap: 5px;
+      padding: 3px 10px; border-radius: 20px;
+      background: rgba(41,121,255,.15); border: 1px solid rgba(41,121,255,.3);
+      color: var(--blue); font-size: 0.78rem;
+      text-decoration: none;
+    }
+    .filter-tag i { font-size: 0.65rem; }
 
     /* ── PRODUCT GRID ── */
     .product-grid {
@@ -221,33 +263,12 @@
     }
     .product-card:hover .card-img-wrap img { transform: scale(1.04); }
     .badge-wrap { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
-    .badge {
-      padding: 3px 9px; border-radius: 5px; font-size: 0.68rem;
-      font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-    }
-    .badge-new { background: var(--blue); color: #fff; }
-    .badge-sale { background: var(--red); color: #fff; }
-    .wish-btn {
-      position: absolute; top: 10px; right: 10px;
-      width: 32px; height: 32px; border-radius: 50%;
-      background: rgba(13,17,23,.7); border: none;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--muted); cursor: pointer; font-size: 0.85rem;
-      transition: color var(--trans), background var(--trans);
-    }
-    .wish-btn:hover { color: var(--red); background: rgba(244,67,54,.15); }
-    .wish-btn.active { color: var(--red); }
+    .badge-new { background: var(--blue); color: #fff; padding: 3px 9px; border-radius: 5px; font-size: 0.68rem; font-weight: 700; }
 
     .card-body { padding: 14px 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 5px; }
-    .card-name-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     .card-name { font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
-    .card-rating { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
-    .card-rating i { color: var(--gold); font-size: 0.75rem; }
-    .card-rating span { font-size: 0.8rem; color: var(--muted); }
     .card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
     .card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 10px; }
-    .price-wrap { display: flex; flex-direction: column; }
-    .price-orig { font-size: 0.78rem; color: var(--muted); text-decoration: line-through; }
     .price-main { font-family: var(--font-head); font-size: 1.18rem; font-weight: 700; color: var(--blue); }
     .add-btn {
       display: flex; align-items: center; gap: 7px;
@@ -258,21 +279,27 @@
       white-space: nowrap;
     }
     .add-btn:hover { background: var(--blue-h); transform: scale(1.03); }
-    .add-btn i { font-size: 0.8rem; }
+
+    /* Empty state */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center; padding: 60px 20px;
+      color: var(--muted);
+    }
+    .empty-state i { font-size: 3rem; margin-bottom: 16px; display: block; color: var(--border); }
+    .empty-state h3 { font-family: var(--font-head); font-size: 1.4rem; color: var(--text); margin-bottom: 8px; }
 
     /* ── PAGINATION ── */
     .pagination { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 40px; flex-wrap: wrap; }
     .page-btn {
-      width: 38px; height: 38px; border-radius: 8px;
+      min-width: 38px; height: 38px; padding: 0 10px; border-radius: 8px;
       background: var(--bg3); border: 1px solid var(--border);
-      color: var(--text); font-size: 0.88rem; cursor: pointer;
+      color: var(--text); font-size: 0.88rem;
       display: flex; align-items: center; justify-content: center;
-      transition: all var(--trans);
+      text-decoration: none; transition: all var(--trans);
     }
     .page-btn:hover { border-color: var(--blue); color: var(--blue); }
     .page-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
-    .page-btn.arrow { font-size: 0.8rem; }
-    .page-dots { color: var(--muted); padding: 0 4px; }
 
     /* ── FOOTER ── */
     footer {
@@ -334,7 +361,7 @@
     }
     #toast.show { opacity: 1; transform: translateY(0); }
 
-    /* ── MOBILE NAV DRAWER ── */
+    /* ── MOBILE ── */
     .mobile-filters-overlay {
       display: none; position: fixed; inset: 0; z-index: 200;
       background: rgba(0,0,0,.6);
@@ -351,7 +378,6 @@
     .mobile-panel-head h3 { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; }
     .close-panel { background: none; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; }
 
-    /* ── RESPONSIVE ── */
     @media (max-width: 1024px) {
       .product-grid { grid-template-columns: repeat(2, 1fr); }
       .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
@@ -364,11 +390,11 @@
         display: flex; align-items: center; gap: 8px;
         padding: 8px 16px; border-radius: 8px;
         background: var(--bg3); border: 1px solid var(--border);
-        color: var(--text); font-size: 0.88rem; cursor: pointer;
+        color: var(--text); font-size: 0.88rem; cursor: pointer; border: none;
       }
-      .page-wrap { padding: 16px 12px; }
-      .page-header h1 { font-size: 1.5rem; }
-      .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+    }
+    @media (min-width: 769px) {
+      .filter-toggle-btn { display: none; }
     }
     @media (max-width: 540px) {
       .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -379,10 +405,6 @@
       .add-btn span { display: none; }
       .footer-grid { grid-template-columns: 1fr; }
       .navbar { padding: 0 14px; gap: 12px; }
-      .nav-search { max-width: unset; }
-    }
-    @media (min-width: 769px) {
-      .filter-toggle-btn { display: none; }
     }
   </style>
 </head>
@@ -393,7 +415,7 @@
   <button class="hamburger" onclick="openMobileFilters()" aria-label="Open filters">
     <i class="fa-solid fa-bars"></i>
   </button>
-  <a href="#" class="nav-brand">
+  <a href="/" class="nav-brand">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 22a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9z"/>
       <path d="M12 2a9 9 0 0 1 9 9"/>
@@ -402,35 +424,31 @@
     Helmet Haven
   </a>
   <nav class="nav-links">
-    <a href="#">Home</a>
+    <a href="/">Home</a>
     <a href="#">About Us</a>
     <a href="#">Contact Us</a>
   </nav>
-  <div class="nav-search">
+
+  <!-- Search bar — submits GET /shop?search=... preserving other params -->
+  <form class="nav-search" method="GET" action="/shop">
     <i class="fa-solid fa-magnifying-glass"></i>
-    <form action="/shop" method="GET">
+    <input
+      type="text"
+      name="search"
+      value="<%= search %>"
+      placeholder="Search premium helmets..."
+    />
+    <!-- preserve other active filters when searching -->
+    <% if (category) { %><input type="hidden" name="category" value="<%= category %>"/><% } %>
+    <% if (brand) { %><input type="hidden" name="brand" value="<%= brand %>"/><% } %>
+    <% if (size) { %><input type="hidden" name="size" value="<%= size %>"/><% } %>
+    <% if (sort) { %><input type="hidden" name="sort" value="<%= sort %>"/><% } %>
+  </form>
 
-  <input
-    type="text"
-    name="search"
-    value="<%= search %>"
-    placeholder="Search premium helmets..."
-  >
-
-  <% if(search){ %>
-
-    <a href="/shop">
-      Clear
-    </a>
-
-  <% } %>
-
-</form>
-  </div>
   <div class="nav-actions">
     <button class="nav-btn" onclick="showToast('Cart coming soon!')" aria-label="Cart">
       <i class="fa-solid fa-cart-shopping"></i>
-      <span class="badge" id="cartCount">2</span>
+      <span class="badge" id="cartCount">0</span>
     </button>
     <button class="nav-btn" aria-label="Wishlist"><i class="fa-regular fa-heart"></i></button>
     <button class="nav-btn" aria-label="Account"><i class="fa-regular fa-user"></i></button>
@@ -453,65 +471,100 @@
 
   <!-- ── SIDEBAR (Desktop) ── -->
   <aside class="sidebar" id="desktopSidebar">
-    <div class="sidebar-title"><i class="fa-solid fa-sliders" style="color:var(--blue);font-size:.9rem"></i> Filters</div>
+    <div class="sidebar-title">
+      <i class="fa-solid fa-sliders" style="color:var(--blue);font-size:.9rem"></i> Filters
+    </div>
+
+    <!-- ALL PRODUCTS button -->
+    <a href="/shop"
+       class="clear-btn <%= (!category && !brand && !size && !search) ? 'active' : '' %>">
+      <i class="fa-solid fa-grid-2"></i> All Products
+    </a>
+
+    <!-- ── BRAND ── -->
     <div class="filter-group">
       <div class="filter-label">Brand</div>
-      <% brands.forEach(brand => { %>
-
-<label class="check-item">
-
-  <input
-    type="radio"
-    name="brand"
-    value="<%= brand._id %>"
-    onchange="this.form.submit()"
-    <%= brand._id == brand ? 'checked' : '' %>
-  >
-
-  <div class="check-box"></div>
-
-  <span>
-    <%= brand.name %>
-  </span>
-
-</label>
-
-<% }) %>
+      <% brands.forEach(b => { %>
+        <%
+          // Build URL preserving all other filters, swapping brand
+          const brandUrl = `/shop?brand=${b._id}`
+            + (category ? `&category=${category}` : '')
+            + (size     ? `&size=${size}`         : '')
+            + (search   ? `&search=${encodeURIComponent(search)}` : '')
+            + (sort     ? `&sort=${sort}`         : '')
+        %>
+        <a href="<%= brandUrl %>"
+           class="brand-pill <%= brand == b._id.toString() ? 'active' : '' %>">
+          <%= b.name %>
+        </a>
+      <% }) %>
     </div>
+
+    <!-- ── CATEGORY ── -->
     <div class="filter-group">
       <div class="filter-label">Category</div>
-     <% categories.forEach(cat => { %>
-
-<a
-  href="/shop?category=<%= cat._id %>"
-  class="cat-pill
-  <%= category == cat._id.toString()
-  ? 'active'
-  : '' %>"
->
-
-  <%= cat.name %>
-
-</a>
-
-<% }) %>
+      <% categories.forEach(cat => { %>
+        <%
+          const catUrl = `/shop?category=${cat._id}`
+            + (brand  ? `&brand=${brand}`         : '')
+            + (size   ? `&size=${size}`            : '')
+            + (search ? `&search=${encodeURIComponent(search)}` : '')
+            + (sort   ? `&sort=${sort}`            : '')
+        %>
+        <a href="<%= catUrl %>"
+           class="cat-pill <%= category == cat._id.toString() ? 'active' : '' %>">
+          <%= cat.name %>
+        </a>
+      <% }) %>
     </div>
+
+    <!-- ── SIZE ── -->
     <div class="filter-group">
       <div class="filter-label">Size</div>
       <div class="size-row">
-        <button class="size-btn" onclick="toggleSize(this)">S</button>
-        <button class="size-btn active" onclick="toggleSize(this)">M</button>
-        <button class="size-btn" onclick="toggleSize(this)">L</button>
-        <button class="size-btn" onclick="toggleSize(this)">XL</button>
+        <% ['S','M','L','XL'].forEach(s => { %>
+          <%
+            // toggle: if already selected remove it, else add it
+            const isActive = size === s
+            const sizeUrl = `/shop?` +
+              (isActive ? '' : `size=${s}&`) +
+              (category ? `category=${category}&` : '') +
+              (brand    ? `brand=${brand}&`    : '') +
+              (search   ? `search=${encodeURIComponent(search)}&` : '') +
+              (sort     ? `sort=${sort}`       : '')
+          %>
+          <a href="<%= sizeUrl %>"
+             class="size-btn <%= isActive ? 'active' : '' %>">
+            <%= s %>
+          </a>
+        <% }) %>
       </div>
     </div>
+
+    <!-- ── PRICE RANGE ── -->
     <div class="filter-group">
       <div class="filter-label">Price Range</div>
       <div class="price-range-wrap">
-        <div class="range-track"><div class="range-fill" id="rangeFill"></div></div>
-        <input type="range" class="price-slider" id="priceSlider" min="100" max="2500" value="1200" oninput="updatePrice(this.value)"/>
+        <div class="range-track">
+          <div class="range-fill" id="rangeFill"></div>
+        </div>
+        <input
+          type="range"
+          class="price-slider"
+          id="priceSlider"
+          min="100"
+          max="100000"
+          value="<%= maxPrice || 100000 %>"
+          oninput="updatePrice(this.value)"
+        />
       </div>
-      <div class="price-labels">100 – <span id="priceVal">1,200</span> – 2,500</div>
+      <div class="price-labels">
+        ₹100 – <span id="priceVal"><%= maxPrice ? Number(maxPrice).toLocaleString() : '1,00,000' %></span>
+      </div>
+      <!-- Apply price as a link button -->
+      <button class="apply-price-btn" id="applyPriceBtn" onclick="applyPrice()">
+        Apply Price
+      </button>
     </div>
   </aside>
 
@@ -523,11 +576,9 @@
     </button>
 
     <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href="#">Home</a>
+      <a href="/">Home</a>
       <span class="sep"><i class="fa-solid fa-chevron-right" style="font-size:.6rem"></i></span>
-      <a href="#">Helmets</a>
-      <span class="sep"><i class="fa-solid fa-chevron-right" style="font-size:.6rem"></i></span>
-      <span class="current">Full Face</span>
+      <span class="current">Shop</span>
     </nav>
 
     <div class="page-header">
@@ -535,83 +586,149 @@
       <p>Uncompromising safety meets aerodynamic excellence for the modern rider.</p>
     </div>
 
+    <!-- Active filter tags -->
+    <% if (category || brand || size || search || minPrice || maxPrice) { %>
+    <div class="active-filters">
+      <span class="active-filters-label">Active:</span>
+      <% if (search) { %>
+        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= sort?`sort=${sort}`:'' %>"
+           class="filter-tag">
+          Search: <%= search %> <i class="fa-solid fa-xmark"></i>
+        </a>
+      <% } %>
+      <% if (category) { %>
+        <%
+          const cat = categories.find(c => c._id.toString() === category)
+        %>
+        <a href="/shop?<%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>"
+           class="filter-tag">
+          Category: <%= cat ? cat.name : category %> <i class="fa-solid fa-xmark"></i>
+        </a>
+      <% } %>
+      <% if (brand) { %>
+        <%
+          const br = brands.find(b => b._id.toString() === brand)
+        %>
+        <a href="/shop?<%= category?`category=${category}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>"
+           class="filter-tag">
+          Brand: <%= br ? br.name : brand %> <i class="fa-solid fa-xmark"></i>
+        </a>
+      <% } %>
+      <% if (size) { %>
+        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>"
+           class="filter-tag">
+          Size: <%= size %> <i class="fa-solid fa-xmark"></i>
+        </a>
+      <% } %>
+      <% if (maxPrice) { %>
+        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>"
+           class="filter-tag">
+          Max: ₹<%= Number(maxPrice).toLocaleString() %> <i class="fa-solid fa-xmark"></i>
+        </a>
+      <% } %>
+      <a href="/shop" class="filter-tag" style="background:rgba(244,67,54,.1);border-color:rgba(244,67,54,.3);color:var(--red)">
+        Clear all <i class="fa-solid fa-xmark"></i>
+      </a>
+    </div>
+    <% } %>
+
+    <!-- Toolbar: result count + sort -->
     <div class="toolbar">
-      <div class="toolbar-left">Showing <span id="resultCount">12</span> results</div>
-      <select class="sort-select" id="sortSelect" onchange="sortProducts()">
-        
-        <option>Sort by: Price Low–High</option>
-        <option>Sort by: Price High–Low</option>
-       
-      </select>
-    </div>
-
-    <div class="product-grid" >
-       <% products.forEach(product => { %>
-
-<%
-const activeVariant =
-product.variants.find(
-variant =>
-variant.status === "ACTIVE"
-)
-%>
-
-<article class="product-card">
-
-  <div class="card-img-wrap">
-
-    <img
-      src="<%= product.productImage[0] %>"
-      alt="<%= product.productName %>"
-     
-    >
-
-  </div>
-
-  <div class="card-body">
-
-    <div class="card-name">
-      <%= product.productName %>
-    </div>
-
-    <div class="card-desc">
-      <%= product.description %>
-    </div>
-
-    <div class="card-footer">
-
-      <div class="price-main">
-
-        ₹ <%= activeVariant.price %>
-
+      <div class="toolbar-left">
+        Showing <strong><%= products.length %></strong> result<%= products.length !== 1 ? 's' : '' %>
+        <% if (totalPages > 1) { %> · Page <%= currentPage %> of <%= totalPages %><% } %>
       </div>
 
-      <button class="add-btn">
-
-        <i class="fa-solid fa-cart-plus"></i>
-
-        <span>Add</span>
-
-      </button>
-
+      <!-- Sort select — submits GET preserving all filters -->
+      <form method="GET" action="/shop" id="sortForm">
+        <% if (search)   { %><input type="hidden" name="search"   value="<%= search %>"/><% } %>
+        <% if (category) { %><input type="hidden" name="category" value="<%= category %>"/><% } %>
+        <% if (brand)    { %><input type="hidden" name="brand"    value="<%= brand %>"/><% } %>
+        <% if (size)     { %><input type="hidden" name="size"     value="<%= size %>"/><% } %>
+        <% if (minPrice) { %><input type="hidden" name="minPrice" value="<%= minPrice %>"/><% } %>
+        <% if (maxPrice) { %><input type="hidden" name="maxPrice" value="<%= maxPrice %>"/><% } %>
+        <select
+          class="sort-select"
+          name="sort"
+          onchange="document.getElementById('sortForm').submit()"
+        >
+          <option value="" <%= sort === '' ? 'selected' : '' %>>Sort: Newest</option>
+          <option value="low-high"  <%= sort === 'low-high'  ? 'selected' : '' %>>Price: Low → High</option>
+          <option value="high-low"  <%= sort === 'high-low'  ? 'selected' : '' %>>Price: High → Low</option>
+          <option value="a-z"       <%= sort === 'a-z'       ? 'selected' : '' %>>Name: A → Z</option>
+          <option value="z-a"       <%= sort === 'z-a'       ? 'selected' : '' %>>Name: Z → A</option>
+        </select>
+      </form>
     </div>
 
-  </div>
-
-</article>
-
-<% }) %> 
+    <!-- Product Grid -->
+    <div class="product-grid">
+      <% if (products.length === 0) { %>
+        <div class="empty-state">
+          <i class="fa-solid fa-helmet-safety"></i>
+          <h3>No helmets found</h3>
+          <p>Try adjusting your filters or <a href="/shop" style="color:var(--blue)">browse all products</a>.</p>
+        </div>
+      <% } else { %>
+        <% products.forEach(product => { %>
+          <%
+            const activeVariant = product.variants.find(v => v.status === "ACTIVE" && v.stock > 0)
+          %>
+          <% if (activeVariant) { %>
+          <article class="product-card">
+            <div class="card-img-wrap">
+              <img
+                src="<%= product.productImage[0] %>"
+                alt="<%= product.productName %>"
+                onerror="this.src='/images/placeholder.jpg'"
+              />
+            </div>
+            <div class="card-body">
+              <div class="card-name"><%= product.productName %></div>
+              <div class="card-desc"><%= product.description %></div>
+              <div class="card-footer">
+                <div class="price-main">₹ <%= activeVariant.price.toLocaleString() %></div>
+                <button class="add-btn" onclick="addToCart('<%= product.productName %>')">
+                  <i class="fa-solid fa-cart-plus"></i>
+                  <span>Add</span>
+                </button>
+              </div>
+            </div>
+          </article>
+          <% } %>
+        <% }) %>
+      <% } %>
     </div>
 
-    <div class="pagination" id="pagination">
-      <button class="page-btn arrow" onclick="goPage(currentPage-1)"><i class="fa-solid fa-chevron-left"></i></button>
-      <button class="page-btn active" onclick="goPage(1)">1</button>
-      <button class="page-btn" onclick="goPage(2)">2</button>
-      <button class="page-btn" onclick="goPage(3)">3</button>
-      <span class="page-dots">...</span>
-      <button class="page-btn" onclick="goPage(12)">12</button>
-      <button class="page-btn arrow" onclick="goPage(currentPage+1)"><i class="fa-solid fa-chevron-right"></i></button>
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <% if (currentPage > 1) { %>
+        <a href="/shop?page=<%= currentPage - 1 %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>"
+           class="page-btn">
+          <i class="fa-solid fa-chevron-left"></i>
+        </a>
+      <% } %>
+
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <% if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
+          <a href="/shop?page=<%= i %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>"
+             class="page-btn <%= currentPage === i ? 'active' : '' %>">
+            <%= i %>
+          </a>
+        <% } else if (i === currentPage - 2 || i === currentPage + 2) { %>
+          <span style="color:var(--muted);padding:0 4px">…</span>
+        <% } %>
+      <% } %>
+
+      <% if (currentPage < totalPages) { %>
+        <a href="/shop?page=<%= currentPage + 1 %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>"
+           class="page-btn">
+          <i class="fa-solid fa-chevron-right"></i>
+        </a>
+      <% } %>
     </div>
+    <% } %>
   </main>
 </div>
 
@@ -626,14 +743,14 @@ variant.status === "ACTIVE"
         </svg>
         Helmet Haven
       </div>
-      <p>The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
+      <p>The world's premier destination for high-end safety and performance headgear.</p>
     </div>
     <div class="footer-col">
       <h4>Shop</h4>
       <ul>
+        <li><a href="/shop">All Products</a></li>
         <li><a href="#">Full Face</a></li>
         <li><a href="#">Off-Road</a></li>
-        <li><a href="#">Modular</a></li>
         <li><a href="#">Accessories</a></li>
       </ul>
     </div>
@@ -668,74 +785,12 @@ variant.status === "ACTIVE"
 <div id="toast"></div>
 
 <script>
-  /* ── DATA ── */
-  
-  let cart = 2;
-  let currentPage = 1;
-  let wishlist = new Set();
-
-  /* ── RENDER PRODUCTS ── */
-  
-  /* ── FILTER ── */
- 
-<form method="GET">
-
-<select
-  class="sort-select"
-  name="sort"
-  onchange="this.form.submit()"
->
-
-  <option value="">
-    Sort
-  </option>
-
-  <option
-    value="a-z"
-    <%= sort === "a-z" ? "selected" : "" %>
-  >
-    A-Z
-  </option>
-
-  <option
-    value="z-a"
-    <%= sort === "z-a" ? "selected" : "" %>
-  >
-    Z-A
-  </option>
-
-</select>
-
-</form>
- 
-
-  function sortList(list, val) {
-    if (val.includes('Low–High'))  return [...list].sort((a,b) => a.price - b.price);
-    if (val.includes('High–Low'))  return [...list].sort((a,b) => b.price - a.price);
-    if (val.includes('Rating'))    return [...list].sort((a,b) => b.rating - a.rating);
-    return list;
-  }
-
-  /* ── WISHLIST ── */
-  function toggleWish(id, btn) {
-    if (wishlist.has(id)) {
-      wishlist.delete(id);
-      btn.classList.remove('active');
-      btn.innerHTML = '<i class="fa-regular fa-heart"></i>';
-      showToast('Removed from wishlist');
-    } else {
-      wishlist.add(id);
-      btn.classList.add('active');
-      btn.innerHTML = '<i class="fa-solid fa-heart"></i>';
-      showToast('Added to wishlist ♥');
-    }
-  }
-
   /* ── CART ── */
+  let cart = 0;
   function addToCart(name) {
     cart++;
     document.getElementById('cartCount').textContent = cart;
-    showToast(`${name} added to cart!`);
+    showToast(name + ' added to cart!');
   }
 
   /* ── TOAST ── */
@@ -750,54 +805,25 @@ variant.status === "ACTIVE"
 
   /* ── PRICE SLIDER ── */
   function updatePrice(val) {
-    const pct = ((val - 100) / (2500 - 100)) * 100;
+    const pct = ((val - 100) / (100000 - 100)) * 100;
     document.getElementById('rangeFill').style.right = (100 - pct) + '%';
     document.getElementById('rangeFill').style.left = '0%';
     document.getElementById('priceVal').textContent = Number(val).toLocaleString();
   }
 
-  /* ── SIZE TOGGLE ── */
-  function toggleSize(btn) {
-    btn.classList.toggle('active');
+  function applyPrice() {
+    const val = document.getElementById('priceSlider').value;
+    const params = new URLSearchParams(window.location.search);
+    params.set('maxPrice', val);
+    params.delete('page'); // reset to page 1
+    window.location.href = '/shop?' + params.toString();
   }
 
-  /* ── CATEGORY ── */
-  function setCat(btn, name) {
-    document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    showToast(`Filtered: ${name}`);
-  }
-
-  /* ── PAGINATION ── */
-  <div class="pagination">
-
-<% for(let i = 1; i <= totalPages; i++) { %>
-
-<a
-  href="/shop?page=<%= i %>
-  &search=<%= search %>
-  &category=<%= category %>
-  &brand=<%= brand %>
-  &sort=<%= sort %>"
-  class="page-btn
-  <%= currentPage === i
-  ? 'active'
-  : '' %>"
->
-
-  <%= i %>
-
-</a>
-
-<% } %>
-
-</div>
   /* ── MOBILE FILTERS ── */
   function openMobileFilters() {
-    const overlay = document.getElementById('mobileOverlay');
     const sidebar = document.getElementById('desktopSidebar');
     document.getElementById('mobileSidebarContent').innerHTML = sidebar.innerHTML;
-    overlay.classList.add('open');
+    document.getElementById('mobileOverlay').classList.add('open');
   }
   function closeMobileFilters() {
     document.getElementById('mobileOverlay').classList.remove('open');
@@ -809,16 +835,14 @@ variant.status === "ACTIVE"
     const msg = document.getElementById('nlMsg');
     const val = input.value.trim();
     if (!val) { msg.style.color = 'var(--red)'; msg.textContent = 'Please enter your email.'; return; }
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRe.test(val)) { msg.style.color = 'var(--red)'; msg.textContent = 'Enter a valid email address.'; return; }
-    msg.style.color = 'var(--blue)'; msg.textContent = '✓ You\'re subscribed!';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { msg.style.color = 'var(--red)'; msg.textContent = 'Enter a valid email address.'; return; }
+    msg.style.color = 'var(--blue)'; msg.textContent = "✓ You're subscribed!";
     input.value = '';
     setTimeout(() => msg.textContent = '', 3500);
   }
 
   /* ── INIT ── */
-  
-  updatePrice(1200);
+  updatePrice(document.getElementById('priceSlider').value);
 </script>
 </body>
 </html>
