@@ -3,6 +3,8 @@ import upload from "../middlewares/multer.js";
 import * as userController from "../controllers/userController.js";
 import { nocache, isUserAuth, preventUserLogin } from "../middlewares/userAuth.js"; 
 import authMiddleware from "../middlewares/authMiddleware.js";
+import { addToCart,loadCart , updateCartQuantity, removeCartItem  } from "../controllers/user/cartController.js";
+import {loadProductDetails} from "../controllers/user/productdetailsController.js"
 
 const router  = express.Router();
  
@@ -41,5 +43,12 @@ router.post("/resendEmailOtp",userController. resendEmailOTP);
 router.get('/passwordChange',userController.passwordchange)
 router.post('/change-password',userController.changePassword);
 
+router.get("/cart", isUserAuth, loadCart);
+
+router.post("/add-to-cart/:id", isUserAuth, addToCart);
+router.get("/product/:id", loadProductDetails)
+
+router.post("/update-cart", isUserAuth, updateCartQuantity);
+router.post("/remove-cart-item", isUserAuth, removeCartItem);
 
 export default router

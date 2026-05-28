@@ -59,7 +59,7 @@ app.use("/admin", categoryRouter);
 app.use("/admin",brandRouter)
 app.use("/admin",productRouter)
 app.use("/", shopRoutes)
-app.use("/user", productDetailsRouter)
+// app.use("/user", productDetailsRouter)
 
 
 const startServer = async () => {
