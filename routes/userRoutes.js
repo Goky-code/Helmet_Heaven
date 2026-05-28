@@ -41,4 +41,5 @@ router.post("/resendEmailOtp",userController. resendEmailOTP);
 router.get('/passwordChange',userController.passwordchange)
 router.post('/change-password',userController.changePassword);
 
+
 export default router

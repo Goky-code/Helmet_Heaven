@@ -14,7 +14,7 @@ import categoryRouter from "./routes/categoryRoutes.js";
 import brandRouter from "./routes/brandRoutes.js";
 import productRouter from "./routes/productRoutes.js"
 import shopRoutes from "./routes/shopRoutes.js"
-
+import productDetailsRouter from "./routes/productDetailsRoute.js" 
 
 const app = express();
 
@@ -59,6 +59,8 @@ app.use("/admin", categoryRouter);
 app.use("/admin",brandRouter)
 app.use("/admin",productRouter)
 app.use("/", shopRoutes)
+app.use("/user", productDetailsRouter)
+
 
 const startServer = async () => {
   try {

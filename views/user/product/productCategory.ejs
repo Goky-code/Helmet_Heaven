@@ -406,6 +406,19 @@
       .footer-grid { grid-template-columns: 1fr; }
       .navbar { padding: 0 14px; gap: 12px; }
     }
+     .product-link{
+     text-decoration: none;
+     color: inherit;
+     display: block;
+    }
+
+    .product-link:hover{
+     color: inherit;
+    }
+
+     .product-card{
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -660,45 +673,93 @@
         </select>
       </form>
     </div>
+<!-- Product Grid -->
+<div class="product-grid">
 
-    <!-- Product Grid -->
-    <div class="product-grid">
-      <% if (products.length === 0) { %>
-        <div class="empty-state">
-          <i class="fa-solid fa-helmet-safety"></i>
-          <h3>No helmets found</h3>
-          <p>Try adjusting your filters or <a href="/shop" style="color:var(--blue)">browse all products</a>.</p>
-        </div>
-      <% } else { %>
-        <% products.forEach(product => { %>
-          <%
-            const activeVariant = product.variants.find(v => v.status === "ACTIVE" && v.stock > 0)
-          %>
-          <% if (activeVariant) { %>
-          <article class="product-card">
-            <div class="card-img-wrap">
-              <img
-                src="<%= product.productImage[0] %>"
-                alt="<%= product.productName %>"
-                onerror="this.src='/images/placeholder.jpg'"
-              />
-            </div>
-            <div class="card-body">
-              <div class="card-name"><%= product.productName %></div>
-              <div class="card-desc"><%= product.description %></div>
-              <div class="card-footer">
-                <div class="price-main">₹ <%= activeVariant.price.toLocaleString() %></div>
-                <button class="add-btn" onclick="addToCart('<%= product.productName %>')">
-                  <i class="fa-solid fa-cart-plus"></i>
-                  <span>Add</span>
-                </button>
-              </div>
-            </div>
-          </article>
-          <% } %>
-        <% }) %>
-      <% } %>
+  <% if (products.length === 0) { %>
+
+    <div class="empty-state">
+      <i class="fa-solid fa-helmet-safety"></i>
+      <h3>No helmets found</h3>
+      <p>
+        Try adjusting your filters or
+        <a href="/shop" style="color:var(--blue)">
+          browse all products
+        </a>.
+      </p>
     </div>
+
+  <% } else { %>
+
+    <% products.forEach(product => { %>
+
+      <%
+        const activeVariant =
+        product.variants.find(
+          v => v.status === "ACTIVE" && v.stock > 0
+        )
+      %>
+
+      <% if (activeVariant) { %>
+
+      <!-- PRODUCT LINK -->
+      <a
+        href="/user/product/<%= product._id %>"
+        class="product-link"
+      >
+
+        <article class="product-card">
+
+          <div class="card-img-wrap">
+
+            <img
+              src="<%= product.productImage[0] %>"
+              alt="<%= product.productName %>"
+              onerror="this.src='/images/placeholder.jpg'"
+            />
+
+          </div>
+
+          <div class="card-body">
+
+            <div class="card-name">
+              <%= product.productName %>
+            </div>
+
+            <div class="card-desc">
+              <%= product.description %>
+            </div>
+
+            <div class="card-footer">
+
+              <div class="price-main">
+                ₹ <%= activeVariant.price.toLocaleString() %>
+              </div>
+
+              <!-- PREVENT REDIRECT WHEN CLICKING ADD BUTTON -->
+              <button
+                class="add-btn"
+                onclick="event.preventDefault(); addToCart('<%= product.productName %>')"
+              >
+                <i class="fa-solid fa-cart-plus"></i>
+                <span>Add</span>
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+
+      </a>
+
+      <% } %>
+
+    <% }) %>
+
+  <% } %>
+
+</div>
 
     <!-- Pagination -->
     <% if (totalPages > 1) { %>
