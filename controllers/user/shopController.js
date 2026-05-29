@@ -44,6 +44,7 @@ export const loadShop = async (req, res) => {
       .populate({ path: "category", match: { isListed: true, isDeleted: false } })
       .populate({ path: "brand",    match: { isListed: true, isDeleted: false } })
       .sort(sortOption)
+      
 
     const allValidProducts = allProducts.filter(product => {
       if (!product.category || !product.brand) return false

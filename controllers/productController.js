@@ -102,19 +102,15 @@ export const editProduct = async (req, res) => {
       product.isBlocked = req.body.status === "INACTIVE";
     }
    
-    if (req.files && req.files.length > 0) {
-      let newImages = [];
-      for (let file of req.files) {
-        const resizedImage = `resized-${file.filename}`;
-        await sharp(file.path)
-          .resize(800, 800)
-          .toFile(path.join("public/uploads/products", resizedImage));
-        fs.unlinkSync(file.path);
-        newImages.push(resizedImage);
-      }
-      product.productImage = [...product.productImage, ...newImages];
-    }
-
+    if (req.files && req.files.length > 0 || req.body.existingImages) {
+  const newImages = req.files ? req.files.map(f => f.path) : [];
+  
+  // existingImages can be a string (1 item) or array
+  let kept = req.body.existingImages || [];
+  if (typeof kept === "string") kept = [kept];
+  
+  product.productImage = [...kept, ...newImages];
+}
     await product.save();
 
     
@@ -132,8 +128,6 @@ export const editProduct = async (req, res) => {
     });
   }
 };
-
-
 
 export const loadEditProduct = async (req, res) => {
 

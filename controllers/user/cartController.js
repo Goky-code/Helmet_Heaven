@@ -48,35 +48,38 @@ export const addToCart = async (req, res) => {
       return res.status(400).json({ success: false, message: "Out of stock" });
     }
 
-    let cart = await Cart.findOne({ userId });
+   let cart = await Cart.findOne({ userId });
 
-    if (!cart) {
-      cart = new Cart({
-        userId,
-        items: [{ productId, size, quantity: 1 }]   // ← store size
-      });
-    } else {
-      const itemIndex = cart.items.findIndex(
-  item => item.productId.toString() === productId && item.size === size  
-);
+if (!cart) {
+  cart = new Cart({
+    userId,
+    items: [{ productId, size, quantity: 1 }]
+  });
+} else {
+  // ← add this line to remove old items that have no size
+  cart.items = cart.items.filter(item => item.size);
 
-      if (itemIndex > -1) {
-        const currentQty = cart.items[itemIndex].quantity;
+  const itemIndex = cart.items.findIndex(
+    item => item.productId.toString() === productId && item.size === size
+  );
 
-        if (currentQty >= 5) {
-          return res.status(400).json({ success: false, message: "Maximum 5 quantity allowed" });
-        }
-        if (currentQty + 1 > variant.stock) {
-          return res.status(400).json({ success: false, message: "Stock limit exceeded" });
-        }
+  if (itemIndex > -1) {
+    const currentQty = cart.items[itemIndex].quantity;
 
-        cart.items[itemIndex].quantity += 1;
-      } else {
-        cart.items.push({ productId, size, quantity: 1 });
-      }
+    if (currentQty >= 5) {
+      return res.status(400).json({ success: false, message: "Maximum 5 quantity allowed" });
+    }
+    if (currentQty + 1 > variant.stock) {
+      return res.status(400).json({ success: false, message: "Stock limit exceeded" });
     }
 
-    await cart.save();
+    cart.items[itemIndex].quantity += 1;
+  } else {
+    cart.items.push({ productId, size, quantity: 1 });
+  }
+}
+
+await cart.save();
 
     return res.json({ success: true, message: "Added to cart" });
 
@@ -87,72 +90,46 @@ export const addToCart = async (req, res) => {
 };
 
 export const updateCartQuantity = async (req, res) => {
-
   try {
-
     const userId = req.session.user;
 
-    const {
-      productId,
-      count
-    } = req.body;
+    const { productId, size, count } = req.body;  // ← add size here
 
     const cart = await Cart.findOne({ userId });
-
     const product = await Product.findById(productId);
 
     const item = cart.items.find(
-      item => item.productId.toString() === productId && item.size === size  
+      item => item.productId.toString() === productId && item.size === size
     );
 
     if (!item) {
-      return res.json({
-        success: false
-      });
+      return res.json({ success: false, message: "Item not found" });
     }
 
     const newQty = item.quantity + count;
 
-    // MIN LIMIT
     if (newQty < 1) {
-      return res.json({
-        success: false,
-        message: "Minimum quantity is 1"
-      });
+      return res.json({ success: false, message: "Minimum quantity is 1" });
     }
 
-    // MAX LIMIT
     if (newQty > 5) {
-      return res.json({
-        success: false,
-        message: "Maximum quantity is 5"
-      });
+      return res.json({ success: false, message: "Maximum quantity is 5" });
     }
 
-    // STOCK LIMIT
-    if (newQty > product.quantity) {
-      return res.json({
-        success: false,
-        message: "Stock exceeded"
-      });
+    // ← use variant stock, not product.quantity
+    const variant = product.variants.find(v => v.size === size && v.status === "ACTIVE");
+    if (newQty > variant.stock) {
+      return res.json({ success: false, message: "Stock exceeded" });
     }
 
     item.quantity = newQty;
-
     await cart.save();
 
-    res.json({
-      success: true,
-      quantity: item.quantity
-    });
+    res.json({ success: true, quantity: item.quantity });
 
   } catch (error) {
-
     console.log(error);
-
-    res.json({
-      success: false
-    });
+    res.json({ success: false });
   }
 };
 

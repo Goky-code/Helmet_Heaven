@@ -103,12 +103,12 @@ export const updateProfile = async (req, res) => {
 
     if (req.file) {
       
-      updateData.profileImage = `/uploads/${req.file.filename}`;
+      updateData.profileImage = req.file.path
     }
 
     const updatedUser =await User.findByIdAndUpdate(userId, updateData,
       {new: true}
-    );
+    )
 
      req.session.user = updatedUser;
 
@@ -123,13 +123,13 @@ export const updateProfile = async (req, res) => {
     console.error("Update profile error:", error);
     
     
-    if (req.headers['x-requested-with'] === 'XMLHttpRequest' || req.file) {
+    if (req.file || req.headers['content-type']?.includes('multipart')) {
       return res.status(500).json({ success: false, message: "Server Error" });
     }
     
     res.status(500).send("Server Error");
   }
-};
+}
 
 
 
