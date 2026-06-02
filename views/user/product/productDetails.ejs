@@ -110,6 +110,11 @@
       transition: color .2s, background .2s; position: relative;
     }
     .icon-btn:hover { color: var(--text); background: var(--card); }
+
+    .icon-btn{
+    text-decoration: none;
+    color: inherit;
+  }
     .badge {
       position: absolute; top: 4px; right: 4px;
       width: 16px; height: 16px; border-radius: 50%;
@@ -568,19 +573,20 @@
     </div>
 
     <!-- Icons -->
-    <div class="nav-icons">
-      <button class="icon-btn" aria-label="Wishlist" title="Wishlist">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
-        </svg>
-      </button>
-      <button class="icon-btn" aria-label="Cart" title="Cart">
+   <button class="icon-btn" aria-label="Cart" title="Cart">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
           <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
         </svg>
         <span class="badge" id="cartBadge">0</span>
       </button>
+
+    <a href="/user/wishlist" class="icon-btn" aria-label="Wishlist" title="Wishlist">
+  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+</a>
+      
       <button class="icon-btn" aria-label="Account" title="Account">
         <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
@@ -641,7 +647,7 @@
       class="wishlist-btn"
       id="wishBtn"
       aria-label="Add to wishlist"
-      onclick="event.stopPropagation(); toggleWish(this)"
+      onclick="event.stopPropagation(); toggleWish('<%= product._id %>',this)"
     >
       <svg
         width="20"
@@ -1101,11 +1107,48 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeZoom(); });
 
   /* ---------- WISHLIST ---------- */
-  function toggleWish(btn) {
-    btn.classList.toggle('active');
-    const wished = btn.classList.contains('active');
-    showToast(wished ? '❤ Added to wishlist!' : 'Removed from wishlist', wished ? '#e91e63' : '#607d8b');
+ async function toggleWish(productId, btn) {
+
+  try {
+
+    const response = await fetch(
+      `/user/add-to-wishlist/${productId}`,
+      {
+        method: "POST"
+      }
+    );
+
+    const data = await response.json();
+
+    if (data.success) {
+
+      btn.classList.add("active");
+
+      showToast(
+        "❤ Added to wishlist!",
+        "#e91e63"
+      );
+
+    } else {
+
+      showToast(
+        data.message,
+        "#607d8b"
+      );
+
+    }
+
+  } catch (error) {
+
+    console.log(error);
+    showToast(
+      "Something went wrong",
+      "#607d8b"
+    );
+
   }
+
+}
 
   /* ---------- SIZE ---------- */
   let selectedSize = null

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helmet Haven – My Wishlist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── CSS Variables ── */
+    :root {
+      --bg:        #0d1117;
+      --surface:   #151c27;
+      --card:      #1a2333;
+      --border:    #2a3650;
+      --accent:    #2563eb;
+      --accent-h:  #1d4ed8;
+      --red:       #e53e3e;
+      --gold:      #f6c90e;
+      --text:      #e2e8f0;
+      --muted:     #7a8aaa;
+      --strike:    #4a5568;
+      --radius:    12px;
+      --shadow:    0 8px 32px rgba(0,0,0,.45);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 clamp(1rem, 4vw, 3rem);
+      height: 64px;
+      display: flex; align-items: center; gap: 1.5rem;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: .5rem;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.35rem; font-weight: 700;
+      color: var(--text); text-decoration: none; white-space: nowrap;
+    }
+    .nav-logo svg { color: var(--accent); }
+    .nav-links {
+      display: flex; gap: 1.5rem; list-style: none;
+      margin-left: .5rem;
+    }
+    .nav-links a {
+      color: var(--muted); font-size: .92rem; text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .nav-search {
+      flex: 1; max-width: 420px; margin-left: auto;
+      position: relative;
+    }
+    .nav-search input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .5rem 1rem .5rem 2.4rem;
+      color: var(--text);
+      font-size: .9rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .nav-search input::placeholder { color: var(--muted); }
+    .nav-search input:focus { border-color: var(--accent); }
+    .nav-search .search-icon {
+      position: absolute; left: .75rem; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none;
+    }
+
+    .nav-actions { display: flex; align-items: center; gap: .5rem; }
+    .nav-btn {
+      position: relative;
+      background: none; border: none;
+      color: var(--muted); cursor: pointer;
+      padding: .45rem; border-radius: 8px;
+      transition: color .2s, background .2s;
+      display: flex; align-items: center;
+    }
+    .nav-btn:hover { color: var(--text); background: var(--surface); }
+    .nav-btn.wishlist-btn { color: var(--red); }
+    .badge {
+      position: absolute; top: 2px; right: 2px;
+      background: var(--accent); color: #fff;
+      font-size: .6rem; font-weight: 700;
+      border-radius: 50%; width: 16px; height: 16px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* hide nav-links on small screens */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .nav-search { max-width: 180px; }
+    }
+    @media (max-width: 480px) {
+      .nav-search { display: none; }
+    }
+
+    /* ── PAGE WRAPPER ── */
+    .page { padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 5vw, 3.5rem); }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      font-size: .82rem; color: var(--muted);
+      display: flex; align-items: center; gap: .4rem;
+      margin-bottom: 1.25rem;
+    }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb span { color: var(--text); }
+
+    /* ── HEADING ── */
+    .wishlist-heading h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 700; line-height: 1.1;
+    }
+    .wishlist-heading p { color: var(--muted); font-size: .95rem; margin-top: .4rem; }
+
+    /* ── CONTROLS BAR ── */
+    .controls-bar {
+      display: flex; align-items: center; gap: 1rem;
+      flex-wrap: wrap; margin: 1.5rem 0;
+    }
+    .sort-select {
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); padding: .45rem .85rem;
+      border-radius: 8px; font-size: .88rem; cursor: pointer;
+      outline: none;
+    }
+    .btn-clear-all {
+      margin-left: auto;
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); padding: .45rem 1rem;
+      border-radius: 8px; font-size: .88rem; cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-clear-all:hover { border-color: var(--red); color: var(--red); }
+    .btn-add-all {
+      background: var(--accent); border: none;
+      color: #fff; padding: .45rem 1.1rem;
+      border-radius: 8px; font-size: .88rem; cursor: pointer;
+      font-weight: 600; transition: background .2s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .btn-add-all:hover { background: var(--accent-h); }
+
+    /* ── GRID ── */
+    .wishlist-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* ── CARD ── */
+    .product-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: var(--shadow);
+      transition: transform .25s, box-shadow .25s, border-color .25s;
+      animation: fadeUp .4s ease both;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,.55);
+      border-color: var(--accent);
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .product-card:nth-child(1) { animation-delay: .05s; }
+    .product-card:nth-child(2) { animation-delay: .1s; }
+    .product-card:nth-child(3) { animation-delay: .15s; }
+    .product-card:nth-child(4) { animation-delay: .2s; }
+
+    .card-img-wrap {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background: #111820;
+    }
+    .card-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform .4s;
+    }
+    .product-card:hover .card-img-wrap img { transform: scale(1.06); }
+
+    .card-top-actions {
+      position: absolute; top: .6rem; left: .6rem; right: .6rem;
+      display: flex; justify-content: space-between;
+    }
+    .icon-btn {
+      background: rgba(13,17,23,.75);
+      border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px;
+      width: 34px; height: 34px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; backdrop-filter: blur(6px);
+      transition: all .2s;
+    }
+    .icon-btn:hover { background: var(--surface); color: var(--text); }
+    .icon-btn.fav { color: var(--red); border-color: var(--red); }
+    .icon-btn.fav:hover { background: rgba(229,62,62,.15); }
+
+    .card-body { padding: 1rem; display: flex; flex-direction: column; gap: .55rem; flex: 1; }
+
+    .card-meta {
+      display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem;
+    }
+    .card-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.1rem; font-weight: 700;
+      line-height: 1.2;
+    }
+    .card-rating {
+      display: flex; align-items: center; gap: .25rem;
+      font-size: .82rem; color: var(--gold); white-space: nowrap; flex-shrink: 0;
+    }
+
+    .card-desc { font-size: .82rem; color: var(--muted); line-height: 1.5; flex: 1; }
+
+    .card-pricing {
+      display: flex; align-items: center; gap: .6rem;
+    }
+    .price-original {
+      font-size: .82rem; color: var(--strike);
+      text-decoration: line-through;
+    }
+    .price-sale {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.3rem; font-weight: 700; color: var(--accent);
+    }
+
+    .btn-cart {
+      width: 100%; margin-top: .25rem;
+      background: var(--accent); border: none;
+      color: #fff; padding: .6rem;
+      border-radius: 8px; font-size: .9rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .45rem;
+      transition: background .2s, transform .15s;
+    }
+    .btn-cart:hover { background: var(--accent-h); transform: scale(1.02); }
+    .btn-cart:active { transform: scale(.98); }
+
+    /* ── TOAST ── */
+    .toast-container {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999;
+      display: flex; flex-direction: column; gap: .6rem;
+    }
+    .toast {
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: .75rem 1.2rem;
+      border-radius: 10px; font-size: .88rem;
+      box-shadow: var(--shadow);
+      display: flex; align-items: center; gap: .6rem;
+      animation: toastIn .3s ease;
+      max-width: 300px;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(60px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .toast.success .toast-dot { background: #38a169; }
+    .toast.info    .toast-dot { background: var(--accent); }
+    .toast.remove  .toast-dot { background: var(--red); }
+    .toast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      display: none;
+      flex-direction: column; align-items: center; justify-content: center;
+      padding: 5rem 2rem; gap: 1rem; text-align: center;
+    }
+    .empty-state.visible { display: flex; }
+    .empty-state svg { color: var(--border); }
+    .empty-state h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.5rem; font-weight: 700; color: var(--muted);
+    }
+    .empty-state p { color: var(--muted); font-size: .9rem; }
+    .btn-shop {
+      background: var(--accent); border: none; color: #fff;
+      padding: .65rem 1.4rem; border-radius: 8px; font-size: .95rem;
+      font-weight: 600; cursor: pointer; margin-top: .5rem;
+      transition: background .2s;
+    }
+    .btn-shop:hover { background: var(--accent-h); }
+
+    /* ── CTA BAND ── */
+    .cta-band {
+      margin: 3.5rem 0;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 3rem 2rem;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
+    .cta-band h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(1.4rem, 3vw, 1.8rem); font-weight: 700;
+    }
+    .cta-band p { color: var(--muted); max-width: 420px; font-size: .95rem; }
+    .btn-continue {
+      background: none; border: 2px solid var(--text);
+      color: var(--text); padding: .7rem 1.6rem;
+      border-radius: 8px; font-size: .95rem; font-weight: 700;
+      cursor: pointer; font-family: 'Rajdhani', sans-serif;
+      letter-spacing: .03em;
+      transition: background .2s, color .2s;
+    }
+    .btn-continue:hover { background: var(--text); color: var(--bg); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 3rem clamp(1rem, 5vw, 3.5rem) 1.5rem;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
+      gap: 2.5rem;
+    }
+    @media (max-width: 900px) {
+      .footer-top { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .footer-top { grid-template-columns: 1fr; }
+    }
+    .footer-brand p { color: var(--muted); font-size: .88rem; line-height: 1.6; margin-top: .75rem; }
+    .footer-col h4 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem; font-weight: 700; margin-bottom: .85rem;
+      letter-spacing: .05em;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
+    .footer-col ul a { color: var(--muted); font-size: .88rem; text-decoration: none; transition: color .2s; }
+    .footer-col ul a:hover { color: var(--accent); }
+
+    .newsletter-form { display: flex; gap: .5rem; margin-top: .75rem; flex-wrap: wrap; }
+    .newsletter-form input {
+      flex: 1; min-width: 130px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); padding: .55rem .85rem;
+      border-radius: 8px; font-size: .88rem; outline: none;
+      transition: border-color .2s;
+    }
+    .newsletter-form input:focus { border-color: var(--accent); }
+    .newsletter-form input.error { border-color: var(--red); }
+    .newsletter-form button {
+      background: var(--accent); border: none;
+      color: #fff; padding: .55rem 1rem;
+      border-radius: 8px; font-weight: 700; cursor: pointer;
+      font-size: .88rem; white-space: nowrap;
+      transition: background .2s;
+    }
+    .newsletter-form button:hover { background: var(--accent-h); }
+    .nl-msg { font-size: .78rem; margin-top: .4rem; }
+    .nl-msg.ok  { color: #38a169; }
+    .nl-msg.err { color: var(--red); }
+
+    .footer-bottom {
+      margin-top: 2rem; padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: .75rem;
+      font-size: .8rem; color: var(--muted);
+    }
+    .footer-bottom a { color: var(--muted); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--accent); }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-logo" href="#">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C7 2 3 6.5 3 10.5c0 2.7 1.4 5.1 3.6 6.5L8 22h8l1.4-5C19.6 15.6 21 13.2 21 10.5 21 6.5 17 2 12 2z"/><path d="M8 14s1 1 4 1 4-1 4-1"/></svg>
+    Helmet Haven
+  </a>
+  <ul class="nav-links">
+    <li><a href="#">Home</a></li>
+    <li><a href="#">About Us</a></li>
+    <li><a href="#">Contact Us</a></li>
+  </ul>
+  <div class="nav-search">
+    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" placeholder="Search premium helmets…" id="navSearch" aria-label="Search helmets" />
+  </div>
+  <div class="nav-actions">
+    <button class="nav-btn" title="Cart" aria-label="Cart">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      <span class="badge" id="cartBadge">0</span>
+    </button>
+    <button class="nav-btn wishlist-btn" title="Wishlist" aria-label="Wishlist">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    </button>
+    <button class="nav-btn" title="Account" aria-label="Account">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="page">
+  <div class="breadcrumb">
+    <a href="#">Home</a>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    <span>My Wishlist</span>
+  </div>
+
+  <div class="wishlist-heading">
+    <h1>My Wishlist</h1>
+    <p id="wishlistCount">You have 4 items saved in your wishlist.</p>
+  </div>
+
+  <div class="controls-bar">
+    <select class="sort-select" id="sortSelect" aria-label="Sort wishlist">
+      <option value="default">Sort: Default</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="rating">Top Rated</option>
+      <option value="name">Name A–Z</option>
+    </select>
+    <button class="btn-add-all" id="addAllBtn" aria-label="Add all items to cart">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Add All to Cart
+    </button>
+    <button class="btn-clear-all" id="clearAllBtn" aria-label="Clear wishlist">Clear Wishlist</button>
+  </div>
+
+  <!-- GRID -->
+  <div class="wishlist-grid">
+
+<% if(wishlist.products.length > 0){ %>
+
+  <% wishlist.products.forEach(item => { %>
+
+    <div class="product-card">
+
+      <div class="card-img-wrap">
+
+        <img
+          src="<%= item.productId.productImage[0] %>"
+          alt="<%= item.productId.productName %>"
+        >
+
+      </div>
+
+      <div class="card-body">
+
+        <div class="card-name">
+          <%= item.productId.productName %>
+        </div>
+
+        <div class="card-pricing">
+          ₹ <%= item.productId.salePrice %>
+        </div>
+
+        <button
+          class="btn-cart"
+          onclick="addToCart('<%= item.productId._id %>')"
+        >
+          Add To Cart
+        </button>
+
+        <button
+          class="btn-clear-all"
+          onclick="removeWishlist('<%= item.productId._id %>')"
+        >
+          Remove
+        </button>
+
+      </div>
+
+    </div>
+
+  <% }) %>
+
+<% } %>
+
+</div>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" id="emptyState" role="status">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <h2>Your wishlist is empty</h2>
+    <p>Looks like you haven't saved anything yet. Browse our collection and find your perfect helmet.</p>
+    <button class="btn-shop" onclick="showToast('Redirecting to shop…','info')">Shop Now</button>
+  </div>
+
+  <!-- CTA BAND -->
+  <div class="cta-band">
+    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" color="var(--muted)"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+    <h2>Want to see more?</h2>
+    <p>Explore our latest collections and find the perfect helmet for your next ride.</p>
+    <button class="btn-continue" onclick="showToast('Redirecting to shop…','info')">Continue Shopping →</button>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a class="nav-logo" href="#" style="font-size:1.15rem;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C7 2 3 6.5 3 10.5c0 2.7 1.4 5.1 3.6 6.5L8 22h8l1.4-5C19.6 15.6 21 13.2 21 10.5 21 6.5 17 2 12 2z"/><path d="M8 14s1 1 4 1 4-1 4-1"/></svg>
+        Helmet Haven
+      </a>
+      <p>The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">Full Face</a></li>
+        <li><a href="#">Off-Road</a></li>
+        <li><a href="#">Modular</a></li>
+        <li><a href="#">Accessories</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Shipping Policy</a></li>
+        <li><a href="#">Return &amp; Exchange</a></li>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Newsletter</h4>
+      <p style="color:var(--muted);font-size:.88rem;">Get early access to drops and exclusive offers.</p>
+      <div class="newsletter-form">
+        <input type="email" id="nlEmail" placeholder="Email address" aria-label="Newsletter email" />
+        <button type="button" onclick="subscribeNewsletter()">Join</button>
+      </div>
+      <div class="nl-msg" id="nlMsg"></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Helmet Haven. All rights reserved.</span>
+    <div style="display:flex;gap:1.25rem;">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+<script>
+ 
+ 
+
+  function sortItems(items) {
+    const val = document.getElementById('sortSelect').value;
+    if (val === 'price-asc')  return items.sort((a,b) => a.sale - b.sale);
+    if (val === 'price-desc') return items.sort((a,b) => b.sale - a.sale);
+    if (val === 'rating')     return items.sort((a,b) => b.rating - a.rating);
+    if (val === 'name')       return items.sort((a,b) => a.name.localeCompare(b.name));
+    return items;
+  }
+
+  /* ── Actions ── */
+  function removeItem(id) {
+    const p = wishlist.find(x => x.id === id);
+    wishlist = wishlist.filter(x => x.id !== id);
+    renderGrid();
+    if (p) showToast(`"${p.name}" removed from wishlist`, 'remove');
+  }
+
+  async function addToCart(productId){
+
+  try{
+
+    const response = await fetch(
+      `/user/add-to-cart/${productId}`,
+      {
+        method: "POST"
+      }
+    );
+
+    const data = await response.json();
+
+    if(data.success){
+      location.reload(); 
+    }
+
+  }catch(error){
+    console.log(error);
+  }
+
+}
+  document.getElementById('addAllBtn').addEventListener('click', () => {
+    if (wishlist.length === 0) return;
+    cartCount += wishlist.length;
+    document.getElementById('cartBadge').textContent = cartCount;
+    showToast(`${wishlist.length} item${wishlist.length > 1 ? 's' : ''} added to cart`, 'success');
+  });
+
+  document.getElementById('clearAllBtn').addEventListener('click', () => {
+    if (wishlist.length === 0) return;
+    if (confirm('Remove all items from your wishlist?')) {
+      wishlist = [];
+      renderGrid();
+      showToast('Wishlist cleared', 'remove');
+    }
+  });
+
+  document.getElementById('sortSelect').addEventListener('change', renderGrid);
+
+  /* ── Toast ── */
+  function showToast(msg, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<span class="toast-dot"></span>${msg}`;
+    container.appendChild(t);
+    setTimeout(() => t.remove(), 3200);
+  }
+
+  /* ── Newsletter validation ── */
+  function subscribeNewsletter() {
+    const input = document.getElementById('nlEmail');
+    const msg   = document.getElementById('nlMsg');
+    const val   = input.value.trim();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    input.classList.toggle('error', !valid);
+
+    if (!valid) {
+      msg.textContent = 'Please enter a valid email address.';
+      msg.className = 'nl-msg err';
+      return;
+    }
+    msg.textContent = '🎉 You\'re subscribed! Check your inbox.';
+    msg.className = 'nl-msg ok';
+    input.value = '';
+    input.classList.remove('error');
+  }
+
+
+async function removeWishlist(productId){
+
+  try{
+
+    const response = await fetch(
+      `/user/remove-wishlist/${productId}`,
+      {
+        method:"DELETE"
+      }
+    );
+
+    const data = await response.json();
+
+    if(data.success){
+      location.reload();
+    }
+
+  }catch(error){
+    console.log(error);
+  }
+
+}
+ 
+</script>
+</body>
+</html>

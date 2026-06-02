@@ -9,17 +9,17 @@ export const loadProductDetails = async (req, res) => {
       .populate("category")
       .populate("brand")
 
-    // product not found
+   
     if (!product) {
       return res.redirect("/shop")
     }
 
-    // blocked/unavailable product
+    
     if (product.isBlocked || product.isDeleted) {
       return res.redirect("/shop")
     }
 
-    // related products
+    
     const relatedProducts = await Product.find({
       _id: { $ne: productId },
       category: product.category._id,

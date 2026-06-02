@@ -5,9 +5,14 @@ import Brand from "../../models/brandModels.js"
 export const loadShop = async (req, res) => {
   try {
     const {
-      search = "", category = "", brand = "",
-      size = "", minPrice = "", maxPrice = "",
-      sort = "", page = 1
+      search = "", 
+      category = "", 
+      brand = "",
+      size = "", 
+      minPrice = "", 
+      maxPrice = "",
+      sort = "", 
+      page = 1
     } = req.query
 
     const limit       = 6
@@ -16,7 +21,7 @@ export const loadShop = async (req, res) => {
 
     let filter = {
       isDeleted: false,
-      isBlocked:{ $ne: true }    // ← inactive products excluded
+      isBlocked:{ $ne: true }    
     }
 
     if (search)   filter.productName       = { $regex: search, $options: "i" }
@@ -39,7 +44,7 @@ export const loadShop = async (req, res) => {
       default:         sortOption = { createdAt: -1        }
     }
 
-    // Fetch all, then filter, then paginate
+   
     const allProducts = await Product.find(filter)
       .populate({ path: "category", match: { isListed: true, isDeleted: false } })
       .populate({ path: "brand",    match: { isListed: true, isDeleted: false } })
@@ -66,10 +71,17 @@ export const loadShop = async (req, res) => {
 
     res.render("user/product/productCategory", {
       products: validProducts,
-      categories, brands,
-      currentPage, totalPages,
-      search, category, brand,
-      size, minPrice, maxPrice, sort
+      categories,
+       brands,
+      currentPage, 
+      totalPages,
+      search,
+       category,
+        brand,
+      size, 
+      minPrice, 
+      maxPrice, 
+      sort
     })
 
   } catch (error) {

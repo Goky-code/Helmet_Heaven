@@ -2,7 +2,6 @@ import User from "../models/userModels.js"
 
 export const isUserAuth = async (req, res, next) => {
   if (!req.session.user) {
-    // ← add this block
     if (req.xhr || req.headers["content-type"] === "application/json") {
       return res.status(401).json({ success: false, message: "Please login to continue" });
     }
@@ -14,7 +13,7 @@ export const isUserAuth = async (req, res, next) => {
 
     if (!user) {
       req.session.destroy();
-      // ← add this block
+    
       if (req.xhr || req.headers["content-type"] === "application/json") {
         return res.status(401).json({ success: false, message: "Please login to continue" });
       }
@@ -24,7 +23,7 @@ export const isUserAuth = async (req, res, next) => {
     if (user.isBlocked) {
       req.session.destroy((err) => {
         if (err) console.error("Session destroy error:", err);
-        // ← add this block
+        
         if (req.xhr || req.headers["content-type"] === "application/json") {
           return res.status(401).json({ success: false, message: "Your account has been blocked" });
         }
@@ -37,7 +36,7 @@ export const isUserAuth = async (req, res, next) => {
 
   } catch (error) {
     console.error("Auth middleware error:", error);
-    // ← add this block
+    
     if (req.xhr || req.headers["content-type"] === "application/json") {
       return res.status(500).json({ success: false, message: "Server error" });
     }

@@ -1,6 +1,6 @@
 import Cart from "../../models/cartModel.js";
 import Product from "../../models/productModel.js";
-// import Wishlist from "../../models/wishlistModel.js";
+import Wishlist from "../../models/wishlistModel.js";
 
 export const loadCart = async (req, res) => {
   try {
@@ -23,7 +23,7 @@ export const addToCart = async (req, res) => {
   try {
     const userId = req.session.user;
     const productId = req.params.id;
-    const { size, quantity = 1 } = req.body;   // ← read from body
+    const { size, quantity = 1 } = req.body;  
 
     if (!size) {
       return res.status(400).json({ success: false, message: "Please select a size" });
@@ -39,7 +39,7 @@ export const addToCart = async (req, res) => {
   return res.status(400).json({ success: false, message: "Product unavailable" });
 }
 
-    // ← find the specific variant, not product.quantity
+   
     const variant = product.variants.find(
       v => v.size === size && v.status === "ACTIVE"
     );
@@ -56,7 +56,7 @@ if (!cart) {
     items: [{ productId, size, quantity: 1 }]
   });
 } else {
-  // ← add this line to remove old items that have no size
+  
   cart.items = cart.items.filter(item => item.size);
 
   const itemIndex = cart.items.findIndex(
@@ -79,6 +79,15 @@ if (!cart) {
   }
 }
 
+await Wishlist.updateOne(
+      { userId },
+      {
+        $pull: {
+          products: { productId }
+        }
+      }
+    );
+
 await cart.save();
 
     return res.json({ success: true, message: "Added to cart" });
@@ -93,7 +102,7 @@ export const updateCartQuantity = async (req, res) => {
   try {
     const userId = req.session.user;
 
-    const { productId, size, count } = req.body;  // ← add size here
+    const { productId, size, count } = req.body;  
 
     const cart = await Cart.findOne({ userId });
     const product = await Product.findById(productId);
@@ -116,7 +125,7 @@ export const updateCartQuantity = async (req, res) => {
       return res.json({ success: false, message: "Maximum quantity is 5" });
     }
 
-    // ← use variant stock, not product.quantity
+    
     const variant = product.variants.find(v => v.size === size && v.status === "ACTIVE");
     if (newQty > variant.stock) {
       return res.json({ success: false, message: "Stock exceeded" });

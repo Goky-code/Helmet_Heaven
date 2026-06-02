@@ -466,7 +466,7 @@
   <div id="toast"></div>
 
   <script>
-    // ── Data ──────────────────────────────────────────────────────────────────
+    
     let products = <%- JSON.stringify(products) %>;
     let filteredProducts = [...products];
     let currentPage = 1;
@@ -475,14 +475,14 @@
     let deletingId = null;
     let variantProductId = null;
 
-    // ── FIX: Both arrays declared at MODULE SCOPE so every function can access them ──
+    
     let croppedFiles   = [null, null, null];
     let existingImages = [null, null, null];
 
     let cropper = null;
     let currentInputIndex = null;
 
-    // ── Render ────────────────────────────────────────────────────────────────
+   
     function render() {
       const start = (currentPage - 1) * perPage;
       const slice = filteredProducts.slice(start, start + perPage);
@@ -552,7 +552,7 @@
       pg.appendChild(next);
     }
 
-    // ── Filter ────────────────────────────────────────────────────────────────
+    
     function filterTable() {
       const q      = document.getElementById("searchInput").value.toLowerCase();
       const cat    = document.getElementById("catFilter").value;
@@ -573,7 +573,7 @@
       render();
     }
 
-    // ── Add Modal ─────────────────────────────────────────────────────────────
+   
     function openAddModal() {
       editingId = null;
       document.getElementById("modalTitle").textContent = "Add New Product";
@@ -585,7 +585,7 @@
       document.getElementById("m-desc").value   = "";
       document.getElementById("m-status").value = "";
 
-      // FIX: Reset BOTH module-scope arrays when opening Add modal
+      
       croppedFiles   = [null, null, null];
       existingImages = [null, null, null];
 
@@ -594,7 +594,7 @@
       document.getElementById("productModal").classList.add("open");
     }
 
-    // ── Edit Modal ────────────────────────────────────────────────────────────
+   
     function openEditModal(id) {
       editingId = id;
       document.getElementById("modalTitle").textContent = "Edit Product";
@@ -611,7 +611,7 @@
       const currentStatus = p.isBlocked || p.isDeleted ? "INACTIVE" : "ACTIVE";
       document.getElementById("m-status").value = currentStatus;
 
-      // FIX: Reset BOTH module-scope arrays before loading existing images
+      
       existingImages = [null, null, null];
       croppedFiles   = [null, null, null];
 
@@ -620,7 +620,7 @@
         const url = imgPath?.url || imgPath || null;
         if (!url) return;
 
-        // FIX: Store into the MODULE-SCOPE existingImages array
+        
         existingImages[i] = url;
 
         const preview = document.getElementById(`photo-preview-${i}`);
@@ -645,7 +645,7 @@
         document.getElementById(id).value = "";
       });
       document.getElementById("m-desc").value = "";
-      // FIX: Also reset both arrays on clearModal
+     
       croppedFiles   = [null, null, null];
       existingImages = [null, null, null];
       for (let i = 0; i < 3; i++) removePhoto(null, i);
@@ -658,7 +658,7 @@
       });
     }
 
-    // ── Save Product ──────────────────────────────────────────────────────────
+    
     async function saveProduct() {
       clearErrors();
       let hasErr = false;
@@ -690,10 +690,10 @@
       }
 
       if (editingId) {
-        // Append newly cropped files
+        
         uploadedImages.forEach(file => formData.append("images", file));
 
-        // FIX: existingImages is now module-scope — this works correctly
+       
         existingImages.forEach((url, i) => {
           if (url && !croppedFiles[i]) {
             formData.append("existingImages", url);
@@ -728,7 +728,7 @@
       }
     }
 
-    // ── Variants Modal ────────────────────────────────────────────────────────
+   
     function openVariantsModal(id) {
       variantProductId = id;
       const p = products.find((x) => x._id === id);
@@ -837,7 +837,7 @@
       }
     }
 
-    // ── Delete Product ────────────────────────────────────────────────────────
+   
     async function deleteProduct(id) {
       const response = await fetch(`/admin/delete-product/${id}`, { method: "PATCH" });
       const data     = await response.json();
@@ -857,7 +857,7 @@
       showToast("Product deleted.");
     }
 
-    // ── Image Upload & Cropper ────────────────────────────────────────────────
+   
     function previewPhoto(input, index) {
       if (!input.files || !input.files[0]) return;
 
@@ -909,7 +909,7 @@
 
         const croppedFile = new File([blob], `cropped-${Date.now()}.jpg`, { type: "image/jpeg" });
 
-        // FIX: croppedFiles is module-scope — this is always safe
+       
         croppedFiles[currentInputIndex] = croppedFile;
 
         const preview = document.getElementById(`photo-preview-${currentInputIndex}`);
@@ -929,7 +929,7 @@
     function removePhoto(event, index) {
       if (event) event.stopPropagation();
 
-      // FIX: Both arrays are module-scope — always accessible here
+     
       croppedFiles[index]   = null;
       existingImages[index] = null;
 
@@ -948,7 +948,7 @@
       input.parentElement.classList.remove("has-photo");
     }
 
-    // ── Toast ─────────────────────────────────────────────────────────────────
+   
     function showToast(msg, isOk = true) {
       const t      = document.getElementById("toast");
       t.textContent = msg;
@@ -957,7 +957,7 @@
       setTimeout(() => { t.style.display = "none"; }, 3000);
     }
 
-    // ── Sidebar (mobile) ──────────────────────────────────────────────────────
+   
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("open");
       document.getElementById("sidebarBg").classList.toggle("open");
@@ -967,7 +967,7 @@
       document.getElementById("sidebarBg").classList.remove("open");
     }
 
-    // ── Utility ───────────────────────────────────────────────────────────────
+  
     function escHtml(str) {
       return String(str)
         .replace(/&/g, "&amp;")
@@ -976,14 +976,14 @@
         .replace(/"/g, "&quot;");
     }
 
-    // Close modals on backdrop click
+    
     document.querySelectorAll(".overlay").forEach((ov) => {
       ov.addEventListener("click", (e) => {
         if (e.target === ov) ov.classList.remove("open");
       });
     });
 
-    // ── Init ──────────────────────────────────────────────────────────────────
+   
     render();
   </script>
 </body>

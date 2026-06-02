@@ -20,11 +20,11 @@ router.get('/forgotPassword',userController.getforgotPassword)
 router.get('/resetPassword',userController.getresetPassword)
 router.get("/profileinformation",nocache,isUserAuth,userController.getProfile);
 router.post("/profileinformation", userController.updateProfile);
-// Replace the existing /profile POST route with this:
+
 router.post("/profile", (req, res, next) => {
   upload.single("profileImage")(req, res, (err) => {
     if (err) {
-      // Multer/fileFilter rejection lands here
+     
       return res.status(400).json({ success: false, message: err.message });
     }
     next();
