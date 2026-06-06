@@ -17,13 +17,19 @@ export const loadCart = async (req, res) => {
     console.log(error);
     res.redirect("/user/homepage");
   }
+
+
+
+  
 };
 
 export const addToCart = async (req, res) => {
+  console.log("BODY =", req.body);
+console.log("PARAMS =", req.params);
   try {
     const userId = req.session.user;
     const productId = req.params.id;
-    const { size, quantity = 1 } = req.body;  
+    const { size, quantity = 1 } = req.body || {}  
 
     if (!size) {
       return res.status(400).json({ success: false, message: "Please select a size" });

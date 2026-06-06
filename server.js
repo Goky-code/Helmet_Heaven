@@ -14,6 +14,7 @@ import categoryRouter from "./routes/categoryRoutes.js";
 import brandRouter from "./routes/brandRoutes.js";
 import productRouter from "./routes/productRoutes.js"
 import shopRoutes from "./routes/shopRoutes.js"
+import cartRoutes from "./routes/cartRoutes.js"
 import productDetailsRouter from "./routes/productDetailsRoute.js" 
 import wishlistRoutes from "./routes/wishlistRoutes.js";
 
@@ -62,7 +63,7 @@ app.use("/admin",productRouter)
 app.use("/", shopRoutes)
 app.use("/user", productDetailsRouter)
 app.use("/user",wishlistRoutes)
-
+app.use("/user",cartRoutes)
 
 const startServer = async () => {
   try {

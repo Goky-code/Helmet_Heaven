@@ -883,12 +883,36 @@
     t._timer = setTimeout(() => { t.className = 'toast'; }, 3000);
   }
 
+  function updateSummary() {
+  let subtotal = 0;
+
+  document.querySelectorAll('.cart-item').forEach(item => {
+    const basePrice = Number(item.dataset.basePrice) || 0;
+    const productId = item.dataset.id;
+    const size = item.dataset.size;
+    const qtyEl = document.getElementById(`qty-${productId}-${size}`);
+    const qty = Number(qtyEl?.textContent) || 0;
+    subtotal += basePrice * qty;
+  });
+
+  const shipping = subtotal > 500 ? 0 : 99;
+  const tax = Math.round(subtotal * 0.08);
+  const total = subtotal + shipping + tax;
+
+  document.getElementById('subtotal').textContent = '₹ ' + subtotal.toLocaleString('en-IN');
+  document.getElementById('shipping').textContent = shipping === 0 ? 'Free' : '₹ ' + shipping;
+  document.getElementById('shipping').className = 'summary-value' + (shipping === 0 ? ' free' : '');
+  document.getElementById('tax').textContent = '₹ ' + tax.toLocaleString('en-IN');
+  document.getElementById('total').textContent = '₹ ' + total.toLocaleString('en-IN');
+}
+
   // ── Remove ──────────────────────────────────────────────────
   document.querySelectorAll('.remove-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const productId = btn.dataset.id;
       const size = btn.dataset.size;
 
+    try {
       const res = await fetch('/user/remove-cart-item', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -901,12 +925,29 @@
         el.style.transition = 'opacity .3s, transform .3s';
         el.style.opacity = '0';
         el.style.transform = 'translateX(16px)';
-        setTimeout(() => { el.remove(); location.reload(); }, 300);
+
+        setTimeout(() => {
+          el.remove();
+          updateSummary();
+
+          // Show empty state if no items left
+          const remaining = document.querySelectorAll('.cart-item');
+          if (remaining.length === 0) {
+            document.getElementById('cartItems').style.display = 'none';
+            document.getElementById('emptyCart').style.display = 'block';
+          }
+        }, 300);
+
+        showToast('Item removed from cart');
       } else {
         showToast(data.message, 'error');
       }
-    });
+    } catch (err) {
+      console.log(err);
+      showToast('Something went wrong', 'error');
+    }
   });
+});
 
   // ── Quantity ────────────────────────────────────────────────
   document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
@@ -915,6 +956,11 @@
       const size = btn.dataset.size;
       const count = btn.classList.contains('inc-btn') ? 1 : -1;
 
+      const cartItem = document.querySelector(`.cart-item[data-id="${productId}"][data-size="${size}"]`);
+    const allBtns = cartItem.querySelectorAll('.qty-btn');
+    allBtns.forEach(b => b.disabled = true);
+
+    try {
       const res = await fetch('/user/update-cart', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -923,12 +969,23 @@
       const data = await res.json();
 
       if (data.success) {
-        location.reload();
+        // Update qty display without reload
+        const qtyEl = document.getElementById(`qty-${productId}-${size}`);
+        qtyEl.textContent = data.quantity;
+        updateSummary();
+        showToast('Cart updated');
       } else {
         showToast(data.message, 'error');
       }
-    });
+    } catch (err) {
+      console.log(err);
+      showToast('Something went wrong', 'error');
+    } finally {
+      // Re-enable buttons
+      allBtns.forEach(b => b.disabled = false);
+    }
   });
+});
 
   // ── Promo code ──────────────────────────────────────────────
   const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
@@ -974,35 +1031,39 @@
 
   // ── Newsletter ───────────────────────────────────────────────
   document.getElementById('joinBtn').addEventListener('click', () => {
-    const inp = document.getElementById('newsletterEmail');
-    const fb  = document.getElementById('newsletterFeedback');
-    const val = inp.value.trim();
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const inp = document.getElementById('newsletterEmail');
+  const fb  = document.getElementById('newsletterFeedback');
+  const val = inp.value.trim();
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!val) {
-      inp.classList.add('error');
-      fb.textContent = 'Please enter your email address.';
-      fb.className = 'newsletter-feedback err';
-      return;
-    }
-    if (!emailRe.test(val)) {
-      inp.classList.add('error');
-      fb.textContent = 'Please enter a valid email address.';
-      fb.className = 'newsletter-feedback err';
-      return;
-    }
-    inp.classList.remove('error');
-    inp.value = '';
-    fb.textContent = "You're in! Welcome to Helmet Haven.";
-    fb.className = 'newsletter-feedback ok';
-    showToast('Subscribed successfully!');
-  });
+  if (!val) {
+    inp.classList.add('error');
+    fb.textContent = 'Please enter your email address.';
+    fb.className = 'newsletter-feedback err';
+    return;
+  }
+  if (!emailRe.test(val)) {
+    inp.classList.add('error');
+    fb.textContent = 'Please enter a valid email address.';
+    fb.className = 'newsletter-feedback err';
+    return;
+  }
+  inp.classList.remove('error');
+  inp.value = '';
+  fb.textContent = "You're in! Welcome to Helmet Haven.";
+  fb.className = 'newsletter-feedback ok';
+  showToast('Subscribed successfully!');
+});
 
-  document.getElementById('newsletterEmail').addEventListener('input', () => {
-    document.getElementById('newsletterEmail').classList.remove('error');
-    const fb = document.getElementById('newsletterFeedback');
-    if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'newsletter-feedback'; }
-  });
+document.getElementById('newsletterEmail').addEventListener('input', () => {
+  document.getElementById('newsletterEmail').classList.remove('error');
+  const fb = document.getElementById('newsletterFeedback');
+  if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'newsletter-feedback'; }
+});
+
+document.getElementById('newsletterEmail').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('joinBtn').click();
+});
 
   // ── Enter key shortcuts ──────────────────────────────────────
   document.getElementById('promoInput').addEventListener('keydown', e => {
@@ -1016,10 +1077,10 @@
   const ham = document.getElementById('hamburger');
   const mob = document.getElementById('mobileMenu');
   ham.addEventListener('click', () => {
-    const open = mob.classList.toggle('open');
-    ham.classList.toggle('open', open);
-    ham.setAttribute('aria-expanded', open);
-  });
+  const open = mob.classList.toggle('open');
+  ham.classList.toggle('open', open);
+  ham.setAttribute('aria-expanded', open);
+});
 </script>
 </body>
 </html>
