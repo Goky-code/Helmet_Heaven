@@ -432,18 +432,13 @@
             </thead>
             <tbody id="variantsBody"></tbody>
           </table>
-          <div class="add-variant-form">
-            <select id="v-size">
-              <option value="">Select Size</option>
-              <option value="S">S</option>
-              <option value="M">M</option>
-              <option value="L">L</option>
-              <option value="XL">XL</option>
-            </select>
-            <input type="number" id="v-stock" placeholder="Stock"/>
-            <input type="number" id="v-price" placeholder="Price"/>
-            <button onclick="addVariant()">+ Add</button>
-          </div>
+          <div class="add-variant-form" id="variantFormRow">
+  <select id="v-size"><option value="">Select Size</option><option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option></select>
+  <input type="number" id="v-stock" placeholder="Stock"/>
+  <input type="number" id="v-price" placeholder="Price"/>
+  <button id="variantSubmitBtn" onclick="submitVariantForm()">+ Add</button>
+</div>
+<button id="cancelEditBtn" onclick="cancelEditVariant()" style="display:none;margin-top:10px;width:100%;height:38px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;">✕ Cancel Edit</button>
         </div>
       </div>
     </div>
@@ -766,8 +761,9 @@
           <td><span class="badge badge-${v.status === "ACTIVE" ? "active" : "inactive"}">${v.status}</span></td>
           <td>
             <div class="actions">
-              <button class="btn-icon edit" title="Toggle Status" onclick="toggleVariantStatus(${idx})" style="font-size:13px;">⇄</button>
-              <button class="btn-icon del" title="Delete Variant" onclick="deleteVariant(${idx})">🗑️</button>
+              <button class="btn-icon edit" title="Edit Variant" onclick="openEditVariant(${idx})" style="font-size:13px;">✏️</button>
+    <button class="btn-icon edit" title="Toggle Status" onclick="toggleVariantStatus(${idx})" style="font-size:13px;">⇄</button>
+    <button class="btn-icon del" title="Delete Variant" onclick="deleteVariant(${idx})">🗑️</button>
             </div>
           </td>`;
         tbody.appendChild(tr);
@@ -983,6 +979,68 @@
       });
     });
 
+    let editingVariantIdx = null;
+
+function openEditVariant(idx) {
+  const p = products.find(x => x._id === variantProductId);
+  const v = p.variants[idx];
+  editingVariantIdx = idx;
+
+  document.getElementById("v-size").value  = v.size;
+  document.getElementById("v-stock").value = v.stock;
+  document.getElementById("v-price").value = v.price;
+  document.getElementById("variantSubmitBtn").textContent = "💾 Update";
+  document.getElementById("cancelEditBtn").style.display = "block";
+}
+
+function cancelEditVariant() {
+  editingVariantIdx = null;
+  document.getElementById("v-size").value  = "";
+  document.getElementById("v-stock").value = "";
+  document.getElementById("v-price").value = "";
+  document.getElementById("variantSubmitBtn").textContent = "+ Add";
+  document.getElementById("cancelEditBtn").style.display = "none";
+}
+
+async function submitVariantForm() {
+  if (editingVariantIdx !== null) {
+    await updateVariant(editingVariantIdx);
+  } else {
+    await addVariant();
+  }
+}
+
+async function updateVariant(idx) {
+  const size  = document.getElementById("v-size").value;
+  const stock = parseInt(document.getElementById("v-stock").value);
+  const price = parseFloat(document.getElementById("v-price").value);
+
+  if (!size)                     { showToast("Select size",    false); return; }
+  if (isNaN(stock) || stock < 0) { showToast("Invalid stock",  false); return; }
+  if (isNaN(price) || price <= 0){ showToast("Invalid price",  false); return; }
+
+  const p       = products.find(x => x._id === variantProductId);
+  const variant = p.variants[idx];
+
+  try {
+    const response = await fetch(`/admin/product/${variantProductId}/variant/${variant._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ size, stock, price })
+    });
+    const data = await response.json();
+
+    if (!data.success) { showToast(data.message || "Failed to update variant", false); return; }
+
+    p.variants[idx] = { ...variant, size, stock, price };
+    renderVariantsTable(p);
+    cancelEditVariant();
+    showToast("Variant updated successfully");
+  } catch (err) {
+    console.error(err);
+    showToast("Server error", false);
+  }
+}
    
     render();
   </script>

@@ -339,3 +339,32 @@ export const changeVariantStatus = async (req, res) => {
     })
   }
 }
+
+export const updateVariant = async (req, res) => {
+  try {
+    const { productId, variantId } = req.params;
+    const { size, stock, price } = req.body;
+
+    const product = await Product.findById(productId);
+    if (!product) return res.json({ success: false, message: "Product not found" });
+
+    const variant = product.variants.id(variantId);
+    if (!variant) return res.json({ success: false, message: "Variant not found" });
+
+    // Check if another variant already has this size
+    const duplicate = product.variants.find(
+      v => v.size === size && v._id.toString() !== variantId
+    );
+    if (duplicate) return res.json({ success: false, message: "A variant with this size already exists" });
+
+    variant.size  = size;
+    variant.stock = stock;
+    variant.price = price;
+
+    await product.save();
+    res.json({ success: true, message: "Variant updated", variants: product.variants });
+  } catch (error) {
+    console.log(error);
+    res.json({ success: false, message: "Server error" });
+  }
+};

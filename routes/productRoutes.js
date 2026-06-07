@@ -3,7 +3,7 @@ import upload from '../middlewares/multer.js'
 import{loadProducts,loadAddProduct,addProduct,loadEditProduct,editProduct,deleteProduct,addVariant,
   getVariants,
   deleteVariant,
-  changeVariantStatus} from "../controllers/productController.js"
+  changeVariantStatus,updateVariant} from "../controllers/productController.js"
 const router = express.Router()
 
 router.get('/products',loadProducts)
@@ -21,7 +21,7 @@ router.get("/product/:id/variants", getVariants)
 router.post("/product/:id/variant", addVariant)
 router.delete("/product/:productId/variant/:variantId", deleteVariant)
 router.patch("/product/:productId/variant/:variantId/status", changeVariantStatus)
-
+router.put("/product/:productId/variant/:variantId", updateVariant);
 
 export default router;
     
