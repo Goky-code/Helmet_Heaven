@@ -164,3 +164,59 @@ export const removeCartItem = async (req, res) => {
     res.json({ success: false, message: "Server error" });
   }
 };
+
+export const addAllToCart = async (req, res) => {
+  try {
+    const userId = req.session.user;
+
+    // Get wishlist with size data
+    const wishlist = await Wishlist.findOne({ userId }).populate('products.productId');
+
+    if (!wishlist || wishlist.products.length === 0) {
+      return res.json({ success: false, message: 'Wishlist is empty' });
+    }
+
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+      cart = new Cart({ userId, items: [] });
+    }
+
+    for (const item of wishlist.products) {
+      const product = item.productId;
+      const size = item.size;
+
+      if (!size || !product) continue;
+
+      const variant = product.variants?.find(
+        v => v.size === size && v.status === 'ACTIVE'
+      );
+
+      if (!variant || variant.stock <= 0) continue;
+
+      const existing = cart.items.find(
+        ci => ci.productId.toString() === product._id.toString() && ci.size === size
+      );
+
+      if (existing) {
+        const newQty = existing.quantity + 1;
+        if (newQty <= 5 && newQty <= variant.stock) {
+          existing.quantity = newQty;
+        }
+      } else {
+        cart.items.push({ productId: product._id, size, quantity: 1 });
+      }
+    }
+
+    await cart.save();
+
+    // Clear entire wishlist
+    wishlist.products = [];
+    await wishlist.save();
+
+    return res.json({ success: true, message: 'All items moved to cart' });
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};

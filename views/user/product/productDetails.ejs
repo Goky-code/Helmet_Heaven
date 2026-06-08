@@ -1123,7 +1123,9 @@
 
   try {
     const response = await fetch(`/user/add-to-wishlist/${productId}`, {
-      method: "POST"
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ size: selectedSize }) 
     });
 
     const data = await response.json();

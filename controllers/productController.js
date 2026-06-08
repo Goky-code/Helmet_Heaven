@@ -351,7 +351,6 @@ export const updateVariant = async (req, res) => {
     const variant = product.variants.id(variantId);
     if (!variant) return res.json({ success: false, message: "Variant not found" });
 
-    // Check if another variant already has this size
     const duplicate = product.variants.find(
       v => v.size === size && v._id.toString() !== variantId
     );

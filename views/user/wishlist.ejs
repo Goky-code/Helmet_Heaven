@@ -387,6 +387,28 @@
     }
     .footer-bottom a { color: var(--muted); text-decoration: none; }
     .footer-bottom a:hover { color: var(--accent); }
+
+  .item-size-tag {
+  font-size: .82rem;
+  color: var(--muted);
+  margin: 2px 0;
+}
+.item-size-tag strong {
+  color: var(--text);
+}
+.size-missing-msg {
+  font-size: .8rem;
+  color: var(--red);
+  margin: 2px 0;
+}
+.btn-cart:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.btn-cart:disabled:hover {
+  background: var(--accent);
+  transform: none;
+}
   </style>
 </head>
 <body>
@@ -406,11 +428,12 @@
     <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     <input type="text" placeholder="Search premium helmets…" id="navSearch" aria-label="Search helmets" />
   </div>
-  <div class="nav-actions">
+  <a href="/user/cart" class="nav-actions">
     <button class="nav-btn" title="Cart" aria-label="Cart">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       <span class="badge" id="cartBadge">0</span>
     </button>
+  </a>
     <button class="nav-btn wishlist-btn" title="Wishlist" aria-label="Wishlist">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
     </button>
@@ -455,8 +478,7 @@
 
   <% wishlist.products.forEach(item => { %>
 
-    <div class="product-card">
-
+   <div class="product-card" data-product-id="<%= item.productId._id %>">
       <div class="card-img-wrap">
 
         <img
@@ -465,32 +487,37 @@
         >
 
       </div>
+<div class="card-body">
+  <div class="card-name">
+    <%= item.productId.productName %>
+  </div>
 
-      <div class="card-body">
+  <div class="card-pricing">
+    ₹ <%= item.productId.salePrice %>
+  </div>
 
-        <div class="card-name">
-          <%= item.productId.productName %>
-        </div>
+  <!-- Read-only size display -->
+  <% if (item.size) { %>
+    <div class="item-size-tag">Size: <strong><%= item.size %></strong></div>
+  <% } else { %>
+    <div class="size-missing-msg">⚠ Size info missing. Please re-add from product page.</div>
+  <% } %>
 
-        <div class="card-pricing">
-          ₹ <%= item.productId.salePrice %>
-        </div>
+  <button
+    class="btn-cart"
+    <%= !item.size ? 'disabled' : '' %>
+    onclick="addToCart('<%= item.productId._id %>', '<%= item.size %>')"
+  >
+    Add To Cart
+  </button>
 
-        <button
-          class="btn-cart"
-          onclick="addToCart('<%= item.productId._id %>')"
-        >
-          Add To Cart
-        </button>
-
-        <button
-          class="btn-clear-all"
-          onclick="removeWishlist('<%= item.productId._id %>')"
-        >
-          Remove
-        </button>
-
-      </div>
+  <button
+    class="btn-clear-all"
+    onclick="removeWishlist('<%= item.productId._id %>')"
+  >
+    Remove
+  </button>
+</div>
 
     </div>
 
@@ -588,75 +615,132 @@
     if (p) showToast(`"${p.name}" removed from wishlist`, 'remove');
   }
 
-  async function addToCart(productId){
+ async function addToCart(productId, size) {
+  if (!size) {
+    showToast('Size information missing. Please reselect the product.', 'remove');
+    return;
+  }
 
-  try{
-
-    const response = await fetch(
-      `/user/add-to-cart/${productId}`,
-      {
-        method: "POST"
-      }
-    );
+  try {
+    const response = await fetch(`/user/add-to-cart/${productId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ size, quantity: 1 })
+    });
 
     const data = await response.json();
 
-    if(data.success){
-      location.reload(); 
+    if (data.success) {
+      // Remove card from DOM
+      const card = document.querySelector(`[data-product-id="${productId}"]`);
+      if (card) {
+        card.style.transition = 'opacity .3s, transform .3s';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-8px)';
+        setTimeout(() => {
+          card.remove();
+          updateWishlistCount();
+          checkEmpty();
+        }, 300);
+      }
+      showToast('Product added to cart and removed from wishlist.', 'success');
+    } else {
+      showToast(data.message || 'Failed to add to cart', 'remove');
     }
-
-  }catch(error){
+  } catch (error) {
     console.log(error);
+    showToast('Something went wrong', 'remove');
   }
-
 }
-  document.getElementById('addAllBtn').addEventListener('click', () => {
-    if (wishlist.length === 0) return;
-    cartCount += wishlist.length;
-    document.getElementById('cartBadge').textContent = cartCount;
-    showToast(`${wishlist.length} item${wishlist.length > 1 ? 's' : ''} added to cart`, 'success');
-  });
 
-  document.getElementById('clearAllBtn').addEventListener('click', () => {
-    if (wishlist.length === 0) return;
-    if (confirm('Remove all items from your wishlist?')) {
-      wishlist = [];
-      renderGrid();
-      showToast('Wishlist cleared', 'remove');
+  document.getElementById('addAllBtn').addEventListener('click', async () => {
+  const cards = document.querySelectorAll('.product-card[data-product-id]');
+  if (cards.length === 0) return;
+
+  try {
+    const response = await fetch('/user/add-all-to-cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Animate all cards out
+      cards.forEach(card => {
+        card.style.transition = 'opacity .3s, transform .3s';
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-8px)';
+      });
+      setTimeout(() => {
+        cards.forEach(c => c.remove());
+        updateWishlistCount();
+        checkEmpty();
+      }, 350);
+      showToast('All wishlist items have been moved to the cart.', 'success');
+    } else {
+      showToast(data.message || 'Failed to add all items', 'remove');
     }
-  });
+  } catch (error) {
+    console.log(error);
+    showToast('Something went wrong', 'remove');
+  }
+});
+
+ document.getElementById('clearAllBtn').addEventListener('click', async () => {
+  const cards = document.querySelectorAll('.product-card[data-product-id]');
+  if (cards.length === 0) return;
+
+  if (!confirm('Remove all items from your wishlist?')) return;
+
+  // Fire individual removes in parallel
+  const promises = [...cards].map(card =>
+    fetch(`/user/remove-wishlist/${card.dataset.productId}`, { method: 'DELETE' })
+  );
+
+  try {
+    await Promise.all(promises);
+    cards.forEach(card => card.remove());
+    updateWishlistCount();
+    checkEmpty();
+    showToast('Wishlist cleared', 'remove');
+  } catch (error) {
+    console.log(error);
+    showToast('Something went wrong', 'remove');
+  }
+});
 
   document.getElementById('sortSelect').addEventListener('change', renderGrid);
 
   /* ── Toast ── */
   function showToast(msg, type = 'info') {
-    const container = document.getElementById('toastContainer');
-    const t = document.createElement('div');
-    t.className = `toast ${type}`;
-    t.innerHTML = `<span class="toast-dot"></span>${msg}`;
-    container.appendChild(t);
-    setTimeout(() => t.remove(), 3200);
-  }
+  const container = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span class="toast-dot"></span>${msg}`;
+  container.appendChild(t);
+  setTimeout(() => t.remove(), 3400);
+}
+
 
   /* ── Newsletter validation ── */
   function subscribeNewsletter() {
-    const input = document.getElementById('nlEmail');
-    const msg   = document.getElementById('nlMsg');
-    const val   = input.value.trim();
-    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-    input.classList.toggle('error', !valid);
+  const input = document.getElementById('nlEmail');
+  const msg   = document.getElementById('nlMsg');
+  const val   = input.value.trim();
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+  input.classList.toggle('error', !valid);
 
-    if (!valid) {
-      msg.textContent = 'Please enter a valid email address.';
-      msg.className = 'nl-msg err';
-      return;
-    }
-    msg.textContent = '🎉 You\'re subscribed! Check your inbox.';
-    msg.className = 'nl-msg ok';
-    input.value = '';
-    input.classList.remove('error');
+  if (!valid) {
+    msg.textContent = 'Please enter a valid email address.';
+    msg.className = 'nl-msg err';
+    return;
   }
-
+  msg.textContent = '🎉 You\'re subscribed! Check your inbox.';
+  msg.className = 'nl-msg ok';
+  input.value = '';
+  input.classList.remove('error');
+}
 
 async function removeWishlist(productId){
 
@@ -679,6 +763,23 @@ async function removeWishlist(productId){
     console.log(error);
   }
 
+}
+
+function updateWishlistCount() {
+  const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
+  const countEl = document.getElementById('wishlistCount');
+  if (countEl) {
+    countEl.textContent = remaining === 0
+      ? 'Your wishlist is empty.'
+      : `You have ${remaining} item${remaining > 1 ? 's' : ''} saved in your wishlist.`;
+  }
+}
+
+function checkEmpty() {
+  const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
+  if (remaining === 0) {
+    document.getElementById('emptyState').classList.add('visible');
+  }
 }
  
 </script>

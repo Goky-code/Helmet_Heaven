@@ -20,59 +20,34 @@ export const loadWishlist = async (req, res) => {
 
 export const addToWishlist = async (req, res) => {
   try {
-
     const userId = req.session.user;
     const productId = req.params.id;
+    const { size } = req.body;  // receive size from product detail page
 
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "Please login",
-      });
-    }
+    if (!userId) return res.status(401).json({ success: false, message: "Please login" });
 
     let wishlist = await Wishlist.findOne({ userId });
 
     if (!wishlist) {
-      wishlist = new Wishlist({
-        userId,
-        products: [{ productId }],
-      });
-
+      wishlist = new Wishlist({ userId, products: [{ productId, size }] });
       await wishlist.save();
-
-      return res.json({
-        success: true,
-        message: "Added to wishlist",
-      });
+      return res.json({ success: true, message: "Added to wishlist" });
     }
 
     const exists = wishlist.products.find(
       item => item.productId.toString() === productId
     );
 
-    if (exists) {
-      return res.json({
-        success: false,
-        message: "Already in wishlist",
-      });
-    }
+    if (exists) return res.json({ success: false, message: "Already in wishlist" });
 
-    wishlist.products.push({ productId });
-
+    wishlist.products.push({ productId, size });
     await wishlist.save();
 
-    res.json({
-      success: true,
-      message: "Added to wishlist",
-    });
+    res.json({ success: true, message: "Added to wishlist" });
 
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
