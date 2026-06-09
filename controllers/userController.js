@@ -41,12 +41,20 @@ export const getOtp = (req, res) => {
   });
 }
 
-export const getHome=async(req,res)=>{
-  if (!req.session.user) {
-    return res.redirect('/user/login');
-  }
+export const getHome = async (req, res) => {
+  try {
+    console.log("HOME ROUTE HIT");
 
-  return res.render('user/homepage');
+    if (!req.session.user) {
+      return res.redirect('/user/login');
+    }
+
+    console.log("RENDERING HOMEPAGE");
+    res.render('user/homepage');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(err.message);
+  }
 };
 
 export const getforgotPassword=(req,res)=>{

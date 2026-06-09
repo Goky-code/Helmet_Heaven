@@ -409,6 +409,9 @@
   background: var(--accent);
   transform: none;
 }
+.btn-continue {
+    text-decoration: none;
+}
   </style>
 </head>
 <body>
@@ -511,12 +514,10 @@
     Add To Cart
   </button>
 
-  <button
-    class="btn-clear-all"
-    onclick="removeWishlist('<%= item.productId._id %>')"
-  >
-    Remove
-  </button>
+ <%# NEW — passes size alongside productId %>
+<button class="btn-clear-all" onclick="removeWishlist('<%= item.productId._id %>', '<%= item.size %>')">
+  Remove
+</button>
 </div>
 
     </div>
@@ -540,7 +541,7 @@
     <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" color="var(--muted)"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
     <h2>Want to see more?</h2>
     <p>Explore our latest collections and find the perfect helmet for your next ride.</p>
-    <button class="btn-continue" onclick="showToast('Redirecting to shop…','info')">Continue Shopping →</button>
+    <a href="/shop" class="btn-continue" onclick="showToast('Redirecting to shop…','info')">Continue Shopping →</a>
   </div>
 </main>
 
@@ -742,27 +743,21 @@
   input.classList.remove('error');
 }
 
-async function removeWishlist(productId){
-
-  try{
-
-    const response = await fetch(
-      `/user/remove-wishlist/${productId}`,
-      {
-        method:"DELETE"
-      }
-    );
+async function removeWishlist(productId, size) {
+  try {
+    const response = await fetch(`/user/remove-wishlist/${productId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ size }),          // ← send size in body
+    });
 
     const data = await response.json();
-
-    if(data.success){
+    if (data.success) {
       location.reload();
     }
-
-  }catch(error){
+  } catch (error) {
     console.log(error);
   }
-
 }
 
 function updateWishlistCount() {

@@ -387,6 +387,27 @@
     }
     .footer-bottom-links { display: flex; gap: 18px; }
     .footer-bottom-links a:hover { color: var(--text); }
+    /* ── WISHLIST BUTTON ── */
+.btn-wish {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 15px 24px; border-radius: var(--radius); font-weight: 700;
+  font-size: 1rem; letter-spacing: .03em;
+  background: var(--card); border: 2px solid var(--danger); color: var(--danger);
+  transition: background .2s, border-color .2s, transform .15s;
+  width: 100%;
+}
+.btn-wish:hover {
+  background: rgba(239,83,80,.1);
+  transform: translateY(-1px);
+}
+.btn-wish.wishlisted {
+  background: rgba(239,83,80,.15);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.btn-wish.wishlisted svg {
+  fill: var(--danger);
+}
 
     /* ─── MOBILE NAV DRAWER ─── */
     .nav-drawer {
@@ -604,7 +625,7 @@
 
 <!-- Mobile drawer -->
 <div class="nav-drawer" id="navDrawer" role="dialog" aria-label="Mobile navigation">
-  <a href="#">Home</a>
+ <li><a href="/user/homepage">Home</a></li>
   <a href="#">About Us</a>
   <a href="#">Contact Us</a>
   <a href="#">Full Face</a>
@@ -643,23 +664,19 @@
       alt="<%= product.productName %>"
     />
 
-    <button
-      class="wishlist-btn"
-      id="wishBtn"
-      aria-label="Add to wishlist"
-      onclick="event.stopPropagation(); toggleWish('<%= product._id %>',this)"
-    >
-      <svg
-        width="20"
-        height="20"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        viewBox="0 0 24 24"
-      >
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
-      </svg>
-    </button>
+    <!-- <button
+  class="wishlist-btn"
+  id="wishBtn"
+  aria-label="Add to wishlist"
+  onclick="event.stopPropagation(); toggleWish('<%= product._id %>', this)"
+>
+  <svg width="20" height="20" fill="none" stroke="currentColor"
+       stroke-width="2" viewBox="0 0 24 24">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+             a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84
+             a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+</button> -->
 
   </div>
 
@@ -887,23 +904,30 @@
   </div>
 
       <!-- CTAs -->
-      <div class="cta-group">
-        <% if(product.quantity <= 0){ %>
-
-<button class="cart-btn disabled" disabled>
-  Out Of Stock
-</button>
-
-<% } else { %>
-
-        <button class="btn-cart" onclick="addToCart('<%= product._id %>')" aria-label="Add to cart">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-          </svg>
-          Add to Cart
-        </button>
-        <% } %>
+    <div class="cta-group">
+  <% if(product.quantity <= 0){ %>
+    <button class="cart-btn disabled" disabled>Out Of Stock</button>
+  <% } else { %>
+    <button class="btn-cart" onclick="addToCart('<%= product._id %>')" aria-label="Add to cart">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+      </svg>
+      Add to Cart
+    </button>
+  <% } %>
+       
+      <button
+    class="btn-wish"
+    id="wishBtn"
+    onclick="toggleWish('<%= product._id %>')"
+    aria-label="Add to wishlist"
+  >
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
+    <span id="wishBtnText">Add to Wishlist</span>
+  </button>
         <button class="btn-buy" onclick="buyNow()" aria-label="Buy now">Buy Now</button>
       </div>
 
@@ -1060,10 +1084,14 @@
 
 <!-- ─── SCRIPT ─── -->
 <script>
-  let qty = 1;
-  let cartCount = 0;
+  /* ── Server data ── */
+  const wishlistedSizes = <%- JSON.stringify(wishlistedSizes) %>;
 
-  /* ---------- TOAST ---------- */
+  /* ── State ── */
+  let qty = 1;
+  let selectedSize = null;
+
+  /* ── TOAST ── */
   function showToast(msg, color) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -1073,7 +1101,7 @@
     t._timer = setTimeout(() => t.classList.remove('show'), 2800);
   }
 
-  /* ---------- HAMBURGER ---------- */
+  /* ── HAMBURGER ── */
   const hamburger = document.getElementById('hamburger');
   const navDrawer = document.getElementById('navDrawer');
   hamburger.addEventListener('click', () => {
@@ -1081,17 +1109,14 @@
     hamburger.setAttribute('aria-expanded', open);
   });
 
-  /* ---------- GALLERY ---------- */
-  function setThumb(el){
-    document.querySelectorAll(".thumb").forEach(t=>{
-      t.classList.remove("active")
-    })
-    el.classList.add("active")
-    const newSrc = el.dataset.src
-    document.getElementById("mainImg").src = newSrc
+  /* ── GALLERY ── */
+  function setThumb(el) {
+    document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('mainImg').src = el.dataset.src;
   }
 
-  /* ---------- ZOOM ---------- */
+  /* ── ZOOM ── */
   function openZoom(src) {
     document.getElementById('zoomImg').src = src;
     document.getElementById('zoomOverlay').classList.add('active');
@@ -1106,111 +1131,116 @@
   });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeZoom(); });
 
-  /* ---------- WISHLIST ---------- */
- async function toggleWish(productId, btn) {
-
-  // ── Validate size first ──
-  if (!selectedSize) {
-    const err = document.getElementById('sizeError');
-    err.style.display = 'block';
-    err.textContent = '⚠ Please select a size before adding to wishlist.';
-    err.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    return;  // stop here, don't call the API
-  }
-
-  // ── Hide error once size is selected ──
-  document.getElementById('sizeError').style.display = 'none';
-
-  try {
-    const response = await fetch(`/user/add-to-wishlist/${productId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ size: selectedSize }) 
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      btn.classList.add("active");
-      showToast("❤ Added to wishlist!", "#e91e63");
-    } else {
-      showToast(data.message, "#607d8b");
-    }
-
-  } catch (error) {
-    console.log(error);
-    showToast("Something went wrong", "#607d8b");
-  }
-}
-
-  /* ---------- SIZE ---------- */
-  let selectedSize = null
-
-  function selectSize(btn) {
-  document.querySelectorAll(".size-btn").forEach(el => {
-    el.classList.remove("active");
+  /* ── IMAGE ZOOM ON HOVER ── */
+  const image = document.getElementById('mainImg');
+  image.addEventListener('mousemove', (e) => {
+    const rect = image.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    image.style.transformOrigin = `${x}% ${y}%`;
+    image.style.transform = 'scale(2)';
   });
-  btn.classList.add("active");
-  selectedSize = btn.dataset.size;
+  image.addEventListener('mouseleave', () => {
+    image.style.transform = 'scale(1)';
+    image.style.transformOrigin = 'center';
+  });
 
-  // ── Hide the size error (covers both cart and wishlist validation) ──
-  document.getElementById('sizeError').style.display = 'none';
+  /* ── SIZE SELECTION ── */
+  function selectSize(btn) {
+    document.querySelectorAll('.size-btn').forEach(el => el.classList.remove('active'));
+    btn.classList.add('active');
+    selectedSize = btn.dataset.size;
 
-  const price = btn.dataset.price;
-  document.getElementById("displayPrice").innerText = `₹ ${Number(price).toLocaleString()}`;
+    document.getElementById('sizeError').style.display = 'none';
 
-  const stock = Number(btn.dataset.stock);
-  const stockMsg = document.getElementById("stockMsg");
-  if (stock > 0) {
-    stockMsg.innerText = "In Stock";
-    stockMsg.style.color = "#22c55e";
-  } else {
-    stockMsg.innerText = "Out Of Stock";
-    stockMsg.style.color = "red";
+    document.getElementById('displayPrice').innerText =
+      `₹ ${Number(btn.dataset.price).toLocaleString()}`;
+
+    const stock = Number(btn.dataset.stock);
+    const stockMsg = document.getElementById('stockMsg');
+    stockMsg.innerText = stock > 0 ? 'In Stock' : 'Out Of Stock';
+    stockMsg.style.color = stock > 0 ? '#22c55e' : 'red';
+
+    const qtyInput = document.getElementById('qtyDisplay');
+    qtyInput.max = stock;
+    if (Number(qtyInput.value) > stock) qtyInput.value = stock;
+
+    updateWishBtn();
   }
 
-  const qtyInput = document.getElementById("qtyDisplay");
-  qtyInput.max = stock;
-  if (Number(qtyInput.value) > stock) {
-    qtyInput.value = stock;
-  }
-}
-
-    document.querySelectorAll(".size-btn").forEach(el=>{
-      el.classList.remove("active")
-    })
-    btn.classList.add("active")
-    selectedSize = btn.dataset.size
-    const price = btn.dataset.price
-    document.getElementById("displayPrice").innerText = `₹ ${Number(price).toLocaleString()}`
-    const stock = Number(btn.dataset.stock)
-    const stockMsg = document.getElementById("stockMsg")
-    if(stock > 0){
-      stockMsg.innerText = "In Stock"
-      stockMsg.style.color = "#22c55e"
-    }else{
-      stockMsg.innerText = "Out Of Stock"
-      stockMsg.style.color = "red"
+  /* ── WISHLIST BUTTON STATE ── */
+  function updateWishBtn() {
+    const btn = document.getElementById('wishBtn');
+    const txt = document.getElementById('wishBtnText');
+    if (!selectedSize) {
+      btn.classList.remove('wishlisted');
+      txt.textContent = 'Add to Wishlist';
+      return;
     }
-    const qtyInput = document.getElementById("qtyDisplay")
-    qtyInput.max = stock
-    if(Number(qtyInput.value) > stock){
-      qtyInput.value = stock
+    if (wishlistedSizes.includes(selectedSize)) {
+      btn.classList.add('wishlisted');
+      txt.textContent = '✓ In Wishlist — Click to Remove';
+    } else {
+      btn.classList.remove('wishlisted');
+      txt.textContent = 'Add to Wishlist';
     }
-  
-
-  function changeQty(change){
-    const qtyInput = document.getElementById("qtyDisplay")
-    let current = Number(qtyInput.value)
-    const max = Number(qtyInput.max)
-    current += change
-    if(current < 1) current = 1
-    if(current > max) current = max
-    qtyInput.value = current
-    qty = current
   }
 
-  /* ---------- CART ---------- */
+  /* ── WISHLIST TOGGLE ── */
+  async function toggleWish(productId) {
+    if (!selectedSize) {
+      const err = document.getElementById('sizeError');
+      err.style.display = 'block';
+      err.textContent = '⚠ Please select a size before adding to wishlist.';
+      err.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
+
+    const alreadyWishlisted = wishlistedSizes.includes(selectedSize);
+
+    try {
+      const response = await fetch(
+        alreadyWishlisted
+          ? `/user/remove-wishlist/${productId}`
+          : `/user/add-to-wishlist/${productId}`,
+        {
+          method: alreadyWishlisted ? 'DELETE' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ size: selectedSize })
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (alreadyWishlisted) {
+          wishlistedSizes.splice(wishlistedSizes.indexOf(selectedSize), 1);
+          showToast('Removed from wishlist', '#607d8b');
+        } else {
+          wishlistedSizes.push(selectedSize);
+          showToast('❤ Added to wishlist!', '#e91e63');
+        }
+        updateWishBtn();
+      } else {
+        showToast(data.message, '#607d8b');
+      }
+    } catch (error) {
+      console.log(error);
+      showToast('Something went wrong', '#607d8b');
+    }
+  }
+
+  /* ── QUANTITY ── */
+  function changeQty(change) {
+    const qtyInput = document.getElementById('qtyDisplay');
+    let current = Number(qtyInput.value);
+    const max = Number(qtyInput.max);
+    current = Math.min(Math.max(current + change, 1), max);
+    qtyInput.value = current;
+    qty = current;
+  }
+
+  /* ── CART ── */
   function validateBeforeAction() {
     if (!selectedSize) {
       const err = document.getElementById('sizeError');
@@ -1221,83 +1251,53 @@
     return true;
   }
 
- async function addToCart(productId) {
-  if (!validateBeforeAction()) return;
-  
-  try {
-    const response = await fetch(`/user/add-to-cart/${productId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ size: selectedSize, quantity: qty })
-    });
+  async function addToCart(productId) {
+    if (!validateBeforeAction()) return;
+    try {
+      const response = await fetch(`/user/add-to-cart/${productId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ size: selectedSize, quantity: qty })
+      });
 
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      window.location.href = "/user/login";
-      return;
-    }
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        window.location.href = '/user/login';
+        return;
+      }
 
-    const data = await response.json();
-    if (data.success) {
-      window.location.href = "/user/cart";
-    } else {
-      showToast(data.message, "var(--danger)");
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = '/user/cart';
+      } else {
+        showToast(data.message, 'var(--danger)');
+      }
+    } catch (error) {
+      console.log(error);
+      showToast('Something went wrong', 'var(--danger)');
     }
-  } catch (error) {
-    console.log(error);
-    showToast("Something went wrong", "var(--danger)");
   }
-}
 
-  /* ---------- NEWSLETTER ---------- */
+  /* ── NEWSLETTER ── */
   function submitNewsletter(e) {
     e.preventDefault();
     const input = document.getElementById('newsletterEmail');
     const msg   = document.getElementById('newsletterMsg');
     const email = input.value.trim();
     const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
     if (!email) {
-      msg.style.display = 'block';
-      msg.style.color   = 'var(--danger)';
-      msg.textContent   = '⚠ Please enter your email address.';
-      return;
+      msg.style.display = 'block'; msg.style.color = 'var(--danger)';
+      msg.textContent = '⚠ Please enter your email address.'; return;
     }
     if (!valid) {
-      msg.style.display = 'block';
-      msg.style.color   = 'var(--danger)';
-      msg.textContent   = '⚠ Please enter a valid email address.';
-      return;
+      msg.style.display = 'block'; msg.style.color = 'var(--danger)';
+      msg.textContent = '⚠ Please enter a valid email address.'; return;
     }
-    msg.style.display = 'block';
-    msg.style.color   = 'var(--success)';
-    msg.textContent   = '✓ You\'re subscribed! Check your inbox soon.';
+    msg.style.display = 'block'; msg.style.color = 'var(--success)';
+    msg.textContent = "✓ You're subscribed! Check your inbox soon.";
     input.value = '';
     setTimeout(() => { msg.style.display = 'none'; }, 4000);
   }
-
-const image = document.getElementById("mainImg")
-
-image.addEventListener("mousemove", (e) => {
-
-  const rect = image.getBoundingClientRect()
-
-  const x = ((e.clientX - rect.left) / rect.width) * 100
-  const y = ((e.clientY - rect.top) / rect.height) * 100
-
-  image.style.transformOrigin = `${x}% ${y}%`
-  image.style.transform = "scale(2)"
-
-})
-
-image.addEventListener("mouseleave", () => {
-
-  image.style.transform = "scale(1)"
-  image.style.transformOrigin = "center"
-
-})
-
-
 </script>
 </body>
 </html>

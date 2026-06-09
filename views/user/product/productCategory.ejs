@@ -360,6 +360,15 @@
       pointer-events: none;
     }
     #toast.show { opacity: 1; transform: translateY(0); }
+    /* Wishlist heart on listing card */
+.card-wish-badge {
+  position: absolute; top: 8px; right: 8px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(13,17,23,.75); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  color: #e53935;
+}
+.card-wish-badge svg { fill: #e53935; }
 
     /* ── MOBILE ── */
     .mobile-filters-overlay {
@@ -717,8 +726,15 @@
               alt="<%= product.productName %>"
               onerror="this.src='/images/placeholder.jpg'"
             />
-
-          </div>
+          <% if (wishlistedProductIds.includes(product._id.toString())) { %>
+    <div class="card-wish-badge" aria-label="In your wishlist">
+      <svg width="14" height="14" viewBox="0 0 24 24">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+    </div>
+  <% } %>
+</div>
+          
 
           <div class="card-body">
 

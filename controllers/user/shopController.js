@@ -1,17 +1,18 @@
 import Product from "../../models/productModel.js"
 import Category from "../../models/categoryModel.js"
 import Brand from "../../models/brandModels.js"
+import Wishlist from "../../models/wishlistModel.js"   // ← ADD THIS
 
 export const loadShop = async (req, res) => {
   try {
     const {
-      search = "", 
-      category = "", 
+      search = "",
+      category = "",
       brand = "",
-      size = "", 
-      minPrice = "", 
+      size = "",
+      minPrice = "",
       maxPrice = "",
-      sort = "", 
+      sort = "",
       page = 1
     } = req.query
 
@@ -21,13 +22,13 @@ export const loadShop = async (req, res) => {
 
     let filter = {
       isDeleted: false,
-      isBlocked:{ $ne: true }    
+      isBlocked: { $ne: true }
     }
 
-    if (search)   filter.productName       = { $regex: search, $options: "i" }
-    if (category) filter.category          = category
-    if (brand)    filter.brand             = brand
-    if (size)     filter["variants.size"]  = size
+    if (search)   filter.productName      = { $regex: search, $options: "i" }
+    if (category) filter.category         = category
+    if (brand)    filter.brand            = brand
+    if (size)     filter["variants.size"] = size
 
     if (minPrice || maxPrice) {
       filter["variants.price"] = {}
@@ -44,16 +45,13 @@ export const loadShop = async (req, res) => {
       default:         sortOption = { createdAt: -1        }
     }
 
-   
     const allProducts = await Product.find(filter)
       .populate({ path: "category", match: { isListed: true, isDeleted: false } })
       .populate({ path: "brand",    match: { isListed: true, isDeleted: false } })
       .sort(sortOption)
-      
 
     const allValidProducts = allProducts.filter(product => {
       if (!product.category || !product.brand) return false
-
       return product.variants.some(v =>
         v.status === "ACTIVE" &&
         v.stock > 0 &&
@@ -69,19 +67,35 @@ export const loadShop = async (req, res) => {
     const categories = await Category.find({ isListed: true, isDeleted: false })
     const brands     = await Brand.find({    isListed: true, isDeleted: false })
 
+    // ── Wishlist: only for logged-in users ──
+    let wishlistedProductIds = []
+    const userId = req.session?.user
+    if (userId) {
+      const wishlist = await Wishlist.findOne({ userId })
+      if (wishlist) {
+        // Collect unique productId strings — any size counts
+        wishlistedProductIds = [
+          ...new Set(
+            wishlist.products.map(item => item.productId.toString())
+          )
+        ]
+      }
+    }
+
     res.render("user/product/productCategory", {
       products: validProducts,
       categories,
-       brands,
-      currentPage, 
+      brands,
+      currentPage,
       totalPages,
       search,
-       category,
-        brand,
-      size, 
-      minPrice, 
-      maxPrice, 
-      sort
+      category,
+      brand,
+      size,
+      minPrice,
+      maxPrice,
+      sort,
+      wishlistedProductIds   // ← ADD THIS
     })
 
   } catch (error) {
