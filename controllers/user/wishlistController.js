@@ -36,14 +36,19 @@ export const addToWishlist = async (req, res) => {
     let wishlist = await Wishlist.findOne({ userId });
 
     if (!wishlist) {
-      wishlist = new Wishlist({
-        userId,
-        products: [{ productId, size }],
-      });
-      await wishlist.save();
-      return res.json({ success: true, message: "Added to wishlist" });
-    }
+  wishlist = new Wishlist({
+    userId,
+    products: [{ productId, size }],
+  });
 
+  await wishlist.save();
+
+  return res.json({
+    success: true,
+    message: "Added to wishlist",
+    wishlistCount: wishlist.products.length
+  });
+}
     // ── Check BOTH productId AND size — treat each size as a distinct entry ──
     const exists = wishlist.products.find(
       (item) =>
@@ -59,7 +64,7 @@ export const addToWishlist = async (req, res) => {
     wishlist.products.push({ productId, size });
     await wishlist.save();
 
-    res.json({ success: true, message: "Added to wishlist" });
+    res.json({ success: true, message: "Added to wishlist", wishlistCount: wishlist.products.length});
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -73,8 +78,7 @@ export const removeWishlist = async (req, res) => {
     const { size } = req.body; // size comes in request body
 
     if (!size) {
-      // Fallback: remove ALL size entries for this product
-      // (used by wishlist page "Remove" button where size is known from the stored item)
+      
       await Wishlist.updateOne(
         { userId },
         { $pull: { products: { productId } } }
@@ -87,9 +91,43 @@ export const removeWishlist = async (req, res) => {
       );
     }
 
-    res.json({ success: true, message: "Removed from wishlist" });
+   const wishlist = await Wishlist.findOne({ userId });
+
+res.json({
+  success: true,
+  message: "Removed from wishlist",
+  wishlistCount: wishlist ? wishlist.products.length : 0
+});
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+export const getWishlistCount = async (req, res) => {
+  try {
+    const userId = req.session.user
+
+    if (!userId) {
+      return res.json({
+        success: true,
+        count: 0
+      });
+    }
+
+    const wishlist = await Wishlist.findOne({ userId });
+
+   const count = wishlist ? wishlist.products.length : 0;
+
+    res.json({
+      success: true,
+      count
+    });
+
+  } catch (error) {
+    res.json({
+      success: false,
+      count: 0
+    });
   }
 };

@@ -8,33 +8,43 @@ import path from "path"
  
 export const loadProducts = async (req, res) => {
   try {
+    const { search = "", category = "", brand = "", status = "" } = req.query;
 
-    const products = await Product
-      .find({ isDeleted: false })
-      .populate("brand")
-      .populate("category");
+    // Build dynamic filter
+    const filter = { isDeleted: false };
 
-    const brands = await Brand.find({
-      isDeleted: false,
-      isListed: true
-    });
+    if (search) {
+      filter.productName = { $regex: search, $options: "i" };
+    }
 
-    const categories = await Category.find({
-      isDeleted: false,
-      isListed: true
-    });
+    if (status === "ACTIVE")   filter.isBlocked = false;
+    if (status === "INACTIVE") filter.isBlocked = true;
 
-    res.render("admin/adminProducts", {
-      products,
-      brands,
-      categories
-    });
+    // Populate first, then filter by joined fields
+    let query = Product.find(filter).populate("brand").populate("category");
+
+    let products = await query;
+
+    // Filter by brand/category name after populate (since they're refs)
+    if (brand)    products = products.filter(p => p.brand?.name === brand);
+    if (category) products = products.filter(p => p.category?.name === category);
+
+    const brands = await Brand.find({ isDeleted: false, isListed: true });
+    const categories = await Category.find({ isDeleted: false, isListed: true });
+
+    // If AJAX request, return JSON
+    if (req.headers["x-requested-with"] === "XMLHttpRequest") {
+      return res.json({ success: true, products });
+    }
+
+    res.render("admin/adminProducts", { products, brands, categories });
 
   } catch (error) {
     console.log(error);
     res.redirect("/admin/pageerror");
   }
 };
+
 export const loadAddProduct = async (req, res) => {
   try {
     const brands = await Brand.find({ isDeleted: false });

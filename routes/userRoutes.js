@@ -5,6 +5,13 @@ import { nocache, isUserAuth, preventUserLogin } from "../middlewares/userAuth.j
 import authMiddleware from "../middlewares/authMiddleware.js";
 import { addToCart,loadCart , updateCartQuantity, removeCartItem  } from "../controllers/user/cartController.js";
 import {loadProductDetails} from "../controllers/user/productdetailsController.js"
+import {
+  getCartCount
+} from "../controllers/user/cartController.js";
+
+import {
+  getWishlistCount
+} from "../controllers/user/wishlistController.js";
 
 const router  = express.Router();
  
@@ -58,5 +65,8 @@ router.get("/product/:id", loadProductDetails)
 
 router.post("/update-cart", isUserAuth, updateCartQuantity);
 router.post("/remove-cart-item", isUserAuth, removeCartItem);
+
+router.get("/cart/count", isUserAuth, getCartCount);
+router.get("/wishlist/count", isUserAuth, getWishlistCount);
 
 export default router

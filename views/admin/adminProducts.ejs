@@ -265,7 +265,7 @@
       <div class="filter-card">
         <div class="field-group">
           <label>Search</label>
-          <input type="text" id="searchInput" placeholder="Search products..." oninput="filterTable()"/>
+          <input type="text" id="searchInput" placeholder="Search products..."/>
         </div>
         <div class="field-group">
           <label>Category</label>
@@ -548,26 +548,42 @@
     }
 
     
-    function filterTable() {
-      const q      = document.getElementById("searchInput").value.toLowerCase();
-      const cat    = document.getElementById("catFilter").value;
-      const brand  = document.getElementById("brandFilter").value;
-      const status = document.getElementById("statusFilter").value;
+   // Replace the existing filterTable() function
+async function filterTable() {
+  const q      = document.getElementById("searchInput").value.trim();
+  const cat    = document.getElementById("catFilter").value;
+  const brand  = document.getElementById("brandFilter").value;
+  const status = document.getElementById("statusFilter").value;
 
-      filteredProducts = products.filter((p) => {
-        const productStatus = p.isBlocked || p.isDeleted ? "INACTIVE" : "ACTIVE";
-        return (
-          (p.productName?.toLowerCase().includes(q) || p._id?.toLowerCase().includes(q)) &&
-          (!cat    || p.category?.name === cat)  &&
-          (!brand  || p.brand?.name === brand)   &&
-          (!status || productStatus === status)
-        );
-      });
+  const params = new URLSearchParams();
+  if (q)      params.set("search",   q);
+  if (cat)    params.set("category", cat);
+  if (brand)  params.set("brand",    brand);
+  if (status) params.set("status",   status);
 
-      currentPage = 1;
+  try {
+    const res  = await fetch(`/admin/products?${params.toString()}`, {
+      headers: { "X-Requested-With": "XMLHttpRequest" }
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      products         = data.products;   // update the global array
+      filteredProducts = [...products];   // variants modal etc. still work
+      currentPage      = 1;
       render();
     }
-
+  } catch (err) {
+    console.error("Filter request failed:", err);
+    showToast("Failed to fetch products", false);
+  }
+}
+// Replace the oninput on the search input with this after DOMContentLoaded
+let searchDebounce;
+document.getElementById("searchInput").addEventListener("input", () => {
+  clearTimeout(searchDebounce);
+  searchDebounce = setTimeout(filterTable, 350);
+});
    
     function openAddModal() {
       editingId = null;

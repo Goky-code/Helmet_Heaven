@@ -96,7 +96,7 @@ await Wishlist.updateOne(
 
 await cart.save();
 
-    return res.json({ success: true, message: "Added to cart" });
+    return res.json({ success: true, message: "Added to cart", cartCount: cart.items.length });
 
   } catch (error) {
     console.log(error);
@@ -158,7 +158,12 @@ export const removeCartItem = async (req, res) => {
       { $pull: { items: { productId, size } } }
     );
 
-    res.json({ success: true });
+    const cart = await Cart.findOne({ userId });
+
+res.json({
+  success: true,
+  cartCount: cart ? cart.items.length : 0
+});
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Server error" });
@@ -220,3 +225,32 @@ export const addAllToCart = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+export const getCartCount = async (req, res) => {
+  try {
+    const userId = req.session.user
+
+    if (!userId) {
+      return res.json({
+        success: true,
+        count: 0
+      });
+    }
+
+    const cart = await Cart.findOne({ userId });
+
+    const count = cart ? cart.items.length : 0;
+
+    res.json({
+      success: true,
+      count
+    });
+
+  } catch (error) {
+    res.json({
+      success: false,
+      count: 0
+    });
+  }
+};
+

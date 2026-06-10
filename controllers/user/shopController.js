@@ -1,92 +1,108 @@
-import Product from "../../models/productModel.js"
+import Product  from "../../models/productModel.js"
 import Category from "../../models/categoryModel.js"
-import Brand from "../../models/brandModels.js"
-import Wishlist from "../../models/wishlistModel.js"   // ← ADD THIS
+import Brand    from "../../models/brandModels.js"
+import Wishlist from "../../models/wishlistModel.js"
 
 export const loadShop = async (req, res) => {
   try {
     const {
-      search = "",
+      search   = "",
       category = "",
-      brand = "",
-      size = "",
+      brand    = "",
+      size     = "",
       minPrice = "",
       maxPrice = "",
-      sort = "",
-      page = 1
+      sort     = "",
+      page     = 1,
     } = req.query
 
     const limit       = 6
-    const currentPage = Number(page)
-    const skip        = (currentPage - 1) * limit
+    const currentPage = Math.max(1, Number(page))
 
-    let filter = {
+    
+    const dbFilter = {
       isDeleted: false,
-      isBlocked: { $ne: true }
+      isBlocked: { $ne: true },
     }
+    if (search)   dbFilter.productName = { $regex: search, $options: "i" }
+    if (category) dbFilter.category    = category
+    if (brand)    dbFilter.brand       = brand
 
-    if (search)   filter.productName      = { $regex: search, $options: "i" }
-    if (category) filter.category         = category
-    if (brand)    filter.brand            = brand
-    if (size)     filter["variants.size"] = size
-
-    if (minPrice || maxPrice) {
-      filter["variants.price"] = {}
-      if (minPrice) filter["variants.price"].$gte = Number(minPrice)
-      if (maxPrice) filter["variants.price"].$lte = Number(maxPrice)
-    }
-
-    let sortOption = {}
-    switch (sort) {
-      case "low-high": sortOption = { "variants.price": 1  }; break
-      case "high-low": sortOption = { "variants.price": -1 }; break
-      case "a-z":      sortOption = { productName: 1       }; break
-      case "z-a":      sortOption = { productName: -1      }; break
-      default:         sortOption = { createdAt: -1        }
-    }
-
-    const allProducts = await Product.find(filter)
+    const raw = await Product.find(dbFilter)
       .populate({ path: "category", match: { isListed: true, isDeleted: false } })
       .populate({ path: "brand",    match: { isListed: true, isDeleted: false } })
-      .sort(sortOption)
+      .lean()
 
-    const allValidProducts = allProducts.filter(product => {
-      if (!product.category || !product.brand) return false
-      return product.variants.some(v =>
-        v.status === "ACTIVE" &&
-        v.stock > 0 &&
-        (!size     || v.size  === size) &&
-        (!minPrice || v.price >= Number(minPrice)) &&
-        (!maxPrice || v.price <= Number(maxPrice))
-      )
+   
+    const minP = minPrice ? Number(minPrice) : null
+    const maxP = maxPrice ? Number(maxPrice) : null
+
+    const withVariant = raw.reduce((acc, product) => {
+     
+      if (!product.category || !product.brand) return acc
+
+      const match = product.variants
+        .filter(v => {
+          if (v.status !== "ACTIVE" || v.stock <= 0) return false
+          if (size && v.size !== size)               return false
+          if (minP  && v.price < minP)               return false
+          if (maxP  && v.price > maxP)               return false
+          return true
+        })
+        
+        .sort((a, b) => a.price - b.price)[0]
+
+      if (match) acc.push({ product, variant: match })
+      return acc
+    }, [])
+
+   
+    withVariant.sort((a, b) => {
+      switch (sort) {
+        case "low-high":  return a.variant.price - b.variant.price
+        case "high-low":  return b.variant.price - a.variant.price
+        case "a-z":       return a.product.productName.localeCompare(b.product.productName)
+        case "z-a":       return b.product.productName.localeCompare(a.product.productName)
+        default:          return new Date(b.product.createdAt) - new Date(a.product.createdAt)
+      }
     })
 
-    const totalPages    = Math.ceil(allValidProducts.length / limit)
-    const validProducts = allValidProducts.slice(skip, skip + limit)
+    
+    const totalPages = Math.ceil(withVariant.length / limit)
+    const safePage   = Math.min(currentPage, Math.max(1, totalPages))
+    const skip       = (safePage - 1) * limit
+    const pageItems  = withVariant.slice(skip, skip + limit)
 
-    const categories = await Category.find({ isListed: true, isDeleted: false })
-    const brands     = await Brand.find({    isListed: true, isDeleted: false })
+    
+    const products = pageItems.map(({ product, variant }) => ({
+      ...product,
+      _activeVariant: variant,   
+    }))
 
-    // ── Wishlist: only for logged-in users ──
+    
+    const [categories, brands] = await Promise.all([
+      Category.find({ isListed: true, isDeleted: false }),
+      Brand.find({    isListed: true, isDeleted: false }),
+    ])
+
+    
     let wishlistedProductIds = []
     const userId = req.session?.user
     if (userId) {
-      const wishlist = await Wishlist.findOne({ userId })
-      if (wishlist) {
-        // Collect unique productId strings — any size counts
+      const wishlist = await Wishlist.findOne({ userId }).lean()
+      if (wishlist?.products?.length) {
         wishlistedProductIds = [
-          ...new Set(
-            wishlist.products.map(item => item.productId.toString())
-          )
+          ...new Set(wishlist.products.map(i => i.productId.toString()))
         ]
       }
     }
 
+    
     res.render("user/product/productCategory", {
-      products: validProducts,
+      products,
       categories,
       brands,
-      currentPage,
+      currentPage: safePage,
       totalPages,
       search,
       category,
@@ -95,11 +111,11 @@ export const loadShop = async (req, res) => {
       minPrice,
       maxPrice,
       sort,
-      wishlistedProductIds   // ← ADD THIS
+      wishlistedProductIds,
     })
 
   } catch (error) {
-    console.log(error)
+    console.error("[loadShop]", error)
     res.redirect("/pageNotFound")
   }
 }

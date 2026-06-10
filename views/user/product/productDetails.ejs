@@ -423,6 +423,14 @@
     }
     .nav-drawer a:hover { background: var(--card); color: var(--text); }
 
+    .badge {
+  position: absolute; top: 4px; right: 4px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: .62rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+
     /* ─── RESPONSIVE ─── */
 
     /* Large tablets / small desktops */
@@ -595,17 +603,24 @@
 
     <!-- Icons -->
  <a href="/user/cart" class="icon-btn" aria-label="Cart" title="Cart">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-        </svg>
-        <span class="badge" id="cartBadge">0</span>
-      </a>
-
-    <a href="/user/wishlist" class="icon-btn" aria-label="Wishlist" title="Wishlist">
-  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+  <svg width="20" height="20" fill="none" stroke="currentColor"
+       stroke-width="2" viewBox="0 0 24 24">
+    <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2
+             2 0 0 0 2-1.61L23 6H6"/>
   </svg>
+  <span class="badge" id="cartCount" style="display:none"></span>
+</a>
+
+   <a href="/user/wishlist" class="icon-btn"
+   aria-label="Wishlist" title="Wishlist">
+  <svg width="20" height="20" fill="none" stroke="currentColor"
+       stroke-width="2" viewBox="0 0 24 24">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06
+             a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84
+             a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+  <span class="badge" id="wishlistCount" style="display:none"></span>
 </a>
       
       <button class="icon-btn" aria-label="Account" title="Account">
@@ -1215,9 +1230,11 @@
       if (data.success) {
         if (alreadyWishlisted) {
           wishlistedSizes.splice(wishlistedSizes.indexOf(selectedSize), 1);
+          updateHeaderCounts(); // ✅ was fetchCounts()
           showToast('Removed from wishlist', '#607d8b');
         } else {
           wishlistedSizes.push(selectedSize);
+          updateHeaderCounts(); // ✅ was fetchCounts()
           showToast('❤ Added to wishlist!', '#e91e63');
         }
         updateWishBtn();
@@ -1268,7 +1285,36 @@
 
       const data = await response.json();
       if (data.success) {
+        updateHeaderCounts(); // ✅ was fetchCounts()
         window.location.href = '/user/cart';
+      } else {
+        showToast(data.message, 'var(--danger)');
+      }
+    } catch (error) {
+      console.log(error);
+      showToast('Something went wrong', 'var(--danger)');
+    }
+  }
+
+  /* ── BUY NOW ── */  // ✅ was missing entirely
+  async function buyNow() {
+    if (!validateBeforeAction()) return;
+    try {
+      const response = await fetch(`/user/add-to-cart/<%= product._id %>`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ size: selectedSize, quantity: qty })
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        window.location.href = '/user/login';
+        return;
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        window.location.href = '/user/checkout';
       } else {
         showToast(data.message, 'var(--danger)');
       }
@@ -1298,6 +1344,36 @@
     input.value = '';
     setTimeout(() => { msg.style.display = 'none'; }, 4000);
   }
+
+  /* ── HEADER COUNTS ── */
+  async function updateHeaderCounts() {
+    try {
+      const cartRes = await fetch('/user/cart/count');
+      const cartData = await cartRes.json();
+
+      const wishlistRes = await fetch('/user/wishlist/count');
+      const wishlistData = await wishlistRes.json();
+
+      const cartBadge = document.getElementById('cartCount');
+      const wishlistBadge = document.getElementById('wishlistCount');
+
+      if (cartBadge) {
+        cartBadge.textContent = cartData.count;
+        cartBadge.style.display = cartData.count > 0 ? 'flex' : 'none';
+      }
+
+      if (wishlistBadge) {
+        wishlistBadge.textContent = wishlistData.count;
+        wishlistBadge.style.display = wishlistData.count > 0 ? 'flex' : 'none';
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateHeaderCounts();
+  });
 </script>
 </body>
 </html>

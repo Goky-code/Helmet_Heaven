@@ -470,7 +470,7 @@
   <div class="nav-actions">
     <button class="nav-btn" onclick="showToast('Cart coming soon!')" aria-label="Cart">
       <i class="fa-solid fa-cart-shopping"></i>
-      <span class="badge" id="cartCount">0</span>
+      <!-- <span class="badge" id="cartCount"></span> -->
     </button>
     <button class="nav-btn" aria-label="Wishlist"><i class="fa-regular fa-heart"></i></button>
     <button class="nav-btn" aria-label="Account"><i class="fa-regular fa-user"></i></button>
@@ -703,11 +703,7 @@
     <% products.forEach(product => { %>
 
       <%
-        const activeVariant =
-        product.variants.find(
-          v => v.status === "ACTIVE" && v.stock > 0
-        )
-      %>
+        const activeVariant = product._activeVariant %>
 
       <% if (activeVariant) { %>
 
