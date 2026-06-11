@@ -6,118 +6,148 @@
   <title>Helmet Haven – My Wishlist</title>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    /* ── CSS Variables ── */
     :root {
-      --bg:        #0d1117;
-      --surface:   #151c27;
-      --card:      #1a2333;
-      --border:    #2a3650;
-      --accent:    #2563eb;
-      --accent-h:  #1d4ed8;
-      --red:       #e53e3e;
-      --gold:      #f6c90e;
-      --text:      #e2e8f0;
-      --muted:     #7a8aaa;
-      --strike:    #4a5568;
-      --radius:    12px;
-      --shadow:    0 8px 32px rgba(0,0,0,.45);
+      --bg:       #0d1117;
+      --surface:  #151c27;
+      --card:     #1a2333;
+      --border:   #2a3650;
+      --accent:   #2563eb;
+      --accent-h: #1d4ed8;
+      --red:      #e53e3e;
+      --gold:     #f6c90e;
+      --text:     #e2e8f0;
+      --muted:    #7a8aaa;
+      --radius:   12px;
+      --shadow:   0 8px 32px rgba(0,0,0,.45);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'DM Sans', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
+      background: var(--bg); color: var(--text);
+      min-height: 100vh; overflow-x: hidden;
     }
 
     /* ── NAVBAR ── */
-    nav {
+    nav.main-nav {
       position: sticky; top: 0; z-index: 100;
-      background: rgba(13,17,23,.92);
+      background: rgba(13,17,23,.95);
       backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
-      padding: 0 clamp(1rem, 4vw, 3rem);
       height: 64px;
-      display: flex; align-items: center; gap: 1.5rem;
+      display: flex; align-items: center;
+      padding: 0 clamp(1rem, 4vw, 2.5rem);
+      gap: 1rem;
     }
     .nav-logo {
       display: flex; align-items: center; gap: .5rem;
       font-family: 'Rajdhani', sans-serif;
-      font-size: 1.35rem; font-weight: 700;
+      font-size: 1.3rem; font-weight: 700;
       color: var(--text); text-decoration: none; white-space: nowrap;
+      flex-shrink: 0;
     }
-    .nav-logo svg { color: var(--accent); }
+    .nav-logo svg { color: var(--accent); flex-shrink: 0; }
+
     .nav-links {
-      display: flex; gap: 1.5rem; list-style: none;
-      margin-left: .5rem;
+      display: flex; gap: .25rem; list-style: none; flex-shrink: 0;
     }
     .nav-links a {
-      color: var(--muted); font-size: .92rem; text-decoration: none;
-      transition: color .2s;
+      color: var(--muted); font-size: .88rem; text-decoration: none;
+      padding: 5px 10px; border-radius: 6px;
+      transition: color .2s, background .2s;
     }
-    .nav-links a:hover { color: var(--text); }
+    .nav-links a:hover { color: var(--text); background: var(--surface); }
 
     .nav-search {
-      flex: 1; max-width: 420px; margin-left: auto;
+      flex: 1; max-width: 380px; margin-left: auto;
       position: relative;
     }
     .nav-search input {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: .5rem 1rem .5rem 2.4rem;
-      color: var(--text);
-      font-size: .9rem;
-      outline: none;
+      width: 100%; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: .45rem 1rem .45rem 2.2rem;
+      color: var(--text); font-size: .88rem; outline: none;
       transition: border-color .2s;
     }
     .nav-search input::placeholder { color: var(--muted); }
     .nav-search input:focus { border-color: var(--accent); }
-    .nav-search .search-icon {
-      position: absolute; left: .75rem; top: 50%; transform: translateY(-50%);
-      color: var(--muted); pointer-events: none;
+    .nav-search .si {
+      position: absolute; left: .65rem; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none; display: flex;
     }
 
-    .nav-actions { display: flex; align-items: center; gap: .5rem; }
-    .nav-btn {
+    /* ── NAV ICON BUTTONS ── */
+    .nav-actions { display: flex; align-items: center; gap: .35rem; flex-shrink: 0; }
+    .nav-icon-btn {
       position: relative;
-      background: none; border: none;
-      color: var(--muted); cursor: pointer;
-      padding: .45rem; border-radius: 8px;
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); padding: .4rem;
+      border-radius: 8px; text-decoration: none;
+      display: flex; align-items: center; justify-content: center;
       transition: color .2s, background .2s;
-      display: flex; align-items: center;
     }
-    .nav-btn:hover { color: var(--text); background: var(--surface); }
-    .nav-btn.wishlist-btn { color: var(--red); }
-    .badge {
+    .nav-icon-btn:hover { color: var(--text); background: var(--surface); }
+    .nav-icon-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* ── NAVBAR BADGE ── */
+    .nav-icon-btn .nbadge {
       position: absolute; top: 2px; right: 2px;
       background: var(--accent); color: #fff;
-      font-size: .6rem; font-weight: 700;
+      font-size: .58rem; font-weight: 700;
       border-radius: 50%; width: 16px; height: 16px;
       display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
     }
 
-    /* hide nav-links on small screens */
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .nav-search { max-width: 180px; }
+    /* Hamburger */
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 6px;
+      color: var(--text); flex-shrink: 0;
     }
-    @media (max-width: 480px) {
-      .nav-search { display: none; }
+    .hamburger span {
+      display: block; width: 20px; height: 2px;
+      background: currentColor; border-radius: 2px;
+      transition: transform .3s, opacity .3s;
     }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-    /* ── PAGE WRAPPER ── */
-    .page { padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 5vw, 3.5rem); }
+    /* Mobile drawer */
+    .mobile-drawer {
+      display: none; position: fixed;
+      top: 64px; left: 0; right: 0; bottom: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      flex-direction: column; gap: .5rem;
+      padding: 1.25rem 1.5rem;
+      z-index: 99; overflow-y: auto;
+    }
+    .mobile-drawer.open { display: flex; }
+    .mobile-drawer a {
+      color: var(--muted); text-decoration: none;
+      font-size: 1rem; padding: .6rem .75rem;
+      border-radius: 8px; transition: background .2s, color .2s;
+    }
+    .mobile-drawer a:hover { background: var(--card); color: var(--text); }
+    .mobile-drawer .mob-search {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: .5rem 1rem;
+      color: var(--text); font-size: .9rem; outline: none;
+      width: 100%; margin-top: .5rem;
+    }
+    .mobile-drawer .mob-search::placeholder { color: var(--muted); }
+
+    /* ── PAGE ── */
+    .page { padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 5vw, 3rem); max-width: 1320px; margin: 0 auto; }
 
     /* ── BREADCRUMB ── */
     .breadcrumb {
       font-size: .82rem; color: var(--muted);
       display: flex; align-items: center; gap: .4rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.25rem; flex-wrap: wrap;
     }
     .breadcrumb a { color: var(--muted); text-decoration: none; }
     .breadcrumb a:hover { color: var(--accent); }
@@ -133,15 +163,22 @@
 
     /* ── CONTROLS BAR ── */
     .controls-bar {
-      display: flex; align-items: center; gap: 1rem;
+      display: flex; align-items: center; gap: .75rem;
       flex-wrap: wrap; margin: 1.5rem 0;
     }
     .sort-select {
       background: var(--surface); border: 1px solid var(--border);
       color: var(--text); padding: .45rem .85rem;
-      border-radius: 8px; font-size: .88rem; cursor: pointer;
-      outline: none;
+      border-radius: 8px; font-size: .88rem; cursor: pointer; outline: none;
     }
+    .btn-add-all {
+      background: var(--accent); border: none;
+      color: #fff; padding: .45rem 1rem;
+      border-radius: 8px; font-size: .88rem; cursor: pointer;
+      font-weight: 600; transition: background .2s;
+      display: flex; align-items: center; gap: .4rem;
+    }
+    .btn-add-all:hover { background: var(--accent-h); }
     .btn-clear-all {
       margin-left: auto;
       background: none; border: 1px solid var(--border);
@@ -150,28 +187,18 @@
       transition: all .2s;
     }
     .btn-clear-all:hover { border-color: var(--red); color: var(--red); }
-    .btn-add-all {
-      background: var(--accent); border: none;
-      color: #fff; padding: .45rem 1.1rem;
-      border-radius: 8px; font-size: .88rem; cursor: pointer;
-      font-weight: 600; transition: background .2s;
-      display: flex; align-items: center; gap: .4rem;
-    }
-    .btn-add-all:hover { background: var(--accent-h); }
 
     /* ── GRID ── */
     .wishlist-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
     }
 
-    /* ── CARD ── */
+    /* ── PRODUCT CARD ── */
     .product-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
       display: flex; flex-direction: column;
       box-shadow: var(--shadow);
       transition: transform .25s, box-shadow .25s, border-color .25s;
@@ -186,80 +213,96 @@
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .product-card:nth-child(1) { animation-delay: .05s; }
-    .product-card:nth-child(2) { animation-delay: .1s; }
-    .product-card:nth-child(3) { animation-delay: .15s; }
-    .product-card:nth-child(4) { animation-delay: .2s; }
 
     .card-img-wrap {
-      position: relative;
-      aspect-ratio: 1 / 1;
-      overflow: hidden;
-      background: #111820;
+      aspect-ratio: 1 / 1; overflow: hidden;
+      background: #111820; position: relative;
     }
     .card-img-wrap img {
-      width: 100%; height: 100%;
-      object-fit: cover;
+      width: 100%; height: 100%; object-fit: cover;
       transition: transform .4s;
     }
-    .product-card:hover .card-img-wrap img { transform: scale(1.06); }
+    .product-card:hover .card-img-wrap img { transform: scale(1.05); }
 
-    .card-top-actions {
-      position: absolute; top: .6rem; left: .6rem; right: .6rem;
-      display: flex; justify-content: space-between;
-    }
-    .icon-btn {
-      background: rgba(13,17,23,.75);
-      border: 1px solid var(--border);
-      color: var(--muted); border-radius: 8px;
-      width: 34px; height: 34px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; backdrop-filter: blur(6px);
-      transition: all .2s;
-    }
-    .icon-btn:hover { background: var(--surface); color: var(--text); }
-    .icon-btn.fav { color: var(--red); border-color: var(--red); }
-    .icon-btn.fav:hover { background: rgba(229,62,62,.15); }
-
-    .card-body { padding: 1rem; display: flex; flex-direction: column; gap: .55rem; flex: 1; }
-
-    .card-meta {
-      display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem;
+    .card-body {
+      padding: .9rem; display: flex; flex-direction: column;
+      gap: .5rem; flex: 1;
     }
     .card-name {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 1.1rem; font-weight: 700;
-      line-height: 1.2;
+      font-size: 1.05rem; font-weight: 700; line-height: 1.2;
     }
-    .card-rating {
-      display: flex; align-items: center; gap: .25rem;
-      font-size: .82rem; color: var(--gold); white-space: nowrap; flex-shrink: 0;
-    }
-
-    .card-desc { font-size: .82rem; color: var(--muted); line-height: 1.5; flex: 1; }
-
-    .card-pricing {
-      display: flex; align-items: center; gap: .6rem;
-    }
-    .price-original {
-      font-size: .82rem; color: var(--strike);
-      text-decoration: line-through;
-    }
-    .price-sale {
+    .card-price {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 1.3rem; font-weight: 700; color: var(--accent);
+      font-size: 1.15rem; font-weight: 700; color: var(--accent);
     }
+    .item-size-tag { font-size: .82rem; color: var(--muted); }
+    .item-size-tag strong { color: var(--text); }
+    .size-missing-msg { font-size: .8rem; color: var(--red); }
 
     .btn-cart {
       width: 100%; margin-top: .25rem;
-      background: var(--accent); border: none;
-      color: #fff; padding: .6rem;
-      border-radius: 8px; font-size: .9rem; font-weight: 600;
-      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: .45rem;
+      background: var(--accent); border: none; color: #fff;
+      padding: .6rem; border-radius: 8px;
+      font-size: .88rem; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: .4rem;
       transition: background .2s, transform .15s;
     }
     .btn-cart:hover { background: var(--accent-h); transform: scale(1.02); }
-    .btn-cart:active { transform: scale(.98); }
+    .btn-cart:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+    .btn-cart:disabled:hover { background: var(--accent); }
+
+    .btn-remove {
+      width: 100%; background: none;
+      border: 1px solid var(--border); color: var(--muted);
+      padding: .5rem; border-radius: 8px;
+      font-size: .82rem; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-remove:hover { border-color: var(--red); color: var(--red); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      display: none; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 5rem 2rem; gap: 1rem; text-align: center;
+    }
+    .empty-state.visible { display: flex; }
+    .empty-state svg { color: var(--border); }
+    .empty-state h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.5rem; font-weight: 700; color: var(--muted);
+    }
+    .empty-state p { color: var(--muted); font-size: .9rem; }
+    .btn-shop {
+      background: var(--accent); border: none; color: #fff;
+      padding: .65rem 1.4rem; border-radius: 8px;
+      font-size: .95rem; font-weight: 600; cursor: pointer;
+      margin-top: .5rem; transition: background .2s;
+    }
+    .btn-shop:hover { background: var(--accent-h); }
+
+    /* ── CTA BAND ── */
+    .cta-band {
+      margin: 3rem 0;
+      border: 1px dashed var(--border); border-radius: 16px;
+      padding: 2.5rem 1.5rem; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
+    .cta-band h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(1.3rem, 3vw, 1.8rem); font-weight: 700;
+    }
+    .cta-band p { color: var(--muted); max-width: 420px; font-size: .92rem; }
+    .btn-continue {
+      background: none; border: 2px solid var(--text);
+      color: var(--text); padding: .65rem 1.5rem;
+      border-radius: 8px; font-size: .95rem; font-weight: 700;
+      cursor: pointer; font-family: 'Rajdhani', sans-serif;
+      text-decoration: none; letter-spacing: .03em;
+      transition: background .2s, color .2s; display: inline-block;
+    }
+    .btn-continue:hover { background: var(--text); color: var(--bg); }
 
     /* ── TOAST ── */
     .toast-container {
@@ -272,8 +315,7 @@
       border-radius: 10px; font-size: .88rem;
       box-shadow: var(--shadow);
       display: flex; align-items: center; gap: .6rem;
-      animation: toastIn .3s ease;
-      max-width: 300px;
+      animation: toastIn .3s ease; max-width: 300px;
     }
     @keyframes toastIn {
       from { opacity: 0; transform: translateX(60px); }
@@ -284,276 +326,305 @@
     .toast.remove  .toast-dot { background: var(--red); }
     .toast-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-    /* ── EMPTY STATE ── */
-    .empty-state {
-      display: none;
-      flex-direction: column; align-items: center; justify-content: center;
-      padding: 5rem 2rem; gap: 1rem; text-align: center;
-    }
-    .empty-state.visible { display: flex; }
-    .empty-state svg { color: var(--border); }
-    .empty-state h2 {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 1.5rem; font-weight: 700; color: var(--muted);
-    }
-    .empty-state p { color: var(--muted); font-size: .9rem; }
-    .btn-shop {
-      background: var(--accent); border: none; color: #fff;
-      padding: .65rem 1.4rem; border-radius: 8px; font-size: .95rem;
-      font-weight: 600; cursor: pointer; margin-top: .5rem;
-      transition: background .2s;
-    }
-    .btn-shop:hover { background: var(--accent-h); }
-
-    /* ── CTA BAND ── */
-    .cta-band {
-      margin: 3.5rem 0;
-      border: 1px dashed var(--border);
-      border-radius: 16px;
-      padding: 3rem 2rem;
-      text-align: center;
-      display: flex; flex-direction: column; align-items: center; gap: 1rem;
-    }
-    .cta-band h2 {
-      font-family: 'Rajdhani', sans-serif;
-      font-size: clamp(1.4rem, 3vw, 1.8rem); font-weight: 700;
-    }
-    .cta-band p { color: var(--muted); max-width: 420px; font-size: .95rem; }
-    .btn-continue {
-      background: none; border: 2px solid var(--text);
-      color: var(--text); padding: .7rem 1.6rem;
-      border-radius: 8px; font-size: .95rem; font-weight: 700;
-      cursor: pointer; font-family: 'Rajdhani', sans-serif;
-      letter-spacing: .03em;
-      transition: background .2s, color .2s;
-    }
-    .btn-continue:hover { background: var(--text); color: var(--bg); }
-
     /* ── FOOTER ── */
     footer {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      padding: 3rem clamp(1rem, 5vw, 3.5rem) 1.5rem;
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 3rem clamp(1rem, 5vw, 3rem) 1.5rem; margin-top: 3rem;
     }
     .footer-top {
-      display: grid;
-      grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
-      gap: 2.5rem;
-    }
-    @media (max-width: 900px) {
-      .footer-top { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 520px) {
-      .footer-top { grid-template-columns: 1fr; }
+      display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
+      gap: 2.5rem; max-width: 1320px; margin: 0 auto;
     }
     .footer-brand p { color: var(--muted); font-size: .88rem; line-height: 1.6; margin-top: .75rem; }
     .footer-col h4 {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 1rem; font-weight: 700; margin-bottom: .85rem;
-      letter-spacing: .05em;
+      font-size: 1rem; font-weight: 700; margin-bottom: .85rem; letter-spacing: .05em;
     }
     .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: .5rem; }
     .footer-col ul a { color: var(--muted); font-size: .88rem; text-decoration: none; transition: color .2s; }
     .footer-col ul a:hover { color: var(--accent); }
-
     .newsletter-form { display: flex; gap: .5rem; margin-top: .75rem; flex-wrap: wrap; }
     .newsletter-form input {
-      flex: 1; min-width: 130px;
+      flex: 1; min-width: 120px;
       background: var(--card); border: 1px solid var(--border);
-      color: var(--text); padding: .55rem .85rem;
+      color: var(--text); padding: .5rem .85rem;
       border-radius: 8px; font-size: .88rem; outline: none;
       transition: border-color .2s;
     }
     .newsletter-form input:focus { border-color: var(--accent); }
     .newsletter-form input.error { border-color: var(--red); }
     .newsletter-form button {
-      background: var(--accent); border: none;
-      color: #fff; padding: .55rem 1rem;
-      border-radius: 8px; font-weight: 700; cursor: pointer;
-      font-size: .88rem; white-space: nowrap;
-      transition: background .2s;
+      background: var(--accent); border: none; color: #fff;
+      padding: .5rem 1rem; border-radius: 8px;
+      font-weight: 700; cursor: pointer; font-size: .88rem;
+      white-space: nowrap; transition: background .2s;
     }
     .newsletter-form button:hover { background: var(--accent-h); }
     .nl-msg { font-size: .78rem; margin-top: .4rem; }
     .nl-msg.ok  { color: #38a169; }
     .nl-msg.err { color: var(--red); }
-
     .footer-bottom {
-      margin-top: 2rem; padding-top: 1.25rem;
-      border-top: 1px solid var(--border);
+      max-width: 1320px; margin: 2rem auto 0;
+      padding-top: 1.25rem; border-top: 1px solid var(--border);
       display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: .75rem;
-      font-size: .8rem; color: var(--muted);
+      flex-wrap: wrap; gap: .75rem; font-size: .8rem; color: var(--muted);
     }
     .footer-bottom a { color: var(--muted); text-decoration: none; }
     .footer-bottom a:hover { color: var(--accent); }
+    .footer-bottom-links { display: flex; gap: 1.25rem; }
 
-  .item-size-tag {
-  font-size: .82rem;
-  color: var(--muted);
-  margin: 2px 0;
-}
-.item-size-tag strong {
-  color: var(--text);
-}
-.size-missing-msg {
-  font-size: .8rem;
-  color: var(--red);
-  margin: 2px 0;
-}
-.btn-cart:disabled {
-  opacity: .4;
-  cursor: not-allowed;
-}
-.btn-cart:disabled:hover {
-  background: var(--accent);
-  transform: none;
-}
-.btn-continue {
-    text-decoration: none;
-}
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    }
+    @media (max-width: 768px) {
+      .nav-links  { display: none; }
+      .nav-search { display: none; }
+      .hamburger  { display: flex; }
+      .wishlist-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; }
+      .footer-top { grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    }
+    @media (max-width: 520px) {
+      .wishlist-grid { grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+      .controls-bar { gap: .5rem; }
+      .btn-clear-all { margin-left: 0; width: 100%; }
+      .footer-top { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 360px) {
+      .wishlist-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav>
-  <a class="nav-logo" href="#">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C7 2 3 6.5 3 10.5c0 2.7 1.4 5.1 3.6 6.5L8 22h8l1.4-5C19.6 15.6 21 13.2 21 10.5 21 6.5 17 2 12 2z"/><path d="M8 14s1 1 4 1 4-1 4-1"/></svg>
+<%
+  /* Counts from setNavCounts middleware */
+  const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
+  const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
+%>
+
+<!-- ── NAVBAR ── -->
+<nav class="main-nav">
+
+  <a class="nav-logo" href="/user/homepage">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2C7 2 3 6.5 3 10.5c0 2.7 1.4 5.1 3.6 6.5L8 22h8l1.4-5C19.6 15.6 21 13.2 21 10.5 21 6.5 17 2 12 2z"/>
+      <path d="M8 14s1 1 4 1 4-1 4-1"/>
+    </svg>
     Helmet Haven
   </a>
+
   <ul class="nav-links">
-    <li><a href="#">Home</a></li>
+    <li><a href="/user/homepage">Home</a></li>
     <li><a href="#">About Us</a></li>
     <li><a href="#">Contact Us</a></li>
   </ul>
+
   <div class="nav-search">
-    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-    <input type="text" placeholder="Search premium helmets…" id="navSearch" aria-label="Search helmets" />
+    <span class="si">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+    </span>
+    <input type="text" placeholder="Search premium helmets…" aria-label="Search helmets"/>
   </div>
-  <a href="/user/cart" class="nav-actions">
-    <button class="nav-btn" title="Cart" aria-label="Cart">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-      <span class="badge" id="cartBadge">0</span>
+
+  <div class="nav-actions">
+
+    <!-- ✅ CART badge from res.locals -->
+    <a href="/user/cart" class="nav-icon-btn" aria-label="Cart">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+      </svg>
+      <% if (_cartCount > 0) { %>
+        <span class="nbadge" id="cartBadge"><%= _cartCount %></span>
+      <% } else { %>
+        <span class="nbadge" id="cartBadge" style="display:none">0</span>
+      <% } %>
+    </a>
+
+    <!-- ✅ WISHLIST badge from res.locals -->
+    <a href="/user/wishlist" class="nav-icon-btn" aria-label="Wishlist">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      <% if (_wishlistCount > 0) { %>
+        <span class="nbadge" id="wishlistBadge"><%= _wishlistCount %></span>
+      <% } else { %>
+        <span class="nbadge" id="wishlistBadge" style="display:none">0</span>
+      <% } %>
+    </a>
+
+    <!-- Account -->
+    <a href="/user/profileinformation" class="nav-icon-btn" aria-label="Account">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="12" cy="7" r="4"/>
+      </svg>
+    </a>
+
+    <!-- Hamburger -->
+    <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+      <span></span><span></span><span></span>
     </button>
-  </a>
-    <button class="nav-btn wishlist-btn" title="Wishlist" aria-label="Wishlist">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-    </button>
-    <button class="nav-btn" title="Account" aria-label="Account">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    </button>
+
   </div>
 </nav>
 
-<!-- MAIN -->
+<!-- Mobile Drawer -->
+<div class="mobile-drawer" id="mobileDrawer">
+  <a href="/user/homepage">Home</a>
+  <a href="#">About Us</a>
+  <a href="#">Contact Us</a>
+  <a href="/user/cart">Cart (<%= _cartCount %>)</a>
+  <a href="/user/wishlist">Wishlist (<%= _wishlistCount %>)</a>
+  <input class="mob-search" type="text" placeholder="Search premium helmets…" aria-label="Search"/>
+</div>
+<!-- ── END NAVBAR ── -->
+
+
+<!-- ── MAIN ── -->
 <main class="page">
+
   <div class="breadcrumb">
-    <a href="#">Home</a>
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    <a href="/user/homepage">Home</a>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="9 18 15 12 9 6"/>
+    </svg>
     <span>My Wishlist</span>
   </div>
 
   <div class="wishlist-heading">
     <h1>My Wishlist</h1>
-    <p id="wishlistCount">You have 4 items saved in your wishlist.</p>
+    <%
+      const itemCount = wishlist.products ? wishlist.products.length : 0;
+    %>
+    <p id="wishlistSubtitle">
+      <% if (itemCount === 0) { %>
+        Your wishlist is empty.
+      <% } else { %>
+        You have <%= itemCount %> item<%= itemCount !== 1 ? 's' : '' %> saved in your wishlist.
+      <% } %>
+    </p>
   </div>
 
   <div class="controls-bar">
     <select class="sort-select" id="sortSelect" aria-label="Sort wishlist">
       <option value="default">Sort: Default</option>
-      <option value="price-asc">Price: Low to High</option>
-      <option value="price-desc">Price: High to Low</option>
-      <option value="rating">Top Rated</option>
       <option value="name">Name A–Z</option>
     </select>
-    <button class="btn-add-all" id="addAllBtn" aria-label="Add all items to cart">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <button class="btn-add-all" id="addAllBtn">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
       Add All to Cart
     </button>
-    <button class="btn-clear-all" id="clearAllBtn" aria-label="Clear wishlist">Clear Wishlist</button>
+    <button class="btn-clear-all" id="clearAllBtn">Clear Wishlist</button>
   </div>
 
   <!-- GRID -->
-  <div class="wishlist-grid">
+  <div class="wishlist-grid" id="wishlistGrid">
 
-<% if(wishlist.products.length > 0){ %>
+    <% if (wishlist.products && wishlist.products.length > 0) { %>
+      <% wishlist.products.forEach((item, i) => { %>
+        <%
+          const p = item.productId;
+          /* Find the active variant price for this item's size */
+          const matchVariant = p.variants
+            ? p.variants.find(v => v.size === item.size && v.status === 'ACTIVE')
+            : null;
+          const displayPrice = matchVariant
+            ? matchVariant.price
+            : (p.variants && p.variants[0] ? p.variants[0].price : 0);
+        %>
+        <div class="product-card"
+             data-product-id="<%= p._id %>"
+             data-size="<%= item.size || '' %>"
+             style="animation-delay:<%= i * 0.06 %>s">
 
-  <% wishlist.products.forEach(item => { %>
+          <div class="card-img-wrap">
+            <img src="<%= p.productImage && p.productImage[0] ? p.productImage[0] : '/images/placeholder.jpg' %>"
+                 alt="<%= p.productName %>"
+                 onerror="this.src='/images/placeholder.jpg'"/>
+          </div>
 
-   <div class="product-card" data-product-id="<%= item.productId._id %>">
-      <div class="card-img-wrap">
+          <div class="card-body">
+            <div class="card-name"><%= p.productName %></div>
 
-        <img
-          src="<%= item.productId.productImage[0] %>"
-          alt="<%= item.productId.productName %>"
-        >
+            <div class="card-price">
+              ₹ <%= displayPrice ? displayPrice.toLocaleString() : '—' %>
+            </div>
 
-      </div>
-<div class="card-body">
-  <div class="card-name">
-    <%= item.productId.productName %>
+            <% if (item.size) { %>
+              <div class="item-size-tag">Size: <strong><%= item.size %></strong></div>
+            <% } else { %>
+              <div class="size-missing-msg">⚠ Size missing — re-add from product page</div>
+            <% } %>
+
+            <button
+              class="btn-cart"
+              <%= !item.size ? 'disabled' : '' %>
+              onclick="addToCart('<%= p._id %>', '<%= item.size || '' %>')"
+            >
+              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h13"/>
+              </svg>
+              Add to Cart
+            </button>
+
+            <button
+              class="btn-remove"
+              onclick="removeWishlist('<%= p._id %>', '<%= item.size || '' %>')"
+            >
+              Remove
+            </button>
+          </div>
+
+        </div>
+      <% }) %>
+    <% } %>
+
   </div>
 
-  <div class="card-pricing">
-    ₹ <%= item.productId.salePrice %>
-  </div>
-
-  <!-- Read-only size display -->
-  <% if (item.size) { %>
-    <div class="item-size-tag">Size: <strong><%= item.size %></strong></div>
-  <% } else { %>
-    <div class="size-missing-msg">⚠ Size info missing. Please re-add from product page.</div>
-  <% } %>
-
-  <button
-    class="btn-cart"
-    <%= !item.size ? 'disabled' : '' %>
-    onclick="addToCart('<%= item.productId._id %>', '<%= item.size %>')"
-  >
-    Add To Cart
-  </button>
-
- <%# NEW — passes size alongside productId %>
-<button class="btn-clear-all" onclick="removeWishlist('<%= item.productId._id %>', '<%= item.size %>')">
-  Remove
-</button>
-</div>
-
-    </div>
-
-  <% }) %>
-
-<% } %>
-
-</div>
-
-  <!-- EMPTY STATE -->
-  <div class="empty-state" id="emptyState" role="status">
-    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+  <!-- Empty State -->
+  <div class="empty-state <%= itemCount === 0 ? 'visible' : '' %>" id="emptyState">
+    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+    </svg>
     <h2>Your wishlist is empty</h2>
-    <p>Looks like you haven't saved anything yet. Browse our collection and find your perfect helmet.</p>
-    <button class="btn-shop" onclick="showToast('Redirecting to shop…','info')">Shop Now</button>
+    <p>Browse our collection and find your perfect helmet.</p>
+    <button class="btn-shop" onclick="window.location.href='/shop'">Shop Now</button>
   </div>
 
-  <!-- CTA BAND -->
+  <!-- CTA Band -->
   <div class="cta-band">
-    <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" color="var(--muted)"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg>
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" color="var(--muted)">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/>
+    </svg>
     <h2>Want to see more?</h2>
     <p>Explore our latest collections and find the perfect helmet for your next ride.</p>
-    <a href="/shop" class="btn-continue" onclick="showToast('Redirecting to shop…','info')">Continue Shopping →</a>
+    <a href="/shop" class="btn-continue">Continue Shopping →</a>
   </div>
+
 </main>
 
-<!-- FOOTER -->
+
+<!-- ── FOOTER ── -->
 <footer>
   <div class="footer-top">
     <div class="footer-brand">
-      <a class="nav-logo" href="#" style="font-size:1.15rem;">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C7 2 3 6.5 3 10.5c0 2.7 1.4 5.1 3.6 6.5L8 22h8l1.4-5C19.6 15.6 21 13.2 21 10.5 21 6.5 17 2 12 2z"/><path d="M8 14s1 1 4 1 4-1 4-1"/></svg>
+      <a class="nav-logo" href="/user/homepage" style="font-size:1.1rem">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2C7 2 3 6.5 3 10.5c0 2.7 1.4 5.1 3.6 6.5L8 22h8l1.4-5C19.6 15.6 21 13.2 21 10.5 21 6.5 17 2 12 2z"/>
+          <path d="M8 14s1 1 4 1 4-1 4-1"/>
+        </svg>
         Helmet Haven
       </a>
-      <p>The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
+      <p>The world's premier destination for high-end safety and performance headgear.</p>
     </div>
     <div class="footer-col">
       <h4>Shop</h4>
@@ -575,9 +646,9 @@
     </div>
     <div class="footer-col">
       <h4>Newsletter</h4>
-      <p style="color:var(--muted);font-size:.88rem;">Get early access to drops and exclusive offers.</p>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:.5rem">Get early access to drops and exclusive offers.</p>
       <div class="newsletter-form">
-        <input type="email" id="nlEmail" placeholder="Email address" aria-label="Newsletter email" />
+        <input type="email" id="nlEmail" placeholder="Email address" aria-label="Newsletter email"/>
         <button type="button" onclick="subscribeNewsletter()">Join</button>
       </div>
       <div class="nl-msg" id="nlMsg"></div>
@@ -585,198 +656,225 @@
   </div>
   <div class="footer-bottom">
     <span>© 2024 Helmet Haven. All rights reserved.</span>
-    <div style="display:flex;gap:1.25rem;">
+    <div class="footer-bottom-links">
       <a href="#">Privacy Policy</a>
       <a href="#">Terms of Service</a>
     </div>
   </div>
 </footer>
 
-<!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
 <script>
- 
- 
-
-  function sortItems(items) {
-    const val = document.getElementById('sortSelect').value;
-    if (val === 'price-asc')  return items.sort((a,b) => a.sale - b.sale);
-    if (val === 'price-desc') return items.sort((a,b) => b.sale - a.sale);
-    if (val === 'rating')     return items.sort((a,b) => b.rating - a.rating);
-    if (val === 'name')       return items.sort((a,b) => a.name.localeCompare(b.name));
-    return items;
-  }
-
-  /* ── Actions ── */
-  function removeItem(id) {
-    const p = wishlist.find(x => x.id === id);
-    wishlist = wishlist.filter(x => x.id !== id);
-    renderGrid();
-    if (p) showToast(`"${p.name}" removed from wishlist`, 'remove');
-  }
-
- async function addToCart(productId, size) {
-  if (!size) {
-    showToast('Size information missing. Please reselect the product.', 'remove');
-    return;
-  }
-
-  try {
-    const response = await fetch(`/user/add-to-cart/${productId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ size, quantity: 1 })
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      // Remove card from DOM
-      const card = document.querySelector(`[data-product-id="${productId}"]`);
-      if (card) {
-        card.style.transition = 'opacity .3s, transform .3s';
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(-8px)';
-        setTimeout(() => {
-          card.remove();
-          updateWishlistCount();
-          checkEmpty();
-        }, 300);
-      }
-      showToast('Product added to cart and removed from wishlist.', 'success');
-    } else {
-      showToast(data.message || 'Failed to add to cart', 'remove');
-    }
-  } catch (error) {
-    console.log(error);
-    showToast('Something went wrong', 'remove');
-  }
-}
-
-  document.getElementById('addAllBtn').addEventListener('click', async () => {
-  const cards = document.querySelectorAll('.product-card[data-product-id]');
-  if (cards.length === 0) return;
-
-  try {
-    const response = await fetch('/user/add-all-to-cart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      // Animate all cards out
-      cards.forEach(card => {
-        card.style.transition = 'opacity .3s, transform .3s';
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(-8px)';
-      });
-      setTimeout(() => {
-        cards.forEach(c => c.remove());
-        updateWishlistCount();
-        checkEmpty();
-      }, 350);
-      showToast('All wishlist items have been moved to the cart.', 'success');
-    } else {
-      showToast(data.message || 'Failed to add all items', 'remove');
-    }
-  } catch (error) {
-    console.log(error);
-    showToast('Something went wrong', 'remove');
-  }
-});
-
- document.getElementById('clearAllBtn').addEventListener('click', async () => {
-  const cards = document.querySelectorAll('.product-card[data-product-id]');
-  if (cards.length === 0) return;
-
-  if (!confirm('Remove all items from your wishlist?')) return;
-
-  // Fire individual removes in parallel
-  const promises = [...cards].map(card =>
-    fetch(`/user/remove-wishlist/${card.dataset.productId}`, { method: 'DELETE' })
-  );
-
-  try {
-    await Promise.all(promises);
-    cards.forEach(card => card.remove());
-    updateWishlistCount();
-    checkEmpty();
-    showToast('Wishlist cleared', 'remove');
-  } catch (error) {
-    console.log(error);
-    showToast('Something went wrong', 'remove');
-  }
-});
-
-  document.getElementById('sortSelect').addEventListener('change', renderGrid);
-
   /* ── Toast ── */
   function showToast(msg, type = 'info') {
-  const container = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.innerHTML = `<span class="toast-dot"></span>${msg}`;
-  container.appendChild(t);
-  setTimeout(() => t.remove(), 3400);
-}
-
-
-  /* ── Newsletter validation ── */
-  function subscribeNewsletter() {
-  const input = document.getElementById('nlEmail');
-  const msg   = document.getElementById('nlMsg');
-  const val   = input.value.trim();
-  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-  input.classList.toggle('error', !valid);
-
-  if (!valid) {
-    msg.textContent = 'Please enter a valid email address.';
-    msg.className = 'nl-msg err';
-    return;
+    const container = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${type}`;
+    t.innerHTML = `<span class="toast-dot"></span>${msg}`;
+    container.appendChild(t);
+    setTimeout(() => t.remove(), 3400);
   }
-  msg.textContent = '🎉 You\'re subscribed! Check your inbox.';
-  msg.className = 'nl-msg ok';
-  input.value = '';
-  input.classList.remove('error');
-}
 
-async function removeWishlist(productId, size) {
-  try {
-    const response = await fetch(`/user/remove-wishlist/${productId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ size }),          // ← send size in body
-    });
-
-    const data = await response.json();
-    if (data.success) {
-      location.reload();
+  /* ── Update wishlist subtitle count ── */
+  function updateSubtitle() {
+    const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
+    const el = document.getElementById('wishlistSubtitle');
+    if (el) {
+      el.textContent = remaining === 0
+        ? 'Your wishlist is empty.'
+        : `You have ${remaining} item${remaining !== 1 ? 's' : ''} saved in your wishlist.`;
     }
-  } catch (error) {
-    console.log(error);
   }
-}
 
-function updateWishlistCount() {
-  const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
-  const countEl = document.getElementById('wishlistCount');
-  if (countEl) {
-    countEl.textContent = remaining === 0
-      ? 'Your wishlist is empty.'
-      : `You have ${remaining} item${remaining > 1 ? 's' : ''} saved in your wishlist.`;
+  /* ── Update navbar wishlist badge after AJAX changes ── */
+  function updateWishlistBadge(count) {
+    const badge = document.getElementById('wishlistBadge');
+    if (!badge) return;
+    badge.textContent   = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
   }
-}
 
-function checkEmpty() {
-  const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
-  if (remaining === 0) {
-    document.getElementById('emptyState').classList.add('visible');
+  /* ── Update navbar cart badge after adding to cart ── */
+  function updateCartBadge(count) {
+    const badge = document.getElementById('cartBadge');
+    if (!badge) return;
+    badge.textContent   = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
   }
-}
- 
+
+  /* ── Check empty ── */
+  function checkEmpty() {
+    const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
+    if (remaining === 0) {
+      document.getElementById('emptyState').classList.add('visible');
+    }
+  }
+
+  /* ── Add single item to cart ── */
+  async function addToCart(productId, size) {
+    if (!size) {
+      showToast('Size info missing. Re-add from product page.', 'remove');
+      return;
+    }
+    try {
+      const res  = await fetch(`/user/add-to-cart/${productId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ size, quantity: 1 })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+        if (card) {
+          card.style.transition = 'opacity .3s, transform .3s';
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(-8px)';
+          setTimeout(() => {
+            card.remove();
+            updateSubtitle();
+            checkEmpty();
+          }, 300);
+        }
+        /* Refresh counts from server to stay accurate */
+        fetchAndUpdateCounts();
+        showToast('Added to cart and removed from wishlist.', 'success');
+      } else {
+        showToast(data.message || 'Failed to add to cart', 'remove');
+      }
+    } catch (err) {
+      console.log(err);
+      showToast('Something went wrong', 'remove');
+    }
+  }
+
+  /* ── Remove single item from wishlist ── */
+  async function removeWishlist(productId, size) {
+    try {
+      const res  = await fetch(`/user/remove-wishlist/${productId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ size })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+        if (card) {
+          card.style.transition = 'opacity .3s, transform .3s';
+          card.style.opacity = '0';
+          card.style.transform = 'translateX(16px)';
+          setTimeout(() => {
+            card.remove();
+            updateSubtitle();
+            updateWishlistBadge(data.wishlistCount || 0);
+            checkEmpty();
+          }, 300);
+        }
+        showToast('Removed from wishlist.', 'remove');
+      }
+    } catch (err) {
+      console.log(err);
+      showToast('Something went wrong', 'remove');
+    }
+  }
+
+  /* ── Add all to cart ── */
+  document.getElementById('addAllBtn').addEventListener('click', async () => {
+    const cards = document.querySelectorAll('.product-card[data-product-id]');
+    if (cards.length === 0) return;
+    try {
+      const res  = await fetch('/user/add-all-to-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (data.success) {
+        cards.forEach(card => {
+          card.style.transition = 'opacity .3s, transform .3s';
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(-8px)';
+        });
+        setTimeout(() => {
+          cards.forEach(c => c.remove());
+          updateSubtitle();
+          fetchAndUpdateCounts();
+          checkEmpty();
+        }, 350);
+        showToast('All items moved to cart.', 'success');
+      } else {
+        showToast(data.message || 'Failed to add all items', 'remove');
+      }
+    } catch (err) {
+      console.log(err);
+      showToast('Something went wrong', 'remove');
+    }
+  });
+
+  /* ── Clear all wishlist ── */
+  document.getElementById('clearAllBtn').addEventListener('click', async () => {
+    const cards = document.querySelectorAll('.product-card[data-product-id]');
+    if (cards.length === 0) return;
+    if (!confirm('Remove all items from your wishlist?')) return;
+    const promises = [...cards].map(card =>
+      fetch(`/user/remove-wishlist/${card.dataset.productId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ size: card.dataset.size })
+      })
+    );
+    try {
+      await Promise.all(promises);
+      cards.forEach(card => card.remove());
+      updateSubtitle();
+      updateWishlistBadge(0);
+      checkEmpty();
+      showToast('Wishlist cleared.', 'remove');
+    } catch (err) {
+      console.log(err);
+      showToast('Something went wrong', 'remove');
+    }
+  });
+
+  /* ── Fetch fresh counts from server and update both badges ── */
+  async function fetchAndUpdateCounts() {
+    try {
+      const [cartRes, wishRes] = await Promise.all([
+        fetch('/user/cart/count'),
+        fetch('/user/wishlist/count')
+      ]);
+      const cartData = await cartRes.json();
+      const wishData = await wishRes.json();
+      updateCartBadge(cartData.count || 0);
+      updateWishlistBadge(wishData.count || 0);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  /* ── Hamburger ── */
+  const ham    = document.getElementById('hamburger');
+  const drawer = document.getElementById('mobileDrawer');
+  ham.addEventListener('click', () => {
+    const open = drawer.classList.toggle('open');
+    ham.classList.toggle('open', open);
+    ham.setAttribute('aria-expanded', open);
+  });
+
+  /* ── Newsletter ── */
+  function subscribeNewsletter() {
+    const input = document.getElementById('nlEmail');
+    const msg   = document.getElementById('nlMsg');
+    const val   = input.value.trim();
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    input.classList.toggle('error', !valid);
+    if (!valid) {
+      msg.textContent = 'Please enter a valid email address.';
+      msg.className = 'nl-msg err'; return;
+    }
+    msg.textContent = "🎉 You're subscribed! Check your inbox.";
+    msg.className = 'nl-msg ok';
+    input.value = ''; input.classList.remove('error');
+  }
 </script>
 </body>
 </html>

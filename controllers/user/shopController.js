@@ -2,6 +2,7 @@ import Product  from "../../models/productModel.js"
 import Category from "../../models/categoryModel.js"
 import Brand    from "../../models/brandModels.js"
 import Wishlist from "../../models/wishlistModel.js"
+import Cart from "../../models/cartModel.js"
 
 export const loadShop = async (req, res) => {
   try {

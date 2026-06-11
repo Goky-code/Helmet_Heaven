@@ -1,4 +1,3 @@
-
 import dotenv from "dotenv"
 dotenv.config()
 import express from "express";
@@ -17,59 +16,57 @@ import shopRoutes from "./routes/shopRoutes.js"
 import cartRoutes from "./routes/cartRoutes.js"
 import productDetailsRouter from "./routes/productDetailsRoute.js" 
 import wishlistRoutes from "./routes/wishlistRoutes.js";
+import { setNavCounts } from "./middlewares/setNavCounts.js";
 
 const app = express();
-
-
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
- 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "mysecret",
     resave: false,
-    saveUninitialized: false, // ← changed from true
+    saveUninitialized: false,
     cookie: {
-      secure: false,        // set true only if using HTTPS
+      secure: false,
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 // 24 hours
+      maxAge: 1000 * 60 * 60 * 24
     }
   })
-)
+);
+
 app.use(passport.initialize());
-
-// console.log("Client ID:", process.env.GOOGLE_CLIENT_ID);
-// console.log("Client Secret:", process.env.GOOGLE_CLIENT_SECRET); 
-
 app.use(passport.session());
-app.use(express.static(path.join(__dirname,'public')));
-app.set("view engine", "ejs");                                       
-app.set("views", path.join(__dirname, "views")); 
+app.use(express.static(path.join(__dirname, 'public')));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
-app.use("/user",userRoutes);
-app.use("/auth",authRoutes)
+// ─────────────────────────────────────────────────────────────
+// ✅ setNavCounts MUST be here — after session, BEFORE routes
+//    This ensures res.locals.cartCount and res.locals.wishlistCount
+//    are set before any route renders a page.
+// ─────────────────────────────────────────────────────────────
+app.use(setNavCounts);
 
+// ── Routes ──
+app.use("/user", userRoutes);
+app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/admin", categoryRouter);
-
-app.use("/admin",brandRouter)
-app.use("/admin",productRouter)
-app.use("/", shopRoutes)
-app.use("/user", productDetailsRouter)
-app.use("/user",wishlistRoutes)
-app.use("/user",cartRoutes)
+app.use("/admin", brandRouter);
+app.use("/admin", productRouter);
+app.use("/", shopRoutes);
+app.use("/user", productDetailsRouter);
+app.use("/user", wishlistRoutes);
+app.use("/user", cartRoutes);
 
 const startServer = async () => {
   try {
-    
     await connectDB();
-
     const PORT = process.env.PORT || 3001;
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

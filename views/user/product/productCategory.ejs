@@ -76,14 +76,19 @@
       color: var(--muted); font-size: 0.85rem;
     }
     .nav-actions { display: flex; align-items: center; gap: 6px; }
+
+    /* ── NAV ICON BUTTON ── */
     .nav-btn {
       position: relative; width: 38px; height: 38px;
       display: flex; align-items: center; justify-content: center;
       border-radius: 8px; background: none; border: none;
       color: var(--muted); cursor: pointer; font-size: 1.1rem;
+      text-decoration: none;
       transition: color var(--trans), background var(--trans);
     }
     .nav-btn:hover { color: var(--text); background: var(--bg3); }
+
+    /* ── BADGE ── */
     .nav-btn .badge {
       position: absolute; top: 5px; right: 5px;
       width: 16px; height: 16px; border-radius: 50%;
@@ -92,6 +97,7 @@
       display: flex; align-items: center; justify-content: center;
       line-height: 1;
     }
+
     .hamburger { display: none; background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; }
 
     /* ── LAYOUT ── */
@@ -112,11 +118,8 @@
       font-size: 0.72rem; font-weight: 600; letter-spacing: .09em;
       text-transform: uppercase; color: var(--muted); margin-bottom: 4px;
     }
-
-    /* Category pills */
     .cat-pill {
-      display: block;
-      padding: 7px 12px; border-radius: 7px;
+      display: block; padding: 7px 12px; border-radius: 7px;
       background: none; border: 1px solid var(--border);
       color: var(--muted); font-size: 0.88rem; cursor: pointer;
       text-align: left; text-decoration: none;
@@ -124,11 +127,8 @@
     }
     .cat-pill:hover { border-color: var(--blue); color: var(--blue); }
     .cat-pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
-
-    /* Brand pills */
     .brand-pill {
-      display: block;
-      padding: 7px 12px; border-radius: 7px;
+      display: block; padding: 7px 12px; border-radius: 7px;
       background: none; border: 1px solid var(--border);
       color: var(--muted); font-size: 0.88rem; cursor: pointer;
       text-align: left; text-decoration: none;
@@ -136,8 +136,6 @@
     }
     .brand-pill:hover { border-color: var(--blue); color: var(--blue); }
     .brand-pill.active { background: var(--blue); border-color: var(--blue); color: #fff; }
-
-    /* Size */
     .size-row { display: flex; gap: 8px; flex-wrap: wrap; }
     .size-btn {
       width: 38px; height: 38px; border-radius: 7px;
@@ -149,8 +147,6 @@
     }
     .size-btn:hover { border-color: var(--blue); color: var(--blue); }
     .size-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
-
-    /* Price range */
     .price-range-wrap { position: relative; height: 28px; }
     .range-track {
       position: absolute; top: 50%; transform: translateY(-50%);
@@ -174,8 +170,6 @@
     }
     .price-labels { display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.8rem; color: var(--muted); }
     .price-labels span { color: var(--text); font-weight: 500; }
-
-    /* Apply price btn */
     .apply-price-btn {
       margin-top: 10px; width: 100%;
       padding: 7px 12px; border-radius: 7px;
@@ -184,8 +178,6 @@
       cursor: pointer; transition: background var(--trans);
     }
     .apply-price-btn:hover { background: var(--blue-h); }
-
-    /* All Products / Clear filters */
     .clear-btn {
       display: flex; align-items: center; gap: 8px;
       padding: 8px 14px; border-radius: 7px;
@@ -218,53 +210,38 @@
       transition: border-color var(--trans);
     }
     .sort-select:focus { border-color: var(--blue); }
-
-    /* Active filters bar */
-    .active-filters {
-      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-      margin-bottom: 16px;
-    }
+    .active-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
     .active-filters-label { font-size: 0.8rem; color: var(--muted); }
     .filter-tag {
       display: flex; align-items: center; gap: 5px;
       padding: 3px 10px; border-radius: 20px;
       background: rgba(41,121,255,.15); border: 1px solid rgba(41,121,255,.3);
-      color: var(--blue); font-size: 0.78rem;
-      text-decoration: none;
+      color: var(--blue); font-size: 0.78rem; text-decoration: none;
     }
     .filter-tag i { font-size: 0.65rem; }
 
     /* ── PRODUCT GRID ── */
-    .product-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-    }
+    .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
     .product-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
       display: flex; flex-direction: column;
       transition: border-color var(--trans), transform var(--trans), box-shadow var(--trans);
     }
-    .product-card:hover {
-      border-color: #2a3f58;
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0,0,0,.45);
-    }
-    .card-img-wrap {
-      position: relative; aspect-ratio: 1/1;
-      background: #0f1820; overflow: hidden;
-    }
-    .card-img-wrap img {
-      width: 100%; height: 100%; object-fit: cover;
-      transition: transform 0.4s ease;
-    }
+    .product-card:hover { border-color: #2a3f58; transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,.45); }
+    .card-img-wrap { position: relative; aspect-ratio: 1/1; background: #0f1820; overflow: hidden; }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
     .product-card:hover .card-img-wrap img { transform: scale(1.04); }
     .badge-wrap { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; }
     .badge-new { background: var(--blue); color: #fff; padding: 3px 9px; border-radius: 5px; font-size: 0.68rem; font-weight: 700; }
-
+    .card-wish-badge {
+      position: absolute; top: 8px; right: 8px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(13,17,23,.75); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      color: #e53935;
+    }
+    .card-wish-badge svg { fill: #e53935; }
     .card-body { padding: 14px 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 5px; }
     .card-name { font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; line-height: 1.2; }
     .card-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.45; }
@@ -279,13 +256,7 @@
       white-space: nowrap;
     }
     .add-btn:hover { background: var(--blue-h); transform: scale(1.03); }
-
-    /* Empty state */
-    .empty-state {
-      grid-column: 1 / -1;
-      text-align: center; padding: 60px 20px;
-      color: var(--muted);
-    }
+    .empty-state { grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--muted); }
     .empty-state i { font-size: 3rem; margin-bottom: 16px; display: block; color: var(--border); }
     .empty-state h3 { font-family: var(--font-head); font-size: 1.4rem; color: var(--text); margin-bottom: 8px; }
 
@@ -302,20 +273,10 @@
     .page-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
 
     /* ── FOOTER ── */
-    footer {
-      background: var(--bg2); border-top: 1px solid var(--border);
-      margin-top: 60px; padding: 48px 28px 28px;
-    }
-    .footer-grid {
-      max-width: 1320px; margin: 0 auto;
-      display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.6fr;
-      gap: 40px;
-    }
+    footer { background: var(--bg2); border-top: 1px solid var(--border); margin-top: 60px; padding: 48px 28px 28px; }
+    .footer-grid { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.6fr; gap: 40px; }
     .footer-brand { display: flex; flex-direction: column; gap: 12px; }
-    .footer-logo {
-      display: flex; align-items: center; gap: 9px;
-      font-family: var(--font-head); font-size: 1.15rem; font-weight: 700;
-    }
+    .footer-logo { display: flex; align-items: center; gap: 9px; font-family: var(--font-head); font-size: 1.15rem; font-weight: 700; }
     .footer-logo svg { color: var(--blue); }
     .footer-brand p { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
     .footer-col h4 { font-family: var(--font-head); font-size: 0.95rem; font-weight: 600; margin-bottom: 14px; }
@@ -332,15 +293,13 @@
     .newsletter-form input::placeholder { color: var(--muted); }
     .newsletter-form input:focus { border-color: var(--blue); }
     .newsletter-form button {
-      padding: 9px 16px; border-radius: 8px;
-      background: var(--blue); border: none; color: #fff;
+      padding: 9px 16px; border-radius: 8px; background: var(--blue); border: none; color: #fff;
       font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
       cursor: pointer; transition: background var(--trans);
     }
     .newsletter-form button:hover { background: var(--blue-h); }
     .footer-bottom {
-      max-width: 1320px; margin: 32px auto 0;
-      padding-top: 20px; border-top: 1px solid var(--border);
+      max-width: 1320px; margin: 32px auto 0; padding-top: 20px; border-top: 1px solid var(--border);
       display: flex; justify-content: space-between; align-items: center;
       font-size: 0.8rem; color: var(--muted); flex-wrap: wrap; gap: 10px;
     }
@@ -360,21 +319,9 @@
       pointer-events: none;
     }
     #toast.show { opacity: 1; transform: translateY(0); }
-    /* Wishlist heart on listing card */
-.card-wish-badge {
-  position: absolute; top: 8px; right: 8px;
-  width: 30px; height: 30px; border-radius: 50%;
-  background: rgba(13,17,23,.75); backdrop-filter: blur(6px);
-  display: flex; align-items: center; justify-content: center;
-  color: #e53935;
-}
-.card-wish-badge svg { fill: #e53935; }
 
     /* ── MOBILE ── */
-    .mobile-filters-overlay {
-      display: none; position: fixed; inset: 0; z-index: 200;
-      background: rgba(0,0,0,.6);
-    }
+    .mobile-filters-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.6); }
     .mobile-filters-overlay.open { display: block; }
     .mobile-filters-panel {
       position: absolute; top: 0; left: 0; bottom: 0; width: min(300px, 85vw);
@@ -402,9 +349,7 @@
         color: var(--text); font-size: 0.88rem; cursor: pointer; border: none;
       }
     }
-    @media (min-width: 769px) {
-      .filter-toggle-btn { display: none; }
-    }
+    @media (min-width: 769px) { .filter-toggle-btn { display: none; } }
     @media (max-width: 540px) {
       .product-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .card-body { padding: 10px 10px 12px; }
@@ -415,29 +360,26 @@
       .footer-grid { grid-template-columns: 1fr; }
       .navbar { padding: 0 14px; gap: 12px; }
     }
-     .product-link{
-     text-decoration: none;
-     color: inherit;
-     display: block;
-    }
-
-    .product-link:hover{
-     color: inherit;
-    }
-
-     .product-card{
-      cursor: pointer;
-    }
+    .product-link { text-decoration: none; color: inherit; display: block; }
+    .product-link:hover { color: inherit; }
+    .product-card { cursor: pointer; }
   </style>
 </head>
 <body>
+
+<%
+  
+  const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
+  const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
+%>
 
 <!-- ── NAVBAR ── -->
 <nav class="navbar">
   <button class="hamburger" onclick="openMobileFilters()" aria-label="Open filters">
     <i class="fa-solid fa-bars"></i>
   </button>
-  <a href="/" class="nav-brand">
+
+  <a href="/user/homepage" class="nav-brand">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 22a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9z"/>
       <path d="M12 2a9 9 0 0 1 9 9"/>
@@ -445,35 +387,50 @@
     </svg>
     Helmet Haven
   </a>
+
   <nav class="nav-links">
-    <a href="/">Home</a>
+    <a href="/user/homepage">Home</a>
     <a href="#">About Us</a>
     <a href="#">Contact Us</a>
   </nav>
 
-  <!-- Search bar — submits GET /shop?search=... preserving other params -->
+  <!-- Search bar -->
   <form class="nav-search" method="GET" action="/shop">
     <i class="fa-solid fa-magnifying-glass"></i>
-    <input
-      type="text"
-      name="search"
-      value="<%= search %>"
-      placeholder="Search premium helmets..."
-    />
-    <!-- preserve other active filters when searching -->
+    <input type="text" name="search" value="<%= search %>" placeholder="Search premium helmets..."/>
     <% if (category) { %><input type="hidden" name="category" value="<%= category %>"/><% } %>
-    <% if (brand) { %><input type="hidden" name="brand" value="<%= brand %>"/><% } %>
-    <% if (size) { %><input type="hidden" name="size" value="<%= size %>"/><% } %>
-    <% if (sort) { %><input type="hidden" name="sort" value="<%= sort %>"/><% } %>
+    <% if (brand)    { %><input type="hidden" name="brand"    value="<%= brand %>"/><% } %>
+    <% if (size)     { %><input type="hidden" name="size"     value="<%= size %>"/><% } %>
+    <% if (sort)     { %><input type="hidden" name="sort"     value="<%= sort %>"/><% } %>
   </form>
 
   <div class="nav-actions">
-    <button class="nav-btn" onclick="showToast('Cart coming soon!')" aria-label="Cart">
+
+    <!-- ✅ CART — links to cart page, badge from res.locals.cartCount -->
+    <a href="/user/cart" class="nav-btn" aria-label="Cart">
       <i class="fa-solid fa-cart-shopping"></i>
-      <!-- <span class="badge" id="cartCount"></span> -->
-    </button>
-    <button class="nav-btn" aria-label="Wishlist"><i class="fa-regular fa-heart"></i></button>
-    <button class="nav-btn" aria-label="Account"><i class="fa-regular fa-user"></i></button>
+      <% if (_cartCount > 0) { %>
+        <span class="badge" id="cartBadge"><%= _cartCount %></span>
+      <% } else { %>
+        <span class="badge" id="cartBadge" style="display:none">0</span>
+      <% } %>
+    </a>
+
+    <!-- ✅ WISHLIST — links to wishlist page, badge from res.locals.wishlistCount -->
+    <a href="/user/wishlist" class="nav-btn" aria-label="Wishlist">
+      <i class="fa-regular fa-heart"></i>
+      <% if (_wishlistCount > 0) { %>
+        <span class="badge" id="wishlistBadge"><%= _wishlistCount %></span>
+      <% } else { %>
+        <span class="badge" id="wishlistBadge" style="display:none">0</span>
+      <% } %>
+    </a>
+
+    <!-- Account -->
+    <a href="/user/profileinformation" class="nav-btn" aria-label="Account">
+      <i class="fa-regular fa-user"></i>
+    </a>
+
   </div>
 </nav>
 
@@ -497,32 +454,28 @@
       <i class="fa-solid fa-sliders" style="color:var(--blue);font-size:.9rem"></i> Filters
     </div>
 
-    <!-- ALL PRODUCTS button -->
-    <a href="/shop"
-       class="clear-btn <%= (!category && !brand && !size && !search) ? 'active' : '' %>">
+    <a href="/shop" class="clear-btn <%= (!category && !brand && !size && !search) ? 'active' : '' %>">
       <i class="fa-solid fa-grid-2"></i> All Products
     </a>
 
-    <!-- ── BRAND ── -->
+    <!-- BRAND -->
     <div class="filter-group">
       <div class="filter-label">Brand</div>
       <% brands.forEach(b => { %>
         <%
-          // Build URL preserving all other filters, swapping brand
           const brandUrl = `/shop?brand=${b._id}`
             + (category ? `&category=${category}` : '')
             + (size     ? `&size=${size}`         : '')
             + (search   ? `&search=${encodeURIComponent(search)}` : '')
             + (sort     ? `&sort=${sort}`         : '')
         %>
-        <a href="<%= brandUrl %>"
-           class="brand-pill <%= brand == b._id.toString() ? 'active' : '' %>">
+        <a href="<%= brandUrl %>" class="brand-pill <%= brand == b._id.toString() ? 'active' : '' %>">
           <%= b.name %>
         </a>
       <% }) %>
     </div>
 
-    <!-- ── CATEGORY ── -->
+    <!-- CATEGORY -->
     <div class="filter-group">
       <div class="filter-label">Category</div>
       <% categories.forEach(cat => { %>
@@ -533,20 +486,18 @@
             + (search ? `&search=${encodeURIComponent(search)}` : '')
             + (sort   ? `&sort=${sort}`            : '')
         %>
-        <a href="<%= catUrl %>"
-           class="cat-pill <%= category == cat._id.toString() ? 'active' : '' %>">
+        <a href="<%= catUrl %>" class="cat-pill <%= category == cat._id.toString() ? 'active' : '' %>">
           <%= cat.name %>
         </a>
       <% }) %>
     </div>
 
-    <!-- ── SIZE ── -->
+    <!-- SIZE -->
     <div class="filter-group">
       <div class="filter-label">Size</div>
       <div class="size-row">
         <% ['S','M','L','XL'].forEach(s => { %>
           <%
-            // toggle: if already selected remove it, else add it
             const isActive = size === s
             const sizeUrl = `/shop?` +
               (isActive ? '' : `size=${s}&`) +
@@ -555,50 +506,37 @@
               (search   ? `search=${encodeURIComponent(search)}&` : '') +
               (sort     ? `sort=${sort}`       : '')
           %>
-          <a href="<%= sizeUrl %>"
-             class="size-btn <%= isActive ? 'active' : '' %>">
-            <%= s %>
-          </a>
+          <a href="<%= sizeUrl %>" class="size-btn <%= isActive ? 'active' : '' %>"><%= s %></a>
         <% }) %>
       </div>
     </div>
 
-    <!-- ── PRICE RANGE ── -->
+    <!-- PRICE RANGE -->
     <div class="filter-group">
       <div class="filter-label">Price Range</div>
       <div class="price-range-wrap">
         <div class="range-track">
           <div class="range-fill" id="rangeFill"></div>
         </div>
-        <input
-          type="range"
-          class="price-slider"
-          id="priceSlider"
-          min="100"
-          max="100000"
-          value="<%= maxPrice || 100000 %>"
-          oninput="updatePrice(this.value)"
-        />
+        <input type="range" class="price-slider" id="priceSlider"
+               min="100" max="100000" value="<%= maxPrice || 100000 %>"
+               oninput="updatePrice(this.value)"/>
       </div>
       <div class="price-labels">
         ₹100 – <span id="priceVal"><%= maxPrice ? Number(maxPrice).toLocaleString() : '1,00,000' %></span>
       </div>
-      <!-- Apply price as a link button -->
-      <button class="apply-price-btn" id="applyPriceBtn" onclick="applyPrice()">
-        Apply Price
-      </button>
+      <button class="apply-price-btn" id="applyPriceBtn" onclick="applyPrice()">Apply Price</button>
     </div>
   </aside>
 
   <!-- ── MAIN CONTENT ── -->
   <main class="main">
-    <!-- Filter toggle for mobile -->
     <button class="filter-toggle-btn" onclick="openMobileFilters()" style="margin-bottom:16px">
       <i class="fa-solid fa-sliders"></i> Filters
     </button>
 
     <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href="/">Home</a>
+      <a href="/user/homepage">Home</a>
       <span class="sep"><i class="fa-solid fa-chevron-right" style="font-size:.6rem"></i></span>
       <span class="current">Shop</span>
     </nav>
@@ -613,38 +551,29 @@
     <div class="active-filters">
       <span class="active-filters-label">Active:</span>
       <% if (search) { %>
-        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= sort?`sort=${sort}`:'' %>"
-           class="filter-tag">
+        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
           Search: <%= search %> <i class="fa-solid fa-xmark"></i>
         </a>
       <% } %>
       <% if (category) { %>
-        <%
-          const cat = categories.find(c => c._id.toString() === category)
-        %>
-        <a href="/shop?<%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>"
-           class="filter-tag">
+        <% const cat = categories.find(c => c._id.toString() === category) %>
+        <a href="/shop?<%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
           Category: <%= cat ? cat.name : category %> <i class="fa-solid fa-xmark"></i>
         </a>
       <% } %>
       <% if (brand) { %>
-        <%
-          const br = brands.find(b => b._id.toString() === brand)
-        %>
-        <a href="/shop?<%= category?`category=${category}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>"
-           class="filter-tag">
+        <% const br = brands.find(b => b._id.toString() === brand) %>
+        <a href="/shop?<%= category?`category=${category}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
           Brand: <%= br ? br.name : brand %> <i class="fa-solid fa-xmark"></i>
         </a>
       <% } %>
       <% if (size) { %>
-        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>"
-           class="filter-tag">
+        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
           Size: <%= size %> <i class="fa-solid fa-xmark"></i>
         </a>
       <% } %>
       <% if (maxPrice) { %>
-        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>"
-           class="filter-tag">
+        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
           Max: ₹<%= Number(maxPrice).toLocaleString() %> <i class="fa-solid fa-xmark"></i>
         </a>
       <% } %>
@@ -654,14 +583,12 @@
     </div>
     <% } %>
 
-    <!-- Toolbar: result count + sort -->
+    <!-- Toolbar -->
     <div class="toolbar">
       <div class="toolbar-left">
         Showing <strong><%= products.length %></strong> result<%= products.length !== 1 ? 's' : '' %>
         <% if (totalPages > 1) { %> · Page <%= currentPage %> of <%= totalPages %><% } %>
       </div>
-
-      <!-- Sort select — submits GET preserving all filters -->
       <form method="GET" action="/shop" id="sortForm">
         <% if (search)   { %><input type="hidden" name="search"   value="<%= search %>"/><% } %>
         <% if (category) { %><input type="hidden" name="category" value="<%= category %>"/><% } %>
@@ -669,134 +596,76 @@
         <% if (size)     { %><input type="hidden" name="size"     value="<%= size %>"/><% } %>
         <% if (minPrice) { %><input type="hidden" name="minPrice" value="<%= minPrice %>"/><% } %>
         <% if (maxPrice) { %><input type="hidden" name="maxPrice" value="<%= maxPrice %>"/><% } %>
-        <select
-          class="sort-select"
-          name="sort"
-          onchange="document.getElementById('sortForm').submit()"
-        >
-          <option value="" <%= sort === '' ? 'selected' : '' %>>Sort: Newest</option>
-          <option value="low-high"  <%= sort === 'low-high'  ? 'selected' : '' %>>Price: Low → High</option>
-          <option value="high-low"  <%= sort === 'high-low'  ? 'selected' : '' %>>Price: High → Low</option>
-          <option value="a-z"       <%= sort === 'a-z'       ? 'selected' : '' %>>Name: A → Z</option>
-          <option value="z-a"       <%= sort === 'z-a'       ? 'selected' : '' %>>Name: Z → A</option>
+        <select class="sort-select" name="sort" onchange="document.getElementById('sortForm').submit()">
+          <option value=""          <%= sort === ''         ? 'selected' : '' %>>Sort: Newest</option>
+          <option value="low-high"  <%= sort === 'low-high' ? 'selected' : '' %>>Price: Low → High</option>
+          <option value="high-low"  <%= sort === 'high-low' ? 'selected' : '' %>>Price: High → Low</option>
+          <option value="a-z"       <%= sort === 'a-z'      ? 'selected' : '' %>>Name: A → Z</option>
+          <option value="z-a"       <%= sort === 'z-a'      ? 'selected' : '' %>>Name: Z → A</option>
         </select>
       </form>
     </div>
-<!-- Product Grid -->
-<div class="product-grid">
 
-  <% if (products.length === 0) { %>
-
-    <div class="empty-state">
-      <i class="fa-solid fa-helmet-safety"></i>
-      <h3>No helmets found</h3>
-      <p>
-        Try adjusting your filters or
-        <a href="/shop" style="color:var(--blue)">
-          browse all products
-        </a>.
-      </p>
-    </div>
-
-  <% } else { %>
-
-    <% products.forEach(product => { %>
-
-      <%
-        const activeVariant = product._activeVariant %>
-
-      <% if (activeVariant) { %>
-
-      <!-- PRODUCT LINK -->
-      <a
-        href="/user/product/<%= product._id %>"
-        class="product-link"
-      >
-
-        <article class="product-card">
-
-          <div class="card-img-wrap">
-
-            <img
-              src="<%= product.productImage[0] %>"
-              alt="<%= product.productName %>"
-              onerror="this.src='/images/placeholder.jpg'"
-            />
-          <% if (wishlistedProductIds.includes(product._id.toString())) { %>
-    <div class="card-wish-badge" aria-label="In your wishlist">
-      <svg width="14" height="14" viewBox="0 0 24 24">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
-      </svg>
-    </div>
-  <% } %>
-</div>
-          
-
-          <div class="card-body">
-
-            <div class="card-name">
-              <%= product.productName %>
-            </div>
-
-            <div class="card-desc">
-              <%= product.description %>
-            </div>
-
-            <div class="card-footer">
-
-              <div class="price-main">
-                ₹ <%= activeVariant.price.toLocaleString() %>
-              </div>
-
-              <!-- PREVENT REDIRECT WHEN CLICKING ADD BUTTON -->
-              <button
-                class="add-btn"
-                onclick="event.preventDefault(); addToCart('<%= product.productName %>')"
-              >
-                <i class="fa-solid fa-cart-plus"></i>
-                <span>Add</span>
-              </button>
-
-            </div>
-
-          </div>
-
-        </article>
-
-      </a>
-
+    <!-- Product Grid -->
+    <div class="product-grid">
+      <% if (products.length === 0) { %>
+        <div class="empty-state">
+          <i class="fa-solid fa-helmet-safety"></i>
+          <h3>No helmets found</h3>
+          <p>Try adjusting your filters or <a href="/shop" style="color:var(--blue)">browse all products</a>.</p>
+        </div>
+      <% } else { %>
+        <% products.forEach(product => { %>
+          <% const activeVariant = product._activeVariant %>
+          <% if (activeVariant) { %>
+            <a href="/user/product/<%= product._id %>" class="product-link">
+              <article class="product-card">
+                <div class="card-img-wrap">
+                  <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>" onerror="this.src='/images/placeholder.jpg'"/>
+                  <% if (wishlistedProductIds.includes(product._id.toString())) { %>
+                    <div class="card-wish-badge" aria-label="In your wishlist">
+                      <svg width="14" height="14" viewBox="0 0 24 24">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+                      </svg>
+                    </div>
+                  <% } %>
+                </div>
+                <div class="card-body">
+                  <div class="card-name"><%= product.productName %></div>
+                  <div class="card-desc"><%= product.description %></div>
+                  <div class="card-footer">
+                    <div class="price-main">₹ <%= activeVariant.price.toLocaleString() %></div>
+                    <!-- <button class="add-btn" onclick="event.preventDefault(); showToast('<%= product.productName %> added!')">
+                      <i class="fa-solid fa-cart-plus"></i>
+                      <span>Add</span>
+                    </button> -->
+                  </div>
+                </div>
+              </article>
+            </a>
+          <% } %>
+        <% }) %>
       <% } %>
-
-    <% }) %>
-
-  <% } %>
-
-</div>
+    </div>
 
     <!-- Pagination -->
     <% if (totalPages > 1) { %>
     <div class="pagination">
       <% if (currentPage > 1) { %>
-        <a href="/shop?page=<%= currentPage - 1 %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>"
-           class="page-btn">
+        <a href="/shop?page=<%= currentPage - 1 %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>" class="page-btn">
           <i class="fa-solid fa-chevron-left"></i>
         </a>
       <% } %>
-
       <% for (let i = 1; i <= totalPages; i++) { %>
         <% if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
           <a href="/shop?page=<%= i %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>"
-             class="page-btn <%= currentPage === i ? 'active' : '' %>">
-            <%= i %>
-          </a>
+             class="page-btn <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
         <% } else if (i === currentPage - 2 || i === currentPage + 2) { %>
           <span style="color:var(--muted);padding:0 4px">…</span>
         <% } %>
       <% } %>
-
       <% if (currentPage < totalPages) { %>
-        <a href="/shop?page=<%= currentPage + 1 %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>"
-           class="page-btn">
+        <a href="/shop?page=<%= currentPage + 1 %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>" class="page-btn">
           <i class="fa-solid fa-chevron-right"></i>
         </a>
       <% } %>
@@ -858,14 +727,6 @@
 <div id="toast"></div>
 
 <script>
-  /* ── CART ── */
-  let cart = 0;
-  function addToCart(name) {
-    cart++;
-    document.getElementById('cartCount').textContent = cart;
-    showToast(name + ' added to cart!');
-  }
-
   /* ── TOAST ── */
   let toastTimer;
   function showToast(msg) {
@@ -888,7 +749,7 @@
     const val = document.getElementById('priceSlider').value;
     const params = new URLSearchParams(window.location.search);
     params.set('maxPrice', val);
-    params.delete('page'); // reset to page 1
+    params.delete('page');
     window.location.href = '/shop?' + params.toString();
   }
 
@@ -905,8 +766,8 @@
   /* ── NEWSLETTER ── */
   function subscribeNewsletter() {
     const input = document.getElementById('newsletterEmail');
-    const msg = document.getElementById('nlMsg');
-    const val = input.value.trim();
+    const msg   = document.getElementById('nlMsg');
+    const val   = input.value.trim();
     if (!val) { msg.style.color = 'var(--red)'; msg.textContent = 'Please enter your email.'; return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { msg.style.color = 'var(--red)'; msg.textContent = 'Enter a valid email address.'; return; }
     msg.style.color = 'var(--blue)'; msg.textContent = "✓ You're subscribed!";
@@ -914,7 +775,6 @@
     setTimeout(() => msg.textContent = '', 3500);
   }
 
-  
   updatePrice(document.getElementById('priceSlider').value);
 </script>
 </body>

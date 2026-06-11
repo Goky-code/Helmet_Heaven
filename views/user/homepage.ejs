@@ -72,9 +72,7 @@
         .mobile-search-wrapper .search-bar { max-width: 100%; }
 
         /* ── HERO ── */
-        .hero-section {
-            padding: clamp(40px, 8vw, 90px) 5%;
-        }
+        .hero-section { padding: clamp(40px, 8vw, 90px) 5%; }
         .hero-tagline {
             color: var(--accent-blue);
             font-weight: 700;
@@ -82,127 +80,70 @@
             font-size: 0.72rem;
             letter-spacing: 2.5px;
         }
-        .hero-title {
-            font-size: clamp(2.2rem, 6vw, 4.5rem);
-            font-weight: 800;
-            line-height: 1.08;
-        }
+        .hero-title { font-size: clamp(2.2rem, 6vw, 4.5rem); font-weight: 800; line-height: 1.08; }
         .hero-desc { color: var(--text-gray); max-width: 460px; line-height: 1.7; }
         .btn-blue {
-            background: var(--accent-blue);
-            border: none;
-            padding: 12px 24px;
-            font-weight: 700;
-            font-size: 0.88rem;
-            color: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
+            background: var(--accent-blue); border: none; padding: 12px 24px;
+            font-weight: 700; font-size: 0.88rem; color: white; border-radius: 8px;
+            cursor: pointer; transition: background 0.2s; white-space: nowrap;
         }
         .btn-blue:hover { background: #0066dd; }
         .btn-outline {
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 12px 24px;
-            font-weight: 600;
-            font-size: 0.88rem;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: border-color 0.2s;
-            white-space: nowrap;
+            background: transparent; border: 1px solid var(--border-color); color: white;
+            padding: 12px 24px; font-weight: 600; font-size: 0.88rem; border-radius: 8px;
+            cursor: pointer; transition: border-color 0.2s; white-space: nowrap;
         }
         .btn-outline:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
         .hero-img-wrapper { text-align: center; }
         .hero-img-wrapper img {
-            max-height: 460px;
-            width: 100%;
-            object-fit: contain;
+            max-height: 460px; width: 100%; object-fit: contain;
             filter: drop-shadow(0 20px 60px rgba(0,123,255,0.18));
         }
 
         /* ── FEATURES ── */
         .section-wrap { padding: clamp(30px, 5vw, 60px) 5%; }
         .feature-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            padding: clamp(20px, 3vw, 30px);
-            border-radius: 12px;
-            height: 100%;
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            padding: clamp(20px, 3vw, 30px); border-radius: 12px; height: 100%;
             transition: border-color 0.2s;
         }
         .feature-card:hover { border-color: var(--accent-blue); }
         .feature-icon {
-            width: 44px;
-            height: 44px;
-            background: rgba(0,123,255,0.12);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--accent-blue);
-            font-size: 1.1rem;
-            margin-bottom: 18px;
-            flex-shrink: 0;
+            width: 44px; height: 44px; background: rgba(0,123,255,0.12);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            color: var(--accent-blue); font-size: 1.1rem; margin-bottom: 18px; flex-shrink: 0;
         }
 
         /* ── SALE BANNER ── */
         .sale-banner {
             background: linear-gradient(120deg, #0051d5 0%, #00a2ff 100%);
-            border-radius: 16px;
-            padding: clamp(28px, 5vw, 50px) clamp(24px, 5vw, 50px);
-            margin: 20px 5% 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 24px;
-            flex-wrap: wrap;
+            border-radius: 16px; padding: clamp(28px, 5vw, 50px) clamp(24px, 5vw, 50px);
+            margin: 20px 5% 40px; display: flex; justify-content: space-between;
+            align-items: center; gap: 24px; flex-wrap: wrap;
         }
         .sale-left { flex: 1; min-width: 200px; }
         .sale-right { text-align: center; flex-shrink: 0; }
         .sale-title { font-size: clamp(1.8rem, 4vw, 3rem); font-weight: 800; margin: 10px 0 4px; line-height: 1.1; }
         .sale-discount { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 800; }
         .btn-white {
-            background: white;
-            color: var(--accent-blue);
-            font-weight: 700;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            margin-top: 8px;
-            transition: opacity 0.2s;
+            background: white; color: var(--accent-blue); font-weight: 700;
+            border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer;
+            font-size: 0.9rem; margin-top: 8px; transition: opacity 0.2s;
         }
         .btn-white:hover { opacity: 0.9; }
 
         /* ── PRODUCTS ── */
         .product-img-box {
-            background: #161b22;
-            border-radius: 12px;
-            padding: clamp(18px, 3vw, 30px);
-            margin-bottom: 14px;
-            position: relative;
-            transition: transform 0.3s, box-shadow 0.3s;
-            aspect-ratio: 1 / 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
+            background: #161b22; border-radius: 12px; padding: clamp(18px, 3vw, 30px);
+            margin-bottom: 14px; position: relative; transition: transform 0.3s, box-shadow 0.3s;
+            aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
         .product-img-box:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(0,123,255,0.12); }
         .product-img-box img { max-height: 100%; max-width: 100%; object-fit: contain; }
         .badge-sale {
-            position: absolute;
-            top: 12px;
-            left: 12px;
-            background: var(--accent-blue);
-            font-size: 0.62rem;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
+            position: absolute; top: 12px; left: 12px; background: var(--accent-blue);
+            font-size: 0.62rem; padding: 4px 10px; border-radius: 4px;
+            font-weight: 700; letter-spacing: 0.04em;
         }
         .product-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
         .product-sub { font-size: 0.78rem; color: var(--text-gray); margin-bottom: 6px; }
@@ -212,56 +153,47 @@
         /* ── FOOTER ── */
         footer {
             border-top: 1px solid var(--border-color);
-            padding: clamp(40px, 6vw, 60px) 5% 28px;
-            margin-top: 40px;
+            padding: clamp(40px, 6vw, 60px) 5% 28px; margin-top: 40px;
         }
         .footer-link-list { list-style: none; padding: 0; color: var(--text-gray); font-size: 0.84rem; }
         .footer-link-list li { margin-bottom: 10px; cursor: pointer; transition: color 0.15s; }
         .footer-link-list li:hover { color: white; }
         .footer-newsletter-input {
-            background: #1c2128;
-            border: 1px solid var(--border-color);
-            color: white;
-            font-size: 0.82rem;
-            padding: 9px 14px;
+            background: #1c2128; border: 1px solid var(--border-color);
+            color: white; font-size: 0.82rem; padding: 9px 14px;
         }
         .footer-newsletter-input:focus { border-color: var(--accent-blue); outline: none; box-shadow: none; background: #1c2128; color: white; }
         .footer-newsletter-input::placeholder { color: var(--text-gray); }
         .footer-bottom { font-size: 0.72rem; }
 
-        /* ═══════════════════════════════════
-           RESPONSIVE BREAKPOINTS
-        ═══════════════════════════════════ */
+        /* ── NAV BADGE ── */
+        .nav-badge {
+            position: absolute; top: -8px; right: -12px;
+            background: rgb(0, 140, 255); color: white; min-width: 18px; height: 18px;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 10px; font-weight: bold;
+        }
 
-        /* Medium screens */
+        /* ── RESPONSIVE ── */
         @media (max-width: 991px) {
             .mobile-search-wrapper { display: block; }
-            /* hide desktop search inside collapse */
             .desktop-search { display: none !important; }
-
             .sale-banner { flex-direction: column; text-align: center; }
             .sale-right { width: 100%; }
         }
-
-        /* Tablet */
         @media (max-width: 767px) {
             .hero-desc { max-width: 100%; }
             .hero-img-wrapper img { max-height: 320px; margin-top: 30px; }
             .hero-btns { flex-wrap: wrap; }
         }
-
-        /* Small phones */
         @media (max-width: 575px) {
             .navbar { padding: 12px 16px; }
             .section-wrap { padding: 28px 16px; }
             footer { padding: 36px 16px 24px; }
             .sale-banner { margin: 16px 16px 32px; border-radius: 12px; }
-
             .hero-btns { gap: 10px !important; }
             .btn-blue, .btn-outline { width: 100%; text-align: center; }
         }
-
-        /* Very small */
         @media (max-width: 360px) {
             .navbar-brand { font-size: 0.85rem; }
             .hero-title { font-size: 2rem; }
@@ -270,96 +202,99 @@
 </head>
 <body>
 
+    <%
+      /* Read counts injected by setNavCounts middleware via res.locals */
+      const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
+      const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
+    %>
+
     <!-- ── NAVBAR ── -->
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container-fluid px-0">
 
-            <a class="navbar-brand text-white" href="#">
+            <a class="navbar-brand text-white" href="/user/homepage">
                 <i class="bi bi-shield-shaded text-primary me-2"></i>HELMET HAVEN
             </a>
 
-            <!-- Right icons always visible -->
+            <!-- ── Mobile icons (always visible on small screens) ── -->
             <div class="nav-icons ms-auto me-3 d-lg-none">
-                <a href="#" class="position-relative">
+
+                <a href="/user/cart" class="position-relative d-inline-block">
                     <i class="bi bi-cart3"></i>
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary" style="font-size:0.45rem; padding:2px 5px;"></span>
+                    <% if (_cartCount > 0) { %>
+                        <span class="nav-badge"><%= _cartCount %></span>
+                    <% } %>
                 </a>
-                <a href="/user/profileinformation"><i class="bi bi-person"></i></a>
-                <a href="#"><i class="bi bi-heart"></i></a>
+
+                <a href="/user/wishlist" class="position-relative d-inline-block">
+                    <i class="bi bi-heart"></i>
+                    <% if (_wishlistCount > 0) { %>
+                        <span class="nav-badge"><%= _wishlistCount %></span>
+                    <% } %>
+                </a>
+
+                <a href="/user/profileinformation">
+                    <i class="bi bi-person"></i>
+                </a>
+
             </div>
 
-            <button class="navbar-toggler d-lg-none me-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false">
+            <!-- Hamburger toggle -->
+            <button class="navbar-toggler d-lg-none me-0" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navMenu"
+                    aria-controls="navMenu" aria-expanded="false">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
+            <!-- Nav links + mobile search -->
             <div class="collapse navbar-collapse" id="navMenu">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/user/homepage">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">About Us</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Contact Us</a></li>
                 </ul>
-
-                <!-- Search inside collapse for medium screens -->
                 <div class="mobile-search-wrapper d-lg-none">
                     <input type="text" class="search-bar" placeholder="Search premium helmets...">
                 </div>
             </div>
 
-            <!-- Desktop: search + icons -->
+            <!-- ── Desktop: search + icons ── -->
             <div class="desktop-search d-none d-lg-flex align-items-center gap-3 ms-3">
                 <input type="text" class="search-bar" placeholder="Search premium helmets...">
+
                 <div class="nav-icons">
-                   <a href="/user/cart" class="position-relative d-inline-block">
-  <i class="bi bi-cart3 fs-5"></i>
 
-  <span
-    id="cartCount"
-    style="
-      position:absolute;
-      top:-8px;
-      right:-12px;
-      background:red;
-      color:white;
-      min-width:18px;
-      height:18px;
-      border-radius:50%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:10px;
-      font-weight:bold;
-    "
-  >0</span>
-</a>
-                    <a href="/user/profileinformation"><i class="bi bi-person"></i></a>
-                  <a href="/user/wishlist" class="position-relative d-inline-block">
-  <i class="bi bi-heart fs-5"></i>
+                    <!-- Cart badge — count from res.locals.cartCount (set by middleware) -->
+                    <a href="/user/cart" class="position-relative d-inline-block">
+                        <i class="bi bi-cart3 fs-5"></i>
+                        <% if (_cartCount > 0) { %>
+                            <span class="nav-badge" id="cartBadge"><%= _cartCount %></span>
+                        <% } else { %>
+                            <span class="nav-badge" id="cartBadge" style="display:none">0</span>
+                        <% } %>
+                    </a>
 
-  <span
-    id="wishlistCount"
-    style="
-      position:absolute;
-      top:-8px;
-      right:-12px;
-      background:red;
-      color:white;
-      min-width:18px;
-      height:18px;
-      border-radius:50%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:10px;
-      font-weight:bold;
-    "
-  >0</span>
-</a>
+                    <a href="/user/profileinformation">
+                        <i class="bi bi-person"></i>
+                    </a>
+
+                    <!-- Wishlist badge — count from res.locals.wishlistCount (set by middleware) -->
+                    <a href="/user/wishlist" class="position-relative d-inline-block">
+                        <i class="bi bi-heart fs-5"></i>
+                        <% if (_wishlistCount > 0) { %>
+                            <span class="nav-badge" id="wishlistBadge"><%= _wishlistCount %></span>
+                        <% } else { %>
+                            <span class="nav-badge" id="wishlistBadge" style="display:none">0</span>
+                        <% } %>
+                    </a>
 
                 </div>
             </div>
 
         </div>
     </nav>
+    <!-- ── END NAVBAR ── -->
+
 
     <!-- ── HERO ── -->
     <section class="hero-section">
@@ -517,35 +452,7 @@
         </div>
     </footer>
 
-    <script>
-async function loadNavbarCounts() {
-  try {
-
-    const cartRes = await fetch("/user/cart/count");
-    const cartData = await cartRes.json();
-
-    const wishlistRes = await fetch("/user/wishlist/count");
-    const wishlistData = await wishlistRes.json();
-
-    const cartBadge = document.getElementById("cartCount");
-    const wishlistBadge = document.getElementById("wishlistCount");
-
-    if (cartBadge) {
-      cartBadge.textContent = cartData.count || 0;
-    }
-
-    if (wishlistBadge) {
-      wishlistBadge.textContent = wishlistData.count || 0;
-    }
-
-  } catch (err) {
-    console.log(err);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", loadNavbarCounts);
-</script>
-
+   
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
