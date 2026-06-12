@@ -19,339 +19,70 @@
       --accent-blue-hover: #388bfd;
       --danger-color: #f85149;
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background-color: var(--bg-main);
-      color: var(--text-primary);
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      font-size: 14px;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: var(--bg-main); color: var(--text-primary); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; }
 
     /* ── NAVBAR ── */
-    .navbar-custom {
-      background-color: var(--bg-main);
-      border-bottom: 1px solid var(--border-color);
-      padding: 10px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .navbar-brand-text {
-      font-weight: 700;
-      font-size: 18px;
-      color: var(--text-primary) !important;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      white-space: nowrap;
-    }
+    .navbar-custom { background-color: var(--bg-main); border-bottom: 1px solid var(--border-color); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; position: sticky; top: 0; z-index: 100; }
+    .navbar-brand-text { font-weight: 700; font-size: 18px; color: var(--text-primary) !important; display: flex; align-items: center; gap: 8px; text-decoration: none; white-space: nowrap; }
     .navbar-brand-text i { color: var(--accent-blue); font-size: 22px; }
-
     .navbar-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
     .navbar-links { display: flex; flex-wrap: wrap; gap: 2px; }
-
-    .nav-link-custom {
-      color: var(--text-primary) !important;
-      font-size: 14px;
-      padding: 6px 14px !important;
-      text-decoration: none;
-      white-space: nowrap;
-    }
+    .nav-link-custom { color: var(--text-primary) !important; font-size: 14px; padding: 6px 14px !important; text-decoration: none; white-space: nowrap; }
     .nav-link-custom:hover { color: var(--accent-blue) !important; }
-
     .search-wrapper { position: relative; flex: 1; min-width: 200px; max-width: 320px; }
-    .search-wrapper i {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-    .search-input {
-      background-color: #161b22;
-      border: 1px solid var(--border-color);
-      color: var(--text-muted);
-      border-radius: 6px;
-      padding: 6px 14px 6px 36px;
-      font-size: 13px;
-      width: 100%;
-      outline: none;
-    }
+    .search-wrapper i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+    .search-input { background-color: #161b22; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 6px; padding: 6px 14px 6px 36px; font-size: 13px; width: 100%; outline: none; }
     .search-input:focus { border-color: var(--accent-blue); }
     .search-input::placeholder { color: var(--text-muted); }
-
     .navbar-right { display: flex; align-items: center; gap: 8px; }
 
-    .icon-btn {
-      background: #161b22;
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      border-radius: 8px;
-      width: 38px;
-      height: 38px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 17px;
-      position: relative;
-      cursor: pointer;
-      text-decoration: none;
-      flex-shrink: 0;
-    }
+    /* ── NAV ICON BUTTON ── */
+    .icon-btn { background: #161b22; border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-size: 17px; position: relative; cursor: pointer; text-decoration: none; flex-shrink: 0; transition: border-color .2s, color .2s; }
     .icon-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
-    .badge-dot {
-      position: absolute;
-      top: -4px;
-      right: -4px;
-      background: var(--accent-blue);
-      color: #fff;
-      font-size: 9px;
-      border-radius: 10px;
-      padding: 1px 5px;
-      font-weight: 700;
-      border: 1px solid var(--bg-main);
-    }
 
-    /* Mobile navbar toggle */
-    .navbar-toggle {
-      display: none;
-      background: #161b22;
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      border-radius: 6px;
-      width: 38px;
-      height: 38px;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      cursor: pointer;
-    }
-    .navbar-collapse {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      width: 100%;
-    }
+    /* ── NAVBAR BADGE ── */
+    .icon-btn .nbadge { position: absolute; top: -4px; right: -4px; background: var(--accent-blue); color: #fff; font-size: 9px; border-radius: 10px; padding: 1px 5px; font-weight: 700; border: 1px solid var(--bg-main); pointer-events: none; }
+
+    .navbar-toggle { display: none; background: #161b22; border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 6px; width: 38px; height: 38px; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
 
     /* ── LAYOUT ── */
     .page-wrapper { display: flex; flex: 1; }
 
     /* ── SIDEBAR ── */
-    .sidebar {
-      width: 260px;
-      min-width: 260px;
-      background: var(--bg-main);
-      border-right: 1px solid var(--border-color);
-      padding: 28px 0;
-      flex-shrink: 0;
-    }
-    .sidebar-heading {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 15px;
-      padding: 0 20px 20px;
-      color: var(--text-primary);
-    }
+    .sidebar { width: 260px; min-width: 260px; background: var(--bg-main); border-right: 1px solid var(--border-color); padding: 28px 0; flex-shrink: 0; }
+    .sidebar-heading { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 15px; padding: 0 20px 20px; color: var(--text-primary); }
     .sidebar-heading i { color: var(--accent-blue); font-size: 18px; }
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 20px;
-      color: var(--text-primary);
-      text-decoration: none;
-      font-size: 14px;
-      cursor: pointer;
-      border-left: 3px solid transparent;
-      transition: background 0.15s, color 0.15s;
-    }
+    .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 11px 20px; color: var(--text-primary); text-decoration: none; font-size: 14px; cursor: pointer; border-left: 3px solid transparent; transition: background .15s, color .15s; }
     .sidebar-item:hover { background: var(--bg-card); color: var(--accent-blue); }
-    .sidebar-item.active {
-      background: var(--bg-card);
-      color: var(--accent-blue);
-      border-left-color: var(--accent-blue);
-    }
+    .sidebar-item.active { background: var(--bg-card); color: var(--accent-blue); border-left-color: var(--accent-blue); }
     .sidebar-item i { font-size: 16px; width: 18px; text-align: center; }
     .sidebar-divider { border-top: 1px solid var(--border-color); margin: 12px 0; }
     .sidebar-item.logout { color: var(--danger-color); }
     .sidebar-item.logout:hover { background: rgba(248,81,73,0.08); color: var(--danger-color); }
-
-    /* Sidebar overlay for mobile */
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      z-index: 199;
-    }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 199; }
     .sidebar-overlay.active { display: block; }
 
     /* ── MAIN ── */
-    .main-content {
-      flex: 1;
-      padding: 36px 40px;
-      background: var(--bg-main);
-      min-width: 0;
-    }
-
-    .page-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-      gap: 14px;
-    }
-    .page-title {
-      font-size: 28px;
-      font-weight: 800;
-      color: var(--text-primary);
-      margin-bottom: 4px;
-    }
+    .main-content { flex: 1; padding: 36px 40px; background: var(--bg-main); min-width: 0; }
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 14px; }
+    .page-title { font-size: 28px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; }
     .page-subtitle { color: var(--text-muted); font-size: 13px; }
-
-    .btn-add-address {
-      background: var(--accent-blue);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      padding: 11px 22px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      white-space: nowrap;
-      transition: background 0.15s;
-      flex-shrink: 0;
-    }
+    .btn-add-address { background: var(--accent-blue); color: #fff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; padding: 11px 22px; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: background .15s; flex-shrink: 0; }
     .btn-add-address:hover { background: var(--accent-blue-hover); }
 
     /* ── ADDRESS CARDS ── */
-    .address-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 20px 22px 22px;
-      height: 100%;
-    }
-    .addr-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      color: var(--text-muted);
-      background: transparent;
-      margin-bottom: 18px;
-    }
-    .addr-tag i { font-size: 12px; }
-
-    .card-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .action-icon {
-      width: 30px;
-      height: 30px;
-      border-radius: 6px;
-      border: 1px solid var(--border-color);
-      background: transparent;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      cursor: pointer;
-      transition: border-color 0.15s, color 0.15s;
-    }
-    .action-icon:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
-    .action-icon.del:hover { border-color: var(--danger-color); color: var(--danger-color); }
-
-    .field-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      color: var(--text-label);
-      text-transform: uppercase;
-      margin-bottom: 4px;
-    }
-    .field-value {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--text-primary);
-      margin-bottom: 14px;
-    }
-    .field-value.address-lines {
-      font-size: 14px;
-      font-weight: 400;
-      line-height: 1.6;
-      color: var(--text-primary);
-    }
-    .field-value.phone {
-      font-size: 14px;
-      font-weight: 400;
-      margin-bottom: 0;
-    }
+    .address-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 22px 22px; height: 100%; }
 
     /* ── TOAST ── */
-    .toast-container {
-      position: fixed;
-      top: 70px;
-      right: 20px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .toast-msg {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 12px 18px;
-      color: var(--text-primary);
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      animation: slideIn 0.3s ease;
-      min-width: 260px;
-    }
+    .toast-container { position: fixed; top: 70px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+    .toast-msg { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px 18px; color: var(--text-primary); font-size: 13px; display: flex; align-items: center; gap: 10px; animation: slideIn .3s ease; min-width: 260px; }
     .toast-msg.success { border-left: 3px solid #3fb950; }
-    .toast-msg.error   { border-left: 3px solid var(--danger-color); }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to   { transform: translateX(0);   opacity: 1; }
-    }
+    .toast-msg.error { border-left: 3px solid var(--danger-color); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
     /* ── FOOTER ── */
-    footer {
-      background: var(--bg-main);
-      border-top: 1px solid var(--border-color);
-      padding: 44px 40px 20px;
-    }
+    footer { background: var(--bg-main); border-top: 1px solid var(--border-color); padding: 44px 40px 20px; }
     .footer-brand { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .footer-brand i { color: var(--accent-blue); }
     .footer-desc { color: var(--text-muted); font-size: 12.5px; max-width: 200px; line-height: 1.6; }
@@ -359,42 +90,13 @@
     .footer-link { display: block; color: var(--text-muted); text-decoration: none; font-size: 12.5px; margin-bottom: 8px; }
     .footer-link:hover { color: var(--accent-blue); }
     .newsletter-desc { color: var(--text-muted); font-size: 12.5px; margin-bottom: 12px; }
-    .footer-input {
-      background: var(--bg-input);
-      border: 1px solid var(--border-color);
-      border-radius: 6px 0 0 6px;
-      color: var(--text-primary);
-      font-size: 13px;
-      padding: 8px 12px;
-      outline: none;
-      flex: 1;
-      min-width: 0;
-    }
+    .footer-input { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 6px 0 0 6px; color: var(--text-primary); font-size: 13px; padding: 8px 12px; outline: none; flex: 1; min-width: 0; }
     .footer-input:focus { border-color: var(--accent-blue); }
     .footer-input::placeholder { color: var(--text-muted); }
     .footer-input.input-error { border-color: var(--danger-color); }
-    .btn-join {
-      background: var(--accent-blue);
-      color: #fff;
-      border: none;
-      border-radius: 0 6px 6px 0;
-      padding: 8px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap;
-    }
+    .btn-join { background: var(--accent-blue); color: #fff; border: none; border-radius: 0 6px 6px 0; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
     .btn-join:hover { background: var(--accent-blue-hover); }
-    .footer-bottom {
-      border-top: 1px solid var(--border-color);
-      margin-top: 30px;
-      padding-top: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
+    .footer-bottom { border-top: 1px solid var(--border-color); margin-top: 30px; padding-top: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
     .footer-bottom-text { color: var(--text-muted); font-size: 12px; }
     .footer-bottom-link { color: var(--text-muted); font-size: 12px; text-decoration: none; }
     .footer-bottom-link:hover { color: var(--text-primary); }
@@ -403,44 +105,22 @@
     @media (max-width: 991px) {
       .navbar-links { display: none; }
       .search-wrapper { max-width: 100%; }
-
-      .sidebar {
-        position: fixed;
-        left: -260px;
-        top: 0;
-        height: 100vh;
-        z-index: 200;
-        transition: left 0.25s ease;
-        overflow-y: auto;
-        padding-top: 60px;
-      }
+      .sidebar { position: fixed; left: -260px; top: 0; height: 100vh; z-index: 200; transition: left .25s ease; overflow-y: auto; padding-top: 60px; }
       .sidebar.open { left: 0; }
-
       .navbar-toggle { display: flex; }
-
       .main-content { padding: 24px 20px; }
-
       footer { padding: 36px 20px 16px; }
-
       .page-title { font-size: 22px; }
     }
-
     @media (max-width: 767px) {
       .navbar-custom { padding: 10px 16px; gap: 8px; }
       .search-wrapper { order: 3; flex-basis: 100%; max-width: 100%; }
-
       .main-content { padding: 20px 14px; }
-
       .btn-add-address { font-size: 13px; padding: 9px 16px; }
       .page-title { font-size: 20px; }
-
       footer { padding: 28px 16px 14px; }
       .footer-desc { max-width: 100%; }
-      .newsletter-input-row { flex-direction: column; gap: 0; }
-      .footer-input { border-radius: 6px 6px 0 0; }
-      .btn-join { border-radius: 0 0 6px 6px; width: 100%; }
     }
-
     @media (max-width: 480px) {
       .page-header { flex-direction: column; align-items: stretch; }
       .btn-add-address { justify-content: center; }
@@ -449,296 +129,225 @@
 </head>
 <body>
 
-  <!-- Toast Container -->
-  <div class="toast-container" id="toastContainer"></div>
+<%
+  const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
+  const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
+%>
 
-  <!-- Sidebar Overlay -->
-  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="toast-container" id="toastContainer"></div>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-  <!-- ── NAVBAR ── -->
-  <nav class="navbar-custom">
-    <div class="navbar-left">
-      <button class="navbar-toggle" onclick="toggleSidebar()" aria-label="Menu">
-        <i class="bi bi-list"></i>
-      </button>
-      <a class="navbar-brand-text" href="#">
-        <i class="bi bi-arrow-repeat"></i> Helmet Haven
-      </a>
-      <div class="navbar-links d-lg-flex">
-        <a href="#" class="nav-link-custom">Home</a>
-        <a href="#" class="nav-link-custom">About Us</a>
-        <a href="#" class="nav-link-custom">Contact Us</a>
-      </div>
+<!-- ── NAVBAR ── -->
+<nav class="navbar-custom">
+  <div class="navbar-left">
+    <button class="navbar-toggle" onclick="toggleSidebar()" aria-label="Menu">
+      <i class="bi bi-list"></i>
+    </button>
+    <a class="navbar-brand-text" href="/user/homepage">
+      <i class="bi bi-shield-fill"></i> Helmet Haven
+    </a>
+    <div class="navbar-links d-lg-flex">
+      <a href="/user/homepage" class="nav-link-custom">Home</a>
+      <a href="#" class="nav-link-custom">About Us</a>
+      <a href="#" class="nav-link-custom">Contact Us</a>
     </div>
-
-    <div class="search-wrapper">
-      <i class="bi bi-search"></i>
-      <input type="text" class="search-input" placeholder="Search premium helmets..."
-             id="navSearch" oninput="handleNavSearch(this)"/>
-    </div>
-
-    <div class="navbar-right">
-      <a href="#" class="icon-btn" aria-label="Cart">
-        <i class="bi bi-cart3"></i>
-        <span class="badge-dot">2</span>
-      </a>
-      <a href="#" class="icon-btn" aria-label="Wishlist"><i class="bi bi-suit-heart"></i></a>
-      <a href="#" class="icon-btn" aria-label="Profile"><i class="bi bi-person-fill"></i></a>
-    </div>
-  </nav>
-
-  <!-- ── PAGE BODY ── -->
-  <div class="page-wrapper">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-heading">
-        <i class="bi bi-person-circle"></i> My Account
-      </div>
-      <a href="/user/profileinformation" class="sidebar-item"><i class="bi bi-person"></i> Profile Info</a>
-      <a href="#" class="sidebar-item"><i class="bi bi-globe"></i> My Orders</a>
-      <a href="#" class="sidebar-item active"><i class="bi bi-geo-alt-fill"></i> Address</a>
-      <a href="#" class="sidebar-item"><i class="bi bi-grid"></i> Wallet</a>
-      <a href="#" class="sidebar-item"><i class="bi bi-scissors"></i> Coupon</a>
-      <a href="#" class="sidebar-item"><i class="bi bi-shield-lock"></i> Password Change</a>
-      <div class="sidebar-divider"></div>
-      <a href="#" class="sidebar-item logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
-    </aside>
-
-    <!-- MAIN -->
-    <main class="main-content">
-
-      <!-- Page Header -->
-      <div class="page-header">
-        <div>
-          <h1 class="page-title">My Addresses</h1>
-          <p class="page-subtitle">Manage your shipping and billing locations.</p>
-        </div>
-        <button class="btn-add-address"
-                onclick="window.location.href='/user/addNewaddress'">
-          <i class="bi bi-geo-alt-fill"></i> Add New Address
-        </button>
-      </div>
-
-      <div class="row" id="addressGrid">
-
-        <% addresses.forEach((address, index) => { %>
-
-        <div class="col-xl-6 col-lg-6 col-md-6 col-12 mb-4">
-          <div class="address-card">
-
-            <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-              <% if(address.isDefault){ %>
-                <span class="badge bg-success">DEFAULT</span>
-              <% } %>
-              <span class="badge bg-primary">
-                Address <%= index + 1 %>
-              </span>
-            </div>
-
-            <!-- DETAILS -->
-            <p class="fw-semibold mb-1" style="color:var(--text-primary)"><%= address.name %></p>
-
-            <p style="color:var(--text-muted);font-size:13px;line-height:1.7;margin-bottom:10px;">
-              <%= address.street %><br>
-              <%= address.city %>, <%= address.state %><br>
-              <%= address.zip %>
-            </p>
-
-            <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;"><%= address.phone %></p>
-
-            <!-- ACTIONS -->
-            <div class="d-flex gap-2 flex-wrap align-items-center">
-
-              <a href="/user/editAddress/<%= address._id %>" class="btn btn-sm btn-outline-light" title="Edit">
-                <i class="bi bi-pencil"></i>
-              </a>
-
-              <a href="/user/deleteAddress/<%= address._id %>"
-                 onclick="return confirmDelete(event, this)"
-                 class="btn btn-sm btn-outline-danger" title="Delete">
-                <i class="bi bi-trash"></i>
-              </a>
-
-              <% if(!address.isDefault){ %>
-                <a href="/user/setdefault/<%= address._id %>"
-                   class="btn btn-sm btn-outline-primary">
-                  Set Default
-                </a>
-              <% } %>
-
-            </div>
-          </div>
-        </div>
-
-        <% }) %>
-
-      </div>
-
-    </main>
   </div>
 
-  <!-- ── FOOTER ── -->
-  <footer>
-    <div class="row g-4">
-      <div class="col-lg-3 col-sm-6 col-12">
-        <div class="footer-brand">
-          <i class="bi bi-arrow-repeat"></i> Helmet Haven
-        </div>
-        <p class="footer-desc">The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
-      </div>
+  <div class="search-wrapper">
+    <i class="bi bi-search"></i>
+    <input type="text" class="search-input" placeholder="Search premium helmets..."/>
+  </div>
 
-      <div class="col-lg-2 col-sm-6 col-6 offset-lg-1">
-        <p class="footer-heading">Shop</p>
-        <a href="#" class="footer-link">Full Face</a>
-        <a href="#" class="footer-link">Off-Road</a>
-        <a href="#" class="footer-link">Modular</a>
-        <a href="#" class="footer-link">Accessories</a>
-      </div>
+  <div class="navbar-right">
 
-      <div class="col-lg-2 col-sm-6 col-6">
-        <p class="footer-heading">Support</p>
-        <a href="#" class="footer-link">Shipping Policy</a>
-        <a href="#" class="footer-link">Return &amp; Exchange</a>
-        <a href="#" class="footer-link">Size Guide</a>
-        <a href="#" class="footer-link">FAQ</a>
-      </div>
+    <!-- ✅ CART badge from res.locals -->
+    <a href="/user/cart" class="icon-btn" aria-label="Cart">
+      <i class="bi bi-cart2"></i>
+      <% if (_cartCount > 0) { %>
+        <span class="nbadge" id="cartBadge"><%= _cartCount %></span>
+      <% } else { %>
+        <span class="nbadge" id="cartBadge" style="display:none">0</span>
+      <% } %>
+    </a>
 
-      <div class="col-lg-3 col-sm-6 col-12">
-        <p class="footer-heading">Newsletter</p>
-        <p class="newsletter-desc">Get early access to drops and exclusive offers.</p>
-        <div class="d-flex newsletter-input-row">
-          <input type="email" class="footer-input" id="newsletterEmail" placeholder="Email address"/>
-          <button class="btn-join" onclick="handleNewsletter()">Join</button>
-        </div>
-        <small id="newsletterError" style="color:var(--danger-color);font-size:11px;display:none;margin-top:5px;"></small>
+    <!-- ✅ WISHLIST badge from res.locals -->
+    <a href="/user/wishlist" class="icon-btn" aria-label="Wishlist">
+      <i class="bi bi-heart"></i>
+      <% if (_wishlistCount > 0) { %>
+        <span class="nbadge" id="wishlistBadge"><%= _wishlistCount %></span>
+      <% } else { %>
+        <span class="nbadge" id="wishlistBadge" style="display:none">0</span>
+      <% } %>
+    </a>
+
+    <a href="/user/profileinformation" class="icon-btn" aria-label="Profile">
+      <i class="bi bi-person-fill"></i>
+    </a>
+
+  </div>
+</nav>
+<!-- ── END NAVBAR ── -->
+
+<!-- ── PAGE BODY ── -->
+<div class="page-wrapper">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-heading"><i class="bi bi-person-circle"></i> My Account</div>
+    <a href="/user/profileinformation" class="sidebar-item"><i class="bi bi-person"></i> Profile Info</a>
+    <a href="#" class="sidebar-item"><i class="bi bi-bag"></i> My Orders</a>
+    <a href="/user/address/addressPage" class="sidebar-item active"><i class="bi bi-geo-alt-fill"></i> Address</a>
+    <a href="#" class="sidebar-item"><i class="bi bi-wallet2"></i> Wallet</a>
+    <a href="#" class="sidebar-item"><i class="bi bi-scissors"></i> Coupon</a>
+    <a href="/user/passwordChange" class="sidebar-item"><i class="bi bi-shield-lock"></i> Password Change</a>
+    <div class="sidebar-divider"></div>
+    <a href="/user/logout" class="sidebar-item logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">My Addresses</h1>
+        <p class="page-subtitle">Manage your shipping and billing locations.</p>
       </div>
+      <button class="btn-add-address" onclick="window.location.href='/user/addNewaddress'">
+        <i class="bi bi-geo-alt-fill"></i> Add New Address
+      </button>
     </div>
 
-    <div class="footer-bottom">
-      <span class="footer-bottom-text">© 2024 Helmet Haven. All rights reserved.</span>
-      <div class="d-flex gap-3 flex-wrap">
-        <a href="#" class="footer-bottom-link">Privacy Policy</a>
-        <a href="#" class="footer-bottom-link">Terms of Service</a>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    /* ── SIDEBAR TOGGLE ── */
-    function toggleSidebar() {
-      const sb = document.getElementById('sidebar');
-      const ov = document.getElementById('sidebarOverlay');
-      sb.classList.toggle('open');
-      ov.classList.toggle('active');
-    }
-    function closeSidebar() {
-      document.getElementById('sidebar').classList.remove('open');
-      document.getElementById('sidebarOverlay').classList.remove('active');
-    }
-
-    /* ── TOAST ── */
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast-msg ${type}`;
-      const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
-      const color = type === 'success' ? '#3fb950' : 'var(--danger-color)';
-      toast.innerHTML = `<i class="bi ${icon}" style="color:${color};font-size:16px;"></i> ${message}`;
-      container.appendChild(toast);
-      setTimeout(() => {
-        toast.style.transition = 'opacity 0.4s';
-        toast.style.opacity = '0';
-        setTimeout(() => toast.remove(), 400);
-      }, 3500);
-    }
-
-    /* ── DELETE CONFIRMATION ── */
-    function confirmDelete(e, el) {
-      e.preventDefault();
-      const href = el.getAttribute('href');
-
-      const modal = document.createElement('div');
-      modal.style.cssText = `
-        position:fixed;inset:0;background:rgba(0,0,0,0.7);
-        z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;
-      `;
-      modal.innerHTML = `
-        <div style="background:#1c2333;border:1px solid #2a3240;border-radius:12px;
-                    padding:28px 28px 22px;max-width:380px;width:100%;text-align:center;">
-          <div style="width:48px;height:48px;border-radius:50%;background:rgba(248,81,73,0.12);
-                      display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-            <i class="bi bi-exclamation-triangle-fill" style="color:#f85149;font-size:22px;"></i>
+    <div class="row" id="addressGrid">
+      <% addresses.forEach((address, index) => { %>
+      <div class="col-xl-6 col-lg-6 col-md-6 col-12 mb-4">
+        <div class="address-card">
+          <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+            <% if (address.isDefault) { %>
+              <span class="badge bg-success">DEFAULT</span>
+            <% } %>
+            <span class="badge bg-primary">Address <%= index + 1 %></span>
           </div>
-          <p style="color:#e6edf3;font-size:16px;font-weight:700;margin-bottom:6px;">Delete Address?</p>
-          <p style="color:#8b949e;font-size:13px;margin-bottom:22px;line-height:1.5;">
-            This action cannot be undone. The address will be permanently removed from your account.
+          <p class="fw-semibold mb-1" style="color:var(--text-primary)"><%= address.name %></p>
+          <p style="color:var(--text-muted);font-size:13px;line-height:1.7;margin-bottom:10px;">
+            <%= address.street %><br>
+            <%= address.city %>, <%= address.state %><br>
+            <%= address.zip %>
           </p>
-          <div style="display:flex;gap:10px;justify-content:center;">
-            <button id="cancelDel" style="background:transparent;border:1px solid #2a3240;
-                    color:#e6edf3;border-radius:8px;padding:9px 22px;font-size:13px;
-                    cursor:pointer;transition:border-color 0.15s;">Cancel</button>
-            <button id="confirmDel" style="background:#f85149;border:none;color:#fff;
-                    border-radius:8px;padding:9px 22px;font-size:13px;font-weight:600;
-                    cursor:pointer;transition:background 0.15s;">Delete</button>
+          <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px;"><%= address.phone %></p>
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <a href="/user/editAddress/<%= address._id %>" class="btn btn-sm btn-outline-light" title="Edit">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="/user/deleteAddress/<%= address._id %>"
+               onclick="return confirmDelete(event, this)"
+               class="btn btn-sm btn-outline-danger" title="Delete">
+              <i class="bi bi-trash"></i>
+            </a>
+            <% if (!address.isDefault) { %>
+              <a href="/user/setdefault/<%= address._id %>" class="btn btn-sm btn-outline-primary">Set Default</a>
+            <% } %>
           </div>
         </div>
-      `;
-      document.body.appendChild(modal);
+      </div>
+      <% }) %>
+    </div>
+  </main>
+</div>
 
-      document.getElementById('cancelDel').onclick = () => modal.remove();
-      document.getElementById('confirmDel').onclick = () => {
-        modal.remove();
-        showToast('Address deleted successfully.', 'success');
-        setTimeout(() => { window.location.href = href; }, 800);
-      };
-      modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-      return false;
-    }
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="row g-4">
+    <div class="col-lg-3 col-sm-6 col-12">
+      <div class="footer-brand"><i class="bi bi-shield-fill"></i> Helmet Haven</div>
+      <p class="footer-desc">The world's premier destination for high-end safety and performance headgear.</p>
+    </div>
+    <div class="col-lg-2 col-sm-6 col-6 offset-lg-1">
+      <p class="footer-heading">Shop</p>
+      <a href="#" class="footer-link">Full Face</a>
+      <a href="#" class="footer-link">Off-Road</a>
+      <a href="#" class="footer-link">Modular</a>
+      <a href="#" class="footer-link">Accessories</a>
+    </div>
+    <div class="col-lg-2 col-sm-6 col-6">
+      <p class="footer-heading">Support</p>
+      <a href="#" class="footer-link">Shipping Policy</a>
+      <a href="#" class="footer-link">Return &amp; Exchange</a>
+      <a href="#" class="footer-link">Size Guide</a>
+      <a href="#" class="footer-link">FAQ</a>
+    </div>
+    <div class="col-lg-3 col-sm-6 col-12">
+      <p class="footer-heading">Newsletter</p>
+      <p class="newsletter-desc">Get early access to drops and exclusive offers.</p>
+      <div class="d-flex">
+        <input type="email" class="footer-input" id="newsletterEmail" placeholder="Email address"/>
+        <button class="btn-join" onclick="handleNewsletter()">Join</button>
+      </div>
+      <small id="newsletterError" style="color:var(--danger-color);font-size:11px;display:none;margin-top:5px;"></small>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-bottom-text">© 2024 Helmet Haven. All rights reserved.</span>
+    <div class="d-flex gap-3 flex-wrap">
+      <a href="#" class="footer-bottom-link">Privacy Policy</a>
+      <a href="#" class="footer-bottom-link">Terms of Service</a>
+    </div>
+  </div>
+</footer>
 
-    /* ── NEWSLETTER VALIDATION ── */
-    function handleNewsletter() {
-      const input = document.getElementById('newsletterEmail');
-      const errEl = document.getElementById('newsletterError');
-      const val = input.value.trim();
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('active');
+  }
 
-      input.classList.remove('input-error');
-      errEl.style.display = 'none';
+  function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast-msg ${type}`;
+    const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
+    const color = type === 'success' ? '#3fb950' : 'var(--danger-color)';
+    toast.innerHTML = `<i class="bi ${icon}" style="color:${color};font-size:16px;"></i> ${message}`;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.transition = 'opacity .4s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3500);
+  }
 
-      if (!val) {
-        input.classList.add('input-error');
-        errEl.textContent = 'Please enter your email address.';
-        errEl.style.display = 'block';
-        return;
-      }
-      if (!emailRegex.test(val)) {
-        input.classList.add('input-error');
-        errEl.textContent = 'Please enter a valid email address.';
-        errEl.style.display = 'block';
-        return;
-      }
+  function confirmDelete(e, el) {
+    e.preventDefault();
+    const href = el.getAttribute('href');
+    const modal = document.createElement('div');
+    modal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;`;
+    modal.innerHTML = `
+      <div style="background:#1c2333;border:1px solid #2a3240;border-radius:12px;padding:28px 28px 22px;max-width:380px;width:100%;text-align:center;">
+        <div style="width:48px;height:48px;border-radius:50%;background:rgba(248,81,73,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <i class="bi bi-exclamation-triangle-fill" style="color:#f85149;font-size:22px;"></i>
+        </div>
+        <p style="color:#e6edf3;font-size:16px;font-weight:700;margin-bottom:6px;">Delete Address?</p>
+        <p style="color:#8b949e;font-size:13px;margin-bottom:22px;line-height:1.5;">This action cannot be undone.</p>
+        <div style="display:flex;gap:10px;justify-content:center;">
+          <button id="cancelDel" style="background:transparent;border:1px solid #2a3240;color:#e6edf3;border-radius:8px;padding:9px 22px;font-size:13px;cursor:pointer;">Cancel</button>
+          <button id="confirmDel" style="background:#f85149;border:none;color:#fff;border-radius:8px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer;">Delete</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    document.getElementById('cancelDel').onclick = () => modal.remove();
+    document.getElementById('confirmDel').onclick = () => { modal.remove(); showToast('Address deleted.', 'success'); setTimeout(() => { window.location.href = href; }, 800); };
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+    return false;
+  }
 
-      input.value = '';
-      showToast('You\'ve subscribed to our newsletter!', 'success');
-    }
+  function handleNewsletter() {
+    const input = document.getElementById('newsletterEmail');
+    const errEl = document.getElementById('newsletterError');
+    const val = input.value.trim();
+    input.classList.remove('input-error'); errEl.style.display = 'none';
+    if (!val) { input.classList.add('input-error'); errEl.textContent = 'Please enter your email address.'; errEl.style.display = 'block'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { input.classList.add('input-error'); errEl.textContent = 'Please enter a valid email address.'; errEl.style.display = 'block'; return; }
+    input.value = ''; showToast("You've subscribed!", 'success');
+  }
 
-    /* ── NAVBAR SEARCH (basic feedback) ── */
-    let searchTimeout;
-    function handleNavSearch(el) {
-      clearTimeout(searchTimeout);
-      if (el.value.trim().length > 0) {
-        searchTimeout = setTimeout(() => {
-          // In a real app this would trigger a search. Here we just provide feedback.
-        }, 400);
-      }
-    }
-
-    /* ── NEWSLETTER: Enter key support ── */
-    document.getElementById('newsletterEmail').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') handleNewsletter();
-    });
-  </script>
+  document.getElementById('newsletterEmail').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleNewsletter(); });
+</script>
 </body>
 </html>
