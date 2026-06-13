@@ -24,8 +24,7 @@ export const loadCart = async (req, res) => {
 };
 
 export const addToCart = async (req, res) => {
-  console.log("BODY =", req.body);
-console.log("PARAMS =", req.params);
+  
   try {
     const userId = req.session.user;
     const productId = req.params.id;
@@ -174,7 +173,7 @@ export const addAllToCart = async (req, res) => {
   try {
     const userId = req.session.user;
 
-    // Get wishlist with size data
+   
     const wishlist = await Wishlist.findOne({ userId }).populate('products.productId');
 
     if (!wishlist || wishlist.products.length === 0) {
@@ -214,7 +213,7 @@ export const addAllToCart = async (req, res) => {
 
     await cart.save();
 
-    // Clear entire wishlist
+    
     wishlist.products = [];
     await wishlist.save();
 

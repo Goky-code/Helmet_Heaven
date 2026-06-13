@@ -4,7 +4,7 @@ import Wishlist from "../../models/wishlistModel.js";
 export const loadProductDetails = async (req, res) => {
   try {
     const productId = req.params.id;
-    const userId = req.session.user; // may be undefined if not logged in
+    const userId = req.session.user; 
 
     const product = await Product.findById(productId)
       .populate("category")
@@ -20,8 +20,7 @@ export const loadProductDetails = async (req, res) => {
       isBlocked: false,
     }).limit(4);
 
-    // ── Fetch which sizes of THIS product the user has wishlisted ──
-    // Result is an array of size strings, e.g. ["M", "XL"]
+   
     let wishlistedSizes = [];
 
     if (userId) {
@@ -36,7 +35,7 @@ export const loadProductDetails = async (req, res) => {
     res.render("user/product/productDetails", {
       product,
       relatedProducts,
-      wishlistedSizes, // e.g. ["M"] or [] or ["M","XL"]
+      wishlistedSizes, 
     });
   } catch (error) {
     console.log(error);

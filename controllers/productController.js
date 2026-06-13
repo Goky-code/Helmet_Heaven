@@ -5,12 +5,13 @@ import Category from "../models/categoryModel.js";
 import sharp from "sharp"
 import fs from "fs"
 import path from "path"
+import { skipMiddlewareFunction } from "mongoose";
  
 export const loadProducts = async (req, res) => {
   try {
     const { search = "", category = "", brand = "", status = "" } = req.query;
 
-    // Build dynamic filter
+    
     const filter = { isDeleted: false };
 
     if (search) {
@@ -20,19 +21,19 @@ export const loadProducts = async (req, res) => {
     if (status === "ACTIVE")   filter.isBlocked = false;
     if (status === "INACTIVE") filter.isBlocked = true;
 
-    // Populate first, then filter by joined fields
-    let query = Product.find(filter).populate("brand").populate("category");
+    
+    let query =  Product.find(filter).populate("brand").populate("category").sort({ createdAt:-1 })
 
     let products = await query;
 
-    // Filter by brand/category name after populate (since they're refs)
+   
     if (brand)    products = products.filter(p => p.brand?.name === brand);
     if (category) products = products.filter(p => p.category?.name === category);
 
     const brands = await Brand.find({ isDeleted: false, isListed: true });
     const categories = await Category.find({ isDeleted: false, isListed: true });
 
-    // If AJAX request, return JSON
+    
     if (req.headers["x-requested-with"] === "XMLHttpRequest") {
       return res.json({ success: true, products });
     }
@@ -115,7 +116,6 @@ export const editProduct = async (req, res) => {
     if (req.files && req.files.length > 0 || req.body.existingImages) {
   const newImages = req.files ? req.files.map(f => f.path) : [];
   
-  // existingImages can be a string (1 item) or array
   let kept = req.body.existingImages || [];
   if (typeof kept === "string") kept = [kept];
   
@@ -377,3 +377,6 @@ export const updateVariant = async (req, res) => {
     res.json({ success: false, message: "Server error" });
   }
 };
+
+
+

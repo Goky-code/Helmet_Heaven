@@ -397,7 +397,7 @@
 <body>
 
 <%
-  /* Read counts from setNavCounts middleware */
+ 
   const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
   const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
 %>
@@ -481,7 +481,7 @@
 
     <div class="navbar-right">
 
-      <!-- ✅ CART — badge from res.locals.cartCount -->
+    
       <a href="/user/cart" class="icon-btn" aria-label="Cart">
         <i class="bi bi-cart2"></i>
         <% if (_cartCount > 0) { %>
@@ -491,7 +491,7 @@
         <% } %>
       </a>
 
-      <!-- ✅ WISHLIST — badge from res.locals.wishlistCount -->
+     
       <a href="/user/wishlist" class="icon-btn" aria-label="Wishlist">
         <i class="bi bi-heart"></i>
         <% if (_wishlistCount > 0) { %>

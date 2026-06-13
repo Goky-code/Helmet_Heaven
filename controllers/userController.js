@@ -43,13 +43,10 @@ export const getOtp = (req, res) => {
 
 export const getHome = async (req, res) => {
   try {
-    console.log("HOME ROUTE HIT");
 
     if (!req.session.user) {
       return res.redirect('/user/login');
     }
-
-    console.log("RENDERING HOMEPAGE");
     res.render('user/homepage');
   } catch (err) {
     console.error(err);

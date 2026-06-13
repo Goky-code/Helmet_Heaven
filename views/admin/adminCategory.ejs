@@ -179,6 +179,10 @@
   .icon-btn:hover.edit-btn { background: rgba(59,130,246,.15); color: var(--accent); border-color: rgba(59,130,246,.3); }
   .icon-btn:hover.del-btn { background: rgba(239,68,68,.15); color: var(--inactive-red); border-color: rgba(239,68,68,.3); }
 
+  .nav-item {
+  text-decoration: none;
+}
+
   /* no results */
   .no-results {
     text-align: center; padding: 40px 20px;
@@ -364,10 +368,10 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         Dashboard
       </div>
-      <div class="nav-item">
+      <a href="/admin/products" class="nav-item">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         Products
-      </div>
+      </a>
       <div class="nav-item">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Customers
@@ -384,10 +388,10 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 20h16M4 4h16M9 4v16M15 4v16"/></svg>
         Category
       </div>
-      <div class="nav-item">
+      <a href="/admin/brands" class="nav-item">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
         Brands
-      </div>
+      </a>
       <div class="nav-item">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
         Return Requests
@@ -694,24 +698,22 @@
     );
   }
 
-  function onSearch() {
-    searchQuery = document.getElementById('searchInput').value.trim();
-    document.getElementById('searchClear').classList.toggle('show', searchQuery.length > 0);
-    currentPage = 1;
-    renderTable();
-  }
+ function onSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  document.getElementById('searchClear').classList.toggle('show', q.length > 0);
+  clearTimeout(window._searchTimer);
+  window._searchTimer = setTimeout(() => {
+    window.location.href = '/admin/categories?page=1&search=' + encodeURIComponent(q);
+  }, 400);
+}
 
-  function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    searchQuery = '';
-    document.getElementById('searchClear').classList.remove('show');
-    currentPage = 1;
-    renderTable();
-    document.getElementById('searchInput').focus();
-  }
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').classList.remove('show');
+  window.location.href = '/admin/categories?page=1&search=';
+}
 
- 
-
+  
   function highlight(text) {
     if (!searchQuery) return text;
     const q = escHtml(searchQuery).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -719,7 +721,13 @@
       '<mark style="background:rgba(59,130,246,0.25);color:var(--text-primary);border-radius:3px;padding:0 2px">$1</mark>');
   }
 
- 
+ (function () {
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('search') || '';
+  const input = document.getElementById('searchInput');
+  input.value = q;
+  document.getElementById('searchClear').classList.toggle('show', q.length > 0);
+})();
 
   
   function escHtml(str) {

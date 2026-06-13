@@ -26,7 +26,7 @@ export const loadCategory = async (req, res) => {
 
   
     const categories = await Category.find(searchQuery)
-      .sort({ createdAt: -1 }) // DESCENDING
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 

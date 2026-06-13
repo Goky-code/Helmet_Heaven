@@ -25,9 +25,14 @@ export const loadShop = async (req, res) => {
       isDeleted: false,
       isBlocked: { $ne: true },
     }
-    if (search)   dbFilter.productName = { $regex: search, $options: "i" }
-    if (category) dbFilter.category    = category
-    if (brand)    dbFilter.brand       = brand
+    if (search)  
+       dbFilter.productName = { $regex: search, $options: "i" }
+
+    if (category)
+       dbFilter.category    = category
+
+    if (brand)  
+        dbFilter.brand       = brand
 
     const raw = await Product.find(dbFilter)
       .populate({ path: "category", match: { isListed: true, isDeleted: false } })
@@ -40,14 +45,23 @@ export const loadShop = async (req, res) => {
 
     const withVariant = raw.reduce((acc, product) => {
      
-      if (!product.category || !product.brand) return acc
+      if (!product.category || !product.brand)
+         return acc
 
       const match = product.variants
         .filter(v => {
-          if (v.status !== "ACTIVE" || v.stock <= 0) return false
-          if (size && v.size !== size)               return false
-          if (minP  && v.price < minP)               return false
-          if (maxP  && v.price > maxP)               return false
+          if (v.status !== "ACTIVE" || v.stock <= 0) 
+            return false
+
+          if (size && v.size !== size)      
+                     return false
+
+          if (minP  && v.price < minP)         
+                  return false
+
+          if (maxP  && v.price > maxP)           
+                return false
+
           return true
         })
         
@@ -60,11 +74,20 @@ export const loadShop = async (req, res) => {
    
     withVariant.sort((a, b) => {
       switch (sort) {
-        case "low-high":  return a.variant.price - b.variant.price
-        case "high-low":  return b.variant.price - a.variant.price
-        case "a-z":       return a.product.productName.localeCompare(b.product.productName)
-        case "z-a":       return b.product.productName.localeCompare(a.product.productName)
-        default:          return new Date(b.product.createdAt) - new Date(a.product.createdAt)
+        case "low-high": 
+         return a.variant.price - b.variant.price
+
+        case "high-low": 
+         return b.variant.price - a.variant.price
+
+        case "a-z":    
+           return a.product.productName.localeCompare(b.product.productName)
+
+        case "z-a":  
+             return b.product.productName.localeCompare(a.product.productName)
+
+        default:  
+              return new Date(b.product.createdAt) - new Date(a.product.createdAt)
       }
     })
 
@@ -91,6 +114,7 @@ export const loadShop = async (req, res) => {
     const userId = req.session?.user
     if (userId) {
       const wishlist = await Wishlist.findOne({ userId }).lean()
+      
       if (wishlist?.products?.length) {
         wishlistedProductIds = [
           ...new Set(wishlist.products.map(i => i.productId.toString()))

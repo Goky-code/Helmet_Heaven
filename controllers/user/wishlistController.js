@@ -27,7 +27,6 @@ export const addToWishlist = async (req, res) => {
     if (!userId)
       return res.status(401).json({ success: false, message: "Please login" });
 
-    // ── size is mandatory for wishlist ──
     if (!size)
       return res
         .status(400)
@@ -49,7 +48,7 @@ export const addToWishlist = async (req, res) => {
     wishlistCount: wishlist.products.length
   });
 }
-    // ── Check BOTH productId AND size — treat each size as a distinct entry ──
+    
     const exists = wishlist.products.find(
       (item) =>
         item.productId.toString() === productId && item.size === size
@@ -75,7 +74,7 @@ export const removeWishlist = async (req, res) => {
   try {
     const userId = req.session.user;
     const productId = req.params.id;
-    const { size } = req.body; // size comes in request body
+    const { size } = req.body; 
 
     if (!size) {
       
@@ -84,7 +83,7 @@ export const removeWishlist = async (req, res) => {
         { $pull: { products: { productId } } }
       );
     } else {
-      // ── Pull only the entry that matches BOTH productId AND size ──
+     
       await Wishlist.updateOne(
         { userId },
         { $pull: { products: { productId, size } } }

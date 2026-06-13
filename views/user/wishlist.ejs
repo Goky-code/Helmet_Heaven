@@ -676,7 +676,7 @@
     setTimeout(() => t.remove(), 3400);
   }
 
-  /* ── Update wishlist subtitle count ── */
+  
   function updateSubtitle() {
     const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
     const el = document.getElementById('wishlistSubtitle');
@@ -687,7 +687,7 @@
     }
   }
 
-  /* ── Update navbar wishlist badge after AJAX changes ── */
+  
   function updateWishlistBadge(count) {
     const badge = document.getElementById('wishlistBadge');
     if (!badge) return;
@@ -695,7 +695,7 @@
     badge.style.display = count > 0 ? 'flex' : 'none';
   }
 
-  /* ── Update navbar cart badge after adding to cart ── */
+  
   function updateCartBadge(count) {
     const badge = document.getElementById('cartBadge');
     if (!badge) return;
@@ -703,7 +703,7 @@
     badge.style.display = count > 0 ? 'flex' : 'none';
   }
 
-  /* ── Check empty ── */
+ 
   function checkEmpty() {
     const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
     if (remaining === 0) {
@@ -711,7 +711,7 @@
     }
   }
 
-  /* ── Add single item to cart ── */
+ 
   async function addToCart(productId, size) {
     if (!size) {
       showToast('Size info missing. Re-add from product page.', 'remove');
@@ -736,7 +736,7 @@
             checkEmpty();
           }, 300);
         }
-        /* Refresh counts from server to stay accurate */
+        
         fetchAndUpdateCounts();
         showToast('Added to cart and removed from wishlist.', 'success');
       } else {
@@ -748,7 +748,7 @@
     }
   }
 
-  /* ── Remove single item from wishlist ── */
+  
   async function removeWishlist(productId, size) {
     try {
       const res  = await fetch(`/user/remove-wishlist/${productId}`, {
@@ -778,7 +778,7 @@
     }
   }
 
-  /* ── Add all to cart ── */
+  
   document.getElementById('addAllBtn').addEventListener('click', async () => {
     const cards = document.querySelectorAll('.product-card[data-product-id]');
     if (cards.length === 0) return;
@@ -810,7 +810,7 @@
     }
   });
 
-  /* ── Clear all wishlist ── */
+  
   document.getElementById('clearAllBtn').addEventListener('click', async () => {
     const cards = document.querySelectorAll('.product-card[data-product-id]');
     if (cards.length === 0) return;
@@ -835,7 +835,7 @@
     }
   });
 
-  /* ── Fetch fresh counts from server and update both badges ── */
+  
   async function fetchAndUpdateCounts() {
     try {
       const [cartRes, wishRes] = await Promise.all([

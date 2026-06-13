@@ -289,7 +289,7 @@
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
         Coupons
       </div>
-      <a href="/admin/adminCustomer" class="nav-item">
+      <a href="/admin/categories" class="nav-item">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 20h16M4 4h16M9 4v16M15 4v16"/></svg>
         Category
       </a>
@@ -711,6 +711,29 @@
       document.getElementById(id+'Err').classList.remove('show');
     });
   }
+
+  function onSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  document.getElementById('searchClear').classList.toggle('show', q.length > 0);
+  clearTimeout(window._searchTimer);
+  window._searchTimer = setTimeout(() => {
+    window.location.href = '/admin/brands?page=1&search=' + encodeURIComponent(q);
+  }, 400);
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').classList.remove('show');
+  window.location.href = '/admin/brands?page=1&search=';
+}
+
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('search') || '';
+  const input = document.getElementById('searchInput');
+  input.value = q;
+  document.getElementById('searchClear').classList.toggle('show', q.length > 0);
+})();
 
   // ─── VALIDATION ───
   function validateField(id) {
