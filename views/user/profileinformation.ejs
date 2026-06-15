@@ -359,6 +359,13 @@
     .footer-bottom-link { color: var(--text-muted); font-size: 12px; text-decoration: none; }
     .footer-bottom-link:hover { color: var(--text-primary); }
 
+    .field-error {
+  color: var(--danger-color);
+  font-size: 12px;
+  margin-top: 5px;
+  min-height: 14px;
+}
+
     /* ── RESPONSIVE ── */
     @media (max-width: 992px) {
       .sidebar { width: 200px; min-width: 200px; }
@@ -423,6 +430,7 @@
 </div>
 
 <!-- ── EDIT PROFILE MODAL ── -->
+<!-- ── EDIT PROFILE MODAL ── -->
 <div class="edit-modal-overlay" id="editModalOverlay">
   <div class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="edit-modal-header">
@@ -433,29 +441,36 @@
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
-    <form action="/user/profile" method="POST" enctype="multipart/form-data">
+    <form id="editProfileForm" novalidate>
       <div class="row g-3 mb-3">
         <div class="col-12 col-sm-6">
           <label class="modal-label" for="modal-firstname">First Name</label>
-          <input type="text" id="modal-firstname" name="firstname" class="modal-input" value="<%= user.firstName %>" placeholder="First name">
+          <input type="text" id="modal-firstname" name="firstname" class="modal-input"
+                 value="<%= user.firstName %>" placeholder="First name" maxlength="30">
+          <div class="field-error" id="firstnameError"></div>
         </div>
         <div class="col-12 col-sm-6">
           <label class="modal-label" for="modal-lastname">Last Name</label>
-          <input type="text" id="modal-lastname" name="lastname" class="modal-input" value="<%= user.lastName %>" placeholder="Last name">
+          <input type="text" id="modal-lastname" name="lastname" class="modal-input"
+                 value="<%= user.lastName %>" placeholder="Last name" maxlength="30">
+          <div class="field-error" id="lastnameError"></div>
         </div>
       </div>
       <div class="mb-3">
         <label class="modal-label" for="modal-phone">Phone Number</label>
-        <input type="tel" id="modal-phone" name="phone" class="modal-input" value="<%= user.phone || '' %>" placeholder="Phone number">
+        <input type="tel" id="modal-phone" name="phone" class="modal-input"
+               value="<%= user.phone || '' %>" placeholder="Phone number"
+               inputmode="numeric" maxlength="10">
+        <div class="field-error" id="phoneError"></div>
       </div>
+      <div class="status-msg" id="editProfileStatus"></div>
       <div class="modal-footer-row">
         <button type="button" class="modal-btn-cancel" onclick="closeEditModal()"><i class="bi bi-x me-1"></i>Cancel</button>
-        <button type="submit" class="modal-btn-save"><i class="bi bi-check-lg me-1"></i>Save Changes</button>
+        <button type="submit" class="modal-btn-save" id="btnSaveProfile"><i class="bi bi-check-lg me-1"></i>Save Changes</button>
       </div>
     </form>
   </div>
 </div>
-
 <!-- ── NAVBAR ── -->
 <nav class="navbar-custom">
   <div class="navbar-inner">
@@ -811,6 +826,93 @@
     if (cropper) { cropper.destroy(); cropper = null; }
     fileInput.value = '';
   }
+/* ── Edit Profile Form Validation & Submit ── */
+const nameRegex  = /^[A-Za-z\s]+$/;   // letters + spaces only
+const phoneRegex = /^[0-9]{10}$/;     // exactly 10 digits
+
+const fnameInput = document.getElementById('modal-firstname');
+const lnameInput = document.getElementById('modal-lastname');
+const phoneInput = document.getElementById('modal-phone');
+
+// Block invalid characters as the user types
+fnameInput.addEventListener('input', () => {
+  fnameInput.value = fnameInput.value.replace(/[^A-Za-z\s]/g, '');
+});
+lnameInput.addEventListener('input', () => {
+  lnameInput.value = lnameInput.value.replace(/[^A-Za-z\s]/g, '');
+});
+phoneInput.addEventListener('input', () => {
+  phoneInput.value = phoneInput.value.replace(/[^0-9]/g, '').slice(0, 10);
+});
+
+function validateEditProfileForm() {
+  let isValid = true;
+  const firstnameErr = document.getElementById('firstnameError');
+  const lastnameErr  = document.getElementById('lastnameError');
+  const phoneErr     = document.getElementById('phoneError');
+  firstnameErr.textContent = '';
+  lastnameErr.textContent  = '';
+  phoneErr.textContent     = '';
+
+  const firstname = fnameInput.value.trim();
+  const lastname  = lnameInput.value.trim();
+  const phone     = phoneInput.value.trim();
+
+  if (!firstname) {
+    firstnameErr.textContent = 'First name is required.';
+    isValid = false;
+  } else if (!nameRegex.test(firstname)) {
+    firstnameErr.textContent = 'First name can only contain alphabets.';
+    isValid = false;
+  }
+
+  if (!lastname) {
+    lastnameErr.textContent = 'Last name is required.';
+    isValid = false;
+  } else if (!nameRegex.test(lastname)) {
+    lastnameErr.textContent = 'Last name can only contain alphabets.';
+    isValid = false;
+  }
+
+  if (phone && !phoneRegex.test(phone)) {
+    phoneErr.textContent = 'Phone number must be exactly 10 digits.';
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+document.getElementById('editProfileForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  if (!validateEditProfileForm()) return;
+
+  const statusEl = document.getElementById('editProfileStatus');
+  const saveBtn  = document.getElementById('btnSaveProfile');
+  statusEl.className = 'status-msg';
+  statusEl.textContent = '';
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+  fetch('/user/profile', { method: 'POST', body: new FormData(this) })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        window.location.reload();
+      } else {
+        statusEl.className = 'status-msg error';
+        statusEl.textContent = data.message || 'Failed to update profile.';
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Changes';
+      }
+    })
+    .catch(() => {
+      statusEl.className = 'status-msg error';
+      statusEl.textContent = 'Network error. Please try again.';
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save Changes';
+    });
+});
+
 </script>
 </body>
 </html>

@@ -13,6 +13,7 @@ import {
   getWishlistCount
 } from "../controllers/user/wishlistController.js";
 
+
 const router  = express.Router();
  
 
@@ -38,16 +39,16 @@ router.post("/profile", (req, res, next) => {
   });
 }, userController.updateProfile);
 
-router.get("/address/addressPage", userController.getAddresses)
+router.get("/address/addressPage",isUserAuth, userController.getAddresses)
 
-router.get("/addNewaddress", userController.getAddAddress);
-router.post("/addNewaddress", userController.addAddress);
+router.get("/addNewaddress",isUserAuth, userController.getAddAddress);
+router.post("/addNewaddress",isUserAuth, userController.addAddress);
 
-router.get("/editAddress/:id", userController.getEditAddress);
-router.post("/editAddress/:id", userController.updateAddress);
+router.get("/editAddress/:id",isUserAuth, userController.getEditAddress);
+router.post("/editAddress/:id", isUserAuth,userController.updateAddress);
 
-router.get("/deleteAddress/:id", userController.deleteAddress);
-router.get("/setdefault/:id", userController.setDefaultAddress);
+router.get("/deleteAddress/:id",isUserAuth, userController.deleteAddress);
+router.get("/setdefault/:id",isUserAuth, userController.setDefaultAddress);
 
 router.post("/send-email-otp",userController.sendEmailOTP);
 router.get("/editEmailotp", userController.loadOTPPage);

@@ -616,7 +616,7 @@
           <div class="field-group">
             <label class="field-label" for="nameField">Recipient Name</label>
             <input type="text" id="nameField" name="name" class="hh-input"
-              value="<%= address.name %>" placeholder="Full name" autocomplete="name">
+              value="<%= address.name %>" placeholder="Full name" autocomplete="name" >
             <div class="err-msg" id="nameErr"><i class="bi bi-exclamation-circle-fill"></i><span></span></div>
           </div>
 
@@ -656,13 +656,13 @@
             <div class="col-12 col-sm-6">
               <label class="field-label" for="zipField">Zip/Postal Code</label>
               <input type="text" id="zipField" name="zip" class="hh-input"
-                value="<%= address.zip %>" placeholder="110001" autocomplete="postal-code" inputmode="numeric" maxlength="10">
+                value="<%= address.zip %>" placeholder="110001" autocomplete="postal-code" inputmode="numeric" maxlength="6">
               <div class="err-msg" id="zipErr"><i class="bi bi-exclamation-circle-fill"></i><span></span></div>
             </div>
             <div class="col-12 col-sm-6">
               <label class="field-label" for="phoneField">Phone Number</label>
               <input type="tel" id="phoneField" name="phone" class="hh-input"
-                value="<%= address.phone %>" placeholder="+91 98765 43210" autocomplete="tel" inputmode="tel" maxlength="15">
+                value="<%= address.phone %>" placeholder="+91 98765 43210" autocomplete="tel" inputmode="tel" maxlength="10">
               <div class="err-msg" id="phoneErr"><i class="bi bi-exclamation-circle-fill"></i><span></span></div>
             </div>
           </div>
@@ -791,17 +791,17 @@
 
     /* ── RULES ── */
     const rules = {
-      name: {
-        el: document.getElementById('nameField'),
-        errEl: document.getElementById('nameErr'),
-        validate(val) {
-          if (!val.trim()) return 'Recipient name is required.';
-          if (val.trim().length < 2) return 'Name must be at least 2 characters.';
-          if (val.trim().length > 60) return 'Name must not exceed 60 characters.';
-          if (!/^[a-zA-Z\s'-]+$/.test(val.trim())) return 'Name can only contain letters, spaces, hyphens or apostrophes.';
-          return null;
-        }
-      },
+     name: {
+  el: document.getElementById('nameField'),
+  errEl: document.getElementById('nameErr'),
+  validate(val) {
+    if (!val.trim()) return 'Recipient name is required.';
+    if (val.trim().length < 2) return 'Name must be at least 2 characters.';
+    if (val.trim().length > 60) return 'Name must not exceed 60 characters.';
+    if (!/^[a-zA-Z\s'-]+$/.test(val.trim())) return 'Name can only contain letters, spaces, hyphens or apostrophes.';
+    return null;
+  }
+},
       street: {
         el: document.getElementById('streetField'),
         errEl: document.getElementById('streetErr'),
@@ -822,16 +822,16 @@
           return null;
         }
       },
-      state: {
-        el: document.getElementById('stateField'),
-        errEl: document.getElementById('stateErr'),
-        validate(val) {
-          if (!val.trim()) return 'State/Province is required.';
-          if (val.trim().length < 2) return 'Enter a valid state name.';
-          if (!/^[a-zA-Z\s\-'.]+$/.test(val.trim())) return 'State name contains invalid characters.';
-          return null;
-        }
-      },
+     state: {
+  el: document.getElementById('stateField'),
+  errEl: document.getElementById('stateErr'),
+  validate(val) {
+    if (!val.trim()) return 'State/Province is required.';
+    if (val.trim().length < 2) return 'Enter a valid state name.';
+    if (!/^[a-zA-Z\s\-'.]+$/.test(val.trim())) return 'State name contains invalid characters.';
+    return null;
+  }
+},
       zip: {
         el: document.getElementById('zipField'),
         errEl: document.getElementById('zipErr'),
@@ -889,6 +889,19 @@
         e.preventDefault();
       }
     });
+
+    document.getElementById('nameField').addEventListener('keypress', e => {
+  if (!/[a-zA-Z\s]/.test(e.key) && !['Backspace','Delete','ArrowLeft','ArrowRight','Tab'].includes(e.key)) {
+    e.preventDefault();
+  }
+});
+
+/* ── STATE: allow only letters and spaces while typing ── */
+document.getElementById('stateField').addEventListener('keypress', e => {
+  if (!/[a-zA-Z\s]/.test(e.key) && !['Backspace','Delete','ArrowLeft','ArrowRight','Tab'].includes(e.key)) {
+    e.preventDefault();
+  }
+});
 
     /* ══════════════════════════
        FORM SUBMIT

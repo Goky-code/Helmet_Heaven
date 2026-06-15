@@ -191,7 +191,7 @@
 
         <div class="mb-form">
           <label class="field-label" for="name">Recipient Name</label>
-          <input type="text" name="name" id="name" class="form-control-custom" placeholder="" oninput="clearErr('name')"/>
+          <input type="text" name="name" id="name" class="form-control-custom" placeholder="" oninput="clearErr('name'); this.value=this.value.replace(/[^A-Za-z\s]/g,'')"/>
           <span class="err-msg" id="err-name"></span>
         </div>
 
@@ -214,7 +214,7 @@
           </div>
           <div class="col-6">
             <label class="field-label" for="state">State / Province</label>
-            <input type="text" name="state" id="state" class="form-control-custom" placeholder="" oninput="clearErr('state')"/>
+            <input type="text" name="state" id="state" class="form-control-custom" placeholder="" oninput="clearErr('state'); this.value=this.value.replace(/[^A-Za-z\s]/g,'')"/>
             <span class="err-msg" id="err-state"></span>
           </div>
         </div>
@@ -222,12 +222,12 @@
         <div class="row g-3">
           <div class="col-6">
             <label class="field-label" for="zip">Zip / Postal Code</label>
-            <input type="text" name="zip" id="zip" class="form-control-custom" placeholder="" maxlength="10" oninput="clearErr('zip'); this.value=this.value.replace(/[^0-9]/g,'')"/>
+            <input type="text" name="zip" id="zip" class="form-control-custom" placeholder="" maxlength="6" oninput="clearErr('zip'); this.value=this.value.replace(/[^0-9]/g,'')"/>
             <span class="err-msg" id="err-zip"></span>
           </div>
           <div class="col-6">
             <label class="field-label" for="phone">Phone Number</label>
-            <input type="tel" name="phone" id="phone" class="form-control-custom" placeholder="" maxlength="15" oninput="clearErr('phone'); this.value=this.value.replace(/[^0-9+\-\s]/g,'')"/>
+            <input type="tel" name="phone" id="phone" class="form-control-custom" placeholder="" maxlength="10" oninput="clearErr('phone'); this.value=this.value.replace(/[^0-9+\-\s]/g,'')"/>
             <span class="err-msg" id="err-phone"></span>
           </div>
         </div>

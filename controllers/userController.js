@@ -100,39 +100,45 @@ export const updateProfile = async (req, res) => {
     const userId = req.session.user._id;
     const { firstname, lastname, phone } = req.body;
 
-    
+    const nameRegex  = /^[A-Za-z\s]+$/;
+    const phoneRegex = /^[0-9]{10}$/;
+
+    if (firstname !== undefined) {
+      if (!firstname.trim()) {
+        return res.status(400).json({ success: false, message: "First name is required." });
+      }
+      if (!nameRegex.test(firstname.trim())) {
+        return res.status(400).json({ success: false, message: "First name can only contain alphabets." });
+      }
+    }
+
+    if (lastname !== undefined) {
+      if (!lastname.trim()) {
+        return res.status(400).json({ success: false, message: "Last name is required." });
+      }
+      if (!nameRegex.test(lastname.trim())) {
+        return res.status(400).json({ success: false, message: "Last name can only contain alphabets." });
+      }
+    }
+
+    if (phone && !phoneRegex.test(phone.trim())) {
+      return res.status(400).json({ success: false, message: "Phone number must be exactly 10 digits." });
+    }
+
     const updateData = {};
-    if (firstname) updateData.firstName = firstname;
-    if (lastname) updateData.lastName = lastname;
-    if (phone) updateData.phone = phone;
+    if (firstname) updateData.firstName = firstname.trim();
+    if (lastname) updateData.lastName = lastname.trim();
+    if (phone) updateData.phone = phone.trim();
+    if (req.file) updateData.profileImage = req.file.path;
 
-    if (req.file) {
-      
-      updateData.profileImage = req.file.path
-    }
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { returnDocument: 'after' });
+    req.session.user = updatedUser;
 
-    const updatedUser =await User.findByIdAndUpdate(userId, updateData,
-      {new: true}
-    )
-
-     req.session.user = updatedUser;
-
-    if (req.file) {
-      return res.json({ success: true });
-    }
-
-    
-    res.redirect("/user/profileinformation");
+    return res.json({ success: true });
 
   } catch (error) {
     console.error("Update profile error:", error);
-    
-    
-    if (req.file || req.headers['content-type']?.includes('multipart')) {
-      return res.status(500).json({ success: false, message: "Server Error" });
-    }
-    
-    res.status(500).send("Server Error");
+    return res.status(500).json({ success: false, message: "Server Error" });
   }
 }
 
@@ -191,14 +197,27 @@ export const getEditAddress = async (req, res) => {
 };
 
 export const updateAddress = async (req, res) => {
+
+   if (!req.session.user) {
+    return res.redirect("/user/login");
+  }
+  
   const userId = req.session.user._id;
 
   const {
     name, street, apartment,
     city, state, zip, phone, isDefault
   } = req.body;
+ const nameRegex = /^[A-Za-z\s]+$/;
 
-  if (isDefault==='on') {
+  if (!nameRegex.test(name)) {
+    return res.status(400).send("Recipient name can only contain alphabets.");
+  }
+  if (!nameRegex.test(state)) {
+    return res.status(400).send("State can only contain alphabets.");
+  }
+
+   if (isDefault==='on') {
     await Address.updateMany({ userId }, { isDefault: false });
   }
 
