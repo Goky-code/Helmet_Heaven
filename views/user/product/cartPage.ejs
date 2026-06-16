@@ -302,18 +302,22 @@
 
     /* ── TOAST ── */
     .toast {
-      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: 10px; padding: 12px 20px;
-      font-size: .875rem; color: var(--text);
-      box-shadow: 0 8px 32px rgba(0,0,0,.5);
-      transform: translateY(80px); opacity: 0;
-      transition: transform .3s, opacity .3s;
-      max-width: 300px;
-    }
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px 24px;
+  font-size: 1.50rem; color: var(--text);
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  transform: translateY(80px); opacity: 0;
+  transition: transform .3s, opacity .3s;
+  max-width: 375px;
+}
+.toast.error {
+  font-weight: 600;
+  border-color: var(--danger);
+}
     .toast.show { transform: translateY(0); opacity: 1; }
     .toast.success { border-color: var(--success); }
-    .toast.error { border-color: var(--danger); }
+    
 
     /* ── RESPONSIVE ── */
     @media (max-width: 1024px) { .cart-layout { grid-template-columns: 1fr 300px; } .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; } }
@@ -325,7 +329,7 @@
 <body>
 
 <%
-  /* Read counts set by setNavCounts middleware */
+  
   const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
   const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
 %>
@@ -626,7 +630,8 @@
     t.textContent = msg;
     t.className = 'toast ' + type + ' show';
     clearTimeout(t._timer);
-    t._timer = setTimeout(() => { t.className = 'toast'; }, 3000);
+   const duration = type === 'error' ? 4500 : 3000;
+  t._timer = setTimeout(() => { t.className = 'toast'; }, duration);
   }
 
   /* ── Update summary totals after qty/remove changes ── */
