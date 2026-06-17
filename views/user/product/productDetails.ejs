@@ -1422,60 +1422,58 @@
   }
 
   async function addToCart(productId) {
-    if (!validateBeforeAction()) return;
-    try {
-      const response = await fetch(`/user/add-to-cart/${productId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ size: selectedSize, quantity: qty })
-      });
+  if (!validateBeforeAction()) return;
+  try {
+    const response = await fetch(`/user/add-to-cart/${productId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ size: selectedSize, quantity: qty })
+    });
 
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        window.location.href = '/user/login';
-        return;
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        updateHeaderCounts(); // ✅ was fetchCounts()
-        window.location.href = '/user/cart';
-      } else {
-        showToast(data.message, 'var(--danger)');
-      }
-    } catch (error) {
-      console.log(error);
-      showToast('Something went wrong', 'var(--danger)');
+    
+    if (response.status === 401) {
+      window.location.href = '/user/login';
+      return;
     }
-  }
 
-  /* ── BUY NOW ── */  // ✅ was missing entirely
-  async function buyNow() {
-    if (!validateBeforeAction()) return;
-    try {
-      const response = await fetch(`/user/add-to-cart/<%= product._id %>`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ size: selectedSize, quantity: qty })
-      });
-
-      const contentType = response.headers.get('content-type');
-      if (!contentType || !contentType.includes('application/json')) {
-        window.location.href = '/user/login';
-        return;
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        window.location.href = '/user/checkout';
-      } else {
-        showToast(data.message, 'var(--danger)');
-      }
-    } catch (error) {
-      console.log(error);
-      showToast('Something went wrong', 'var(--danger)');
+    const data = await response.json();
+    if (data.success) {
+      updateHeaderCounts();
+      window.location.href = '/user/cart';
+    } else {
+      showToast(data.message, 'var(--danger)');
     }
+  } catch (error) {
+    console.log(error);
+    showToast('Something went wrong', 'var(--danger)');
   }
+}
+
+async function buyNow() {
+  if (!validateBeforeAction()) return;
+  try {
+    const response = await fetch(`/user/add-to-cart/<%= product._id %>`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ size: selectedSize, quantity: qty })
+    });
+
+    if (response.status === 401) {
+      window.location.href = '/user/login';
+      return;
+    }
+
+    const data = await response.json();
+    if (data.success) {
+      window.location.href = '/user/checkout';
+    } else {
+      showToast(data.message, 'var(--danger)');
+    }
+  } catch (error) {
+    console.log(error);
+    showToast('Something went wrong', 'var(--danger)');
+  }
+}
 
   /* ── NEWSLETTER ── */
   function submitNewsletter(e) {

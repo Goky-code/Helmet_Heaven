@@ -28,17 +28,13 @@ function readDirectory(dir) {
 
     const stat = fs.statSync(fullPath);
 
-    if (
-      stat.isDirectory() &&
-      ignoredFolders.includes(file)
-    ) {
+    // Skip ignored folders
+    if (stat.isDirectory() && ignoredFolders.includes(file)) {
       return;
     }
 
-    if (
-      stat.isFile() &&
-      ignoredFiles.includes(file)
-    ) {
+    // Skip ignored files
+    if (stat.isFile() && ignoredFiles.includes(file)) {
       return;
     }
 
