@@ -238,7 +238,13 @@ export const getCartCount = async (req, res) => {
 
     const cart = await Cart.findOne({ userId });
 
-    const count = cart ? cart.items.length : 0;
+    const count = cart
+ ? cart.items.reduce(
+     (sum,item) =>
+       sum + item.quantity,
+     0
+   )
+ : 0
 
     res.json({
       success: true,
