@@ -6,8 +6,8 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js",
-    "export": "node export.js"
+    "start": "nodemon server.js"
+    
   
     
   },
