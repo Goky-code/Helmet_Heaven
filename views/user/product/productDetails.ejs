@@ -543,6 +543,13 @@
   margin-top: 6px;
 }
 
+.btn-cart:disabled,
+.btn-buy:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .related-grid { grid-template-columns: repeat(2, 1fr); }
@@ -886,6 +893,10 @@
       product.variants.find(
         v => v.status === "ACTIVE"
       )
+
+      const hasStock= product.variants.some(
+        v=>v.status==="ACTIVE" && v.stock>0
+      )
     %>
 
     <div class="price" id="displayPrice">
@@ -1032,7 +1043,8 @@
 
       <!-- CTAs -->
     <div class="cta-group">
-  <% if(product.quantity <= 0){ %>
+      <% if(!hasStock){ %>
+  
     <button class="cart-btn disabled" disabled>Out Of Stock</button>
   <% } else { %>
     <button class="btn-cart" onclick="addToCart('<%= product._id %>')" aria-label="Add to cart">
@@ -1055,7 +1067,10 @@
     </svg>
     <span id="wishBtnText">Add to Wishlist</span>
   </button>
+
+     <%if(hasStock){%>
         <button class="btn-buy" onclick="buyNow()" aria-label="Buy now">Buy Now</button>
+        <%}%>
       </div>
 
       <!-- PERKS -->
