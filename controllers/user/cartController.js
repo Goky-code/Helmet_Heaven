@@ -106,8 +106,7 @@ await cart.save();
 export const updateCartQuantity = async (req, res) => {
   try {
     const userId = req.session.user;
-
-    const { productId, size, count } = req.body;  
+    const { productId, size, count } = req.body;
 
     const cart = await Cart.findOne({ userId });
     const product = await Product.findById(productId);
@@ -120,8 +119,24 @@ export const updateCartQuantity = async (req, res) => {
       return res.json({ success: false, message: "Item not found" });
     }
 
+    const variant = product.variants.find(v => v.size === size && v.status === "ACTIVE");
+
+    if (!variant) {
+      return res.json({ success: false, message: "Variant not found" });
+    }
+
     const newQty = item.quantity + count;
 
+    // If stock is 0, quantity stays at 0 — no increase or decrease allowed
+    if (variant.stock === 0) {
+      return res.json({ 
+        success: false, 
+        quantity: 0,
+        message: "This item is out of stock" 
+      });
+    }
+
+    // Normal minimum is 1 (stock > 0)
     if (newQty < 1) {
       return res.json({ success: false, message: "Minimum quantity is 1" });
     }
@@ -130,10 +145,9 @@ export const updateCartQuantity = async (req, res) => {
       return res.json({ success: false, message: "Maximum quantity is 5" });
     }
 
-    
-    const variant = product.variants.find(v => v.size === size && v.status === "ACTIVE");
-    if (newQty > variant.stock) {
-      return res.json({ success: false, message: "Stock exceeded" });
+    // Only block increase if it exceeds stock
+    if (count > 0 && newQty > variant.stock) {
+      return res.json({ success: false, message: `Only ${variant.stock} item(s) in stock` });
     }
 
     item.quantity = newQty;

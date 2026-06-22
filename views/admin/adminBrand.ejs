@@ -764,17 +764,11 @@ function clearSearch() {
 
   // ─── SAVE ───
   async function saveBrand() {
-
   if (!validateAll()) return;
 
-  const name =
-    document.getElementById('bName').value.trim();
-
-  const description =
-    document.getElementById('bDesc').value.trim();
-
-  const status =
-    document.getElementById('bStatus').value;
+  const name        = document.getElementById('bName').value.trim();
+  const description = document.getElementById('bDesc').value.trim();
+  const status      = document.getElementById('bStatus').value;
 
   const data = {
     name,
@@ -782,29 +776,47 @@ function clearSearch() {
     isListed: status === "active",
   };
 
-  let url = "/admin/add-brand";
+  const url = editingId
+    ? `/admin/edit-brand/${editingId}`
+    : "/admin/add-brand";
 
-  if (editingId) {
-    url = `/admin/edit-brand/${editingId}`;
-  }
+  const saveBtn = document.getElementById('saveBtn');
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+  try {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
 
-  const result = await response.json();
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
 
-  if (result.success) {
-    location.reload();
-  } else {
-    alert(result.message);
+    const result = await response.json();
+
+    if (result.success) {
+      toast('✅', result.message || 'Brand saved successfully');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      // Show server error inline under the brand name field
+      const nameInput = document.getElementById('bName');
+      const nameErr   = document.getElementById('bNameErr');
+
+      nameInput.classList.add('err');
+      nameErr.textContent = result.message; // e.g. "Brand already exists"
+      nameErr.classList.add('show');
+      nameInput.focus();
+
+      saveBtn.disabled = false;
+      saveBtn.textContent = editingId ? 'Update Brand' : 'Save Brand';
+    }
+  } catch (err) {
+    console.error(err);
+    toast('❌', 'Something went wrong. Please try again.');
+    saveBtn.disabled = false;
+    saveBtn.textContent = editingId ? 'Update Brand' : 'Save Brand';
   }
 }
-
   // ─── DELETE ───
   function openDelModal(id) {
     deletingId = id;

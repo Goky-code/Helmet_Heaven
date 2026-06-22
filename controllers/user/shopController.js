@@ -43,33 +43,28 @@ export const loadShop = async (req, res) => {
     const minP = minPrice ? Number(minPrice) : null
     const maxP = maxPrice ? Number(maxPrice) : null
 
-    const withVariant = raw.reduce((acc, product) => {
-     
-      if (!product.category || !product.brand)
-         return acc
+ const withVariant = raw.reduce((acc, product) => {
+  if (!product.category || !product.brand) return acc
 
-      const match = product.variants
-        .filter(v => {
-          if (v.status !== "ACTIVE" || v.stock <= 0) 
-            return false
+  
+  const activeVariants = product.variants.filter(v => {
+    if (v.status !== "ACTIVE") return false
+    if (size && v.size !== size) return false
+    if (minP && v.price < minP) return false
+    if (maxP && v.price > maxP) return false
+    return true
+  })
 
-          if (size && v.size !== size)      
-                     return false
+  if (activeVariants.length === 0) return acc  
+  
+  const inStock    = activeVariants.filter(v => v.stock > 0)
+  const candidates = inStock.length > 0 ? inStock : activeVariants
 
-          if (minP  && v.price < minP)         
-                  return false
+  const match = candidates.sort((a, b) => a.price - b.price)[0]
 
-          if (maxP  && v.price > maxP)           
-                return false
-
-          return true
-        })
-        
-        .sort((a, b) => a.price - b.price)[0]
-
-      if (match) acc.push({ product, variant: match })
-      return acc
-    }, [])
+  acc.push({ product, variant: match })
+  return acc
+}, [])
 
    
     withVariant.sort((a, b) => {

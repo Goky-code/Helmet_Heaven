@@ -440,6 +440,30 @@
   display: flex; align-items: center; justify-content: center;
 }
 
+/* Out of stock size button */
+.size-btn.out-of-stock {
+  opacity: 0.5;
+  position: relative;
+  cursor: pointer; /* still clickable */
+}
+.size-btn.out-of-stock::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent, transparent 4px,
+    rgba(239,83,80,.2) 4px, rgba(239,83,80,.2) 5px
+  );
+  border-radius: inherit;
+  pointer-events: none;
+}
+.size-btn.out-of-stock.active {
+  border-color: var(--danger);
+  background: rgba(239,83,80,.12);
+  color: var(--danger);
+  opacity: 1;
+}
 /* ─── RELATED PRODUCTS ─── */
 .related-section {
   max-width: 1280px;
@@ -954,7 +978,7 @@
 
             onclick="selectSize(this)"
 
-            <%= variant.stock <= 0 ? 'disabled' : '' %>
+          
           >
 
             <%= variant.size %>
@@ -1042,21 +1066,33 @@
   </div>
 
       <!-- CTAs -->
-    <div class="cta-group">
-      <% if(!hasStock){ %>
-  
-    <button class="cart-btn disabled" disabled>Out Of Stock</button>
-  <% } else { %>
-    <button class="btn-cart" onclick="addToCart('<%= product._id %>')" aria-label="Add to cart">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-      </svg>
-      Add to Cart
-    </button>
-  <% } %>
-       
-      <button
+   <!-- CTAs -->
+<div class="cta-group">
+
+  <button
+    class="btn-cart"
+    id="cartBtn"
+    onclick="addToCart('<%= product._id %>')"
+    aria-label="Add to cart"
+    style="display: none"
+  >
+    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>
+    Add to Cart
+  </button>
+
+  <button
+    class="btn-cart"
+    id="outOfStockBtn"
+    disabled
+    style="display: none; opacity: 0.45; cursor: not-allowed;"
+  >
+    Out of Stock
+  </button>
+
+  <button
     class="btn-wish"
     id="wishBtn"
     onclick="toggleWish('<%= product._id %>')"
@@ -1068,10 +1104,17 @@
     <span id="wishBtnText">Add to Wishlist</span>
   </button>
 
-     <%if(hasStock){%>
-        <button class="btn-buy" onclick="buyNow()" aria-label="Buy now">Buy Now</button>
-        <%}%>
-      </div>
+  <button
+    class="btn-buy"
+    id="buyBtn"
+    onclick="buyNow()"
+    aria-label="Buy now"
+    style="display: none"
+  >
+    Buy Now
+  </button>
+
+</div>
 
       <!-- PERKS -->
       <div class="perks">
@@ -1330,26 +1373,69 @@
 
   /* ── SIZE SELECTION ── */
   function selectSize(btn) {
-    document.querySelectorAll('.size-btn').forEach(el => el.classList.remove('active'));
-    btn.classList.add('active');
-    selectedSize = btn.dataset.size;
+  // Deactivate all
+  document.querySelectorAll('.size-btn').forEach(el => {
+    el.classList.remove('active');
+    el.setAttribute('aria-checked', 'false');
+  });
 
-    document.getElementById('sizeError').style.display = 'none';
+  btn.classList.add('active');
+  btn.setAttribute('aria-checked', 'true');
+  selectedSize = btn.dataset.size;
 
-    document.getElementById('displayPrice').innerText =
-      `₹ ${Number(btn.dataset.price).toLocaleString()}`;
+  document.getElementById('sizeError').style.display = 'none';
 
-    const stock = Number(btn.dataset.stock);
-    const stockMsg = document.getElementById('stockMsg');
-    stockMsg.innerText = stock > 0 ? 'In Stock' : 'Out Of Stock';
-    stockMsg.style.color = stock > 0 ? '#22c55e' : 'red';
+  // Update price
+  document.getElementById('displayPrice').innerText =
+    `₹ ${Number(btn.dataset.price).toLocaleString()}`;
 
-    const qtyInput = document.getElementById('qtyDisplay');
+  const stock = Number(btn.dataset.stock);
+  const stockMsg  = document.getElementById('stockMsg');
+  const cartBtn   = document.getElementById('cartBtn');
+  const oosBtn    = document.getElementById('outOfStockBtn');
+  const buyBtn    = document.getElementById('buyBtn');
+  const qtyInput  = document.getElementById('qtyDisplay');
+
+  if (stock > 0) {
+    // In stock
+    stockMsg.innerText    = 'In Stock';
+    stockMsg.style.color  = '#22c55e';
+
+    cartBtn.style.display = 'flex';
+    oosBtn.style.display  = 'none';
+    buyBtn.style.display  = 'flex';
+
     qtyInput.max = stock;
     if (Number(qtyInput.value) > stock) qtyInput.value = stock;
+    if (Number(qtyInput.value) < 1)     qtyInput.value = 1;
+    qty = Number(qtyInput.value);
 
-    updateWishBtn();
+  // Restore +/- buttons
+  document.querySelectorAll('.qty-btn').forEach(b => {
+    b.style.opacity = '1';
+    b.style.cursor  = 'pointer';
+  });
+
+  } else {
+    // Out of stock
+    stockMsg.innerText    = 'Out of Stock';
+    stockMsg.style.color  = 'var(--danger)';
+
+    cartBtn.style.display = 'none';
+    oosBtn.style.display  = 'flex';
+    buyBtn.style.display  = 'none';
+
+    qtyInput.value = 0;
+    qtyInput.max   = 0;
+
+    document.querySelectorAll('.qty-btn').forEach(b => {
+    b.style.opacity = '0.35';
+    b.style.cursor  = 'not-allowed';
+  });
   }
+
+  updateWishBtn();
+}
 
   /* ── WISHLIST BUTTON STATE ── */
   function updateWishBtn() {
@@ -1417,13 +1503,17 @@
 
   /* ── QUANTITY ── */
   function changeQty(change) {
-    const qtyInput = document.getElementById('qtyDisplay');
-    let current = Number(qtyInput.value);
-    const max = Number(qtyInput.max);
-    current = Math.min(Math.max(current + change, 1), max);
-    qtyInput.value = current;
-    qty = current;
-  }
+  const qtyInput = document.getElementById('qtyDisplay');
+  const max = Number(qtyInput.max);
+
+  
+  if (max === 0) return;
+
+  let current = Number(qtyInput.value);
+  current = Math.min(Math.max(current + change, 1), max);
+  qtyInput.value = current;
+  qty = current;
+}
 
   /* ── CART ── */
   function validateBeforeAction() {

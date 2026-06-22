@@ -826,15 +826,12 @@ function clearSearch() {
   }
 
   // ─── SAVE ───
-  async function saveCategory() {
-
+ async function saveCategory() {
   if (!validateAll()) return;
 
-  const name = document.getElementById('catName').value.trim();
-
+  const name        = document.getElementById('catName').value.trim();
   const description = document.getElementById('catDesc').value.trim();
-
-  const status = document.getElementById('catStatus').value;
+  const status      = document.getElementById('catStatus').value;
 
   const data = {
     name,
@@ -842,26 +839,45 @@ function clearSearch() {
     isListed: status === "active",
   };
 
-  let url = "/admin/add-category";
+  const url = editingId
+    ? `/admin/edit-category/${editingId}`
+    : "/admin/add-category";
 
-  if (editingId) {
-    url = `/admin/edit-category/${editingId}`;
-  }
+  try {
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  });
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
 
-  const result = await response.json();
+    const result = await response.json();
 
-  if (result.success) {
-    location.reload();
-  } else {
-    alert(result.message);
+    if (result.success) {
+      showToast('✅', result.message || 'Category saved successfully');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      // Show error inline on the name field (most errors are duplicate name)
+      const nameInput = document.getElementById('catName');
+      const nameErr   = document.getElementById('catNameErr');
+
+      nameInput.classList.add('error');
+      nameErr.textContent = result.message; // e.g. "Category already exists"
+      nameErr.classList.add('show');
+      nameInput.focus();
+
+      // Reset button
+      saveBtn.disabled = false;
+      saveBtn.textContent = editingId ? 'Update Category' : 'Save Category';
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('❌', 'Something went wrong. Please try again.');
+    document.getElementById('saveBtn').disabled = false;
+    document.getElementById('saveBtn').textContent = editingId ? 'Update Category' : 'Save Category';
   }
 }
   // ─── DELETE ───
