@@ -1630,6 +1630,18 @@ async function buyNow() {
   document.addEventListener('DOMContentLoaded', () => {
     updateHeaderCounts();
   });
+
+  
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const msg = params.get('msg');
+    if (msg) {
+      showToast(decodeURIComponent(msg), 'var(--danger)');
+      // Clean URL so refreshing doesn't re-show it
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  })();
+
 </script>
 </body>
 </html>

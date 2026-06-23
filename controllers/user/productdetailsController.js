@@ -15,7 +15,7 @@ export const loadProductDetails = async (req, res) => {
        return res.redirect("/shop");
 
     if (product.isBlocked || product.isDeleted)
-       return res.redirect("/shop");
+       return res.redirect("/shop?msg=This+product+is+no+longer+available");
 
     const relatedProducts = await Product.find({
       _id: { $ne: productId },
