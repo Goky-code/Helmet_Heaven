@@ -282,6 +282,10 @@
     }
     .btn-shop:hover { background: var(--accent-h); }
 
+    .card-img-wrap {
+  aspect-ratio: 1 / 1; overflow: hidden;
+  background: #111820; position: relative; /* ← needed for overlay */
+}
     /* ── CTA BAND ── */
     .cta-band {
       margin: 3rem 0;
@@ -432,7 +436,7 @@
 
   <div class="nav-actions">
 
-    <!-- ✅ CART badge from res.locals -->
+   
     <a href="/user/cart" class="nav-icon-btn" aria-label="Cart">
       <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
@@ -445,7 +449,7 @@
       <% } %>
     </a>
 
-    <!-- ✅ WISHLIST badge from res.locals -->
+   
     <a href="/user/wishlist" class="nav-icon-btn" aria-label="Wishlist">
       <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
@@ -530,62 +534,85 @@
   <div class="wishlist-grid" id="wishlistGrid">
 
     <% if (wishlist.products && wishlist.products.length > 0) { %>
-      <% wishlist.products.forEach((item, i) => { %>
-        <%
-          const p = item.productId;
-          /* Find the active variant price for this item's size */
-          const matchVariant = p.variants
-            ? p.variants.find(v => v.size === item.size && v.status === 'ACTIVE')
-            : null;
-          const displayPrice = matchVariant
-            ? matchVariant.price
-            : (p.variants && p.variants[0] ? p.variants[0].price : 0);
-        %>
-        <div class="product-card"
-             data-product-id="<%= p._id %>"
-             data-size="<%= item.size || '' %>"
-             style="animation-delay:<%= i * 0.06 %>s">
+     <% wishlist.products.forEach((item, i) => { %>
+  <%
+    const p = item.productId;
+    if (!p) return;
 
-          <div class="card-img-wrap">
-            <img src="<%= p.productImage && p.productImage[0] ? p.productImage[0] : '/images/placeholder.jpg' %>"
-                 alt="<%= p.productName %>"
-                 onerror="this.src='/images/placeholder.jpg'"/>
-          </div>
+    // Check if this specific size variant is out of stock
+    const matchVariant = p.variants
+      ? p.variants.find(v => v.size === item.size && v.status === 'ACTIVE')
+      : null;
 
-          <div class="card-body">
-            <div class="card-name"><%= p.productName %></div>
+    const displayPrice = matchVariant
+      ? matchVariant.price
+      : (p.variants && p.variants[0] ? p.variants[0].price : 0);
 
-            <div class="card-price">
-              ₹ <%= displayPrice ? displayPrice.toLocaleString() : '—' %>
-            </div>
+    const isOutOfStock = !matchVariant || matchVariant.stock <= 0;
+  %>
 
-            <% if (item.size) { %>
-              <div class="item-size-tag">Size: <strong><%= item.size %></strong></div>
-            <% } else { %>
-              <div class="size-missing-msg">⚠ Size missing — re-add from product page</div>
-            <% } %>
+  <div class="product-card"
+       data-product-id="<%= p._id %>"
+       data-size="<%= item.size || '' %>"
+       style="animation-delay:<%= i * 0.06 %>s">
 
-            <button
-              class="btn-cart"
-              <%= !item.size ? 'disabled' : '' %>
-              onclick="addToCart('<%= p._id %>', '<%= item.size || '' %>')"
-            >
-              <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h13"/>
-              </svg>
-              Add to Cart
-            </button>
+    <div class="card-img-wrap">
+      <img src="<%= p.productImage?.[0] || '/images/placeholder.jpg' %>"
+           alt="<%= p.productName %>"
+           onerror="this.src='/images/placeholder.jpg'"/>
 
-            <button
-              class="btn-remove"
-              onclick="removeWishlist('<%= p._id %>', '<%= item.size || '' %>')"
-            >
-              Remove
-            </button>
-          </div>
-
+      <!-- Out of stock overlay -->
+      <% if (isOutOfStock) { %>
+        <div style="
+          position: absolute; inset: 0;
+          background: rgba(0,0,0,.55);
+          display: flex; align-items: center; justify-content: center;
+        ">
+          <span style="
+            background: var(--red); color: #fff;
+            padding: 5px 14px; border-radius: 6px;
+            font-size: .78rem; font-weight: 700;
+            letter-spacing: .06em; text-transform: uppercase;
+          ">Out of Stock</span>
         </div>
-      <% }) %>
+      <% } %>
+    </div>
+
+    <div class="card-body">
+      <div class="card-name"><%= p.productName %></div>
+
+      <div class="card-price" style="<%= isOutOfStock ? 'color:var(--muted);text-decoration:line-through;' : '' %>">
+        ₹ <%= displayPrice ? displayPrice.toLocaleString() : '—' %>
+      </div>
+
+      <% if (item.size) { %>
+        <div class="item-size-tag">Size: <strong><%= item.size %></strong></div>
+      <% } else { %>
+        <div class="size-missing-msg">⚠ Size missing — re-add from product page</div>
+      <% } %>
+
+      <!-- Disable Add to Cart if OOS -->
+      <button
+        class="btn-cart"
+        <%= (!item.size || isOutOfStock) ? 'disabled' : '' %>
+        onclick="addToCart('<%= p._id %>', '<%= item.size || '' %>')"
+      >
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h13"/>
+        </svg>
+        <%= isOutOfStock ? 'Out of Stock' : 'Add to Cart' %>
+      </button>
+
+      <button
+        class="btn-remove"
+        onclick="removeWishlist('<%= p._id %>', '<%= item.size || '' %>')"
+      >
+        Remove
+      </button>
+    </div>
+
+  </div>
+<% }) %>
     <% } %>
 
   </div>

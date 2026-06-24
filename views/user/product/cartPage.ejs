@@ -437,6 +437,7 @@
           <% cart.items.forEach((item, index) => { %>
             <%
               const p       = item.productId;
+              if (!p) return;
               const variant = p?.variants?.find(v => v.size === item.size);
               const price   = variant?.price || 0;
               const stock   = variant?.stock ?? 0;
@@ -686,42 +687,45 @@
   }
 
   /* ── Remove item ── */
-  document.querySelectorAll('.remove-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const productId = btn.dataset.id;
-      const size      = btn.dataset.size;
-      try {
-        const res  = await fetch('/user/remove-cart-item', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ productId, size })
-        });
-        const data = await res.json();
-        if (data.success) {
-          const el = document.querySelector(`.cart-item[data-id="${productId}"][data-size="${size}"]`);
-          el.style.transition = 'opacity .3s, transform .3s';
-          el.style.opacity    = '0';
-          el.style.transform  = 'translateX(16px)';
-          setTimeout(() => {
-            el.remove();
-            updateSummary();
-            updateCartBadge(data.cartCount || 0);
-            const remaining = document.querySelectorAll('.cart-item');
-            if (remaining.length === 0) {
-              document.getElementById('cartItems').style.display  = 'none';
-              document.getElementById('emptyCart').style.display  = 'block';
-            }
-          }, 300);
-          showToast('Item removed from cart');
-        } else {
-          showToast(data.message, 'error');
-        }
-      } catch (err) {
-        console.log(err);
-        showToast('Something went wrong', 'error');
+  /* ── Quantity ── */
+document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const productId = btn.dataset.id;
+    const size      = btn.dataset.size;
+    const count     = btn.classList.contains('inc-btn') ? 1 : -1;
+    const cartItem  = document.querySelector(`.cart-item[data-id="${productId}"][data-size="${size}"]`);
+    const allBtns   = cartItem.querySelectorAll('.qty-btn');
+    allBtns.forEach(b => b.disabled = true);
+
+    try {
+      const res  = await fetch('/user/update-cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, size, count })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById(`qty-${productId}-${size}`).textContent = data.quantity;
+        updateSummary();
+
+        // Recalculate total quantity from all visible qty-value elements
+        const newTotal = Array.from(document.querySelectorAll('.qty-value'))
+          .reduce((sum, el) => sum + (Number(el.textContent) || 0), 0);
+        updateCartBadge(newTotal);
+
+        showToast('Cart updated');
+      } else {
+        showToast(data.message, 'error');
       }
-    });
+    } catch (err) {
+      console.log(err);
+      showToast('Something went wrong', 'error');
+    } finally {
+      allBtns.forEach(b => b.disabled = false);
+    }
   });
+});
 
   /* ── Quantity ── */
   document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {

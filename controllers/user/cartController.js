@@ -6,11 +6,37 @@ export const loadCart = async (req, res) => {
   try {
     const userId = req.session.user;
 
-    const cart = await Cart.findOne({ userId })
+    let cart = await Cart.findOne({ userId })
       .populate("items.productId");
 
+     if (cart) {
+      const before = cart.items.length;
+
+      // Filter out null (deleted) products
+      cart.items = cart.items.filter(item => item.productId != null);
+
+      
+      cart.items = cart.items.filter(item => {
+        const p = item.productId;
+        return !p.isBlocked && !p.isDeleted;
+      });
+
+      // Save to DB if anything was removed
+      if (cart.items.length !== before) {
+        await cart.save();
+      }
+    }
+
+    // Count for navbar badges
+    const cartCount = cart
+      ? cart.items.reduce((sum, item) => sum + item.quantity, 0)
+      : 0;
+    const wishlistCount = 0; 
+
     res.render("user/product/cartPage", {
-      cart: cart || { items: [] }
+      cart:           cart || { items: [] },
+      cartCount,
+      wishlistCount,
     });
 
   } catch (error) {
@@ -250,15 +276,15 @@ export const getCartCount = async (req, res) => {
       });
     }
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId }).populate("items.productId");
 
-    const count = cart
- ? cart.items.reduce(
-     (sum,item) =>
-       sum + item.quantity,
-     0
-   )
- : 0
+    let count = 0;
+    if (cart) {
+      count = cart.items.filter(item => {
+        const p = item.productId;
+        return p && !p.isBlocked && !p.isDeleted;
+      }).length;
+    }
 
     res.json({
       success: true,
