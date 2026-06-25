@@ -539,7 +539,7 @@
     const p = item.productId;
     if (!p) return;
 
-    // Check if this specific size variant is out of stock
+    
     const matchVariant = p.variants
       ? p.variants.find(v => v.size === item.size && v.status === 'ACTIVE')
       : null;

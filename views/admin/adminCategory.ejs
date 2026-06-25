@@ -860,12 +860,12 @@ function clearSearch() {
       showToast('✅', result.message || 'Category saved successfully');
       setTimeout(() => location.reload(), 1000);
     } else {
-      // Show error inline on the name field (most errors are duplicate name)
+      
       const nameInput = document.getElementById('catName');
       const nameErr   = document.getElementById('catNameErr');
 
       nameInput.classList.add('error');
-      nameErr.textContent = result.message; // e.g. "Category already exists"
+      nameErr.textContent = result.message; 
       nameErr.classList.add('show');
       nameInput.focus();
 
@@ -915,7 +915,7 @@ function clearSearch() {
     document.getElementById('sidebarOverlay').classList.remove('show');
   }
 
-  // Close modals on overlay click
+  
   document.getElementById('categoryOverlay').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
   });
@@ -923,7 +923,7 @@ function clearSearch() {
     if (e.target === this) closeDeleteModal();
   });
 
-  // Escape key
+  
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { closeModal(); closeDeleteModal(); closeSidebar(); }
   });

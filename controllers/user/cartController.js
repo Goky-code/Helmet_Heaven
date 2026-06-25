@@ -12,7 +12,7 @@ export const loadCart = async (req, res) => {
      if (cart) {
       const before = cart.items.length;
 
-      // Filter out null (deleted) products
+     
       cart.items = cart.items.filter(item => item.productId != null);
 
       
@@ -21,13 +21,13 @@ export const loadCart = async (req, res) => {
         return !p.isBlocked && !p.isDeleted;
       });
 
-      // Save to DB if anything was removed
+     
       if (cart.items.length !== before) {
         await cart.save();
       }
     }
 
-    // Count for navbar badges
+    
     const cartCount = cart
       ? cart.items.reduce((sum, item) => sum + item.quantity, 0)
       : 0;
@@ -153,7 +153,7 @@ export const updateCartQuantity = async (req, res) => {
 
     const newQty = item.quantity + count;
 
-    // If stock is 0, quantity stays at 0 — no increase or decrease allowed
+   
     if (variant.stock === 0) {
       return res.json({ 
         success: false, 
@@ -162,7 +162,7 @@ export const updateCartQuantity = async (req, res) => {
       });
     }
 
-    // Normal minimum is 1 (stock > 0)
+   
     if (newQty < 1) {
       return res.json({ success: false, message: "Minimum quantity is 1" });
     }
@@ -171,7 +171,7 @@ export const updateCartQuantity = async (req, res) => {
       return res.json({ success: false, message: "Maximum quantity is 5" });
     }
 
-    // Only block increase if it exceeds stock
+   
     if (count > 0 && newQty > variant.stock) {
       return res.json({ success: false, message: `Only ${variant.stock} item(s) in stock` });
     }

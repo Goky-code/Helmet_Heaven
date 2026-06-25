@@ -642,23 +642,22 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-  /* ── Toast ── */
-  function showToast(msg, type = 'success') {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = 'toast ' + type + ' show';
-    clearTimeout(t._timer);
-   const duration = type === 'error' ? 4500 : 3000;
+ /* ── Toast ── */
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  clearTimeout(t._timer);
+  const duration = type === 'error' ? 4500 : 3000;
   t._timer = setTimeout(() => { t.className = 'toast'; }, duration);
-  }
+}
 
-  /* ── Update summary totals after qty/remove changes ── */
-  function updateSummary() {
+/* ── Update summary totals ── */
+function updateSummary() {
   let subtotal = 0;
   document.querySelectorAll('.cart-item').forEach(item => {
     const stock = Number(item.dataset.stock) ?? 0;
-    if (stock === 0) return; // skip OOS items
-
+    if (stock === 0) return;
     const basePrice = Number(item.dataset.basePrice) || 0;
     const productId = item.dataset.id;
     const size      = item.dataset.size;
@@ -666,11 +665,9 @@
     const qty       = Number(qtyEl?.textContent) || 0;
     subtotal += basePrice * qty;
   });
-
   const shipping = subtotal > 500 ? 0 : 99;
   const tax      = Math.round(subtotal * 0.08);
   const total    = subtotal + shipping + tax;
-
   document.getElementById('subtotal').textContent = '₹ ' + subtotal.toLocaleString('en-IN');
   document.getElementById('shipping').textContent = shipping === 0 ? 'Free' : '₹ ' + shipping;
   document.getElementById('shipping').className   = 'summary-value' + (shipping === 0 ? ' free' : '');
@@ -678,16 +675,56 @@
   document.getElementById('total').textContent    = '₹ ' + total.toLocaleString('en-IN');
 }
 
-  /* ── Update navbar cart badge after remove ── */
-  function updateCartBadge(count) {
-    const badge = document.getElementById('cartBadge');
-    if (!badge) return;
-    badge.textContent    = count;
-    badge.style.display  = count > 0 ? 'flex' : 'none';
-  }
+/* ── Update navbar cart badge ── */
+function updateCartBadge(count) {
+  const badge = document.getElementById('cartBadge');
+  if (!badge) return;
+  badge.textContent   = count;
+  badge.style.display = count > 0 ? 'flex' : 'none';
+}
 
-  /* ── Remove item ── */
-  /* ── Quantity ── */
+/* ── Remove item ── */
+document.querySelectorAll('.remove-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const productId = btn.dataset.id;
+    const size      = btn.dataset.size;
+    try {
+      const res  = await fetch('/user/remove-cart-item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, size })
+      });
+      const data = await res.json();
+      if (data.success) {
+        const el = document.querySelector(`.cart-item[data-id="${productId}"][data-size="${size}"]`);
+        el.style.transition = 'opacity .3s, transform .3s';
+        el.style.opacity    = '0';
+        el.style.transform  = 'translateX(16px)';
+        setTimeout(() => {
+          el.remove();
+          updateSummary();
+          
+          const newTotal = Array.from(document.querySelectorAll('.qty-value'))
+            .reduce((sum, el) => sum + (Number(el.textContent) || 0), 0);
+          updateCartBadge(newTotal);
+          const remaining = document.querySelectorAll('.cart-item');
+          if (remaining.length === 0) {
+            document.getElementById('cartItems').style.display  = 'none';
+            document.getElementById('emptyCart').style.display  = 'block';
+          }
+        }, 300);
+        showToast('Item removed from cart');
+      } else {
+        showToast(data.message, 'error');
+      }
+    } catch (err) {
+      console.log(err);
+      showToast('Something went wrong', 'error');
+    }
+  });
+});
+
+/* ── Quantity ── */
 document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
   btn.addEventListener('click', async () => {
     const productId = btn.dataset.id;
@@ -696,7 +733,6 @@ document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
     const cartItem  = document.querySelector(`.cart-item[data-id="${productId}"][data-size="${size}"]`);
     const allBtns   = cartItem.querySelectorAll('.qty-btn');
     allBtns.forEach(b => b.disabled = true);
-
     try {
       const res  = await fetch('/user/update-cart', {
         method: 'POST',
@@ -704,16 +740,12 @@ document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
         body: JSON.stringify({ productId, size, count })
       });
       const data = await res.json();
-
       if (data.success) {
         document.getElementById(`qty-${productId}-${size}`).textContent = data.quantity;
         updateSummary();
-
-        // Recalculate total quantity from all visible qty-value elements
         const newTotal = Array.from(document.querySelectorAll('.qty-value'))
           .reduce((sum, el) => sum + (Number(el.textContent) || 0), 0);
         updateCartBadge(newTotal);
-
         showToast('Cart updated');
       } else {
         showToast(data.message, 'error');
@@ -727,109 +759,77 @@ document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
   });
 });
 
-  /* ── Quantity ── */
-  document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const productId = btn.dataset.id;
-      const size      = btn.dataset.size;
-      const count     = btn.classList.contains('inc-btn') ? 1 : -1;
-      const cartItem  = document.querySelector(`.cart-item[data-id="${productId}"][data-size="${size}"]`);
-      const allBtns   = cartItem.querySelectorAll('.qty-btn');
-      allBtns.forEach(b => b.disabled = true);
-      try {
-        const res  = await fetch('/user/update-cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ productId, size, count })
-        });
-        const data = await res.json();
-        if (data.success) {
-          document.getElementById(`qty-${productId}-${size}`).textContent = data.quantity;
-          updateSummary();
-          showToast('Cart updated');
-        } else {
-          showToast(data.message, 'error');
-        }
-      } catch (err) {
-        console.log(err);
-        showToast('Something went wrong', 'error');
-      } finally {
-        allBtns.forEach(b => b.disabled = false);
-      }
-    });
-  });
+/* ── Promo code ── */
+const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
+document.getElementById('promoBtn').addEventListener('click', () => {
+  const inp  = document.getElementById('promoInput');
+  const fb   = document.getElementById('promoFeedback');
+  const code = inp.value.trim().toUpperCase();
+  if (!code) {
+    inp.classList.add('error');
+    fb.textContent = 'Please enter a promo code.';
+    fb.className = 'promo-feedback err'; return;
+  }
+  inp.classList.remove('error');
+  if (PROMO_CODES[code]) {
+    fb.textContent = `Code applied! ${(PROMO_CODES[code] * 100).toFixed(0)}% off.`;
+    fb.className = 'promo-feedback ok';
+    inp.disabled = true;
+    document.getElementById('promoBtn').disabled = true;
+    showToast('Promo code applied!');
+  } else {
+    inp.classList.add('error');
+    fb.textContent = 'Invalid or expired promo code.';
+    fb.className = 'promo-feedback err';
+  }
+});
+document.getElementById('promoInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('promoBtn').click();
+});
+document.getElementById('promoInput').addEventListener('input', () => {
+  document.getElementById('promoInput').classList.remove('error');
+  const fb = document.getElementById('promoFeedback');
+  if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'promo-feedback'; }
+});
 
-  /* ── Promo code ── */
-  const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
-  document.getElementById('promoBtn').addEventListener('click', () => {
-    const inp  = document.getElementById('promoInput');
-    const fb   = document.getElementById('promoFeedback');
-    const code = inp.value.trim().toUpperCase();
-    if (!code) {
-      inp.classList.add('error');
-      fb.textContent = 'Please enter a promo code.';
-      fb.className = 'promo-feedback err'; return;
-    }
-    inp.classList.remove('error');
-    if (PROMO_CODES[code]) {
-      fb.textContent = `Code applied! ${(PROMO_CODES[code] * 100).toFixed(0)}% off.`;
-      fb.className = 'promo-feedback ok';
-      inp.disabled = true;
-      document.getElementById('promoBtn').disabled = true;
-      showToast('Promo code applied!');
-    } else {
-      inp.classList.add('error');
-      fb.textContent = 'Invalid or expired promo code.';
-      fb.className = 'promo-feedback err';
-    }
-  });
-  document.getElementById('promoInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('promoBtn').click();
-  });
-  document.getElementById('promoInput').addEventListener('input', () => {
-    document.getElementById('promoInput').classList.remove('error');
-    const fb = document.getElementById('promoFeedback');
-    if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'promo-feedback'; }
-  });
+/* ── Checkout ── */
+document.getElementById('checkoutBtn').addEventListener('click', () => {
+  window.location.href = '/user/checkout';
+});
 
-  /* ── Checkout ── */
-  document.getElementById('checkoutBtn').addEventListener('click', () => {
-    window.location.href = '/user/checkout';
-  });
+/* ── Newsletter ── */
+document.getElementById('joinBtn').addEventListener('click', () => {
+  const inp     = document.getElementById('newsletterEmail');
+  const fb      = document.getElementById('newsletterFeedback');
+  const val     = inp.value.trim();
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!val) {
+    inp.classList.add('error'); fb.textContent = 'Please enter your email address.'; fb.className = 'newsletter-feedback err'; return;
+  }
+  if (!emailRe.test(val)) {
+    inp.classList.add('error'); fb.textContent = 'Please enter a valid email address.'; fb.className = 'newsletter-feedback err'; return;
+  }
+  inp.classList.remove('error'); inp.value = '';
+  fb.textContent = "You're in! Welcome to Helmet Haven."; fb.className = 'newsletter-feedback ok';
+  showToast('Subscribed successfully!');
+});
+document.getElementById('newsletterEmail').addEventListener('input', () => {
+  document.getElementById('newsletterEmail').classList.remove('error');
+  const fb = document.getElementById('newsletterFeedback');
+  if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'newsletter-feedback'; }
+});
+document.getElementById('newsletterEmail').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('joinBtn').click();
+});
 
-  /* ── Newsletter ── */
-  document.getElementById('joinBtn').addEventListener('click', () => {
-    const inp     = document.getElementById('newsletterEmail');
-    const fb      = document.getElementById('newsletterFeedback');
-    const val     = inp.value.trim();
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!val) {
-      inp.classList.add('error'); fb.textContent = 'Please enter your email address.'; fb.className = 'newsletter-feedback err'; return;
-    }
-    if (!emailRe.test(val)) {
-      inp.classList.add('error'); fb.textContent = 'Please enter a valid email address.'; fb.className = 'newsletter-feedback err'; return;
-    }
-    inp.classList.remove('error'); inp.value = '';
-    fb.textContent = "You're in! Welcome to Helmet Haven."; fb.className = 'newsletter-feedback ok';
-    showToast('Subscribed successfully!');
-  });
-  document.getElementById('newsletterEmail').addEventListener('input', () => {
-    document.getElementById('newsletterEmail').classList.remove('error');
-    const fb = document.getElementById('newsletterFeedback');
-    if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'newsletter-feedback'; }
-  });
-  document.getElementById('newsletterEmail').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('joinBtn').click();
-  });
-
-  /* ── Hamburger ── */
-  const ham = document.getElementById('hamburger');
-  const mob = document.getElementById('mobileMenu');
-  ham.addEventListener('click', () => {
-    const open = mob.classList.toggle('open');
-    ham.classList.toggle('open', open);
-    ham.setAttribute('aria-expanded', open);
-  });
+/* ── Hamburger ── */
+const ham = document.getElementById('hamburger');
+const mob = document.getElementById('mobileMenu');
+ham.addEventListener('click', () => {
+  const open = mob.classList.toggle('open');
+  ham.classList.toggle('open', open);
+  ham.setAttribute('aria-expanded', open);
+});
 </script>
 </body>
 </html>

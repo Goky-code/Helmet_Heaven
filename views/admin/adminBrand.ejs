@@ -798,12 +798,12 @@ function clearSearch() {
       toast('✅', result.message || 'Brand saved successfully');
       setTimeout(() => location.reload(), 1000);
     } else {
-      // Show server error inline under the brand name field
+     
       const nameInput = document.getElementById('bName');
       const nameErr   = document.getElementById('bNameErr');
 
       nameInput.classList.add('err');
-      nameErr.textContent = result.message; // e.g. "Brand already exists"
+      nameErr.textContent = result.message; 
       nameErr.classList.add('show');
       nameInput.focus();
 

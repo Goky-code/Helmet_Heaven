@@ -1373,7 +1373,7 @@
 
   /* ── SIZE SELECTION ── */
   function selectSize(btn) {
-  // Deactivate all
+ 
   document.querySelectorAll('.size-btn').forEach(el => {
     el.classList.remove('active');
     el.setAttribute('aria-checked', 'false');
@@ -1385,7 +1385,7 @@
 
   document.getElementById('sizeError').style.display = 'none';
 
-  // Update price
+  
   document.getElementById('displayPrice').innerText =
     `₹ ${Number(btn.dataset.price).toLocaleString()}`;
 
@@ -1397,7 +1397,7 @@
   const qtyInput  = document.getElementById('qtyDisplay');
 
   if (stock > 0) {
-    // In stock
+    
     stockMsg.innerText    = 'In Stock';
     stockMsg.style.color  = '#22c55e';
 
@@ -1410,14 +1410,14 @@
     if (Number(qtyInput.value) < 1)     qtyInput.value = 1;
     qty = Number(qtyInput.value);
 
-  // Restore +/- buttons
+  
   document.querySelectorAll('.qty-btn').forEach(b => {
     b.style.opacity = '1';
     b.style.cursor  = 'pointer';
   });
 
   } else {
-    // Out of stock
+    
     stockMsg.innerText    = 'Out of Stock';
     stockMsg.style.color  = 'var(--danger)';
 
@@ -1637,7 +1637,7 @@ async function buyNow() {
     const msg = params.get('msg');
     if (msg) {
       showToast(decodeURIComponent(msg), 'var(--danger)');
-      // Clean URL so refreshing doesn't re-show it
+     
       window.history.replaceState({}, '', window.location.pathname);
     }
   })();

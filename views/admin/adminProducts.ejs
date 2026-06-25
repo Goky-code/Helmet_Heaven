@@ -568,8 +568,8 @@ async function filterTable() {
     const data = await res.json();
 
     if (data.success) {
-      products         = data.products;   // update the global array
-      filteredProducts = [...products];   // variants modal etc. still work
+      products         = data.products;   
+      filteredProducts = [...products];  
       currentPage      = 1;
       render();
     }
@@ -578,7 +578,7 @@ async function filterTable() {
     showToast("Failed to fetch products", false);
   }
 }
-// Replace the oninput on the search input with this after DOMContentLoaded
+
 let searchDebounce;
 document.getElementById("searchInput").addEventListener("input", () => {
   clearTimeout(searchDebounce);

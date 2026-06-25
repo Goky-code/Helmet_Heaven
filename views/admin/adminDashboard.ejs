@@ -786,7 +786,7 @@
      NAV CLICK VALIDATION
   ══════════════════════════ */
   function navClick(e, name) {
-    // Only intercept hash links (not real routes)
+   
     if (e.currentTarget.getAttribute('href') === '#') {
       e.preventDefault();
       showToast(`Navigating to ${name}…`, 'info');
@@ -820,7 +820,7 @@
     clearTimeout(searchTimer);
     const val = this.value.trim();
 
-    // Clear error state while typing
+    
     topSearch.classList.remove('error');
 
     if (val.length === 0) return;
