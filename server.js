@@ -45,11 +45,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// ─────────────────────────────────────────────────────────────
-// ✅ setNavCounts MUST be here — after session, BEFORE routes
-//    This ensures res.locals.cartCount and res.locals.wishlistCount
-//    are set before any route renders a page.
-// ─────────────────────────────────────────────────────────────
+
 app.use(setNavCounts);
 
 // ── Routes ──

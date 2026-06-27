@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helmet Haven – Edit Product</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --sidebar: #111318;
+      --card: #161a22;
+      --border: #252934;
+      --surface: #1e2330;
+      --accent: #3b6ef5;
+      --accent2: #5c87ff;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --green: #22c55e;
+      --red: #ef4444;
+      --font-head: "Syne", sans-serif;
+      --font-body: "DM Sans", sans-serif;
+      --sidebar-w: 240px;
+      --radius: 10px;
+    }
+
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.3s ease; }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid var(--border); }
+    .logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .logo-text { font-family: var(--font-head); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+    nav { flex: 1; padding: 14px 0; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; text-decoration: none; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--accent2); background: rgba(59,110,245,0.1); border-left-color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg, .nav-item:hover svg { opacity: 1; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* TOPBAR */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid var(--border); background: var(--sidebar); position: sticky; top: 0; z-index: 50; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .hamburger { display: none; background: none; border: none; color: var(--text); cursor: pointer; font-size: 20px; padding: 4px; }
+    .page-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+    .breadcrumb a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--text); }
+    .breadcrumb span { color: var(--text); font-weight: 500; }
+    .breadcrumb-sep { font-size: 11px; }
+
+    /* CONTENT */
+    .content { padding: 28px; flex: 1; max-width: 900px; }
+
+    /* CARDS */
+    .section-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 20px; }
+    .section-card-title { font-family: var(--font-head); font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .section-card-title svg { color: var(--accent2); }
+
+    /* FORM FIELDS */
+    .field-grid { display: grid; gap: 16px; }
+    .field-grid-2 { grid-template-columns: 1fr 1fr; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-group.full { grid-column: 1 / -1; }
+    .field-group label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+    .field-group input,
+    .field-group select,
+    .field-group textarea { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+    .field-group input::placeholder,
+    .field-group textarea::placeholder { color: var(--muted); }
+    .field-group input:focus,
+    .field-group select:focus,
+    .field-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,110,245,0.12); }
+    .field-group select option { background: var(--surface); }
+    .field-group textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+    .error-msg { display: none; color: var(--red); font-size: 11px; margin-top: 3px; font-weight: 500; }
+    .field-group.has-error input,
+    .field-group.has-error select,
+    .field-group.has-error textarea { border-color: var(--red); }
+    .field-group.has-error .error-msg { display: block; }
+
+    /* PHOTO SLOTS */
+    .photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .photo-slot { position: relative; border: 2px dashed var(--border); border-radius: 12px; aspect-ratio: 1; cursor: pointer; overflow: hidden; transition: border-color 0.2s, background 0.2s; background: var(--surface); }
+    .photo-slot:hover { border-color: var(--accent); background: rgba(59,110,245,0.06); }
+    .photo-preview { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--muted); font-weight: 500; pointer-events: none; }
+    .photo-preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 10px; pointer-events: none; }
+    .photo-remove { display: none; position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 11px; cursor: pointer; align-items: center; justify-content: center; z-index: 2; line-height: 1; transition: background 0.2s; }
+    .photo-remove:hover { background: var(--red); }
+    .photo-slot.has-photo .photo-remove { display: flex; }
+    .photo-slot.has-photo { border-style: solid; border-color: var(--accent); }
+    .photo-slot-label { text-align: center; margin-top: 8px; font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+    .photo-hint { font-size: 12px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+
+    /* STATUS TOGGLE */
+    .status-row { display: flex; gap: 10px; }
+    .status-option { flex: 1; }
+    .status-option input[type="radio"] { display: none; }
+    .status-option label { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; letter-spacing: 0.05em; color: var(--muted); transition: all 0.2s; background: var(--surface); }
+    .status-option input[type="radio"]:checked + label { color: var(--green); border-color: var(--green); background: rgba(34,197,94,0.08); }
+    .status-option input[type="radio"]#status-inactive:checked + label { color: var(--red); border-color: var(--red); background: rgba(239,68,68,0.08); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+    /* ACTIONS BAR */
+    .actions-bar { display: flex; align-items: center; justify-content: flex-end; gap: 12px; padding: 20px 28px; border-top: 1px solid var(--border); background: var(--sidebar); position: sticky; bottom: 0; z-index: 40; }
+    .btn-cancel { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px 22px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; transition: background 0.2s; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.06); }
+    .btn-primary { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 10px 26px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    /* CHAR COUNTER */
+    .char-counter { font-size: 11px; color: var(--muted); text-align: right; margin-top: 4px; }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 30px; right: 30px; background: var(--green); color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; z-index: 9999; animation: slideUp 0.25s ease; }
+    #toast.error { background: var(--red); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* CROP MODAL */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 640px; padding: 28px; animation: fadeUp 0.25s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; margin-bottom: 18px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+
+    /* SIDEBAR OVERLAY */
+    .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(-240px); width: 240px; }
+      .sidebar.open { transform: translateX(0); }
+      .overlay-bg.open { display: block; }
+      .main { margin-left: 0; }
+      .hamburger { display: block; }
+      .content { padding: 16px; }
+      .field-grid-2 { grid-template-columns: 1fr; }
+      .photo-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .actions-bar { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay-bg" id="sidebarBg" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🪖</div>
+      <span class="logo-text">Helmet Haven</span>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item active" href="/admin/adminDashboard">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </a>
+      <a class="nav-item" href="/admin/adminCustomer">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Orders
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Coupons
+      </a>
+      <a class="nav-item" href="/admin/categories">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 20h16M4 4h16M9 4v16M15 4v16"/></svg>
+        Category
+      </a>
+      <a class="nav-item" href="/admin/brands">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Brands
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Return Requests
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        Offers
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="3 9 12 15 21 9"/></svg>
+        Banner
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Sales Report
+      </a>
+      <a class="nav-item" href="/admin/logout">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <div>
+          <h1 class="page-title">Edit Product</h1>
+          <div class="breadcrumb" style="margin-top:3px;">
+            <a href="/admin/adminDashboard">Products</a>
+            <span class="breadcrumb-sep">›</span>
+            <span>Edit</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- Basic Info -->
+      <div class="section-card">
+        <div class="section-card-title">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Basic Information
+        </div>
+        <div class="field-grid field-grid-2">
+
+          <div class="field-group full" id="fg-name">
+            <label>Product Name *</label>
+            <input type="text" id="m-name" maxlength="120"
+              value="<%= product.productName %>"
+              oninput="updateCharCount(this, 'name-count', 120)"/>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span class="error-msg">Product name is required (min 3 characters).</span>
+              <span class="char-counter" id="name-count">0 / 120</span>
+            </div>
+          </div>
+
+          <div class="field-group" id="fg-brand">
+            <label>Brand *</label>
+            <select id="m-brand">
+              <option value="">Select brand</option>
+              <% brands.forEach((brand) => { %>
+                <option value="<%= brand._id %>"
+                  <%= product.brand && product.brand._id && product.brand._id.toString() === brand._id.toString() ? 'selected' : '' %>>
+                  <%= brand.name %>
+                </option>
+              <% }) %>
+            </select>
+            <span class="error-msg">Please select a brand.</span>
+          </div>
+
+          <div class="field-group" id="fg-cat">
+            <label>Category *</label>
+            <select id="m-cat">
+              <option value="">Select category</option>
+              <% categories.forEach((category) => { %>
+                <option value="<%= category._id %>"
+                  <%= product.category && product.category._id && product.category._id.toString() === category._id.toString() ? 'selected' : '' %>>
+                  <%= category.name %>
+                </option>
+              <% }) %>
+            </select>
+            <span class="error-msg">Please select a category.</span>
+          </div>
+
+          <div class="field-group full" id="fg-desc">
+            <label>Description</label>
+            <textarea id="m-desc" maxlength="1000"
+              oninput="updateCharCount(this, 'desc-count', 1000)"><%= product.description || '' %></textarea>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+              <span></span>
+              <span class="char-counter" id="desc-count">0 / 1000</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Status -->
+      <div class="section-card">
+        <div class="section-card-title">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Listing Status *
+        </div>
+        <div id="fg-status">
+          <div class="status-row">
+            <div class="status-option">
+              <input type="radio" name="status" id="status-active" value="ACTIVE"
+                <%= !product.isBlocked ? 'checked' : '' %>/>
+              <label for="status-active">
+                <span class="status-dot"></span>
+                Active
+              </label>
+            </div>
+            <div class="status-option">
+              <input type="radio" name="status" id="status-inactive" value="INACTIVE"
+                <%= product.isBlocked ? 'checked' : '' %>/>
+              <label for="status-inactive">
+                <span class="status-dot"></span>
+                Inactive
+              </label>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-top:10px;">Active products are visible to customers. Inactive products are hidden from the storefront.</p>
+        </div>
+      </div>
+
+      <!-- Product Photos -->
+      <div class="section-card">
+        <div class="section-card-title">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Product Photos
+        </div>
+
+        <div class="photo-grid">
+          <% for(let i = 0; i < 3; i++) { %>
+            <% const imgUrl = product.productImage && product.productImage[i] ? (product.productImage[i].url || product.productImage[i]) : null; %>
+            <div>
+              <div class="photo-slot <%= imgUrl ? 'has-photo' : '' %>" id="photo-slot-<%= i %>" onclick="openFilePicker(<%= i %>)">
+                <input type="file" id="photo-input-<%= i %>" accept="image/*" hidden onchange="previewPhoto(this, <%= i %>)"/>
+                <div class="photo-preview" id="photo-preview-<%= i %>">
+                  <% if (imgUrl) { %>
+                    <img src="<%= imgUrl %>" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>
+                  <% } else { %>
+                    <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span style="font-size:11px;">Click to upload</span>
+                  <% } %>
+                </div>
+                <button type="button" class="photo-remove" id="photo-remove-<%= i %>" onclick="removePhoto(event, <%= i %>)">✕</button>
+              </div>
+              <div class="photo-slot-label">Photo <%= i + 1 %><%= i === 0 ? ' · Main' : '' %></div>
+            </div>
+          <% } %>
+        </div>
+
+        <p class="photo-hint">Keep existing photos or replace them by clicking a slot. Accepted formats: JPG, PNG, WEBP · Max 5 MB each · Images will be cropped to 1:1 square.</p>
+      </div>
+
+    </div><!-- /content -->
+
+    <!-- ACTIONS BAR -->
+    <div class="actions-bar">
+      <a href="/admin/adminDashboard" class="btn-cancel">Cancel</a>
+      <button class="btn-primary" onclick="saveProduct()">Save Changes</button>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- CROP MODAL -->
+  <div class="overlay" id="cropModal">
+    <div class="modal">
+      <h2 class="modal-title">Crop Image</h2>
+      <img id="cropImage" style="max-width:100%;display:block;"/>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeCropModal()">Cancel</button>
+        <button class="btn-primary" onclick="cropCurrentImage()">Crop & Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    // Existing image URLs from the server
+    const existingImages = [
+      <% for(let i = 0; i < 3; i++) { %>
+        <% const imgUrl = product.productImage && product.productImage[i] ? (product.productImage[i].url || product.productImage[i]) : null; %>
+        <%= imgUrl ? `"${imgUrl}"` : 'null' %><%= i < 2 ? ',' : '' %>
+      <% } %>
+    ];
+
+    // Tracks newly cropped files per slot (null = keep existing)
+    let croppedFiles = [null, null, null];
+    let cropper = null;
+    let currentInputIndex = null;
+
+    /* ── Init char counters with existing values ── */
+    window.addEventListener("DOMContentLoaded", () => {
+      const nameEl = document.getElementById("m-name");
+      const descEl = document.getElementById("m-desc");
+      updateCharCount(nameEl, "name-count", 120);
+      updateCharCount(descEl, "desc-count", 1000);
+    });
+
+    /* ── File picker ── */
+    function openFilePicker(index) {
+      document.getElementById(`photo-input-${index}`).click();
+    }
+
+    /* ── Preview / crop trigger ── */
+    function previewPhoto(input, index) {
+      if (!input.files || !input.files[0]) return;
+
+      const file         = input.files[0];
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+      const maxSize      = 5 * 1024 * 1024;
+
+      if (!allowedTypes.includes(file.type)) {
+        showToast("Only JPG, PNG and WEBP images are allowed", false);
+        input.value = "";
+        return;
+      }
+      if (file.size > maxSize) {
+        showToast("Image size must be less than 5 MB", false);
+        input.value = "";
+        return;
+      }
+
+      currentInputIndex = index;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const cropImage = document.getElementById("cropImage");
+        if (cropper) { cropper.destroy(); cropper = null; }
+        cropImage.src = e.target.result;
+        cropImage.onload = function() {
+          document.getElementById("cropModal").classList.add("open");
+          cropper = new Cropper(cropImage, {
+            aspectRatio: 1,
+            viewMode: 1,
+            autoCropArea: 1,
+            responsive: true,
+            background: false
+          });
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+
+    /* ── Crop & save ── */
+    function cropCurrentImage() {
+      if (!cropper) { showToast("Cropper not ready", false); return; }
+
+      const canvas = cropper.getCroppedCanvas({ width: 800, height: 800, imageSmoothingEnabled: true, imageSmoothingQuality: "high" });
+      if (!canvas) { showToast("Failed to crop image", false); return; }
+
+      canvas.toBlob(function(blob) {
+        if (!blob) { showToast("Blob creation failed", false); return; }
+
+        croppedFiles[currentInputIndex] = new File([blob], `photo-${currentInputIndex}-${Date.now()}.jpg`, { type: "image/jpeg" });
+
+        const preview = document.getElementById(`photo-preview-${currentInputIndex}`);
+        preview.innerHTML = `<img src="${URL.createObjectURL(blob)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>`;
+
+        document.getElementById(`photo-slot-${currentInputIndex}`).classList.add("has-photo");
+        closeCropModal();
+        showToast("Photo updated ✓");
+      }, "image/jpeg", 0.9);
+    }
+
+    function closeCropModal() {
+      document.getElementById("cropModal").classList.remove("open");
+      if (cropper) { cropper.destroy(); cropper = null; }
+    }
+
+    /* ── Remove photo (clears both new crop and existing) ── */
+    function removePhoto(event, index) {
+      if (event) event.stopPropagation();
+
+      croppedFiles[index]   = null;
+      existingImages[index] = null;
+
+      const input = document.getElementById(`photo-input-${index}`);
+      input.value = "";
+
+      document.getElementById(`photo-preview-${index}`).innerHTML = `
+        <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--muted)">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span style="font-size:11px;">Click to upload</span>`;
+
+      document.getElementById(`photo-slot-${index}`).classList.remove("has-photo");
+    }
+
+    /* ── Char counter ── */
+    function updateCharCount(el, counterId, max) {
+      document.getElementById(counterId).textContent = `${el.value.length} / ${max}`;
+    }
+
+    /* ── Validate & submit ── */
+    async function saveProduct() {
+      clearErrors();
+      let hasErr = false;
+
+      const name   = document.getElementById("m-name").value.trim();
+      const brand  = document.getElementById("m-brand").value;
+      const cat    = document.getElementById("m-cat").value;
+      const desc   = document.getElementById("m-desc").value.trim();
+      const status = document.querySelector('input[name="status"]:checked')?.value || "ACTIVE";
+
+      if (name.length < 3) { document.getElementById("fg-name").classList.add("has-error"); hasErr = true; }
+      if (!brand)           { document.getElementById("fg-brand").classList.add("has-error"); hasErr = true; }
+      if (!cat)             { document.getElementById("fg-cat").classList.add("has-error"); hasErr = true; }
+      if (hasErr) return;
+
+      // Must have at least one image across existing + new
+      const hasAnyImage = croppedFiles.some(f => f !== null) || existingImages.some(u => u !== null);
+      if (!hasAnyImage) {
+        showToast("At least one product photo is required", false);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("productName", name);
+      formData.append("brand",       brand);
+      formData.append("category",    cat);
+      formData.append("description", desc);
+      formData.append("status",      status);
+
+      // Send new cropped files
+      croppedFiles.forEach(file => { if (file) formData.append("images", file); });
+
+      // Send existing image URLs that were NOT replaced or removed
+      existingImages.forEach((url, i) => {
+        if (url && !croppedFiles[i]) formData.append("existingImages", url);
+      });
+
+      const btn = document.querySelector(".btn-primary");
+      btn.textContent = "Saving…";
+      btn.disabled    = true;
+
+      try {
+        const response = await fetch("/admin/edit-product/<%= product._id %>", { method: "POST", body: formData });
+        const result   = await response.json();
+
+        if (result.success) {
+          showToast(result.message || "Product updated successfully!");
+          setTimeout(() => {
+            window.location.href = result.redirectUrl || "/admin/adminDashboard";
+          }, 900);
+        } else {
+          showToast(result.message || "Error updating product.", false);
+          btn.textContent = "Save Changes";
+          btn.disabled    = false;
+        }
+      } catch (err) {
+        console.error(err);
+        showToast("Network error. Please try again.", false);
+        btn.textContent = "Save Changes";
+        btn.disabled    = false;
+      }
+    }
+
+    function clearErrors() {
+      ["fg-name", "fg-brand", "fg-cat"].forEach(id => {
+        document.getElementById(id).classList.remove("has-error");
+      });
+    }
+
+    /* ── Toast ── */
+    function showToast(msg, isOk = true) {
+      const t = document.getElementById("toast");
+      t.textContent   = msg;
+      t.className     = isOk ? "" : "error";
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 3000);
+    }
+
+    /* ── Sidebar (mobile) ── */
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebarBg").classList.toggle("open");
+    }
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarBg").classList.remove("open");
+    }
+
+    /* ── Close crop modal on overlay click ── */
+    document.getElementById("cropModal").addEventListener("click", function(e) {
+      if (e.target === this) closeCropModal();
+    });
+  </script>
+</body>
+</html>

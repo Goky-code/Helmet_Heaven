@@ -3,6 +3,7 @@ import Product from "../../models/productModel.js";
 import Wishlist from "../../models/wishlistModel.js";
 
 export const loadCart = async (req, res) => {
+  
   try {
     const userId = req.session.user;
 
@@ -43,10 +44,6 @@ export const loadCart = async (req, res) => {
     console.log(error);
     res.redirect("/user/homepage");
   }
-
-
-
-  
 };
 
 export const addToCart = async (req, res) => {
@@ -69,8 +66,7 @@ export const addToCart = async (req, res) => {
    if (product.isBlocked || product.isDeleted) {
   return res.status(400).json({ success: false, message: "Product unavailable" });
 }
-
-   
+ 
     const variant = product.variants.find(
       v => v.size === size && v.status === "ACTIVE"
     );
@@ -177,6 +173,9 @@ export const updateCartQuantity = async (req, res) => {
     }
 
     item.quantity = newQty;
+  
+    x
+
     await cart.save();
 
     res.json({ success: true, quantity: item.quantity });

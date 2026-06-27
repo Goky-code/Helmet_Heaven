@@ -257,7 +257,9 @@
         <button class="hamburger" onclick="toggleSidebar()">☰</button>
         <h1 class="page-title">Products</h1>
       </div>
-      <button class="btn-primary" onclick="openAddModal()">+ Add New Product</button>
+     <button onclick="location.href='/admin/add-product'">
+    Add New Product
+</button>
     </header>
 
     <div class="content">
@@ -306,6 +308,7 @@
               <th>Category</th>
               <th>Status</th>
               <th>Actions</th>
+              
             </tr>
           </thead>
           <tbody id="tableBody"></tbody>
@@ -321,8 +324,9 @@
   <!-- ADD / EDIT MODAL -->
   <div class="overlay" id="productModal">
     <div class="modal">
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <h2 class="modal-title" id="modalTitle">Add New Product</h2>
+      <button onclick="location.href='/admin/add-product'">
+    Add New Product
+</button>
       <div class="modal-grid">
         <div class="field-group full" id="fg-name">
           <label>Product Name *</label>

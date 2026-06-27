@@ -38,7 +38,7 @@ export const loadProducts = async (req, res) => {
       return res.json({ success: true, products });
     }
 
-    res.render("admin/adminProducts", { products, brands, categories });
+    res.render("admin/adminProduct/adminProducts", { products, brands, categories });
 
   } catch (error) {
     console.log(error);
@@ -50,7 +50,7 @@ export const loadAddProduct = async (req, res) => {
   try {
     const brands = await Brand.find({ isDeleted: false });
     const categories = await Category.find({ isDeleted: false });
-    res.render("admin/add-product", { brands, categories });
+    res.render("admin/adminProduct/add-product", { brands, categories });
   } catch (error) {
     console.log(error);
     res.redirect("/admin/pageerror");
@@ -152,7 +152,7 @@ export const loadEditProduct = async (req, res) => {
       return res.redirect("/admin/products");
     }
 
-    res.render("admin/edit-product", {
+    res.render("admin/adminProduct/edit-product", {
       product
     });
 
