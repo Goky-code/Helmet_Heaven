@@ -222,7 +222,7 @@
         <div>
           <h1 class="page-title">Edit Product</h1>
           <div class="breadcrumb" style="margin-top:3px;">
-            <a href="/admin/adminDashboard">Products</a>
+            <a href="/admin/products">Products</a>
             <span class="breadcrumb-sep">›</span>
             <span>Edit</span>
           </div>
@@ -357,7 +357,7 @@
 
     <!-- ACTIONS BAR -->
     <div class="actions-bar">
-      <a href="/admin/adminDashboard" class="btn-cancel">Cancel</a>
+      <a href="/admin/products" class="btn-cancel">Cancel</a>
       <button class="btn-primary" onclick="saveProduct()">Save Changes</button>
     </div>
 
@@ -377,20 +377,27 @@
 
   <div id="toast"></div>
 
-  <script>
-    // Existing image URLs from the server
-    const existingImages = [
-      <% for(let i = 0; i < 3; i++) { %>
-        <% const imgUrl = product.productImage && product.productImage[i] ? (product.productImage[i].url || product.productImage[i]) : null; %>
-        <%= imgUrl ? `"${imgUrl}"` : 'null' %><%= i < 2 ? ',' : '' %>
-      <% } %>
-    ];
-
+  <script type="application/json" id="page-data">
+<%- JSON.stringify({
+  productId: product._id,
+  existingImages: [0, 1, 2].map(i => {
+    const img = product.productImage && product.productImage[i];
+    return img ? (img.url || img) : null;
+  })
+}) %>
+</script>
+ 
+<script>
+    // ── Safely read server data (no more inline EJS interpolation inside JS) ──
+    const pageData       = JSON.parse(document.getElementById("page-data").textContent);
+    const productId      = pageData.productId;
+    const existingImages = pageData.existingImages;
+ 
     // Tracks newly cropped files per slot (null = keep existing)
     let croppedFiles = [null, null, null];
     let cropper = null;
     let currentInputIndex = null;
-
+ 
     /* ── Init char counters with existing values ── */
     window.addEventListener("DOMContentLoaded", () => {
       const nameEl = document.getElementById("m-name");
@@ -398,20 +405,20 @@
       updateCharCount(nameEl, "name-count", 120);
       updateCharCount(descEl, "desc-count", 1000);
     });
-
+ 
     /* ── File picker ── */
     function openFilePicker(index) {
       document.getElementById(`photo-input-${index}`).click();
     }
-
+ 
     /* ── Preview / crop trigger ── */
     function previewPhoto(input, index) {
       if (!input.files || !input.files[0]) return;
-
+ 
       const file         = input.files[0];
       const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
       const maxSize      = 5 * 1024 * 1024;
-
+ 
       if (!allowedTypes.includes(file.type)) {
         showToast("Only JPG, PNG and WEBP images are allowed", false);
         input.value = "";
@@ -422,7 +429,7 @@
         input.value = "";
         return;
       }
-
+ 
       currentInputIndex = index;
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -442,43 +449,43 @@
       };
       reader.readAsDataURL(file);
     }
-
+ 
     /* ── Crop & save ── */
     function cropCurrentImage() {
       if (!cropper) { showToast("Cropper not ready", false); return; }
-
+ 
       const canvas = cropper.getCroppedCanvas({ width: 800, height: 800, imageSmoothingEnabled: true, imageSmoothingQuality: "high" });
       if (!canvas) { showToast("Failed to crop image", false); return; }
-
+ 
       canvas.toBlob(function(blob) {
         if (!blob) { showToast("Blob creation failed", false); return; }
-
+ 
         croppedFiles[currentInputIndex] = new File([blob], `photo-${currentInputIndex}-${Date.now()}.jpg`, { type: "image/jpeg" });
-
+ 
         const preview = document.getElementById(`photo-preview-${currentInputIndex}`);
         preview.innerHTML = `<img src="${URL.createObjectURL(blob)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px;"/>`;
-
+ 
         document.getElementById(`photo-slot-${currentInputIndex}`).classList.add("has-photo");
         closeCropModal();
         showToast("Photo updated ✓");
       }, "image/jpeg", 0.9);
     }
-
+ 
     function closeCropModal() {
       document.getElementById("cropModal").classList.remove("open");
       if (cropper) { cropper.destroy(); cropper = null; }
     }
-
+ 
     /* ── Remove photo (clears both new crop and existing) ── */
     function removePhoto(event, index) {
       if (event) event.stopPropagation();
-
+ 
       croppedFiles[index]   = null;
       existingImages[index] = null;
-
+ 
       const input = document.getElementById(`photo-input-${index}`);
       input.value = "";
-
+ 
       document.getElementById(`photo-preview-${index}`).innerHTML = `
         <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--muted)">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -486,61 +493,61 @@
           <polyline points="21 15 16 10 5 21"/>
         </svg>
         <span style="font-size:11px;">Click to upload</span>`;
-
+ 
       document.getElementById(`photo-slot-${index}`).classList.remove("has-photo");
     }
-
+ 
     /* ── Char counter ── */
     function updateCharCount(el, counterId, max) {
       document.getElementById(counterId).textContent = `${el.value.length} / ${max}`;
     }
-
+ 
     /* ── Validate & submit ── */
     async function saveProduct() {
       clearErrors();
       let hasErr = false;
-
+ 
       const name   = document.getElementById("m-name").value.trim();
       const brand  = document.getElementById("m-brand").value;
       const cat    = document.getElementById("m-cat").value;
       const desc   = document.getElementById("m-desc").value.trim();
       const status = document.querySelector('input[name="status"]:checked')?.value || "ACTIVE";
-
+ 
       if (name.length < 3) { document.getElementById("fg-name").classList.add("has-error"); hasErr = true; }
       if (!brand)           { document.getElementById("fg-brand").classList.add("has-error"); hasErr = true; }
       if (!cat)             { document.getElementById("fg-cat").classList.add("has-error"); hasErr = true; }
       if (hasErr) return;
-
+ 
       // Must have at least one image across existing + new
       const hasAnyImage = croppedFiles.some(f => f !== null) || existingImages.some(u => u !== null);
       if (!hasAnyImage) {
         showToast("At least one product photo is required", false);
         return;
       }
-
+ 
       const formData = new FormData();
       formData.append("productName", name);
       formData.append("brand",       brand);
       formData.append("category",    cat);
       formData.append("description", desc);
       formData.append("status",      status);
-
+ 
       // Send new cropped files
       croppedFiles.forEach(file => { if (file) formData.append("images", file); });
-
+ 
       // Send existing image URLs that were NOT replaced or removed
       existingImages.forEach((url, i) => {
         if (url && !croppedFiles[i]) formData.append("existingImages", url);
       });
-
+ 
       const btn = document.querySelector(".btn-primary");
       btn.textContent = "Saving…";
       btn.disabled    = true;
-
+ 
       try {
-        const response = await fetch("/admin/edit-product/<%= product._id %>", { method: "POST", body: formData });
+        const response = await fetch(`/admin/edit-product/${productId}`, { method: "POST", body: formData });
         const result   = await response.json();
-
+ 
         if (result.success) {
           showToast(result.message || "Product updated successfully!");
           setTimeout(() => {
@@ -558,13 +565,13 @@
         btn.disabled    = false;
       }
     }
-
+ 
     function clearErrors() {
       ["fg-name", "fg-brand", "fg-cat"].forEach(id => {
         document.getElementById(id).classList.remove("has-error");
       });
     }
-
+ 
     /* ── Toast ── */
     function showToast(msg, isOk = true) {
       const t = document.getElementById("toast");
@@ -573,7 +580,7 @@
       t.style.display = "block";
       setTimeout(() => { t.style.display = "none"; }, 3000);
     }
-
+ 
     /* ── Sidebar (mobile) ── */
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("open");
@@ -583,11 +590,12 @@
       document.getElementById("sidebar").classList.remove("open");
       document.getElementById("sidebarBg").classList.remove("open");
     }
-
+ 
     /* ── Close crop modal on overlay click ── */
     document.getElementById("cropModal").addEventListener("click", function(e) {
       if (e.target === this) closeCropModal();
     });
   </script>
+ 
 </body>
 </html>

@@ -132,6 +132,8 @@ export const editProduct = async (req, res) => {
 
   } catch (error) {
     console.log(error);
+    console.log(error.message);
+    console.log(error.stack);
     return res.status(500).json({
       success: false,
       message: "Server error while updating product.",
@@ -143,9 +145,9 @@ export const loadEditProduct = async (req, res) => {
 
   try {
 
-    const { id } = req.params;
-
-    const product = await Product.findById(id);
+    const product = await Product.findById(req.params.id).populate('brand').populate('category');
+     const brands     = await Brand.find({ isDeleted: false, isListed: true });
+    const categories = await Category.find({ isDeleted: false, isListed: true });
 
     if (!product) {
 
@@ -153,7 +155,7 @@ export const loadEditProduct = async (req, res) => {
     }
 
     res.render("admin/adminProduct/edit-product", {
-      product
+      product, brands, categories
     });
 
   } catch (error) {

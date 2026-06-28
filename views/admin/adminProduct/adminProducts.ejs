@@ -1,18 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"/>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Helmet Haven – Products</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    #cropModal { z-index: 99999; }
-    .cropper-container { z-index: 999999 !important; }
 
     :root {
       --bg: #0d0f14;
@@ -54,7 +48,7 @@
     .topbar-left { display: flex; align-items: center; gap: 14px; }
     .hamburger { display: none; background: none; border: none; color: var(--text); cursor: pointer; font-size: 20px; padding: 4px; }
     .page-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
-    .btn-primary { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; white-space: nowrap; }
+    .btn-primary { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; }
     .btn-primary:hover { background: var(--accent2); }
     .btn-primary:active { transform: scale(0.97); }
 
@@ -69,8 +63,6 @@
     .field-group input::placeholder { color: var(--muted); }
     .field-group input:focus, .field-group select:focus { border-color: var(--accent); }
     .field-group select option { background: var(--surface); }
-    .btn-filter { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px 22px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; white-space: nowrap; height: 42px; }
-    .btn-filter:hover { background: rgba(59,110,245,0.15); border-color: var(--accent); }
 
     /* TABLE */
     .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
@@ -91,19 +83,17 @@
     .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
     .btn-variants { background: var(--accent); color: #fff; border: none; border-radius: 7px; padding: 7px 15px; font-family: var(--font-body); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: background 0.2s; white-space: nowrap; }
     .btn-variants:hover { background: var(--accent2); }
-    .btn-icon { width: 34px; height: 34px; border: 1px solid var(--border); background: var(--surface); border-radius: 7px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: background 0.2s, border-color 0.2s; color: var(--muted); }
+    .btn-icon { width: 34px; height: 34px; border: 1px solid var(--border); background: var(--surface); border-radius: 7px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; transition: background 0.2s, border-color 0.2s; color: var(--muted); text-decoration: none; }
     .btn-icon:hover { background: rgba(255,255,255,0.08); border-color: var(--muted); color: var(--text); }
     .btn-icon.edit:hover { border-color: var(--accent); color: var(--accent2); }
     .btn-icon.del:hover { border-color: var(--red); color: var(--red); }
 
+    /* EMPTY STATE */
+    .empty-row td { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
+
     /* PAGINATION */
     .table-footer { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
     .results-count { font-size: 13px; color: var(--muted); }
-    .pagination { display: flex; gap: 6px; align-items: center; }
-    .pg-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 7px; padding: 7px 14px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-    .pg-btn:hover { background: rgba(59,110,245,0.15); border-color: var(--accent); }
-    .pg-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .pg-btn:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
 
     /* MODAL */
     .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
@@ -111,11 +101,6 @@
     .modal { background: var(--card); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 520px; padding: 28px; position: relative; animation: fadeUp 0.25s ease; }
     @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .modal-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; margin-bottom: 20px; }
-    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .modal-grid .full { grid-column: 1 / -1; }
-    .error-msg { display: none; color: var(--red); font-size: 11px; margin-top: 4px; }
-    .field-group.has-error input, .field-group.has-error select { border-color: var(--red); }
-    .field-group.has-error .error-msg { display: block; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
     .btn-cancel { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; }
     .btn-cancel:hover { background: rgba(255,255,255,0.06); }
@@ -127,12 +112,33 @@
     #toast.error { background: var(--red); }
     @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* RESPONSIVE */
+    /* SIDEBAR OVERLAY BG */
     .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
 
+    /* VARIANTS */
+    .variant-content { margin-top: 10px; }
+    .variant-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .variant-header h2 { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--text); }
+    .variant-table { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; }
+    .variant-table thead { background: var(--surface); }
+    .variant-table th { padding: 14px 18px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .variant-table td { padding: 18px; border-top: 1px solid var(--border); font-size: 14px; }
+    .variant-table tbody tr { transition: .2s; }
+    .variant-table tbody tr:hover { background: rgba(255,255,255,.03); }
+    .add-variant-form { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
+    .add-variant-form select, .add-variant-form input { width: 100%; height: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; color: var(--text); font-size: 14px; outline: none; transition: .2s; }
+    .add-variant-form input::placeholder { color: var(--muted); }
+    .add-variant-form select:focus, .add-variant-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,110,245,.12); }
+    .add-variant-form button { height: 44px; padding: 0 22px; border: none; border-radius: 10px; background: var(--accent); color: white; font-size: 14px; font-weight: 700; cursor: pointer; transition: .2s; }
+    .add-variant-form button:hover { background: var(--accent2); transform: translateY(-1px); }
+    .variant-table .actions { display: flex; gap: 8px; }
+    .variant-table .btn-icon { width: 34px; height: 34px; border-radius: 8px; }
+
+    /* RESPONSIVE */
     @media (max-width: 900px) {
       .filter-card { grid-template-columns: 1fr 1fr; }
-      th:nth-child(2), td:nth-child(2) { display: none; }
+      th:nth-child(3), td:nth-child(3),
+      th:nth-child(4), td:nth-child(4) { display: none; }
     }
     @media (max-width: 700px) {
       :root { --sidebar-w: 0px; }
@@ -143,48 +149,12 @@
       .hamburger { display: block; }
       .filter-card { grid-template-columns: 1fr; }
       .content { padding: 16px; }
-      th:nth-child(3), td:nth-child(3) { display: none; }
-      .modal-grid { grid-template-columns: 1fr; }
+      .add-variant-form { grid-template-columns: 1fr; }
+      .add-variant-form button { width: 100%; }
     }
     @media (max-width: 480px) {
       th:nth-child(5), td:nth-child(5) { display: none; }
       .btn-variants { font-size: 11px; padding: 6px 10px; }
-    }
-
-    /* PHOTO SLOTS */
-    .photo-slot { position: relative; border: 2px dashed var(--border); border-radius: 10px; aspect-ratio: 1; cursor: pointer; overflow: hidden; transition: border-color 0.2s, background 0.2s; background: var(--surface); }
-    .photo-slot:hover { border-color: var(--accent); background: rgba(59,110,245,0.06); }
-    .photo-preview { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 12px; color: var(--muted); font-weight: 500; }
-    .photo-preview img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
-    .photo-remove { display: none; position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.65); color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; cursor: pointer; align-items: center; justify-content: center; z-index: 2; line-height: 1; }
-    .photo-slot.has-photo .photo-remove { display: flex; }
-    .photo-slot.has-photo { border-style: solid; border-color: var(--accent); }
-    .cropper-container { z-index: 9999 !important; }
-
-    /* VARIANTS */
-    .variant-content { margin-top: 10px; }
-    .variant-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .variant-header h2 { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--text); }
-    .variant-table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 12px; }
-    .variant-table thead { background: var(--surface); }
-    .variant-table th { padding: 14px 18px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-    .variant-table td { padding: 18px; border-top: 1px solid var(--border); font-size: 14px; }
-    .variant-table tbody tr { transition: .2s; }
-    .variant-table tbody tr:hover { background: rgba(255,255,255,.03); }
-
-    .add-variant-form { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; }
-    .add-variant-form select, .add-variant-form input { width: 100%; height: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0 14px; color: var(--text); font-size: 14px; outline: none; transition: .2s; }
-    .add-variant-form input::placeholder { color: var(--muted); }
-    .add-variant-form select:focus, .add-variant-form input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,110,245,.12); }
-    .add-variant-form button { height: 44px; padding: 0 22px; border: none; border-radius: 10px; background: var(--accent); color: white; font-size: 14px; font-weight: 700; cursor: pointer; transition: .2s; }
-    .add-variant-form button:hover { background: var(--accent2); transform: translateY(-1px); }
-    .add-variant-form button:active { transform: scale(.98); }
-    .variant-table .actions { display: flex; gap: 8px; }
-    .variant-table .btn-icon { width: 34px; height: 34px; border-radius: 8px; }
-
-    @media(max-width:700px) {
-      .add-variant-form { grid-template-columns: 1fr; }
-      .add-variant-form button { width: 100%; }
     }
   </style>
 </head>
@@ -199,11 +169,11 @@
       <span class="logo-text">Helmet Haven</span>
     </div>
     <nav class="nav">
-      <a class="nav-item" href="#">
+      <a class="nav-item" href="/admin/adminDashboard">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         Dashboard
       </a>
-      <a class="nav-item active" href="/admin/adminDashboard">
+      <a class="nav-item active" href="/admin/products">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         Products
       </a>
@@ -257,24 +227,23 @@
         <button class="hamburger" onclick="toggleSidebar()">☰</button>
         <h1 class="page-title">Products</h1>
       </div>
-     <button onclick="location.href='/admin/add-product'">
-    Add New Product
-</button>
+      <a href="/admin/add-product" class="btn-primary">+ Add New Product</a>
     </header>
 
     <div class="content">
+
       <!-- Filter -->
       <div class="filter-card">
         <div class="field-group">
           <label>Search</label>
-          <input type="text" id="searchInput" placeholder="Search products..."/>
+          <input type="text" id="searchInput" placeholder="Search products..." value="<%= typeof search !== 'undefined' ? search : '' %>"/>
         </div>
         <div class="field-group">
           <label>Category</label>
           <select id="catFilter" onchange="filterTable()">
             <option value="">All Categories</option>
             <% categories.forEach((category) => { %>
-              <option value="<%= category.name %>"><%= category.name %></option>
+              <option value="<%= category.name %>" <%= typeof selectedCategory !== 'undefined' && selectedCategory === category.name ? 'selected' : '' %>><%= category.name %></option>
             <% }) %>
           </select>
         </div>
@@ -283,7 +252,7 @@
           <select id="brandFilter" onchange="filterTable()">
             <option value="">All Brands</option>
             <% brands.forEach((brand) => { %>
-              <option value="<%= brand.name %>"><%= brand.name %></option>
+              <option value="<%= brand.name %>" <%= typeof selectedBrand !== 'undefined' && selectedBrand === brand.name ? 'selected' : '' %>><%= brand.name %></option>
             <% }) %>
           </select>
         </div>
@@ -291,15 +260,15 @@
           <label>Status</label>
           <select id="statusFilter" onchange="filterTable()">
             <option value="">All Status</option>
-            <option>ACTIVE</option>
-            <option>INACTIVE</option>
+            <option <%= typeof selectedStatus !== 'undefined' && selectedStatus === 'ACTIVE'   ? 'selected' : '' %>>ACTIVE</option>
+            <option <%= typeof selectedStatus !== 'undefined' && selectedStatus === 'INACTIVE' ? 'selected' : '' %>>INACTIVE</option>
           </select>
         </div>
       </div>
 
-      <!-- Table -->
+      <!-- Table — rendered by EJS, no JS render() -->
       <div class="table-wrap">
-        <table id="productTable">
+        <table>
           <thead>
             <tr>
               <th>Preview</th>
@@ -308,114 +277,53 @@
               <th>Category</th>
               <th>Status</th>
               <th>Actions</th>
-              
             </tr>
           </thead>
-          <tbody id="tableBody"></tbody>
+          <tbody>
+            <% if (products.length === 0) { %>
+              <tr class="empty-row">
+                <td colspan="6">No products found.</td>
+              </tr>
+            <% } else { %>
+              <% products.forEach((p) => { %>
+                <% const status = (p.isBlocked || p.isDeleted) ? 'INACTIVE' : 'ACTIVE'; %>
+                <tr>
+                  <td>
+                    <img
+                      src="<%= p.productImage && p.productImage[0] ? (p.productImage[0].url || p.productImage[0]) : '/images/no-image.png' %>"
+                      alt="product"
+                      style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border);"
+                    />
+                  </td>
+                  <td>
+                    <span class="product-name"><%= p.productName || 'N/A' %></span>
+                    <span class="product-sku">ID: <%= p._id %></span>
+                  </td>
+                  <td><%= p.brand ? p.brand.name : 'N/A' %></td>
+                  <td><%= p.category ? p.category.name : 'N/A' %></td>
+                  <td>
+                    <span class="badge badge-<%= status === 'ACTIVE' ? 'active' : 'inactive' %>">
+                      <%= status %>
+                    </span>
+                  </td>
+                  <td>
+                    <div class="actions">
+                      <button class="btn-variants" onclick="openVariantsModal('<%= p._id %>')">VARIANTS</button>
+                      <!-- Navigate directly to edit page -->
+                      <a href="/admin/edit-product/<%= p._id %>" class="btn-icon edit" title="Edit">✏️</a>
+                      <button class="btn-icon del" title="Delete" onclick="deleteProduct('<%= p._id %>')">🗑️</button>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } %>
+          </tbody>
         </table>
         <div class="table-footer">
-          <span class="results-count" id="resultsCount">Showing 0 of 0 results</span>
-          <div class="pagination" id="pagination"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ADD / EDIT MODAL -->
-  <div class="overlay" id="productModal">
-    <div class="modal">
-      <button onclick="location.href='/admin/add-product'">
-    Add New Product
-</button>
-      <div class="modal-grid">
-        <div class="field-group full" id="fg-name">
-          <label>Product Name *</label>
-          <input type="text" id="m-name" placeholder="e.g. Arai Corsair-X Ghost"/>
-          <span class="error-msg">Product name is required (min 3 characters).</span>
-        </div>
-        <div class="field-group" id="fg-brand">
-          <label>Brand *</label>
-          <select id="m-brand">
-            <option value="">Select brand</option>
-            <% brands.forEach((brand) => { %>
-              <option value="<%= brand._id %>"><%= brand.name %></option>
-            <% }) %>
-          </select>
-          <span class="error-msg">Please select a brand.</span>
-        </div>
-        <div class="field-group" id="fg-cat">
-          <label>Category *</label>
-          <select id="m-cat">
-            <option value="">Select category</option>
-            <% categories.forEach((category) => { %>
-              <option value="<%= category._id %>"><%= category.name %></option>
-            <% }) %>
-          </select>
-          <span class="error-msg">Please select a category.</span>
-        </div>
-        <div class="field-group full" id="fg-status">
-          <label>Status *</label>
-          <select id="m-status">
-            <option value="">Select status</option>
-            <option>ACTIVE</option>
-            <option>INACTIVE</option>
-          </select>
-          <span class="error-msg">Please select a status.</span>
-        </div>
-        <div class="field-group full">
-          <label>Description</label>
-          <textarea id="m-desc" placeholder="Enter product description..." rows="4"
-            style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font-body);font-size:14px;outline:none;resize:vertical;width:100%;transition:border-color 0.2s;min-height:90px;"></textarea>
+          <span class="results-count">Showing <%= products.length %> result<%= products.length !== 1 ? 's' : '' %></span>
         </div>
       </div>
 
-      <!-- Product Photos -->
-      <div style="margin-top:18px">
-        <label style="font-size:11px;font-weight:600;letter-spacing:0.07em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:10px;">
-          Product Photos (up to 3)
-        </label>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
-
-          <!-- PHOTO 1 -->
-          <div class="photo-slot">
-            <input type="file" id="photo-input-0" name="images" accept="image/*" hidden onchange="previewPhoto(this, 0)"/>
-            <div class="photo-preview" id="photo-preview-0" onclick="openFilePicker(0)"><span>Photo 1</span></div>
-            <button type="button" class="photo-remove" id="photo-remove-0" onclick="removePhoto(event, 0)">✕</button>
-          </div>
-
-          <!-- PHOTO 2 -->
-          <div class="photo-slot">
-            <input type="file" id="photo-input-1" name="images" accept="image/*" hidden onchange="previewPhoto(this, 1)"/>
-            <div class="photo-preview" id="photo-preview-1" onclick="openFilePicker(1)"><span>Photo 2</span></div>
-            <button type="button" class="photo-remove" id="photo-remove-1" onclick="removePhoto(event, 1)">✕</button>
-          </div>
-
-          <!-- PHOTO 3 -->
-          <div class="photo-slot">
-            <input type="file" id="photo-input-2" name="images" accept="image/*" hidden onchange="previewPhoto(this, 2)"/>
-            <div class="photo-preview" id="photo-preview-2" onclick="openFilePicker(2)"><span>Photo 3</span></div>
-            <button type="button" class="photo-remove" id="photo-remove-2" onclick="removePhoto(event, 2)">✕</button>
-          </div>
-
-        </div>
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-        <button class="btn-primary" onclick="saveProduct()">Save Product</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- CROP MODAL -->
-  <div class="overlay" id="cropModal">
-    <div class="modal" style="max-width:700px">
-      <h2 class="modal-title">Crop Image</h2>
-      <img id="cropImage" style="width:100%"/>
-      <div class="modal-actions">
-        <button class="btn-cancel" onclick="closeCropModal()">Cancel</button>
-        <button class="btn-primary" onclick="cropCurrentImage()">Crop & Save</button>
-      </div>
     </div>
   </div>
 
@@ -423,27 +331,31 @@
   <div class="overlay" id="variantsModal">
     <div class="modal" style="max-width:680px">
       <button class="modal-close" onclick="document.getElementById('variantsModal').classList.remove('open')">✕</button>
-      <div class="variant-modal" id="variantModal">
-        <div class="variant-content">
-          <div class="variant-header">
-            <h2 id="variantsTitle"></h2>
-          </div>
-          <table class="variant-table">
-            <thead>
-              <tr>
-                <th>SIZE</th><th>STOCK</th><th>PRICE</th><th>STATUS</th><th>ACTION</th>
-              </tr>
-            </thead>
-            <tbody id="variantsBody"></tbody>
-          </table>
-          <div class="add-variant-form" id="variantFormRow">
-  <select id="v-size"><option value="">Select Size</option><option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option></select>
-  <input type="number" id="v-stock" placeholder="Stock"/>
-  <input type="number" id="v-price" placeholder="Price"/>
-  <button id="variantSubmitBtn" onclick="submitVariantForm()">+ Add</button>
-</div>
-<button id="cancelEditBtn" onclick="cancelEditVariant()" style="display:none;margin-top:10px;width:100%;height:38px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;">✕ Cancel Edit</button>
+      <div class="variant-content">
+        <div class="variant-header">
+          <h2 id="variantsTitle"></h2>
         </div>
+        <table class="variant-table">
+          <thead>
+            <tr>
+              <th>SIZE</th><th>STOCK</th><th>PRICE</th><th>STATUS</th><th>ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="variantsBody"></tbody>
+        </table>
+        <div class="add-variant-form">
+          <select id="v-size">
+            <option value="">Select Size</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+          </select>
+          <input type="number" id="v-stock" placeholder="Stock"/>
+          <input type="number" id="v-price" placeholder="Price"/>
+          <button id="variantSubmitBtn" onclick="submitVariantForm()">+ Add</button>
+        </div>
+        <button id="cancelEditBtn" onclick="cancelEditVariant()" style="display:none;margin-top:10px;width:100%;height:38px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;">✕ Cancel Edit</button>
       </div>
     </div>
   </div>
@@ -465,300 +377,44 @@
   <div id="toast"></div>
 
   <script>
-    
-    let products = <%- JSON.stringify(products) %>;
-    let filteredProducts = [...products];
-    let currentPage = 1;
-    const perPage = 8;
-    let editingId = null;
-    let deletingId = null;
+    /* products data still needed for the variants modal */
+    const products = <%- JSON.stringify(products) %>;
     let variantProductId = null;
+    let deletingId       = null;
 
-    
-    let croppedFiles   = [null, null, null];
-    let existingImages = [null, null, null];
+    /* ── Filter — reloads the page with query params ── */
+    function filterTable() {
+      const q      = document.getElementById("searchInput").value.trim();
+      const cat    = document.getElementById("catFilter").value;
+      const brand  = document.getElementById("brandFilter").value;
+      const status = document.getElementById("statusFilter").value;
 
-    let cropper = null;
-    let currentInputIndex = null;
+      const params = new URLSearchParams();
+      if (q)      params.set("search",   q);
+      if (cat)    params.set("category", cat);
+      if (brand)  params.set("brand",    brand);
+      if (status) params.set("status",   status);
 
-   
-    function render() {
-      const start = (currentPage - 1) * perPage;
-      const slice = filteredProducts.slice(start, start + perPage);
-      const tbody = document.getElementById("tableBody");
-      tbody.innerHTML = "";
-
-      if (slice.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--muted);">No products found.</td></tr>`;
-      } else {
-        slice.forEach((p) => {
-          const status = p.isBlocked || p.isDeleted ? "INACTIVE" : "ACTIVE";
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>
-              <img src="${p.productImage?.[0]?.url || p.productImage?.[0] || '/images/no-image.png'}"
-                alt="product"
-                style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border);"/>
-            </td>
-            <td>
-              <span class="product-name">${escHtml(p.productName || "N/A")}</span>
-              <span class="product-sku">ID: ${escHtml(p._id)}</span>
-            </td>
-            <td>${escHtml(p.brand?.name || "N/A")}</td>
-            <td>${escHtml(p.category?.name || "N/A")}</td>
-            <td><span class="badge badge-${status === "ACTIVE" ? "active" : "inactive"}">${status}</span></td>
-            <td>
-              <div class="actions">
-                <button class="btn-variants" onclick="openVariantsModal('${p._id}')">VARIANTS</button>
-                <button class="btn-icon edit" title="Edit" onclick="openEditModal('${p._id}')">✏️</button>
-                <button class="btn-icon del" title="Delete" onclick="deleteProduct('${p._id}')">🗑️</button>
-              </div>
-            </td>`;
-          tbody.appendChild(tr);
-        });
-      }
-
-      renderPagination();
-      document.getElementById("resultsCount").textContent =
-        `Showing ${Math.min(start + slice.length, filteredProducts.length)} of ${filteredProducts.length} results`;
+      window.location.href = `/admin/products?${params.toString()}`;
     }
 
-    function renderPagination() {
-      const total = Math.ceil(filteredProducts.length / perPage);
-      const pg = document.getElementById("pagination");
-      pg.innerHTML = "";
-
-      const prev = document.createElement("button");
-      prev.className = "pg-btn";
-      prev.textContent = "Previous";
-      if (currentPage === 1) prev.disabled = true;
-      prev.onclick = () => { currentPage--; render(); };
-      pg.appendChild(prev);
-
-      for (let i = 1; i <= total; i++) {
-        const b = document.createElement("button");
-        b.className = "pg-btn" + (i === currentPage ? " active" : "");
-        b.textContent = i;
-        b.onclick = (function(p) { return () => { currentPage = p; render(); }; })(i);
-        pg.appendChild(b);
-      }
-
-      const next = document.createElement("button");
-      next.className = "pg-btn";
-      next.textContent = "Next";
-      if (currentPage === total || total === 0) next.disabled = true;
-      next.onclick = () => { currentPage++; render(); };
-      pg.appendChild(next);
-    }
-
-    
-   // Replace the existing filterTable() function
-async function filterTable() {
-  const q      = document.getElementById("searchInput").value.trim();
-  const cat    = document.getElementById("catFilter").value;
-  const brand  = document.getElementById("brandFilter").value;
-  const status = document.getElementById("statusFilter").value;
-
-  const params = new URLSearchParams();
-  if (q)      params.set("search",   q);
-  if (cat)    params.set("category", cat);
-  if (brand)  params.set("brand",    brand);
-  if (status) params.set("status",   status);
-
-  try {
-    const res  = await fetch(`/admin/products?${params.toString()}`, {
-      headers: { "X-Requested-With": "XMLHttpRequest" }
+    let searchDebounce;
+    document.getElementById("searchInput").addEventListener("input", () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(filterTable, 400);
     });
-    const data = await res.json();
 
-    if (data.success) {
-      products         = data.products;   
-      filteredProducts = [...products];  
-      currentPage      = 1;
-      render();
-    }
-  } catch (err) {
-    console.error("Filter request failed:", err);
-    showToast("Failed to fetch products", false);
-  }
-}
-
-let searchDebounce;
-document.getElementById("searchInput").addEventListener("input", () => {
-  clearTimeout(searchDebounce);
-  searchDebounce = setTimeout(filterTable, 350);
-});
-   
-    function openAddModal() {
-      editingId = null;
-      document.getElementById("modalTitle").textContent = "Add New Product";
-      clearErrors();
-
-      document.getElementById("m-name").value   = "";
-      document.getElementById("m-brand").value  = "";
-      document.getElementById("m-cat").value    = "";
-      document.getElementById("m-desc").value   = "";
-      document.getElementById("m-status").value = "";
-
-      
-      croppedFiles   = [null, null, null];
-      existingImages = [null, null, null];
-
-      for (let i = 0; i < 3; i++) removePhoto(null, i);
-
-      document.getElementById("productModal").classList.add("open");
-    }
-
-   
-    function openEditModal(id) {
-      editingId = id;
-      document.getElementById("modalTitle").textContent = "Edit Product";
-      clearErrors();
-
-      const p = products.find((x) => x._id === id);
-      if (!p) return;
-
-      document.getElementById("m-name").value   = p.productName   || "";
-      document.getElementById("m-brand").value  = p.brand?._id   || "";
-      document.getElementById("m-cat").value    = p.category?._id || "";
-      document.getElementById("m-desc").value   = p.description   || "";
-
-      const currentStatus = p.isBlocked || p.isDeleted ? "INACTIVE" : "ACTIVE";
-      document.getElementById("m-status").value = currentStatus;
-
-      
-      existingImages = [null, null, null];
-      croppedFiles   = [null, null, null];
-
-      const images = p.productImage || [];
-      images.slice(0, 3).forEach((imgPath, i) => {
-        const url = imgPath?.url || imgPath || null;
-        if (!url) return;
-
-        
-        existingImages[i] = url;
-
-        const preview = document.getElementById(`photo-preview-${i}`);
-        preview.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;"/>`;
-        document.getElementById(`photo-input-${i}`).parentElement.classList.add("has-photo");
-      });
-
-      document.getElementById("productModal").classList.add("open");
-    }
-
-    function openFilePicker(index) {
-      document.getElementById(`photo-input-${index}`).click();
-    }
-
-    function closeModal() {
-      document.getElementById("productModal").classList.remove("open");
-      clearModal();
-    }
-
-    function clearModal() {
-      ["m-name", "m-brand", "m-cat", "m-status"].forEach((id) => {
-        document.getElementById(id).value = "";
-      });
-      document.getElementById("m-desc").value = "";
-     
-      croppedFiles   = [null, null, null];
-      existingImages = [null, null, null];
-      for (let i = 0; i < 3; i++) removePhoto(null, i);
-      clearErrors();
-    }
-
-    function clearErrors() {
-      ["fg-name", "fg-brand", "fg-cat", "fg-status"].forEach((id) => {
-        document.getElementById(id).classList.remove("has-error");
-      });
-    }
-
-    
-    async function saveProduct() {
-      clearErrors();
-      let hasErr = false;
-
-      const name   = document.getElementById("m-name").value.trim();
-      const brand  = document.getElementById("m-brand").value;
-      const cat    = document.getElementById("m-cat").value;
-      const desc   = document.getElementById("m-desc").value.trim();
-      const status = document.getElementById("m-status").value;
-
-      if (name.length < 3)  { document.getElementById("fg-name").classList.add("has-error");   hasErr = true; }
-      if (!brand)            { document.getElementById("fg-brand").classList.add("has-error");  hasErr = true; }
-      if (!cat)              { document.getElementById("fg-cat").classList.add("has-error");    hasErr = true; }
-      if (!status)           { document.getElementById("fg-status").classList.add("has-error"); hasErr = true; }
-      if (hasErr) return;
-
-      const formData = new FormData();
-      formData.append("productName",  name);
-      formData.append("brand",        brand);
-      formData.append("category",     cat);
-      formData.append("description",  desc);
-      formData.append("status",       status);
-
-      const uploadedImages = croppedFiles.filter(file => file !== null);
-
-      if (!editingId && uploadedImages.length < 3) {
-        showToast("Minimum 3 product images required", false);
-        return;
-      }
-
-      if (editingId) {
-        
-        uploadedImages.forEach(file => formData.append("images", file));
-
-       
-        existingImages.forEach((url, i) => {
-          if (url && !croppedFiles[i]) {
-            formData.append("existingImages", url);
-          }
-        });
-      } else {
-        uploadedImages.forEach(file => formData.append("images", file));
-      }
-
-      const targetUrl = editingId
-        ? `/admin/edit-product/${editingId}`
-        : "/admin/add-product";
-
-      try {
-        const response = await fetch(targetUrl, { method: "POST", body: formData });
-        const result   = await response.json();
-
-        if (result.success) {
-          showToast(result.message || "Product saved successfully!");
-          closeModal();
-          if (result.redirectUrl) {
-            window.location.href = result.redirectUrl;
-          } else {
-            window.location.reload();
-          }
-        } else {
-          showToast(result.message || "Error saving product.", true);
-        }
-      } catch (err) {
-        console.error(err);
-        showToast("Network request failed.", true);
-      }
-    }
-
-   
+    /* ── Variants modal ── */
     function openVariantsModal(id) {
       variantProductId = id;
-      const p = products.find((x) => x._id === id);
+      const p = products.find(x => x._id === id);
       if (!p) return;
 
       document.getElementById("variantsTitle").textContent = (p.productName || "Product") + " — Variants";
       document.getElementById("v-size").value  = "";
       document.getElementById("v-stock").value = "";
       document.getElementById("v-price").value = "";
-
-      ["vfg-size", "vfg-stock", "vfg-price"].forEach((i) => {
-        const el = document.getElementById(i);
-        if (el) el.classList.remove("has-error");
-      });
-
+      cancelEditVariant();
       renderVariantsTable(p);
       document.getElementById("variantsModal").classList.add("open");
     }
@@ -775,15 +431,15 @@ document.getElementById("searchInput").addEventListener("input", () => {
       p.variants.forEach((v, idx) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td><span style="font-weight:600;">${escHtml(v.size)}</span></td>
+          <td><span style="font-weight:600;">${v.size}</span></td>
           <td>${v.stock}</td>
           <td>₹${v.price.toLocaleString("en-IN")}</td>
           <td><span class="badge badge-${v.status === "ACTIVE" ? "active" : "inactive"}">${v.status}</span></td>
           <td>
             <div class="actions">
-              <button class="btn-icon edit" title="Edit Variant" onclick="openEditVariant(${idx})" style="font-size:13px;">✏️</button>
-    <button class="btn-icon edit" title="Toggle Status" onclick="toggleVariantStatus(${idx})" style="font-size:13px;">⇄</button>
-    <button class="btn-icon del" title="Delete Variant" onclick="deleteVariant(${idx})">🗑️</button>
+              <button class="btn-icon edit" title="Edit"          onclick="openEditVariant(${idx})" style="font-size:13px;">✏️</button>
+              <button class="btn-icon edit" title="Toggle Status" onclick="toggleVariantStatus(${idx})" style="font-size:13px;">⇄</button>
+              <button class="btn-icon del"  title="Delete"        onclick="deleteVariant(${idx})">🗑️</button>
             </div>
           </td>`;
         tbody.appendChild(tr);
@@ -795,185 +451,131 @@ document.getElementById("searchInput").addEventListener("input", () => {
       const stock = parseInt(document.getElementById("v-stock").value);
       const price = parseFloat(document.getElementById("v-price").value);
 
-      if (!size)                    { showToast("Select size",    false); return; }
-      if (isNaN(stock) || stock < 0){ showToast("Invalid stock",  false); return; }
+      if (!size)                     { showToast("Select size",   false); return; }
+      if (isNaN(stock) || stock < 0) { showToast("Invalid stock", false); return; }
       if (isNaN(price) || price <= 0){ showToast("Invalid price", false); return; }
 
       try {
-        const response = await fetch(`/admin/product/${variantProductId}/variant`, {
+        const res  = await fetch(`/admin/product/${variantProductId}/variant`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ size, stock, price })
         });
-        const data = await response.json();
-
+        const data = await res.json();
         if (!data.success) { showToast(data.message || "Failed to add variant", false); return; }
 
-        const p = products.find((x) => x._id === variantProductId);
+        const p = products.find(x => x._id === variantProductId);
         if (p) p.variants = data.variants;
-
         renderVariantsTable(p);
         document.getElementById("v-size").value  = "";
         document.getElementById("v-stock").value = "";
         document.getElementById("v-price").value = "";
         showToast("Variant added successfully");
-      } catch (error) {
-        console.log(error);
-        showToast("Server error", false);
-      }
+      } catch (e) { showToast("Server error", false); }
     }
 
     async function toggleVariantStatus(idx) {
-      const p       = products.find((x) => x._id === variantProductId);
+      const p       = products.find(x => x._id === variantProductId);
       const variant = p.variants[idx];
-      const response = await fetch(`/admin/product/${variantProductId}/variant/${variant._id}/status`, { method: "PATCH" });
-      const data     = await response.json();
-
-      if (data.success) {
-        p.variants[idx].status = data.status;
-        renderVariantsTable(p);
-        showToast("Status updated.");
-      } else {
-        showToast("Failed to update status", false);
-      }
+      const res     = await fetch(`/admin/product/${variantProductId}/variant/${variant._id}/status`, { method: "PATCH" });
+      const data    = await res.json();
+      if (data.success) { p.variants[idx].status = data.status; renderVariantsTable(p); showToast("Status updated."); }
+      else showToast("Failed to update status", false);
     }
 
     async function deleteVariant(idx) {
-      const p       = products.find((x) => x._id === variantProductId);
+      const p       = products.find(x => x._id === variantProductId);
       const variant = p.variants[idx];
-      const response = await fetch(`/admin/product/${variantProductId}/variant/${variant._id}`, { method: "DELETE" });
-      const data     = await response.json();
+      const res     = await fetch(`/admin/product/${variantProductId}/variant/${variant._id}`, { method: "DELETE" });
+      const data    = await res.json();
+      if (data.success) { p.variants.splice(idx, 1); renderVariantsTable(p); showToast("Variant removed."); }
+      else showToast(data.message || "Failed to delete variant", false);
+    }
 
-      if (data.success) {
-        p.variants.splice(idx, 1);
+    let editingVariantIdx = null;
+
+    function openEditVariant(idx) {
+      const p = products.find(x => x._id === variantProductId);
+      const v = p.variants[idx];
+      editingVariantIdx = idx;
+      document.getElementById("v-size").value  = v.size;
+      document.getElementById("v-stock").value = v.stock;
+      document.getElementById("v-price").value = v.price;
+      document.getElementById("variantSubmitBtn").textContent = "💾 Update";
+      document.getElementById("cancelEditBtn").style.display = "block";
+    }
+
+    function cancelEditVariant() {
+      editingVariantIdx = null;
+      document.getElementById("v-size").value  = "";
+      document.getElementById("v-stock").value = "";
+      document.getElementById("v-price").value = "";
+      document.getElementById("variantSubmitBtn").textContent = "+ Add";
+      document.getElementById("cancelEditBtn").style.display = "none";
+    }
+
+    async function submitVariantForm() {
+      editingVariantIdx !== null ? await updateVariant(editingVariantIdx) : await addVariant();
+    }
+
+    async function updateVariant(idx) {
+      const size  = document.getElementById("v-size").value;
+      const stock = parseInt(document.getElementById("v-stock").value);
+      const price = parseFloat(document.getElementById("v-price").value);
+
+      if (!size)                     { showToast("Select size",   false); return; }
+      if (isNaN(stock) || stock < 0) { showToast("Invalid stock", false); return; }
+      if (isNaN(price) || price <= 0){ showToast("Invalid price", false); return; }
+
+      const p       = products.find(x => x._id === variantProductId);
+      const variant = p.variants[idx];
+
+      try {
+        const res  = await fetch(`/admin/product/${variantProductId}/variant/${variant._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ size, stock, price })
+        });
+        const data = await res.json();
+        if (!data.success) { showToast(data.message || "Failed to update variant", false); return; }
+        p.variants[idx] = { ...variant, size, stock, price };
         renderVariantsTable(p);
-        showToast("Variant removed.");
-      } else {
-        showToast(data.message || "Failed to delete variant", false);
-      }
+        cancelEditVariant();
+        showToast("Variant updated successfully");
+      } catch (e) { showToast("Server error", false); }
     }
 
-   
-    async function deleteProduct(id) {
-      const response = await fetch(`/admin/delete-product/${id}`, { method: "PATCH" });
-      const data     = await response.json();
-
-      if (data.success) {
-        location.reload();
-      } else {
-        alert(data.message);
-      }
+    /* ── Delete product ── */
+    function deleteProduct(id) {
+      deletingId = id;
+      document.getElementById("deleteModal").classList.add("open");
     }
 
-    function confirmDelete() {
-      products   = products.filter((p) => p._id !== deletingId);
-      deletingId = null;
-      document.getElementById("deleteModal").classList.remove("open");
-      filterTable();
-      showToast("Product deleted.");
+    async function confirmDelete() {
+      if (!deletingId) return;
+      try {
+        const res  = await fetch(`/admin/delete-product/${deletingId}`, { method: "PATCH" });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("deleteModal").classList.remove("open");
+          showToast("Product deleted.");
+          setTimeout(() => location.reload(), 800);
+        } else {
+          showToast(data.message || "Failed to delete.", false);
+        }
+      } catch (e) { showToast("Server error.", false); }
     }
 
-   
-    function previewPhoto(input, index) {
-      if (!input.files || !input.files[0]) return;
-
-      const file         = input.files[0];
-      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
-      const maxSize      = 5 * 1024 * 1024;
-
-      if (!allowedTypes.includes(file.type)) {
-        showToast("Only JPG, PNG and WEBP images are allowed", false);
-        input.value = "";
-        return;
-      }
-      if (file.size > maxSize) {
-        showToast("Image size must be less than 5MB", false);
-        input.value = "";
-        return;
-      }
-
-      currentInputIndex = index;
-      const reader = new FileReader();
-
-      reader.onload = function(e) {
-        const cropImage = document.getElementById("cropImage");
-        if (cropper) { cropper.destroy(); cropper = null; }
-
-        cropImage.src = e.target.result;
-        cropImage.onload = function() {
-          document.getElementById("cropModal").classList.add("open");
-          cropper = new Cropper(cropImage, {
-            aspectRatio: 1,
-            viewMode: 1,
-            autoCropArea: 1,
-            responsive: true,
-            background: false
-          });
-        };
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function cropCurrentImage() {
-      if (!cropper) { showToast("Cropper not initialized", false); return; }
-
-      const canvas = cropper.getCroppedCanvas({ width: 800, height: 800, imageSmoothingEnabled: true, imageSmoothingQuality: "high" });
-      if (!canvas) { showToast("Failed to crop image", false); return; }
-
-      canvas.toBlob(function(blob) {
-        if (!blob) { showToast("Blob creation failed", false); return; }
-
-        const croppedFile = new File([blob], `cropped-${Date.now()}.jpg`, { type: "image/jpeg" });
-
-       
-        croppedFiles[currentInputIndex] = croppedFile;
-
-        const preview = document.getElementById(`photo-preview-${currentInputIndex}`);
-        preview.innerHTML = `<img src="${URL.createObjectURL(blob)}" style="width:100%;height:100%;object-fit:cover;"/>`;
-
-        document.getElementById(`photo-input-${currentInputIndex}`).parentElement.classList.add("has-photo");
-        closeCropModal();
-        showToast("Image cropped successfully");
-      }, "image/jpeg", 0.9);
-    }
-
-    function closeCropModal() {
-      document.getElementById("cropModal").classList.remove("open");
-      if (cropper) { cropper.destroy(); cropper = null; }
-    }
-
-    function removePhoto(event, index) {
-      if (event) event.stopPropagation();
-
-     
-      croppedFiles[index]   = null;
-      existingImages[index] = null;
-
-      const input = document.getElementById(`photo-input-${index}`);
-      input.value = "";
-
-      const preview = document.getElementById(`photo-preview-${index}`);
-      preview.innerHTML = `
-        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color:var(--muted)">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <circle cx="8.5" cy="8.5" r="1.5"/>
-          <polyline points="21 15 16 10 5 21"/>
-        </svg>
-        <span>Photo ${index + 1}</span>`;
-
-      input.parentElement.classList.remove("has-photo");
-    }
-
-   
+    /* ── Toast ── */
     function showToast(msg, isOk = true) {
-      const t      = document.getElementById("toast");
-      t.textContent = msg;
-      t.className  = isOk ? "" : "error";
+      const t = document.getElementById("toast");
+      t.textContent   = msg;
+      t.className     = isOk ? "" : "error";
       t.style.display = "block";
       setTimeout(() => { t.style.display = "none"; }, 3000);
     }
 
-   
+    /* ── Sidebar ── */
     function toggleSidebar() {
       document.getElementById("sidebar").classList.toggle("open");
       document.getElementById("sidebarBg").classList.toggle("open");
@@ -983,86 +585,10 @@ document.getElementById("searchInput").addEventListener("input", () => {
       document.getElementById("sidebarBg").classList.remove("open");
     }
 
-  
-    function escHtml(str) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-    }
-
-    
-    document.querySelectorAll(".overlay").forEach((ov) => {
-      ov.addEventListener("click", (e) => {
-        if (e.target === ov) ov.classList.remove("open");
-      });
+    /* ── Close modals on backdrop click ── */
+    document.querySelectorAll(".overlay").forEach(ov => {
+      ov.addEventListener("click", e => { if (e.target === ov) ov.classList.remove("open"); });
     });
-
-    let editingVariantIdx = null;
-
-function openEditVariant(idx) {
-  const p = products.find(x => x._id === variantProductId);
-  const v = p.variants[idx];
-  editingVariantIdx = idx;
-
-  document.getElementById("v-size").value  = v.size;
-  document.getElementById("v-stock").value = v.stock;
-  document.getElementById("v-price").value = v.price;
-  document.getElementById("variantSubmitBtn").textContent = "💾 Update";
-  document.getElementById("cancelEditBtn").style.display = "block";
-}
-
-function cancelEditVariant() {
-  editingVariantIdx = null;
-  document.getElementById("v-size").value  = "";
-  document.getElementById("v-stock").value = "";
-  document.getElementById("v-price").value = "";
-  document.getElementById("variantSubmitBtn").textContent = "+ Add";
-  document.getElementById("cancelEditBtn").style.display = "none";
-}
-
-async function submitVariantForm() {
-  if (editingVariantIdx !== null) {
-    await updateVariant(editingVariantIdx);
-  } else {
-    await addVariant();
-  }
-}
-
-async function updateVariant(idx) {
-  const size  = document.getElementById("v-size").value;
-  const stock = parseInt(document.getElementById("v-stock").value);
-  const price = parseFloat(document.getElementById("v-price").value);
-
-  if (!size)                     { showToast("Select size",    false); return; }
-  if (isNaN(stock) || stock < 0) { showToast("Invalid stock",  false); return; }
-  if (isNaN(price) || price <= 0){ showToast("Invalid price",  false); return; }
-
-  const p       = products.find(x => x._id === variantProductId);
-  const variant = p.variants[idx];
-
-  try {
-    const response = await fetch(`/admin/product/${variantProductId}/variant/${variant._id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ size, stock, price })
-    });
-    const data = await response.json();
-
-    if (!data.success) { showToast(data.message || "Failed to update variant", false); return; }
-
-    p.variants[idx] = { ...variant, size, stock, price };
-    renderVariantsTable(p);
-    cancelEditVariant();
-    showToast("Variant updated successfully");
-  } catch (err) {
-    console.error(err);
-    showToast("Server error", false);
-  }
-}
-   
-    render();
   </script>
 </body>
 </html>
