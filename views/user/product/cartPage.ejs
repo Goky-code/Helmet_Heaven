@@ -436,71 +436,38 @@
         <% if (cart && cart.items && cart.items.length > 0) { %>
           <% cart.items.forEach((item, index) => { %>
             <%
-              const p       = item.productId;
-              if (!p) return;
-              const variant = p?.variants?.find(v => v.size === item.size);
-              const price   = variant?.price || 0;
-              const stock   = variant?.stock ?? 0;
-              const displayQty = stock === 0 ? 0 : item.quantity;
-            %>
-            <article class="cart-item"
-                     data-id="<%= p._id %>"
-                     data-size="<%= item.size %>"
-                     data-base-price="<%= price %>"
-                     style="animation-delay:<%= index * 0.07 %>s">
+              
+  const p = item.productId;
+  if (!p) return;
+  const isUnavailable = p.isBlocked || p.isDeleted;
+  const variant = p?.variants?.find(v => v.size === item.size);
+  const price   = variant?.price || 0;
+  const stock   = variant?.stock ?? 0;
+  const displayQty = (stock === 0 || isUnavailable) ? 0 : item.quantity;
+%>
+<article class="cart-item" data-id="<%= p._id %>" data-size="<%= item.size %>" data-base-price="<%= price %>" data-stock="<%= isUnavailable ? 0 : stock %>" style="animation-delay:<%= index * 0.07 %>s">
+  ...
+  <div class="item-info">
+    <div class="item-name"><%= p?.productName %></div>
+    <div class="item-meta">Brand: <strong><%= p?.brand?.name || '' %></strong></div>
+    <div class="item-meta">Size: <strong><%= item.size %></strong></div>
+    <% if (isUnavailable) { %>
+      <div style="font-size:.75rem; color:var(--danger); font-weight:600; margin-top:4px;">⚠ This product is currently unavailable</div>
+    <% } else if (stock === 0) { %>
+      <div style="font-size:.75rem; color:var(--danger); font-weight:600; margin-top:4px;">⚠ Out of Stock</div>
+    <% } %>
+  </div>
 
-              <% if (p?.productImage?.[0]) { %>
-                <img class="item-img" src="<%= p.productImage[0] %>" alt="<%= p.productName %>"/>
-              <% } else { %>
-                <div class="item-img-placeholder" aria-hidden="true">
-                  <svg width="48" height="48" fill="none" stroke="#3a4a63" stroke-width="1.2" viewBox="0 0 64 64">
-                    <ellipse cx="32" cy="28" rx="20" ry="18" stroke-linecap="round"/>
-                    <path d="M14 32c0 8.8 8.1 16 18 16s18-7.2 18-16" stroke-linecap="round"/>
-                  </svg>
-                </div>
-              <% } %>
-
-              <div class="item-info">
-                <div class="item-name"><%= p?.productName %></div>
-                <div class="item-meta">Brand: <strong><%= p?.brand?.name || '' %></strong></div>
-                <div class="item-meta">Size: <strong><%= item.size %></strong></div>
-                 <% if (stock === 0) { %>
-          <div style="font-size:.75rem; color:var(--danger); font-weight:600; margin-top:4px;">
-            ⚠ Out of Stock
-          </div>
-        <% } %>
-              </div>
-
-              <div class="item-right">
-                <div class="item-price" style="<%= stock === 0 ? 'color:var(--muted);text-decoration:line-through;' : '' %>">₹ <%= price.toLocaleString() %></div>
-
-                <div class="qty-controls" role="group" aria-label="Quantity">
-          <button class="qty-btn dec-btn"
-                  data-id="<%= p._id %>"
-                  data-size="<%= item.size %>"
-                  <%= stock === 0 ? 'disabled' : '' %>>−</button>
-
-          <div class="qty-value" id="qty-<%= p._id %>-<%= item.size %>">
-            <%= displayQty %>
-          </div>
-
-          <button class="qty-btn inc-btn"
-                  data-id="<%= p._id %>"
-                  data-size="<%= item.size %>"
-                  <%= stock === 0 ? 'disabled' : '' %>>+</button>
-        </div>
-
-        <button class="remove-btn"
-                data-id="<%= p._id %>"
-                data-size="<%= item.size %>">
-          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16"/>
-          </svg>
-          REMOVE
-        </button>
-
-      </div>
-    </article>
+  <div class="item-right">
+    <div class="item-price" style="<%= (stock === 0 || isUnavailable) ? 'color:var(--muted);text-decoration:line-through;' : '' %>">₹ <%= price.toLocaleString() %></div>
+    <div class="qty-controls" role="group" aria-label="Quantity">
+      <button class="qty-btn dec-btn" data-id="<%= p._id %>" data-size="<%= item.size %>" <%= (stock === 0 || isUnavailable) ? 'disabled' : '' %>>−</button>
+      <div class="qty-value" id="qty-<%= p._id %>-<%= item.size %>"><%= displayQty %></div>
+      <button class="qty-btn inc-btn" data-id="<%= p._id %>" data-size="<%= item.size %>" <%= (stock === 0 || isUnavailable) ? 'disabled' : '' %>>+</button>
+    </div>
+    <button class="remove-btn" data-id="<%= p._id %>" data-size="<%= item.size %>">Remove</button>
+  </div>
+</article>
   <% }) %>
 <% } %>
       </div>
@@ -522,20 +489,19 @@
     <aside aria-label="Order summary">
       <div class="order-summary">
         <div class="summary-title">Order Summary</div>
- <%
+<%
   let subtotal = 0;
   if (cart && cart.items && cart.items.length > 0) {
     cart.items.forEach(item => {
-      const variant = item.productId?.variants?.find(
-        v => v.size === item.size && v.status === "ACTIVE"
-      );
+      const p = item.productId;
+      if (!p || p.isBlocked || p.isDeleted) return;
+      const variant = p.variants?.find(v => v.size === item.size && v.status === "ACTIVE");
       const price = variant?.price || 0;
       const stock = variant?.stock ?? 0;
-      if (stock > 0) {
-        subtotal += price * item.quantity;
-      }
+      if (stock > 0) subtotal += price * item.quantity;
     });
   }
+
   const shipping = subtotal > 500 ? 0 : 99;
   const tax      = Math.round(subtotal * 0.08);
   const total    = subtotal + shipping + tax;

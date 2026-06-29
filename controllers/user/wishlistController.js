@@ -1,6 +1,6 @@
 import Wishlist from "../../models/wishlistModel.js";
 import Product from "../../models/productModel.js";
-
+import Cart from "../../models/cartModel.js";
 
 export const loadWishlist = async (req, res) => {
   try {
@@ -10,11 +10,39 @@ export const loadWishlist = async (req, res) => {
       "products.productId"
     );
 
+    if (wishlist) {
+      const before = wishlist.products.length;
+      wishlist.products = wishlist.products.filter(item => item.productId != null);
+      if (wishlist.products.length !== before) {
+        await wishlist.save();
+      }
+    }
+
+    const cartDoc = await Cart.findOne({ userId }).populate("items.productId");
+    const cartCount = cartDoc
+      ? cartDoc.items.reduce((sum, item) => {
+          const p = item.productId;
+          if (!p || p.isBlocked || p.isDeleted) return sum;
+          return sum + item.quantity;
+        }, 0)
+      : 0;
+
+    const wishlistCount = wishlist
+      ? wishlist.products.reduce((sum, item) => {
+          const p = item.productId;
+          if (!p || p.isBlocked || p.isDeleted) return sum;
+          return sum + 1;
+        }, 0)
+      : 0;
+
     res.render("user/wishlist", {
       wishlist: wishlist || { products: [] },
+      cartCount,
+      wishlistCount,
     });
   } catch (error) {
     console.log(error);
+    res.redirect("/user/homepage");
   }
 };
 
@@ -105,28 +133,24 @@ res.json({
 
 export const getWishlistCount = async (req, res) => {
   try {
-    const userId = req.session.user
+    const userId = req.session.user;
 
     if (!userId) {
-      return res.json({
-        success: true,
-        count: 0
-      });
+      return res.json({ success: true, count: 0 });
     }
 
-    const wishlist = await Wishlist.findOne({ userId });
+    const wishlist = await Wishlist.findOne({ userId }).populate("products.productId");
 
-   const count = wishlist ? wishlist.products.length : 0;
+    const count = wishlist
+      ? wishlist.products.reduce((sum, item) => {
+          const p = item.productId;
+          if (!p || p.isBlocked || p.isDeleted) return sum;
+          return sum + 1;
+        }, 0)
+      : 0;
 
-    res.json({
-      success: true,
-      count
-    });
-
+    res.json({ success: true, count });
   } catch (error) {
-    res.json({
-      success: false,
-      count: 0
-    });
+    res.json({ success: false, count: 0 });
   }
 };

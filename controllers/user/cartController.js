@@ -11,28 +11,30 @@ export const loadCart = async (req, res) => {
       .populate("items.productId");
 
      if (cart) {
-      const before = cart.items.length;
-
-     
+     const before = cart.items.length;
       cart.items = cart.items.filter(item => item.productId != null);
-
-      
-      cart.items = cart.items.filter(item => {
-        const p = item.productId;
-        return !p.isBlocked && !p.isDeleted;
-      });
-
-     
       if (cart.items.length !== before) {
         await cart.save();
       }
     }
 
     
-    const cartCount = cart
-      ? cart.items.reduce((sum, item) => sum + item.quantity, 0)
+     const cartCount = cart
+      ? cart.items.reduce((sum, item) => {
+          const p = item.productId;
+          if (!p || p.isBlocked || p.isDeleted) return sum;
+          return sum + item.quantity;
+        }, 0)
       : 0;
-    const wishlistCount = 0; 
+
+    const wishlistDoc = await Wishlist.findOne({ userId }).populate("products.productId");
+    const wishlistCount = wishlistDoc
+      ? wishlistDoc.products.reduce((sum, item) => {
+          const p = item.productId;
+          if (!p || p.isBlocked || p.isDeleted) return sum;
+          return sum + 1;
+        }, 0)
+      : 0;
 
     res.render("user/product/cartPage", {
       cart:           cart || { items: [] },

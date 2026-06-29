@@ -12,10 +12,9 @@ export const loadProductDetails = async (req, res) => {
       .populate("brand");
 
     if (!product)
-       return res.redirect("/shop");
+       return res.redirect("/shop")
 
-    if (product.isBlocked || product.isDeleted)
-       return res.redirect("/shop?msg=This+product+is+no+longer+available");
+const isUnavailable = product.isBlocked || product.isDeleted;
 
     const relatedProducts = await Product.find({
       _id: { $ne: productId },
@@ -39,6 +38,7 @@ export const loadProductDetails = async (req, res) => {
       product,
       relatedProducts,
       wishlistedSizes, 
+      isUnavailable,
     });
   } catch (error) {
     console.log(error);

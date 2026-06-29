@@ -30,7 +30,7 @@ export const loadCategory = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    res.render("admin/adminCategory", {
+    res.render("admin/admincategory/adminCategory", {
       categories,
       currentPage: page,
       totalPages,
@@ -44,6 +44,15 @@ export const loadCategory = async (req, res) => {
     res.redirect("/admin/pageerror");
   }
 };
+
+export const loadAddCategory=async(req,res)=>{
+  try{
+    res.render("admin/admincategory/add-category")
+  }catch(error){
+    console.log(error)
+    res.redirect("admin/pageerror")
+  }
+}
 
 export const addCategory = async (req, res) => {
   try {
@@ -95,6 +104,21 @@ export const addCategory = async (req, res) => {
     });
   }
 };
+
+export const loadEditCategory=async(req,res)=>{
+  try{
+    const{id}=req.params
+    const category=await Category.findById(id)
+
+    if(!category){
+      return res.redirect("admin/categories")
+    }
+    res.render("admin/admincategory/edit-category",{category})
+    }catch(error){
+      console.log(error)
+      res.redirect("admin/pageerror")
+    }
+}
 
 export const editCategory = async (req, res) => {
   try {

@@ -30,7 +30,7 @@ export const loadBrand = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    res.render("admin/adminBrand", {
+    res.render("admin/adminbrand/adminBrand", {
       brands,
       currentPage: page,
       totalPages,
@@ -47,7 +47,14 @@ export const loadBrand = async (req, res) => {
   }
 };
 
-
+export const loadAddBrand=async(req,res)=>{
+  try{
+    res.render("admin/adminbrand/add-brand")
+  }catch(error){
+    console.log(error)
+    res.redirect("admin/pageerror")
+  }
+}
 
 
 
@@ -85,6 +92,21 @@ export const addBrand = async (req, res) => {
   }
 };
 
+export const loadEditBrand=async(req,res)=>{
+  try{
+    const {id}=req.params
+    const brand=await Brand.findById(id)
+
+    if(!brand){
+       return res.redirect("admin/brands")
+    }
+    res.render("admin/adminbrand/edit-brand",{brand})
+    }catch(error){
+      console.log(error)
+      res.redirect("admin/pageerror")
+    }
+    }
+  
 
 
 
@@ -95,6 +117,7 @@ export const editBrand = async (req, res) => {
     const { id } = req.params;
 
     const { name, description, isListed } = req.body;
+    console.log(req.body);
 
     await Brand.findByIdAndUpdate(id, {
       name,
@@ -102,12 +125,17 @@ export const editBrand = async (req, res) => {
       isListed,
     });
 
-    res.json({
+   return res.json({
       success: true,
     });
 
   } catch (error) {
-    console.log(error);
+    console.log(error)
+    
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
 

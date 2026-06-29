@@ -536,82 +536,66 @@
     <% if (wishlist.products && wishlist.products.length > 0) { %>
      <% wishlist.products.forEach((item, i) => { %>
   <%
-    const p = item.productId;
-    if (!p) return;
+   
+  const p = item.productId;
+  if (!p) return;
 
-    
-    const matchVariant = p.variants
-      ? p.variants.find(v => v.size === item.size && v.status === 'ACTIVE')
-      : null;
+  const isUnavailable = p.isBlocked || p.isDeleted;
 
-    const displayPrice = matchVariant
-      ? matchVariant.price
-      : (p.variants && p.variants[0] ? p.variants[0].price : 0);
+  const matchVariant = p.variants
+    ? p.variants.find(v => v.size === item.size && v.status === 'ACTIVE')
+    : null;
 
-    const isOutOfStock = !matchVariant || matchVariant.stock <= 0;
-  %>
+  const displayPrice = matchVariant
+    ? matchVariant.price
+    : (p.variants && p.variants[0] ? p.variants[0].price : 0);
 
-  <div class="product-card"
-       data-product-id="<%= p._id %>"
-       data-size="<%= item.size || '' %>"
-       style="animation-delay:<%= i * 0.06 %>s">
+  const isOutOfStock = !matchVariant || matchVariant.stock <= 0;
+%>
 
-    <div class="card-img-wrap">
-      <img src="<%= p.productImage?.[0] || '/images/placeholder.jpg' %>"
-           alt="<%= p.productName %>"
-           onerror="this.src='/images/placeholder.jpg'"/>
+<div class="product-card" data-product-id="<%= p._id %>" data-size="<%= item.size || '' %>" style="animation-delay:<%= i * 0.06 %>s">
+  <div class="card-img-wrap">
+    <img src="<%= p.productImage?.[0] || '/images/placeholder.jpg' %>" alt="<%= p.productName %>" onerror="this.src='/images/placeholder.jpg'"/>
 
-      <!-- Out of stock overlay -->
-      <% if (isOutOfStock) { %>
-        <div style="
-          position: absolute; inset: 0;
-          background: rgba(0,0,0,.55);
-          display: flex; align-items: center; justify-content: center;
-        ">
-          <span style="
-            background: var(--red); color: #fff;
-            padding: 5px 14px; border-radius: 6px;
-            font-size: .78rem; font-weight: 700;
-            letter-spacing: .06em; text-transform: uppercase;
-          ">Out of Stock</span>
-        </div>
-      <% } %>
-    </div>
-
-    <div class="card-body">
-      <div class="card-name"><%= p.productName %></div>
-
-      <div class="card-price" style="<%= isOutOfStock ? 'color:var(--muted);text-decoration:line-through;' : '' %>">
-        ₹ <%= displayPrice ? displayPrice.toLocaleString() : '—' %>
+    <% if (isUnavailable) { %>
+      <div style="position:absolute; inset:0; background:rgba(0,0,0,.65); display:flex; align-items:center; justify-content:center;">
+        <span style="background:var(--red); color:#fff; padding:5px 14px; border-radius:6px; font-size:.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;">Unavailable</span>
       </div>
+    <% } else if (isOutOfStock) { %>
+      <div style="position:absolute; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center;">
+        <span style="background:var(--red); color:#fff; padding:5px 14px; border-radius:6px; font-size:.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase;">Out of Stock</span>
+      </div>
+    <% } %>
+  </div>
 
-      <% if (item.size) { %>
-        <div class="item-size-tag">Size: <strong><%= item.size %></strong></div>
-      <% } else { %>
-        <div class="size-missing-msg">⚠ Size missing — re-add from product page</div>
-      <% } %>
-
-      <!-- Disable Add to Cart if OOS -->
-      <button
-        class="btn-cart"
-        <%= (!item.size || isOutOfStock) ? 'disabled' : '' %>
-        onclick="addToCart('<%= p._id %>', '<%= item.size || '' %>')"
-      >
-        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h13"/>
-        </svg>
-        <%= isOutOfStock ? 'Out of Stock' : 'Add to Cart' %>
-      </button>
-
-      <button
-        class="btn-remove"
-        onclick="removeWishlist('<%= p._id %>', '<%= item.size || '' %>')"
-      >
-        Remove
-      </button>
+  <div class="card-body">
+    <div class="card-name"><%= p.productName %></div>
+    <div class="card-price" style="<%= (isUnavailable || isOutOfStock) ? 'color:var(--muted);text-decoration:line-through;' : '' %>">
+      ₹ <%= displayPrice ? displayPrice.toLocaleString() : '—' %>
     </div>
 
+    <% if (item.size) { %>
+      <div class="item-size-tag">Size: <strong><%= item.size %></strong></div>
+    <% } else { %>
+      <div class="size-missing-msg">⚠ Size missing — re-add from product page</div>
+    <% } %>
+
+    <% if (isUnavailable) { %>
+      <div style="font-size:.78rem; color:var(--red); font-weight:600; margin-top:2px;">This product is no longer available</div>
+    <% } %>
+
+    <button class="btn-cart"
+      <%= (!item.size || isOutOfStock || isUnavailable) ? 'disabled' : '' %>
+      onclick="addToCart('<%= p._id %>', '<%= item.size || '' %>')">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.5 6h13"/>
+      </svg>
+      <%= isUnavailable ? 'Unavailable' : (isOutOfStock ? 'Out of Stock' : 'Add to Cart') %>
+    </button>
+
+    <button class="btn-remove" onclick="removeWishlist('<%= p._id %>', '<%= item.size || '' %>')">Remove</button>
   </div>
+</div>
 <% }) %>
     <% } %>
 

@@ -59,6 +59,7 @@
     transition: background var(--transition), color var(--transition);
     margin-bottom: 2px; white-space: nowrap;
     text-transform: uppercase;
+    text-decoration: none;
   }
   .nav-item:hover { background: rgba(255,255,255,.04); color: var(--text-primary); }
   .nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; }
@@ -94,6 +95,7 @@
     font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;
     cursor: pointer; transition: opacity var(--transition), transform var(--transition);
     white-space: nowrap;
+    text-decoration: none;
   }
   .btn-add:hover { opacity: .88; transform: translateY(-1px); }
   .avatar {
@@ -175,13 +177,10 @@
     background: rgba(255,255,255,.05); border: 1px solid var(--card-border);
     display: grid; place-items: center; cursor: pointer;
     color: var(--text-secondary); transition: background var(--transition), color var(--transition), border-color var(--transition);
+    text-decoration: none;
   }
   .icon-btn:hover.edit-btn { background: rgba(59,130,246,.15); color: var(--accent); border-color: rgba(59,130,246,.3); }
   .icon-btn:hover.del-btn { background: rgba(239,68,68,.15); color: var(--inactive-red); border-color: rgba(239,68,68,.3); }
-
-  .nav-item {
-  text-decoration: none;
-}
 
   /* no results */
   .no-results {
@@ -219,94 +218,6 @@
   .footer-links span { cursor: pointer; transition: color var(--transition); }
   .footer-links span:hover { color: var(--text-secondary); }
 
-  /* ── MODAL OVERLAY ── */
-  .overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.65);
-    backdrop-filter: blur(4px); z-index: 400;
-    display: none; align-items: center; justify-content: center; padding: 16px;
-  }
-  .overlay.open { display: flex; animation: fadeIn .18s ease; }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-  .modal {
-    background: var(--card-bg); border: 1px solid var(--card-border);
-    border-radius: 16px; width: 100%; max-width: 500px;
-    box-shadow: 0 24px 80px rgba(0,0,0,.6);
-    animation: slideUp .22s cubic-bezier(.4,0,.2,1);
-  }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-
-  .modal-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 22px 24px 18px;
-    border-bottom: 1px solid var(--card-border);
-  }
-  .modal-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; }
-  .modal-close {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: rgba(255,255,255,.06); border: 1px solid var(--card-border);
-    display: grid; place-items: center; cursor: pointer;
-    color: var(--text-secondary); transition: background var(--transition);
-  }
-  .modal-close:hover { background: rgba(255,255,255,.1); color: var(--text-primary); }
-
-  .modal-body { padding: 24px; display: flex; flex-direction: column; gap: 20px; }
-
-  /* form fields */
-  .field { display: flex; flex-direction: column; gap: 7px; }
-  .field label { font-size: 13px; font-weight: 600; color: var(--text-secondary); letter-spacing: .3px; }
-  .field input, .field textarea, .field select {
-    background: rgba(255,255,255,.05); border: 1px solid var(--card-border);
-    border-radius: 9px; padding: 11px 14px;
-    color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px;
-    outline: none; transition: border-color var(--transition), box-shadow var(--transition);
-    width: 100%;
-  }
-  .field textarea { resize: vertical; min-height: 90px; }
-  .field select option { background: var(--card-bg); }
-  .field input:focus, .field textarea:focus, .field select:focus {
-    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.15);
-  }
-  .field input.error, .field textarea.error, .field select.error {
-    border-color: var(--inactive-red); box-shadow: 0 0 0 3px rgba(239,68,68,.12);
-  }
-  .err-msg { font-size: 12px; color: var(--inactive-red); margin-top: 2px; display: none; }
-  .err-msg.show { display: block; }
-
-  /* char counter */
-  .field-meta { display: flex; justify-content: space-between; align-items: center; }
-  .char-count { font-size: 11.5px; color: var(--text-muted); }
-  .char-count.warn { color: var(--inactive-red); }
-
-  .modal-footer {
-    display: flex; justify-content: flex-end; gap: 10px;
-    padding: 18px 24px 22px;
-    border-top: 1px solid var(--card-border);
-  }
-  .btn-cancel {
-    padding: 9px 20px; border-radius: 9px;
-    background: rgba(255,255,255,.06); border: 1px solid var(--card-border);
-    color: var(--text-secondary); font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;
-    cursor: pointer; transition: background var(--transition), color var(--transition);
-  }
-  .btn-cancel:hover { background: rgba(255,255,255,.1); color: var(--text-primary); }
-  .btn-save {
-    padding: 9px 24px; border-radius: 9px;
-    background: var(--accent); border: none; color: #fff;
-    font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;
-    cursor: pointer; transition: opacity var(--transition), transform var(--transition);
-  }
-  .btn-save:hover { opacity: .88; transform: translateY(-1px); }
-
-  /* delete confirm modal */
-  .del-modal { max-width: 400px; }
-  .del-body { padding: 24px; text-align: center; }
-  .del-icon { font-size: 40px; margin-bottom: 12px; }
-  .del-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 8px; }
-  .del-sub { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
-  .btn-del-confirm { background: var(--inactive-red); }
-  .btn-del-confirm:hover { opacity: .88; }
-
   /* overlay sidebar for mobile */
   .sidebar-overlay {
     display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
@@ -328,6 +239,48 @@
   .toast-icon { font-size: 18px; }
   .toast-text { font-size: 13.5px; font-weight: 500; }
 
+  /* ── DELETE CONFIRM MODAL (kept — delete still uses a quick confirm) ── */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.65);
+    backdrop-filter: blur(4px); z-index: 400;
+    display: none; align-items: center; justify-content: center; padding: 16px;
+  }
+  .overlay.open { display: flex; animation: fadeIn .18s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 16px; width: 100%; max-width: 400px;
+    box-shadow: 0 24px 80px rgba(0,0,0,.6);
+    animation: slideUp .22s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+  .del-body { padding: 24px; text-align: center; }
+  .del-icon { font-size: 40px; margin-bottom: 12px; }
+  .del-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 8px; }
+  .del-sub { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+  .modal-footer {
+    display: flex; justify-content: flex-end; gap: 10px;
+    padding: 18px 24px 22px;
+    border-top: 1px solid var(--card-border);
+  }
+  .btn-cancel {
+    padding: 9px 20px; border-radius: 9px;
+    background: rgba(255,255,255,.06); border: 1px solid var(--card-border);
+    color: var(--text-secondary); font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; transition: background var(--transition), color var(--transition);
+  }
+  .btn-cancel:hover { background: rgba(255,255,255,.1); color: var(--text-primary); }
+  .btn-save {
+    padding: 9px 24px; border-radius: 9px;
+    background: var(--accent); border: none; color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; transition: opacity var(--transition), transform var(--transition);
+    text-decoration: none; display: inline-flex; align-items: center;
+  }
+  .btn-save:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-del-confirm { background: var(--inactive-red); }
+  .btn-del-confirm:hover { opacity: .88; }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 900px) {
     .sidebar { transform: translateX(-100%); }
@@ -342,8 +295,6 @@
     .topbar-right .btn-add span { display: none; }
     th { padding: 12px 14px; }
     td { padding: 14px 14px; }
-    .modal-body { padding: 18px; }
-    .modal-footer { padding: 14px 18px 18px; }
     footer { flex-direction: column; align-items: flex-start; }
     .search-bar { max-width: 100%; }
   }
@@ -426,10 +377,10 @@
         <span class="page-title">Categories</span>
       </div>
       <div class="topbar-right">
-        <button class="btn-add" onclick="openAddModal()">
+        <a class="btn-add" href="/admin/add-category">
           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span>Add New Category</span>
-        </button>
+        </a>
         <div class="avatar">AD</div>
       </div>
     </header>
@@ -461,6 +412,19 @@
               </tr>
             </thead>
           <tbody>
+
+<% if (categories.length === 0) { %>
+
+  <tr>
+    <td colspan="5">
+      <div class="no-results">
+        <span>🔍</span>
+        No categories found<% if (search) { %> for "<%= search %>"<% } %>.
+      </div>
+    </td>
+  </tr>
+
+<% } %>
 
 <% categories.forEach((cat, index) => { %>
 
@@ -502,28 +466,26 @@
 
     <div class="action-btns">
 
-      <!-- EDIT -->
+      <!-- EDIT: goes to its own page now -->
 
-     <button
-  class="icon-btn edit-btn"
-  onclick="openEditModal(
-    '<%= cat._id %>',
-    '<%= cat.name %>',
-    '<%= cat.description || "" %>',
-    '<%= cat.isListed ? "active" : "inactive" %>'
-  )"
->
-  ✏️
-</button>
+      <a
+        href="/admin/edit-category/<%= cat._id %>"
+        class="icon-btn edit-btn"
+        title="Edit category"
+      >
+        ✏️
+      </a>
 
       <!-- DELETE -->
 
-      <a
-        href="/admin/delete-category/<%= cat._id %>"
+      <button
+        type="button"
         class="icon-btn del-btn"
+        title="Delete category"
+        onclick="openDeleteModal('<%= cat._id %>', '<%= cat.name %>')"
       >
         🗑️
-      </a>
+      </button>
 
     </div>
 
@@ -540,7 +502,7 @@
 
   <span class="pag-info">
     Showing
-    <%= ((currentPage - 1) * limit) + 1 %>
+    <%= categories.length > 0 ? ((currentPage - 1) * limit) + 1 : 0 %>
     to
     <%= Math.min(currentPage * limit, totalCategories) %>
     of
@@ -611,55 +573,9 @@
   </div>
 </div>
 
-<!-- ── ADD / EDIT MODAL ── -->
-<div class="overlay" id="categoryOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="modalTitle">Add New Category</span>
-      <button class="modal-close" onclick="closeModal()" title="Close">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <!-- Category Name -->
-      <div class="field">
-        <label for="catName">Category Name <span style="color:var(--inactive-red)">*</span></label>
-        <input type="text" id="catName" placeholder="e.g. Full Face" maxlength="60" oninput="liveValidate('catName'); updateCharCount('catName','catNameCount',60)"/>
-        <div class="field-meta">
-          <span class="err-msg" id="catNameErr">Category name is required (min 2 characters).</span>
-          <span class="char-count" id="catNameCount">0 / 60</span>
-        </div>
-      </div>
-      <!-- Description -->
-      <div class="field">
-        <label for="catDesc">Description <span style="color:var(--inactive-red)">*</span></label>
-        <textarea id="catDesc" placeholder="Brief description of this category…" maxlength="300" oninput="liveValidate('catDesc'); updateCharCount('catDesc','catDescCount',300)"></textarea>
-        <div class="field-meta">
-          <span class="err-msg" id="catDescErr">Description is required (min 10 characters).</span>
-          <span class="char-count" id="catDescCount">0 / 300</span>
-        </div>
-      </div>
-      <!-- Status -->
-      <div class="field">
-        <label for="catStatus">Category Status <span style="color:var(--inactive-red)">*</span></label>
-        <select id="catStatus" onchange="liveValidate('catStatus')">
-          <option value="">— Select Status —</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        <span class="err-msg" id="catStatusErr">Please select a status.</span>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
-      <button class="btn-save" onclick="saveCategory()" id="saveBtn">Save Category</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── DELETE CONFIRM MODAL ── -->
+<!-- ── DELETE CONFIRM MODAL (kept inline — quick, low-risk action) ── -->
 <div class="overlay" id="deleteOverlay">
-  <div class="modal del-modal">
+  <div class="modal">
     <div class="del-body">
       <div class="del-icon">🗑️</div>
       <div class="del-title">Delete Category?</div>
@@ -667,7 +583,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeDeleteModal()">Cancel</button>
-      <button class="btn-save btn-del-confirm" onclick="confirmDelete()">Yes, Delete</button>
+      <a class="btn-save btn-del-confirm" id="confirmDeleteLink" href="#">Yes, Delete</a>
     </div>
   </div>
 </div>
@@ -679,222 +595,47 @@
 </div>
 
 <script>
-  
-  let nextId = 13;
-  const PAGE_SIZE = 4;
-  let currentPage = 1;
-  let editingId = null;
-  let deletingId = null;
-  let searchQuery = '';
 
   // ─── SEARCH ───
-  function getFiltered() {
-    if (!searchQuery) return categories;
-    const q = searchQuery.toLowerCase();
-    return categories.filter(c =>
-      c.name.toLowerCase().includes(q) ||
-      c.description.toLowerCase().includes(q) ||
-      c.status.toLowerCase().includes(q)
-    );
+  function onSearch() {
+    const q = document.getElementById('searchInput').value.trim();
+    document.getElementById('searchClear').classList.toggle('show', q.length > 0);
+    clearTimeout(window._searchTimer);
+    window._searchTimer = setTimeout(() => {
+      window.location.href = '/admin/categories?page=1&search=' + encodeURIComponent(q);
+    }, 400);
   }
 
- function onSearch() {
-  const q = document.getElementById('searchInput').value.trim();
-  document.getElementById('searchClear').classList.toggle('show', q.length > 0);
-  clearTimeout(window._searchTimer);
-  window._searchTimer = setTimeout(() => {
-    window.location.href = '/admin/categories?page=1&search=' + encodeURIComponent(q);
-  }, 400);
-}
-
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('searchClear').classList.remove('show');
-  window.location.href = '/admin/categories?page=1&search=';
-}
-
-  
-  function highlight(text) {
-    if (!searchQuery) return text;
-    const q = escHtml(searchQuery).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return text.replace(new RegExp(`(${q})`, 'gi'),
-      '<mark style="background:rgba(59,130,246,0.25);color:var(--text-primary);border-radius:3px;padding:0 2px">$1</mark>');
+  function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchClear').classList.remove('show');
+    window.location.href = '/admin/categories?page=1&search=';
   }
 
- (function () {
-  const params = new URLSearchParams(window.location.search);
-  const q = params.get('search') || '';
-  const input = document.getElementById('searchInput');
-  input.value = q;
-  document.getElementById('searchClear').classList.toggle('show', q.length > 0);
-})();
+  (function () {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('search') || '';
+    const input = document.getElementById('searchInput');
+    input.value = q;
+    document.getElementById('searchClear').classList.toggle('show', q.length > 0);
+  })();
 
-  
-  function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  // ─── MODAL OPEN / CLOSE ───
-  function openAddModal() {
-    editingId = null;
-    document.getElementById('modalTitle').textContent = 'Add New Category';
-    document.getElementById('saveBtn').textContent = 'Save Category';
-    resetForm();
-    document.getElementById('categoryOverlay').classList.add('open');
-  }
-
- function openEditModal(id, name, description, status) {
-
-  editingId = id;
-
-  document.getElementById('modalTitle').textContent =
-    'Edit Category';
-
-  document.getElementById('saveBtn').textContent =
-    'Update Category';
-
-  document.getElementById('catName').value =
-    name || '';
-
-  document.getElementById('catDesc').value =
-    description || '';
-
-  document.getElementById('catStatus').value =
-    status || '';
-
-  updateCharCount('catName','catNameCount',60);
-
-  updateCharCount('catDesc','catDescCount',300);
-
-  clearErrors();
-
-  document
-    .getElementById('categoryOverlay')
-    .classList.add('open');
-}
-
-  function closeModal() {
-    document.getElementById('categoryOverlay').classList.remove('open');
-    resetForm();
-  }
-
-  function resetForm() {
-    document.getElementById('catName').value = '';
-    document.getElementById('catDesc').value = '';
-    document.getElementById('catStatus').value = '';
-    updateCharCount('catName','catNameCount',60);
-    updateCharCount('catDesc','catDescCount',300);
-    clearErrors();
-  }
-
-  function clearErrors() {
-    ['catName','catDesc','catStatus'].forEach(id => {
-      document.getElementById(id).classList.remove('error');
-      document.getElementById(id+'Err').classList.remove('show');
-    });
-  }
-
-  // ─── VALIDATION ───
-  function validateField(fieldId) {
-    const val = document.getElementById(fieldId).value.trim();
-    let valid = true;
-    if (fieldId === 'catName') valid = val.length >= 2;
-    if (fieldId === 'catDesc') valid = val.length >= 10;
-    if (fieldId === 'catStatus') valid = val !== '';
-    document.getElementById(fieldId).classList.toggle('error', !valid);
-    document.getElementById(fieldId+'Err').classList.toggle('show', !valid);
-    return valid;
-  }
-
-  function liveValidate(fieldId) {
-    const el = document.getElementById(fieldId);
-    if (el.classList.contains('error')) validateField(fieldId);
-  }
-
-  function updateCharCount(fieldId, countId, max) {
-    const len = document.getElementById(fieldId).value.length;
-    const el = document.getElementById(countId);
-    el.textContent = `${len} / ${max}`;
-    el.classList.toggle('warn', len > max * 0.9);
-  }
-
-  function validateAll() {
-    const a = validateField('catName');
-    const b = validateField('catDesc');
-    const c = validateField('catStatus');
-    return a && b && c;
-  }
-
-  // ─── SAVE ───
- async function saveCategory() {
-  if (!validateAll()) return;
-
-  const name        = document.getElementById('catName').value.trim();
-  const description = document.getElementById('catDesc').value.trim();
-  const status      = document.getElementById('catStatus').value;
-
-  const data = {
-    name,
-    description,
-    isListed: status === "active",
-  };
-
-  const url = editingId
-    ? `/admin/edit-category/${editingId}`
-    : "/admin/add-category";
-
-  try {
-    const saveBtn = document.getElementById('saveBtn');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving…';
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-
-    const result = await response.json();
-
-    if (result.success) {
-      showToast('✅', result.message || 'Category saved successfully');
-      setTimeout(() => location.reload(), 1000);
-    } else {
-      
-      const nameInput = document.getElementById('catName');
-      const nameErr   = document.getElementById('catNameErr');
-
-      nameInput.classList.add('error');
-      nameErr.textContent = result.message; 
-      nameErr.classList.add('show');
-      nameInput.focus();
-
-      // Reset button
-      saveBtn.disabled = false;
-      saveBtn.textContent = editingId ? 'Update Category' : 'Save Category';
-    }
-  } catch (err) {
-    console.error(err);
-    showToast('❌', 'Something went wrong. Please try again.');
-    document.getElementById('saveBtn').disabled = false;
-    document.getElementById('saveBtn').textContent = editingId ? 'Update Category' : 'Save Category';
-  }
-}
-  // ─── DELETE ───
-  function openDeleteModal(id) {
-    deletingId = id;
-    const cat = categories.find(c => c.id === id);
+  // ─── DELETE CONFIRM ───
+  function openDeleteModal(id, name) {
     document.getElementById('delSubText').textContent =
-      `"${cat.name}" will be permanently removed and cannot be undone.`;
+      `"${name}" will be permanently removed and cannot be undone.`;
+    document.getElementById('confirmDeleteLink').href = '/admin/delete-category/' + id;
     document.getElementById('deleteOverlay').classList.add('open');
   }
   function closeDeleteModal() {
     document.getElementById('deleteOverlay').classList.remove('open');
-    deletingId = null;
   }
-  
 
-  // ─── TOAST ───
+  document.getElementById('deleteOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+  });
+
+  // ─── TOAST (shown if redirected back with a query flag) ───
   let toastTimer;
   function showToast(icon, text) {
     clearTimeout(toastTimer);
@@ -915,21 +656,10 @@ function clearSearch() {
     document.getElementById('sidebarOverlay').classList.remove('show');
   }
 
-  
-  document.getElementById('categoryOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
-  document.getElementById('deleteOverlay').addEventListener('click', function(e) {
-    if (e.target === this) closeDeleteModal();
-  });
-
-  
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeModal(); closeDeleteModal(); closeSidebar(); }
+    if (e.key === 'Escape') { closeDeleteModal(); closeSidebar(); }
   });
 
-  
-  
 </script>
 </body>
 </html>

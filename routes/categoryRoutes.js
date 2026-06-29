@@ -1,7 +1,7 @@
 
 import express from "express";
 import {
-  loadCategory,
+  loadCategory,loadAddCategory,loadEditCategory,
   addCategory,
   editCategory,
   deleteCategory,
@@ -12,7 +12,11 @@ const router = express.Router();
 
 router.get("/categories", loadCategory);
 
+router.get("/add-category",loadAddCategory)
+
 router.post("/add-category", addCategory);
+
+router.get("/edit-category/:id",loadEditCategory)
 
 router.post("/edit-category/:id", editCategory);
 

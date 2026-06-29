@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Helmet Haven — Edit Category</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0f1117;
+    --sidebar-bg: #13161f;
+    --card-bg: #181c27;
+    --card-border: #232840;
+    --accent: #3b82f6;
+    --accent-glow: rgba(59,130,246,0.18);
+    --active-green: #22c55e;
+    --inactive-red: #ef4444;
+    --text-primary: #f0f2f8;
+    --text-secondary: #8892b0;
+    --text-muted: #4a5278;
+    --row-hover: rgba(59,130,246,0.05);
+    --sidebar-width: 240px;
+    --radius: 12px;
+    --transition: 0.22s cubic-bezier(.4,0,.2,1);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text-primary); overflow-x: hidden; }
+
+  .shell { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--card-border);
+    display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 200;
+    transition: transform var(--transition);
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 22px 20px 18px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  .logo-icon {
+    width: 34px; height: 34px; background: var(--accent);
+    border-radius: 9px; display: grid; place-items: center;
+    font-size: 18px;
+  }
+  .logo-text { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 15px; letter-spacing: .5px; color: var(--text-primary); }
+
+  .nav { flex: 1; padding: 14px 10px; overflow-y: auto; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 9px;
+    cursor: pointer; font-size: 13px; font-weight: 500;
+    color: var(--text-secondary); letter-spacing: .4px;
+    transition: background var(--transition), color var(--transition);
+    margin-bottom: 2px; white-space: nowrap;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .nav-item:hover { background: rgba(255,255,255,.04); color: var(--text-primary); }
+  .nav-item.active { background: var(--accent-glow); color: var(--accent); font-weight: 600; }
+  .nav-item svg { flex-shrink: 0; }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: var(--sidebar-width);
+    flex: 1; display: flex; flex-direction: column; min-height: 100vh;
+    transition: margin-left var(--transition);
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    height: 64px; background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--card-border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .menu-btn {
+    display: none; background: none; border: none; cursor: pointer;
+    color: var(--text-secondary); padding: 6px; border-radius: 7px;
+    transition: background var(--transition);
+  }
+  .menu-btn:hover { background: rgba(255,255,255,.06); }
+  .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); }
+  .breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color var(--transition); }
+  .breadcrumb a:hover { color: var(--accent); }
+  .page-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 20px; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--accent); display: grid; place-items: center;
+    font-weight: 700; font-size: 13px; letter-spacing: .5px;
+  }
+
+  /* ── CONTENT ── */
+  .content { padding: 28px; flex: 1; display: flex; justify-content: center; }
+  .form-wrap { width: 100%; max-width: 560px; }
+
+  .page-heading { margin-bottom: 22px; }
+  .page-heading h1 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 22px; margin-bottom: 6px; }
+  .page-heading p { font-size: 13.5px; color: var(--text-secondary); }
+
+  /* ── FORM CARD ── */
+  .form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius);
+    padding: 26px;
+  }
+  .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 20px; }
+  .field label { font-size: 13px; font-weight: 600; color: var(--text-secondary); letter-spacing: .3px; }
+  .field input, .field textarea, .field select {
+    background: rgba(255,255,255,.05); border: 1px solid var(--card-border);
+    border-radius: 9px; padding: 11px 14px;
+    color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 14px;
+    outline: none; transition: border-color var(--transition), box-shadow var(--transition);
+    width: 100%;
+  }
+  .field textarea { resize: vertical; min-height: 100px; }
+  .field select option { background: var(--card-bg); }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+  }
+  .field input.error, .field textarea.error, .field select.error {
+    border-color: var(--inactive-red); box-shadow: 0 0 0 3px rgba(239,68,68,.12);
+  }
+  .err-msg { font-size: 12px; color: var(--inactive-red); margin-top: 2px; display: none; }
+  .err-msg.show { display: block; }
+
+  .field-meta { display: flex; justify-content: space-between; align-items: center; }
+  .char-count { font-size: 11.5px; color: var(--text-muted); }
+  .char-count.warn { color: var(--inactive-red); }
+
+  .form-actions {
+    display: flex; justify-content: flex-end; gap: 10px;
+    margin-top: 8px;
+  }
+  .btn-cancel {
+    padding: 10px 22px; border-radius: 9px;
+    background: rgba(255,255,255,.06); border: 1px solid var(--card-border);
+    color: var(--text-secondary); font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; transition: background var(--transition), color var(--transition);
+    text-decoration: none; display: inline-flex; align-items: center;
+  }
+  .btn-cancel:hover { background: rgba(255,255,255,.1); color: var(--text-primary); }
+  .btn-save {
+    padding: 10px 26px; border-radius: 9px;
+    background: var(--accent); border: none; color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;
+    cursor: pointer; transition: opacity var(--transition), transform var(--transition);
+  }
+  .btn-save:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-save:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+
+  .sidebar-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    z-index: 150;
+  }
+
+  /* ── TOAST ── */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 600;
+    background: var(--card-bg); border: 1px solid var(--card-border);
+    border-radius: 10px; padding: 14px 18px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+    transform: translateY(80px); opacity: 0;
+    transition: transform .3s cubic-bezier(.4,0,.2,1), opacity .3s;
+    max-width: 300px;
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-icon { font-size: 18px; }
+  .toast-text { font-size: 13.5px; font-weight: 500; }
+
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-overlay.show { display: block; }
+    .main { margin-left: 0; }
+    .menu-btn { display: flex; }
+  }
+  @media (max-width: 600px) {
+    .topbar { padding: 0 16px; }
+    .content { padding: 16px; }
+    .form-card { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🪖</div>
+      <span class="logo-text">HELMET HAVEN</span>
+    </div>
+    <nav class="nav">
+      <a href="/admin/adminDashboard" class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a href="/admin/products" class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </a>
+      <a href="/admin/adminCustomer" class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <div class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Orders
+      </div>
+      <div class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Coupons
+      </div>
+      <a href="/admin/categories" class="nav-item active">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 20h16M4 4h16M9 4v16M15 4v16"/></svg>
+        Category
+      </a>
+      <a href="/admin/brands" class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Brands
+      </a>
+      <div class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Return Requests
+      </div>
+      <div class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        Offers
+      </div>
+      <div class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="3 9 12 15 21 9"/></svg>
+        Banner
+      </div>
+      <div class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Sales Report
+      </div>
+      <a href="/admin/logout" class="nav-item">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="menu-btn" onclick="toggleSidebar()" title="Menu">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="page-title">Edit Category</span>
+      </div>
+      <div class="topbar-right">
+        <div class="avatar">AD</div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content">
+      <div class="form-wrap">
+
+        <div class="page-heading">
+          <h1>Edit Category</h1>
+          <p>Update the details for this product category.</p>
+        </div>
+
+        <div class="form-card">
+          <form id="categoryForm" novalidate>
+            <!-- Category Name -->
+            <div class="field">
+              <label for="catName">Category Name <span style="color:var(--inactive-red)">*</span></label>
+              <input type="text" id="catName" name="name" placeholder="e.g. Full Face" maxlength="60" value="<%= category.name %>" oninput="liveValidate('catName'); updateCharCount('catName','catNameCount',60)"/>
+              <div class="field-meta">
+                <span class="err-msg" id="catNameErr">Category name is required (min 2 characters).</span>
+                <span class="char-count" id="catNameCount">0 / 60</span>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="field">
+              <label for="catDesc">Description <span style="color:var(--inactive-red)">*</span></label>
+              <textarea id="catDesc" name="description" placeholder="Brief description of this category…" maxlength="300" oninput="liveValidate('catDesc'); updateCharCount('catDesc','catDescCount',300)"><%= category.description %></textarea>
+              <div class="field-meta">
+                <span class="err-msg" id="catDescErr">Description is required (min 10 characters).</span>
+                <span class="char-count" id="catDescCount">0 / 300</span>
+              </div>
+            </div>
+
+            <!-- Status -->
+            <div class="field">
+              <label for="catStatus">Category Status <span style="color:var(--inactive-red)">*</span></label>
+              <select id="catStatus" name="isListed" onchange="liveValidate('catStatus')">
+                <option value="">— Select Status —</option>
+                <option value="active" <%= category.isListed ? 'selected' : '' %>>Active</option>
+                <option value="inactive" <%= !category.isListed ? 'selected' : '' %>>Inactive</option>
+              </select>
+              <span class="err-msg" id="catStatusErr">Please select a status.</span>
+            </div>
+
+            <div class="form-actions">
+              <a href="/admin/categories" class="btn-cancel">Cancel</a>
+              <button type="submit" class="btn-save" id="saveBtn">Update Category</button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span class="toast-text" id="toastText"></span>
+</div>
+
+<script>
+  // ─── VALIDATION ───
+  function validateField(fieldId) {
+    const val = document.getElementById(fieldId).value.trim();
+    let valid = true;
+    if (fieldId === 'catName') valid = val.length >= 2;
+    if (fieldId === 'catDesc') valid = val.length >= 10;
+    if (fieldId === 'catStatus') valid = val !== '';
+    document.getElementById(fieldId).classList.toggle('error', !valid);
+    document.getElementById(fieldId+'Err').classList.toggle('show', !valid);
+    return valid;
+  }
+
+  function liveValidate(fieldId) {
+    const el = document.getElementById(fieldId);
+    if (el.classList.contains('error')) validateField(fieldId);
+  }
+
+  function updateCharCount(fieldId, countId, max) {
+    const len = document.getElementById(fieldId).value.length;
+    const el = document.getElementById(countId);
+    el.textContent = `${len} / ${max}`;
+    el.classList.toggle('warn', len > max * 0.9);
+  }
+
+  function validateAll() {
+    const a = validateField('catName');
+    const b = validateField('catDesc');
+    const c = validateField('catStatus');
+    return a && b && c;
+  }
+
+  const categoryId = "<%= category._id %>";
+
+  // ─── SUBMIT ───
+  document.getElementById('categoryForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    if (!validateAll()) return;
+
+    const name        = document.getElementById('catName').value.trim();
+    const description = document.getElementById('catDesc').value.trim();
+    const status      = document.getElementById('catStatus').value;
+
+    const data = {
+      name,
+      description,
+      isListed: status === "active",
+    };
+
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+
+    try {
+      const response = await fetch('/admin/edit-category/' + categoryId, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        showToast('✅', result.message || 'Category updated successfully');
+        // Classic redirect back to the categories list on success
+        setTimeout(() => { window.location.href = '/admin/categories'; }, 700);
+      } else {
+        const nameInput = document.getElementById('catName');
+        const nameErr   = document.getElementById('catNameErr');
+        nameInput.classList.add('error');
+        nameErr.textContent = result.message;
+        nameErr.classList.add('show');
+        nameInput.focus();
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Update Category';
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('❌', 'Something went wrong. Please try again.');
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Update Category';
+    }
+  });
+
+  // Initialize char counts with pre-filled values on page load
+  updateCharCount('catName','catNameCount',60);
+  updateCharCount('catDesc','catDescCount',300);
+
+  // ─── TOAST ───
+  let toastTimer;
+  function showToast(icon, text) {
+    clearTimeout(toastTimer);
+    document.getElementById('toastIcon').textContent = icon;
+    document.getElementById('toastText').textContent = text;
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ─── SIDEBAR MOBILE ───
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('show');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSidebar();
+  });
+</script>
+</body>
+</html>
