@@ -23,7 +23,7 @@ export const loadShop = async (req, res) => {
     
     const dbFilter = {
       isDeleted: false,
-      isBlocked: { $ne: true },
+     
     }
     if (search)  
        dbFilter.productName = { $regex: search, $options: "i" }
@@ -46,7 +46,8 @@ export const loadShop = async (req, res) => {
  const withVariant = raw.reduce((acc, product) => {
   if (!product.category || !product.brand) return acc
 
-  
+  const isUnavailable=!!product.isBlocked
+
   const activeVariants = product.variants.filter(v => {
     if (v.status !== "ACTIVE") return false
     if (size && v.size !== size) return false
@@ -62,7 +63,7 @@ export const loadShop = async (req, res) => {
 
   const match = candidates.sort((a, b) => a.price - b.price)[0]
 
-  acc.push({ product, variant: match })
+  acc.push({ product, variant: match,isUnavailable })
   return acc
 }, [])
 
@@ -93,9 +94,10 @@ export const loadShop = async (req, res) => {
     const pageItems  = withVariant.slice(skip, skip + limit)
 
     
-    const products = pageItems.map(({ product, variant }) => ({
+    const products = pageItems.map(({ product, variant,isUnavailable }) => ({
       ...product,
-      _activeVariant: variant,   
+      _activeVariant: variant,  
+      _isUnavailable:isUnavailable, 
     }))
 
     

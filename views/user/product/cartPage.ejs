@@ -415,7 +415,8 @@
 <main class="container">
   <nav aria-label="Breadcrumb">
     <div class="breadcrumb">
-      <a href="/user/homepage">Home</a>
+      <a href="/user/homepage">Home   ></a>
+       <a href="/shop">Shop</a>
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/>
       </svg>
@@ -446,7 +447,16 @@
   const displayQty = (stock === 0 || isUnavailable) ? 0 : item.quantity;
 %>
 <article class="cart-item" data-id="<%= p._id %>" data-size="<%= item.size %>" data-base-price="<%= price %>" data-stock="<%= isUnavailable ? 0 : stock %>" style="animation-delay:<%= index * 0.07 %>s">
-  ...
+  <% if (p?.productImage?.[0]) { %>
+  <img class="item-img" src="<%= p.productImage[0] %>" alt="<%= p.productName %>"/>
+<% } else { %>
+  <div class="item-img-placeholder" aria-hidden="true">
+    <svg width="48" height="48" fill="none" stroke="#3a4a63" stroke-width="1.2" viewBox="0 0 64 64">
+      <ellipse cx="32" cy="28" rx="20" ry="18" stroke-linecap="round"/>
+      <path d="M14 32c0 8.8 8.1 16 18 16s18-7.2 18-16" stroke-linecap="round"/>
+    </svg>
+  </div>
+<% } %>
   <div class="item-info">
     <div class="item-name"><%= p?.productName %></div>
     <div class="item-meta">Brand: <strong><%= p?.brand?.name || '' %></strong></div>

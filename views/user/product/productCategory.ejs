@@ -614,53 +614,71 @@
           <p>Try adjusting your filters or <a href="/shop" style="color:var(--blue)">browse all products</a>.</p>
         </div>
       <% } else { %>
-        <% products.forEach(product => { %>
-          <% const activeVariant = product._activeVariant %>
-          <% if (activeVariant) { %>
-            <a href="/user/product/<%= product._id %>" class="product-link">
-              <article class="product-card">
-               <div class="card-img-wrap">
-  <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>"/>
-  
-  <!-- Out of stock overlay -->
-  <% if (activeVariant.stock <= 0) { %>
-    <div style="
-      position: absolute; inset: 0;
-      background: rgba(0,0,0,0.55);
-      display: flex; align-items: center; justify-content: center;
-    ">
-      <span style="
-        background: var(--red); color: #fff;
-        padding: 5px 14px; border-radius: 6px;
-        font-size: 0.78rem; font-weight: 700; letter-spacing: .06em;
-        text-transform: uppercase;
-      ">Out of Stock</span>
-    </div>
+       <% products.forEach(product => { %>
+  <% const activeVariant = product._activeVariant %>
+  <% const isUnavailable = product._isUnavailable %>
+  <% if (activeVariant) { %>
+
+    <% if (isUnavailable) { %>
+      <!-- Unavailable: render as non-clickable card -->
+      <article class="product-card" style="opacity:.55; cursor:not-allowed;">
+        <div class="card-img-wrap">
+          <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>" style="filter:grayscale(70%);"/>
+          <div style="
+            position: absolute; inset: 0;
+            background: rgba(0,0,0,0.55);
+            display: flex; align-items: center; justify-content: center;
+          ">
+            <span style="
+              background: var(--red); color: #fff;
+              padding: 5px 14px; border-radius: 6px;
+              font-size: 0.78rem; font-weight: 700; letter-spacing: .06em;
+              text-transform: uppercase;
+            ">Unavailable</span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="card-name"><%= product.productName %></div>
+          <div class="card-desc"><%= product.description %></div>
+          <div class="card-footer">
+            <div class="price-main" style="color:var(--muted); text-decoration:line-through;">₹ <%= activeVariant.price.toLocaleString() %></div>
+          </div>
+        </div>
+      </article>
+
+    <% } else { %>
+      <!-- Normal available card -->
+      <a href="/user/product/<%= product._id %>" class="product-link">
+        <article class="product-card">
+          <div class="card-img-wrap">
+            <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>"/>
+            <% if (activeVariant.stock <= 0) { %>
+              <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center;">
+                <span style="background: var(--red); color: #fff; padding: 5px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;">Out of Stock</span>
+              </div>
+            <% } %>
+            <% if (wishlistedProductIds.includes(product._id.toString())) { %>
+              <div class="card-wish-badge" aria-label="In your wishlist">
+                <svg width="14" height="14" viewBox="0 0 24 24">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </div>
+            <% } %>
+          </div>
+          <div class="card-body">
+            <div class="card-name"><%= product.productName %></div>
+            <div class="card-desc"><%= product.description %></div>
+            <div class="card-footer">
+              <div class="price-main">₹ <%= activeVariant.price.toLocaleString() %></div>
+            </div>
+          </div>
+        </article>
+      </a>
+    <% } %>
+
   <% } %>
-      <% if (wishlistedProductIds.includes(product._id.toString())) { %>
-         <div class="card-wish-badge" aria-label="In your wishlist">
-            <svg width="14" height="14" viewBox="0 0 24 24">
-                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                    </div>
-                  <% } %>
-                </div>
-                <div class="card-body">
-                  <div class="card-name"><%= product.productName %></div>
-                  <div class="card-desc"><%= product.description %></div>
-                  <div class="card-footer">
-                    <div class="price-main">₹ <%= activeVariant.price.toLocaleString() %></div>
-                    <!-- <button class="add-btn" onclick="event.preventDefault(); showToast('<%= product.productName %> added!')">
-                      <i class="fa-solid fa-cart-plus"></i>
-                      <span>Add</span>
-                    </button> -->
-                  </div>
-                </div>
-              </article>
-            </a>
-          <% } %>
-        <% }) %>
-      <% } %>
+<% }) %>
+ <% } %>
     </div>
 
     <!-- Pagination -->
