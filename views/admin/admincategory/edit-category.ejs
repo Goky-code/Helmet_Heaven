@@ -391,7 +391,7 @@
 
       if (result.success) {
         showToast('✅', result.message || 'Category updated successfully');
-        // Classic redirect back to the categories list on success
+        
         setTimeout(() => { window.location.href = '/admin/categories'; }, 700);
       } else {
         const nameInput = document.getElementById('catName');
@@ -412,7 +412,7 @@
     }
   });
 
-  // Initialize char counts with pre-filled values on page load
+ 
   updateCharCount('catName','catNameCount',60);
   updateCharCount('catDesc','catDescCount',300);
 

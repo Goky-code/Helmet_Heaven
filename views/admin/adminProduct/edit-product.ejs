@@ -388,17 +388,17 @@
 </script>
  
 <script>
-    // ── Safely read server data (no more inline EJS interpolation inside JS) ──
+   
     const pageData       = JSON.parse(document.getElementById("page-data").textContent);
     const productId      = pageData.productId;
     const existingImages = pageData.existingImages;
  
-    // Tracks newly cropped files per slot (null = keep existing)
+   
     let croppedFiles = [null, null, null];
     let cropper = null;
     let currentInputIndex = null;
  
-    /* ── Init char counters with existing values ── */
+   
     window.addEventListener("DOMContentLoaded", () => {
       const nameEl = document.getElementById("m-name");
       const descEl = document.getElementById("m-desc");
@@ -406,7 +406,7 @@
       updateCharCount(descEl, "desc-count", 1000);
     });
  
-    /* ── File picker ── */
+    
     function openFilePicker(index) {
       document.getElementById(`photo-input-${index}`).click();
     }
@@ -476,7 +476,7 @@
       if (cropper) { cropper.destroy(); cropper = null; }
     }
  
-    /* ── Remove photo (clears both new crop and existing) ── */
+   
     function removePhoto(event, index) {
       if (event) event.stopPropagation();
  
@@ -518,7 +518,7 @@
       if (!cat)             { document.getElementById("fg-cat").classList.add("has-error"); hasErr = true; }
       if (hasErr) return;
  
-      // Must have at least one image across existing + new
+     
       const hasAnyImage = croppedFiles.some(f => f !== null) || existingImages.some(u => u !== null);
       if (!hasAnyImage) {
         showToast("At least one product photo is required", false);
@@ -532,10 +532,10 @@
       formData.append("description", desc);
       formData.append("status",      status);
  
-      // Send new cropped files
+     
       croppedFiles.forEach(file => { if (file) formData.append("images", file); });
  
-      // Send existing image URLs that were NOT replaced or removed
+     
       existingImages.forEach((url, i) => {
         if (url && !croppedFiles[i]) formData.append("existingImages", url);
       });
@@ -591,7 +591,7 @@
       document.getElementById("sidebarBg").classList.remove("open");
     }
  
-    /* ── Close crop modal on overlay click ── */
+    
     document.getElementById("cropModal").addEventListener("click", function(e) {
       if (e.target === this) closeCropModal();
     });

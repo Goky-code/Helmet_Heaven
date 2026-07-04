@@ -466,7 +466,7 @@
 
     <div class="action-btns">
 
-      <!-- EDIT: goes to its own page now -->
+     
 
       <a
         href="/admin/edit-category/<%= cat._id %>"
@@ -573,7 +573,7 @@
   </div>
 </div>
 
-<!-- ── DELETE CONFIRM MODAL (kept inline — quick, low-risk action) ── -->
+<!-- ── DELETE CONFIRM MODAL  ── -->
 <div class="overlay" id="deleteOverlay">
   <div class="modal">
     <div class="del-body">
@@ -635,7 +635,7 @@
     if (e.target === this) closeDeleteModal();
   });
 
-  // ─── TOAST (shown if redirected back with a query flag) ───
+  // ─── TOAST  ───
   let toastTimer;
   function showToast(icon, text) {
     clearTimeout(toastTimer);

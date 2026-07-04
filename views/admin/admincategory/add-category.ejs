@@ -389,7 +389,7 @@
 
       if (result.success) {
         showToast('✅', result.message || 'Category added successfully');
-        // Classic redirect back to the categories list on success
+       
         setTimeout(() => { window.location.href = '/admin/categories'; }, 700);
       } else {
         const nameInput = document.getElementById('catName');
