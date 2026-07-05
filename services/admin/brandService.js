@@ -1,4 +1,4 @@
-import Brand from "../models/brandModels.js";
+import Brand from "../../models/brandModels.js";
 
 export const getBrands=async(search,page,limit)=>{
     const skip=(page-1)*limit

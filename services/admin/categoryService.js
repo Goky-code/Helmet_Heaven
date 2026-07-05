@@ -1,4 +1,4 @@
-import Category from "../models/categoryModel.js";
+import Category from "../../models/categoryModel.js";
 
 export const getCategories=async(search,page,limit)=>{
     const skip=(page-1)*limit

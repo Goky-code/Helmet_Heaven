@@ -2,44 +2,20 @@
 import Product from "../models/productModel.js";
 import Brand from "../models/brandModels.js"
 import Category from "../models/categoryModel.js";
-import sharp from "sharp"
-import fs from "fs"
-import path from "path"
 import { skipMiddlewareFunction } from "mongoose";
- 
+ import * as productService from "../services/admin/productService.js"
+
 export const loadProducts = async (req, res) => {
   try {
-    const { search = "", category = "", brand = "", status = "" } = req.query;
+    const data=await productService.getProducts(req.query)
 
-    
-    const filter = { isDeleted: false };
-
-    if (search) {
-      filter.productName = { $regex: search, $options: "i" };
+    if(req.headers["x-requested-with"]==="XMLHttpRequest"){
+      return res.json({
+        success:true,
+        products:data.products,
+      })
     }
-
-    if (status === "ACTIVE")   filter.isBlocked = false;
-    if (status === "INACTIVE") filter.isBlocked = true;
-
-    
-    let query =  Product.find(filter).populate("brand").populate("category").sort({ createdAt:-1 })
-
-    let products = await query;
-
-   
-    if (brand)    products = products.filter(p => p.brand?.name === brand);
-    if (category) products = products.filter(p => p.category?.name === category);
-
-    const brands = await Brand.find({ isDeleted: false, isListed: true });
-    const categories = await Category.find({ isDeleted: false, isListed: true });
-
-    
-    if (req.headers["x-requested-with"] === "XMLHttpRequest") {
-      return res.json({ success: true, products });
-    }
-
-    res.render("admin/adminProduct/adminProducts", { products, brands, categories });
-
+    res.render("admin/adminProduct/adminProducts",data)
   } catch (error) {
     console.log(error);
     res.redirect("/admin/pageerror");
@@ -48,9 +24,8 @@ export const loadProducts = async (req, res) => {
 
 export const loadAddProduct = async (req, res) => {
   try {
-    const brands = await Brand.find({ isDeleted: false });
-    const categories = await Category.find({ isDeleted: false });
-    res.render("admin/adminProduct/add-product", { brands, categories });
+   const data=await productService.getAddProductData()
+    res.render("admin/adminProduct/add-product",data);
   } catch (error) {
     console.log(error);
     res.redirect("/admin/pageerror");
@@ -59,84 +34,17 @@ export const loadAddProduct = async (req, res) => {
 
 export const addProduct = async (req, res) => {
   try {
-    const { productName, brand, category, description } = req.body;
-
-    const images = req.files.map(file => file.path);
-    console.log(images)
-console.log(req.files)
-    const product = new Product({
-      productName,
-      brand,
-      category,
-      description,
-      productImage: images,
-      variants:[]
-    });
-
-    await product.save();
-
-  
-    return res.status(200).json({
-      success: true,
-      message: "Product added successfully!",
-      redirectUrl: "/admin/products",
-    });
-
+    await productService.createProduct(req.body,req.files)
+    res.status(200).json({
+      success:true,
+      message:"Product added successfully",
+      redirectUrl:'/admin/products',
+    })
   } catch (error) {
     console.log(error);
     return res.status(500).json({
       success: false,
-      message: "Server error while adding product.",
-    });
-  }
-  
-};
-
-export const editProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const product = await Product.findById(id);
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found.",
-      });
-    }
-
-    product.productName  = req.body.productName;
-    product.brand        = req.body.brand;
-    product.category     = req.body.category;
-    product.description  = req.body.description;
-
-     if (req.body.status) {
-      product.isBlocked = req.body.status === "INACTIVE";
-    }
-   
-    if (req.files && req.files.length > 0 || req.body.existingImages) {
-  const newImages = req.files ? req.files.map(f => f.path) : [];
-  
-  let kept = req.body.existingImages || [];
-  if (typeof kept === "string") kept = [kept];
-  
-  product.productImage = [...kept, ...newImages];
-}
-    await product.save();
-
-    
-    return res.status(200).json({
-      success: true,
-      message: "Product updated successfully!",
-      redirectUrl: "/admin/products",
-    });
-
-  } catch (error) {
-    console.log(error);
-    console.log(error.message);
-    console.log(error.stack);
-    return res.status(500).json({
-      success: false,
-      message: "Server error while updating product.",
+      message: error.message,
     });
   }
 };
@@ -145,18 +53,8 @@ export const loadEditProduct = async (req, res) => {
 
   try {
 
-    const product = await Product.findById(req.params.id).populate('brand').populate('category');
-     const brands     = await Brand.find({ isDeleted: false, isListed: true });
-    const categories = await Category.find({ isDeleted: false, isListed: true });
-
-    if (!product) {
-
-      return res.redirect("/admin/products");
-    }
-
-    res.render("admin/adminProduct/edit-product", {
-      product, brands, categories
-    });
+    const data=await productService.getEditProductData(req.params.id)
+    res.render("admin/adminProduct/edit-product",data)
 
   } catch (error) {
 
@@ -166,28 +64,36 @@ export const loadEditProduct = async (req, res) => {
   }
 };
 
+export const editProduct = async (req, res) => {
+  try {
+   await productService.updateProduct(
+    req.params.id,
+    req.body,
+    req.files
+   )
+    res.status(200).json({
+      success:true,
+      message:"Product updated Successfully",
+      redirectUrl:"/admin/products",
+    })
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const deleteProduct = async (req, res) => {
   try {
 
-    const { id } = req.params;
-
-    const product = await Product.findByIdAndUpdate(
-      id,
-      { isDeleted: true },
-      { new: true }
-    );
-
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found"
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Product deleted successfully"
-    });
+   await productService.removeProduct(req.params.id)
+   res.status(200).json({
+    success:true,
+    message:"product deleted successfully"
+   })
 
   } catch (error) {
 
@@ -195,7 +101,7 @@ export const deleteProduct = async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: "Server Error"
+      message: error.message,
     });
 
   }
@@ -204,68 +110,11 @@ export const deleteProduct = async (req, res) => {
 export const getVariants = async (req, res) => {
   try {
 
-    const product = await Product.findById(req.params.id)
-
-    if (!product) {
-      return res.json({
-        success: false
-      })
-    }
+    const variants=await productService.getVariants(req.params.id)
 
     res.json({
       success: true,
-      variants: product.variants
-    })
-
-  } catch (error) {
-
-    console.log(error)
-
-    res.json({
-      success: false
-    })
-  }
-}
-
-export const addVariant = async (req, res) => {
-
-  try {
-
-    const { size, stock, price } = req.body
-
-    const product = await Product.findById(req.params.id)
-
-    if (!product) {
-      return res.json({
-        success: false,
-        message: "Product not found"
-      })
-    }
-
-   
-    const existingVariant = product.variants.find(
-      variant => variant.size === size
-    )
-
-    if (existingVariant) {
-      return res.json({
-        success: false,
-        message: "Variant already exists"
-      })
-    }
-
-    product.variants.push({
-      size,
-      stock,
-      price
-    })
-
-    await product.save()
-
-    res.json({
-      success: true,
-      message: "Variant added successfully",
-      variants: product.variants
+      variants,
     })
 
   } catch (error) {
@@ -274,7 +123,31 @@ export const addVariant = async (req, res) => {
 
     res.json({
       success: false,
-      message: "Server error"
+      message:error.message,
+    })
+  }
+}
+
+export const addVariant = async (req, res) => {
+
+  try {
+     
+    const variants=await productService.createVariant(
+      req.params.id,req.body
+    )
+    res.json({
+      success:true,
+      message:"Variant added Successfully",
+      variants,
+    })
+
+  } catch (error) {
+
+    console.log(error)
+
+    res.json({
+      success: false,
+      message: error.message,
     })
   }
 }
@@ -283,33 +156,23 @@ export const deleteVariant = async (req, res) => {
 
   try {
 
-    const { productId, variantId } = req.params
-
-    const product = await Product.findById(productId)
-
-    if (!product) {
-      return res.json({
-        success: false
-      })
-    }
-
-    product.variants = product.variants.filter(
-      variant => variant._id.toString() !== variantId
-    )
-
-    await product.save()
-
-    res.json({
+   await productService.removeVariant(
+    req.params.productId,
+    req.params.variantId
+   )
+   res.json({
       success: true,
-      message: "Variant deleted"
+      message: "Variant deleted",
     })
+
 
   } catch (error) {
 
     console.log(error)
 
     res.json({
-      success: false
+      success: false,
+      message:error.message,
     })
   }
 }
@@ -318,28 +181,13 @@ export const changeVariantStatus = async (req, res) => {
 
   try {
 
-    const { productId, variantId } = req.params
-
-    const product = await Product.findById(productId)
-
-    const variant = product.variants.id(variantId)
-
-    if (!variant) {
-      return res.json({
-        success: false
-      })
-    }
-
-    variant.status =
-      variant.status === "ACTIVE"
-        ? "INACTIVE"
-        : "ACTIVE"
-
-    await product.save()
-
+   const status=await productService.changeVariantStatus(
+    req.params.productId,
+    req.params.variantId
+   )
     res.json({
       success: true,
-      status: variant.status
+      status,
     })
 
   } catch (error) {
@@ -347,36 +195,27 @@ export const changeVariantStatus = async (req, res) => {
     console.log(error)
 
     res.json({
-      success: false
+      success: false,
+      message:error.message,
     })
   }
 }
 
 export const updateVariant = async (req, res) => {
   try {
-    const { productId, variantId } = req.params;
-    const { size, stock, price } = req.body;
+    const variant=await productService.updateVariant(
+      req.params.productId,req.params.variantId,req.body
+    )
 
-    const product = await Product.findById(productId);
-    if (!product) return res.json({ success: false, message: "Product not found" });
-
-    const variant = product.variants.id(variantId);
-    if (!variant) return res.json({ success: false, message: "Variant not found" });
-
-    const duplicate = product.variants.find(
-      v => v.size === size && v._id.toString() !== variantId
-    );
-    if (duplicate) return res.json({ success: false, message: "A variant with this size already exists" });
-
-    variant.size  = size;
-    variant.stock = stock;
-    variant.price = price;
-
-    await product.save();
-    res.json({ success: true, message: "Variant updated", variants: product.variants });
+    res.json({
+      success:true,
+      message:"variant updated",
+      variant,
+    })
   } catch (error) {
     console.log(error);
-    res.json({ success: false, message: "Server error" });
+    res.json({ success: false,
+       message: error.message });
   }
 };
 

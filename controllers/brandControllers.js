@@ -5,7 +5,7 @@ import {
   getBrandById,
   updateBrand,
   removeBrand,
-} from "../services/brandService.js";
+} from "../services/admin/brandService.js";
 
 export const loadBrand = async (req, res) => {
   try {
