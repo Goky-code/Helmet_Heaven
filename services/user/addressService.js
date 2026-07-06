@@ -1,4 +1,4 @@
-import Address from "../models/addressModel.js";
+import Address from "../../models/addressModel.js";
 
 export const getUserAddresses = async (userId) => {
   return await Address.find({ userId });

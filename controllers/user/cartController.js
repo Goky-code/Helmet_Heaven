@@ -1,47 +1,12 @@
-import Cart from "../../models/cartModel.js";
-import Product from "../../models/productModel.js";
-import Wishlist from "../../models/wishlistModel.js";
+import * as cartService from "../../services/user/cartService.js";
 
 export const loadCart = async (req, res) => {
   
   try {
-    const userId = req.session.user;
+    const data=await cartService.getCart(req.session.user)
 
-    let cart = await Cart.findOne({ userId })
-      .populate("items.productId");
-
-     if (cart) {
-     const before = cart.items.length;
-      cart.items = cart.items.filter(item => item.productId != null);
-      if (cart.items.length !== before) {
-        await cart.save();
-      }
-    }
-
+    res.render("user/product/cartPage",data)
     
-     const cartCount = cart
-      ? cart.items.reduce((sum, item) => {
-          const p = item.productId;
-          if (!p || p.isBlocked || p.isDeleted) return sum;
-          return sum + item.quantity;
-        }, 0)
-      : 0;
-
-    const wishlistDoc = await Wishlist.findOne({ userId }).populate("products.productId");
-    const wishlistCount = wishlistDoc
-      ? wishlistDoc.products.reduce((sum, item) => {
-          const p = item.productId;
-          if (!p || p.isBlocked || p.isDeleted) return sum;
-          return sum + 1;
-        }, 0)
-      : 0;
-
-    res.render("user/product/cartPage", {
-      cart:           cart || { items: [] },
-      cartCount,
-      wishlistCount,
-    });
-
   } catch (error) {
     console.log(error);
     res.redirect("/user/homepage");
@@ -51,252 +16,129 @@ export const loadCart = async (req, res) => {
 export const addToCart = async (req, res) => {
   
   try {
-    const userId = req.session.user;
-    const productId = req.params.id;
-    const { size, quantity = 1 } = req.body || {}  
-
-    if (!size) {
-      return res.status(400).json({ success: false, message: "Please select a size" });
-    }
-
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).json({ success: false, message: "Product not found" });
-    }
-
-   if (product.isBlocked || product.isDeleted) {
-  return res.status(400).json({ success: false, message: "Product unavailable" });
-}
- 
-    const variant = product.variants.find(
-      v => v.size === size && v.status === "ACTIVE"
-    );
-
-    if (!variant || variant.stock <= 0) {
-      return res.status(400).json({ success: false, message: "Out of stock" });
-    }
-
-   let cart = await Cart.findOne({ userId });
-
-if (!cart) {
-  cart = new Cart({
-    userId,
-    items: [{ productId, size, quantity: 1 }]
-  });
-} else {
-  
-  cart.items = cart.items.filter(item => item.size);
-
-  const itemIndex = cart.items.findIndex(
-    item => item.productId.toString() === productId && item.size === size
-  );
-
-  if (itemIndex > -1) {
-    const currentQty = cart.items[itemIndex].quantity;
-
-    if (currentQty >= 5) {
-      return res.status(400).json({ success: false, message: "Maximum 5 quantity allowed" });
-    }
-    if (currentQty + 1 > variant.stock) {
-      return res.status(400).json({ success: false, message: "Stock limit exceeded" });
-    }
-
-    cart.items[itemIndex].quantity += 1;
-  } else {
-    cart.items.push({ productId, size, quantity: 1 });
-  }
-}
-
-await Wishlist.updateOne(
-      { userId },
-      {
-        $pull: {
-          products: { productId }
-        }
-      }
-    );
-
-await cart.save();
-
-    return res.json({ success: true, message: "Added to cart", cartCount: cart.items.length });
-
+    const cartCount=await cartService.addItemToCart(
+      req.session.user,
+      req.params.id,
+      req.body.size
+    )
+    res.json({
+      success:true,
+      message:"Added to Cart",
+      cartCount,
+    })
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({ success: false, message:error.message, });
   }
-};
+}
 
 export const updateCartQuantity = async (req, res) => {
   try {
-    const userId = req.session.user;
-    const { productId, size, count } = req.body;
-
-    const cart = await Cart.findOne({ userId });
-    const product = await Product.findById(productId);
-
-    const item = cart.items.find(
-      item => item.productId.toString() === productId && item.size === size
-    );
-
-    if (!item) {
-      return res.json({ success: false, message: "Item not found" });
-    }
-
-    const variant = product.variants.find(v => v.size === size && v.status === "ACTIVE");
-
-    if (!variant) {
-      return res.json({ success: false, message: "Variant not found" });
-    }
-
-    const newQty = item.quantity + count;
-
-   
-    if (variant.stock === 0) {
-      return res.json({ 
-        success: false, 
-        quantity: 0,
-        message: "This item is out of stock" 
-      });
-    }
-
-   
-    if (newQty < 1) {
-      return res.json({ success: false, message: "Minimum quantity is 1" });
-    }
-
-    if (newQty > 5) {
-      return res.json({ success: false, message: "Maximum quantity is 5" });
-    }
-
-   
-    if (count > 0 && newQty > variant.stock) {
-      return res.json({ success: false, message: `Only ${variant.stock} item(s) in stock` });
-    }
-
-    item.quantity = newQty;
-  
-    x
-
-    await cart.save();
-
-    res.json({ success: true, quantity: item.quantity });
-
-  } catch (error) {
-    console.log(error);
-    res.json({ success: false });
-  }
-};
-
-export const removeCartItem = async (req, res) => {
-  try {
-    const userId = req.session.user;
-    const { productId, size } = req.body;
-
-    await Cart.updateOne(
-      { userId },
-      { $pull: { items: { productId, size } } }
-    );
-
-    const cart = await Cart.findOne({ userId });
-
-res.json({
-  success: true,
-  cartCount: cart ? cart.items.length : 0
-});
-  } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: "Server error" });
-  }
-};
-
-export const addAllToCart = async (req, res) => {
-  try {
-    const userId = req.session.user;
-
-   
-    const wishlist = await Wishlist.findOne({ userId }).populate('products.productId');
-
-    if (!wishlist || wishlist.products.length === 0) {
-      return res.json({ success: false, message: 'Wishlist is empty' });
-    }
-
-    let cart = await Cart.findOne({ userId });
-    if (!cart) {
-      cart = new Cart({ userId, items: [] });
-    }
-
-    for (const item of wishlist.products) {
-      const product = item.productId;
-      const size = item.size;
-
-      if (!size || !product) continue;
-
-      const variant = product.variants?.find(
-        v => v.size === size && v.status === 'ACTIVE'
+     const result =
+      await cartService.updateQuantity(
+        req.session.user,
+        req.body
       );
-
-      if (!variant || variant.stock <= 0) continue;
-
-      const existing = cart.items.find(
-        ci => ci.productId.toString() === product._id.toString() && ci.size === size
-      );
-
-      if (existing) {
-        const newQty = existing.quantity + 1;
-        if (newQty <= 5 && newQty <= variant.stock) {
-          existing.quantity = newQty;
-        }
-      } else {
-        cart.items.push({ productId: product._id, size, quantity: 1 });
-      }
-    }
-
-    await cart.save();
-
-    
-    wishlist.products = [];
-    await wishlist.save();
-
-    return res.json({ success: true, message: 'All items moved to cart' });
-
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: 'Server error' });
-  }
-};
-
-export const getCartCount = async (req, res) => {
-  try {
-    const userId = req.session.user
-
-    if (!userId) {
-      return res.json({
-        success: true,
-        count: 0
-      });
-    }
-
-    const cart = await Cart.findOne({ userId }).populate("items.productId");
-
-    let count = 0;
-    if (cart) {
-      count = cart.items.filter(item => {
-        const p = item.productId;
-        return p && !p.isBlocked && !p.isDeleted;
-      }).length;
-    }
 
     res.json({
       success: true,
-      count
+      quantity: result.quantity,
+      message: result.message,
     });
 
   } catch (error) {
+
+    console.log(error);
+
     res.json({
       success: false,
-      count: 0
+      message: error.message,
     });
+
   }
-};
+
+}
+
+export const removeCartItem = async (req, res) => {
+   try {
+
+    const cartCount =
+      await cartService.removeItem(
+        req.session.user,
+        req.body.productId,
+        req.body.size
+      );
+
+    res.json({
+      success: true,
+      cartCount,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+
+}
+
+export const addAllToCart=async(req,res) => {
+
+  try {
+
+    await cartService.moveWishlistToCart(
+      req.session.user
+    );
+
+    res.json({
+      success: true,
+      message: "All items moved to cart",
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+
+}
+
+export const getCartCount=async(req,res) => {
+
+  try {
+
+    const count =
+      await cartService.getCartItemCount(
+        req.session.user
+      );
+
+    res.json({
+      success: true,
+      count,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.json({
+      success: false,
+      count: 0,
+    });
+
+  }
+
+}
+
+
 

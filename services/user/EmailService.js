@@ -1,5 +1,5 @@
-import User from "../models/userModels.js";
-import sendEmail from "../utils/sendEmail.js";
+import User from "../../models/userModels.js";
+import sendEmail from "../../utils/sendEmail.js";
 
 export const sendOTPForEmailChange = async (userId, newEmail) => {
 
