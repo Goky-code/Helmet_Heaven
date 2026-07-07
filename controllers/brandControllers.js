@@ -15,8 +15,9 @@ export const loadBrand = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
 
     const limit=4
+    const sort=req.query.sort||""
 
-    const data=await getBrands(search,page,limit)
+    const data=await getBrands(search,page,limit,sort)
       res.render("admin/adminbrand/adminBrand",data)
     
   } catch (error) {

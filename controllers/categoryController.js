@@ -7,9 +7,10 @@ export const loadCategory = async (req, res) => {
       const search=req.query.search || ""
      const page= parseInt(req.query.page) || 1
      const limit=4
+     const sort=req.query.sort||""
       
      const data=await categoryService.getCategories(
-      search,page,limit
+      search,page,limit,sort
      )
      res.render("admin/admincategory/adminCategory",data)
     }catch(error){

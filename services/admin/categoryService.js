@@ -1,6 +1,6 @@
 import Category from "../../models/categoryModel.js";
 
-export const getCategories=async(search,page,limit)=>{
+export const getCategories=async(search,page,limit,sort)=>{
     const skip=(page-1)*limit
 
     const searchQuery={
@@ -8,11 +8,18 @@ export const getCategories=async(search,page,limit)=>{
         name:{$regex:search,$options:"i"}
     }
 
+    let sortOption={createdAt:-1}
+    if(sort==="a-z"){
+        sortOption={name:1}
+    }else if(sort==='z-a'){
+        sortOption={name:-1}
+    }
+
 const totalCategories=await Category.countDocuments(searchQuery)
 const totalPages=Math.ceil(totalCategories/limit)
 
 const categories=await Category.find(searchQuery)
-.sort({createdAt:-1})
+.sort(sortOption)
 .skip(skip)
 .limit(limit)
 
@@ -23,6 +30,7 @@ return{
     totalCategories,
     search,
     limit,
+    sort,
 }
 }
 

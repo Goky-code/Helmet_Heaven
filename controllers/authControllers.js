@@ -11,7 +11,7 @@ export const login = async (req,res) => {
     } = req.body;
 
     const user =
-      await authService.loginUser(
+      await authServices.loginUser(
         email,
         password
       );
@@ -38,7 +38,7 @@ export const signup = async (req,res) => {
   try {
 
     const signupData =
-      await authService.createSignupSession(
+      await authServices.createSignupSession(
         req.body
       );
 
@@ -66,7 +66,7 @@ export const verifyOtp = async (req, res) => {
 
   try {
 
-    await authService.verifySignupOtp(
+    await authServices.verifySignupOtp(
       req.session.signupData,
       req.body.otp
     );
@@ -97,7 +97,7 @@ export const resendOtp = async (req, res) => {
   try {
 
     req.session.signupData =
-      await authService.resendSignupOtp(
+      await authServices.resendSignupOtp(
         req.session.signupData
       );
 
@@ -115,7 +115,7 @@ export const forgotPassword = async (req, res) => {
   try {
 
     const email =
-      await authService.forgotPassword(
+      await authServices.forgotPassword(
         req.body.email
       );
 
@@ -138,7 +138,7 @@ export const verifyForgotOtp = async (req,res) => {
 
   try {
 
-    await authService.verifyForgotPasswordOtp(
+    await authServices.verifyForgotPasswordOtp(
       req.session.resetEmail,
       req.body.otp
     );
@@ -164,7 +164,7 @@ export const resendOtpforgot =async(req,res) => {
 
   try {
 
-    await authService.resendForgotPasswordOtp(
+    await authServices.resendForgotPasswordOtp(
       req.session.resetEmail
     );
 
@@ -191,11 +191,9 @@ export const resetPassword = async (req, res) => {
 
   try {
 
-    await authService.resetUserPassword(
-      req.session.resetEmail,
-      req.session.isOtpVerified,
-      req.body.password,
-      req.body.confirmpassword
+    await authServices.resetUserPassword(
+      req.session.resetEmail, req.session.isOtpVerified,
+      req.body.password,req.body.confirmpassword
     )
 
     req.session.resetEmail = null

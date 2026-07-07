@@ -1,6 +1,6 @@
 import Brand from "../../models/brandModels.js";
 
-export const getBrands=async(search,page,limit)=>{
+export const getBrands=async(search,page,limit,sort)=>{
     const skip=(page-1)*limit
 
     const searchQuery={
@@ -8,11 +8,18 @@ export const getBrands=async(search,page,limit)=>{
         name:{$regex:search,$options:"i"},
     }
 
+    let sortOption={createdAt:-1}
+    if(sort==="a-z"){
+      sortOption={name:1}
+    }else if(sort==="z-a"){
+        sortOption={name:-1}
+    }
+
     const totalBrands=await Brand.countDocuments(searchQuery)
     const totalPages=Math.ceil(totalBrands/limit)
 
     const brands=await Brand.find(searchQuery)
-    .sort({createdAt:-1})
+    .sort(sortOption)
     .skip(skip)
     .limit(limit)
 
@@ -23,6 +30,7 @@ export const getBrands=async(search,page,limit)=>{
     totalBrands,
     search,
     limit,
+    sort,
    }
 }
 

@@ -1,6 +1,6 @@
 import express from "express"
 import {addToCart, loadProductDetails} from "../controllers/user/productdetailsController.js"
-import { loadCart } from "../controllers/user/cartController.js"
+
 import { isUserAuth } from "../middlewares/userAuth.js"
  const router=express.Router()
 
@@ -23,7 +23,7 @@ router.get('/counts', async (req, res) => {
     const wishCount = wish?.items?.length ?? 0;
 
     res.json({ cartCount, wishCount });
-  } catch (err) {
+  } catch (error) {
     res.json({ cartCount: 0, wishCount: 0 });
   }
 });

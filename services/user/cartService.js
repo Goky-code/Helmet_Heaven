@@ -9,7 +9,7 @@ export const getCart=async(userId)=>{
     if(cart){
         const before=cart.items.length
         cart.items=cart.items.filter(
-            item=>item.productId!=null
+            item=>item.productId!==null
         )
         if(before!==cart.items.length){
             await cart.save()

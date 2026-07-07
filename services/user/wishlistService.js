@@ -11,7 +11,7 @@ export const getWishlist = async (userId) => {
     const before = wishlist.products.length;
 
     wishlist.products = wishlist.products.filter(
-      item => item.productId != null
+      item => item.productId !== null
     );
 
     if (before !== wishlist.products.length) {

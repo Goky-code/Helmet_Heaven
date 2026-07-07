@@ -1,5 +1,4 @@
 import User from "../models/userModels.js"
-import Address from "../models/addressModel.js"
 
 import * as profileService from "../services/user/profileService.js";
 import * as addressService from "../services/user/addressService.js";

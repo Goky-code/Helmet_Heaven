@@ -1,8 +1,4 @@
   
-import Product from "../models/productModel.js";
-import Brand from "../models/brandModels.js"
-import Category from "../models/categoryModel.js";
-import { skipMiddlewareFunction } from "mongoose";
  import * as productService from "../services/admin/productService.js"
 
 export const loadProducts = async (req, res) => {
