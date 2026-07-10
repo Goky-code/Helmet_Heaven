@@ -13,13 +13,13 @@ export const getProducts=async({search="",category="",brand="",status=""})=>{
     if(status==="INACTIVE")
         filter.isBlocked=true
 
-    const products=await Product.find(filter)
+    let products=await Product.find(filter)
     .populate("brand")
     .populate("category")
     .sort({createdAt:-1})
 
     if(brand){
-        products=products.find(
+        products=products.filter(
             product=>product.brand?.name===brand
         )
     }
