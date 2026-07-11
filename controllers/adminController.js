@@ -34,12 +34,13 @@ export const listCustomers=async(req,res)=>{
   try{
     const page=parseInt(req.query.page)||1
     const limit=5
+    const sort=req.query.sort||""
      
     const data=await adminService.getCustomers(
       page,
       limit,
       req.query.search||"",
-      req.query.status||""
+      req.query.status||"",sort
     )
      res.render(
       "admin/adminCustomer",

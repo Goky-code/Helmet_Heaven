@@ -14,7 +14,7 @@ export const loginAdmin=async(email,password)=>{
     return true
 }
 
-export const getCustomers=async(page,limit,search,status)=>{
+export const getCustomers=async(page,limit,search,status,sort)=>{
 
     const skip=(page-1)*limit
     const conditions=[]
@@ -25,6 +25,7 @@ export const getCustomers=async(page,limit,search,status)=>{
     if(status==="blocked"){
         conditions.push({isBlocked:true})
     }
+   
     if(search){
         conditions.push({
             $or:[
@@ -42,6 +43,7 @@ export const getCustomers=async(page,limit,search,status)=>{
     const users=await User.find(filter)
     .skip(skip)
     .limit(limit)
+   .sort({isBlocked:1})
 
     const totalPages=Math.ceil(totalUsers/limit)
 
@@ -52,6 +54,7 @@ export const getCustomers=async(page,limit,search,status)=>{
         totalUsers,
         status,
         search,
+        sort,
     }
 }
 

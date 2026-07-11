@@ -3,7 +3,10 @@
 
 export const loadProducts = async (req, res) => {
   try {
-    const data=await productService.getProducts(req.query)
+     const {search,category,brand,status}=req.query
+    const page=parseInt(req.query.page)||1
+    const limit=6
+    const data=await productService.getProducts(page,limit ,{search,category,brand,status})
 
     if(req.headers["x-requested-with"]==="XMLHttpRequest"){
       return res.json({

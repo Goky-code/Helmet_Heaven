@@ -2,7 +2,9 @@ import Product from "../../models/productModel.js";
 import Brand from "../../models/brandModels.js";
 import Category from "../../models/categoryModel.js";
 
-export const getProducts=async({search="",category="",brand="",status=""})=>{
+export const getProducts=async(page,limit,{search="",category="",brand="",status=""})=>{
+
+    const skip=(page-1)*limit
     const filter={isDeleted:false}
 
     if(search){
@@ -13,21 +15,16 @@ export const getProducts=async({search="",category="",brand="",status=""})=>{
     if(status==="INACTIVE")
         filter.isBlocked=true
 
-    let products=await Product.find(filter)
-    .populate("brand")
-    .populate("category")
-    .sort({createdAt:-1})
-
+   
     if(brand){
-        products=products.filter(
-            product=>product.brand?.name===brand
-        )
+        filter.brand=brand
+        
     }
 
     if(category){
-        products=products.filter(
-            product=>product.category?.name===category
-        )
+        filter.category=category
+          
+       
     }
     const brands=await Brand.find({
         isDeleted:false,
@@ -37,10 +34,31 @@ export const getProducts=async({search="",category="",brand="",status=""})=>{
         isDeleted:false,
         isListed:true,
     })
+
+    const totalProducts=await Product.countDocuments(filter)
+    const totalPages=Math.ceil(totalProducts/limit)
+
+     const products=await Product.find(filter)
+    .populate("brand")
+    .populate("category")
+     .sort({createdAt:-1})
+    .skip(skip)
+    .limit(limit)
+   
+
     return{
         products,
         brands,
         categories,
+        currentPage:page,
+        totalProducts,
+        totalPages,
+        search,
+        category,
+         brand,
+         status,
+        page,
+        limit
     }
 }
 

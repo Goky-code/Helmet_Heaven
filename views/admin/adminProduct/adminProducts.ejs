@@ -88,6 +88,41 @@
     .btn-icon.edit:hover { border-color: var(--accent); color: var(--accent2); }
     .btn-icon.del:hover { border-color: var(--red); color: var(--red); }
 
+    .table-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:16px 20px;
+}
+
+.pagination{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-left:auto;  
+}
+
+.pagination a{
+    text-decoration:none;
+    padding:8px 14px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    background:var(--surface);
+    transition:.2s;
+}
+
+.pagination a:hover{
+    background:var(--accent);
+    color:#fff;
+}
+
+.pagination a.active{
+    background:var(--accent);
+    color:#fff;
+    border-color:var(--accent);
+}
+
     /* EMPTY STATE */
     .empty-row td { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
 
@@ -240,21 +275,41 @@
         </div>
         <div class="field-group">
           <label>Category</label>
-          <select id="catFilter" onchange="filterTable()">
-            <option value="">All Categories</option>
-            <% categories.forEach((category) => { %>
-              <option value="<%= category.name %>" <%= typeof selectedCategory !== 'undefined' && selectedCategory === category.name ? 'selected' : '' %>><%= category.name %></option>
-            <% }) %>
-          </select>
+         <select id="catFilter" onchange="filterTable()">
+    <option value="">All Categories</option>
+
+    <% categories.forEach(category => { %>
+
+        <option
+            value="<%= category._id %>"
+            <%= category._id.toString()===String(category) ? "selected":"" %>>
+
+            <%= category.name %>
+
+        </option>
+
+    <% }) %>
+
+</select>
         </div>
         <div class="field-group">
           <label>Brand</label>
-          <select id="brandFilter" onchange="filterTable()">
-            <option value="">All Brands</option>
-            <% brands.forEach((brand) => { %>
-              <option value="<%= brand.name %>" <%= typeof selectedBrand !== 'undefined' && selectedBrand === brand.name ? 'selected' : '' %>><%= brand.name %></option>
-            <% }) %>
-          </select>
+        <select id="brandFilter" onchange="filterTable()">
+    <option value="">All Brands</option>
+
+    <% brands.forEach(brand => { %>
+
+        <option
+            value="<%= brand._id %>"
+            <%= brand._id.toString()===String(brand) ? "selected":"" %>>
+
+            <%= brand.name %>
+
+        </option>
+
+    <% }) %>
+
+</select>
         </div>
         <div class="field-group">
           <label>Status</label>
@@ -319,12 +374,43 @@
             <% } %>
           </tbody>
         </table>
-        <div class="table-footer">
-          <span class="results-count">Showing <%= products.length %> result<%= products.length !== 1 ? 's' : '' %></span>
-        </div>
-      </div>
+      <div class="table-footer">
+    <span class="results-count">
+        Showing <%= products.length %> result<%= products.length !== 1 ? "s" : "" %>
+    </span>
 
-    </div>
+
+<!-- Pagination -->
+<% if (totalPages > 1) { %>
+<div class="pagination">
+
+    <% if (currentPage > 1) { %>
+    <a href="?page=<%= currentPage - 1 %>&search=<%= search %>&category=<%= category || '' %>&brand=<%= brand || '' %>&status=<%= status || '' %>">
+      Previous
+    </a>
+  <% } %>
+
+  <!-- Page Numbers -->
+  <% for(let i = 1; i <= totalPages; i++) { %>
+    <a
+      href="?page=<%= i %>&search=<%= search %>&category=<%= category || '' %>&brand=<%= brand || '' %>&status=<%= status || '' %>"
+      class="<%= currentPage === i ? 'active' : '' %>">
+
+      <%= i %>
+
+    </a>
+  <% } %>
+
+  <!-- Next -->
+  <% if (currentPage < totalPages) { %>
+    <a href="?page=<%= currentPage + 1 %>&search=<%= search %>&category=<%= category || '' %>&brand=<%= brand || '' %>&status=<%= status || '' %>">
+      Next
+    </a>
+  <% } %>
+
+</div>
+<% } %>
+      </div>
   </div>
 
   <!-- VARIANTS MODAL -->
