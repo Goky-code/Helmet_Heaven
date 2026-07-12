@@ -253,7 +253,7 @@
             <label>Brand *</label>
             <select id="m-brand">
               <option value="">Select brand</option>
-              <% brands.forEach((brand) => { %>
+              <% data.brands.forEach((brand) => { %>
                 <option value="<%= brand._id %>"><%= brand.name %></option>
               <% }) %>
             </select>
@@ -263,7 +263,7 @@
             <label>Category *</label>
             <select id="m-cat">
               <option value="">Select category</option>
-              <% categories.forEach((category) => { %>
+              <% data.categories.forEach((category) => { %>
                 <option value="<%= category._id %>"><%= category.name %></option>
               <% }) %>
             </select>

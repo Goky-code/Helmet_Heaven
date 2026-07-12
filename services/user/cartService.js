@@ -87,7 +87,7 @@ export const addItemToCart=async(userId,productId,size)=>{
 
       if (currentQty >= 5) {
         throw new Error(
-          "Maximum 5 quantity allowed"
+          "Maximum 5 quantity allowed in cart"
         );
       }
 

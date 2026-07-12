@@ -72,6 +72,9 @@ export const addProductToCart = async (
   if (!qty || qty < 1) {
     throw new Error("Invalid quantity");
   }
+  if(qty>5){
+    throw new Error("maximum quantity allowed is 5")
+  }
 
   const product =
     await Product.findById(productId);
@@ -124,6 +127,11 @@ export const addProductToCart = async (
 
     const newQty =
       cart.items[existingIndex].quantity + qty;
+
+      if (newQty > 5) {
+  throw new Error("Maximum quantity allowed is 5");
+}
+
 
     if (newQty > variant.stock) {
       throw new Error(

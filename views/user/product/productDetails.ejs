@@ -1063,6 +1063,7 @@
       <span
         class="qty-label"
         id="stockMsg"
+         data-stock="<%= activeVariant?.stock || 0 %>"
       >
 
         <% if(activeVariant?.stock > 0){ %>
@@ -1519,18 +1520,35 @@
 
   /* ── QUANTITY ── */
   function changeQty(change) {
-  const qtyInput = document.getElementById('qtyDisplay');
-  const max = Number(qtyInput.max);
+  const qtyInput = document.getElementById("qtyDisplay");
+  const stockMsg = document.getElementById("stockMsg");
 
-  
-  if (max === 0) return;
+  const stock = Number(qtyInput.max); 
+  const limit = Math.min(stock, 5);   
+
+  if (limit === 0) {
+    stockMsg.textContent = "Out Of Stock";
+    stockMsg.style.color = "red";
+    return;
+  }
 
   let current = Number(qtyInput.value);
-  current = Math.min(Math.max(current + change, 1), max);
+
+  if (change > 0 && current >= limit) {
+    showToast(
+      stock > 5
+        ? "Maximum quantity allowed is 5"
+        : "Out Of Stock",
+      "var(--danger)"
+    );
+    return;
+  }
+
+  current = Math.max(current + change, 1);
+
   qtyInput.value = current;
   qty = current;
 }
-
   /* ── CART ── */
   function validateBeforeAction() {
     if (!selectedSize) {

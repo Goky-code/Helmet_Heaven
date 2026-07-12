@@ -1,6 +1,8 @@
   
  import * as productService from "../services/admin/productService.js"
-
+ import Category from "../models/categoryModel.js";
+ import Brand from "../models/brandModels.js";
+ 
 export const loadProducts = async (req, res) => {
   try {
      const {search,category,brand,status}=req.query
@@ -24,7 +26,15 @@ export const loadProducts = async (req, res) => {
 export const loadAddProduct = async (req, res) => {
   try {
    const data=await productService.getAddProductData()
-    res.render("admin/adminProduct/add-product",data);
+   const categories=await Category.find({
+    isListed:true,
+    isDeleted:false
+   })
+   const brands=await Brand.find({
+    isListed:true,
+    isDeleted:false
+   })
+    res.render("admin/adminProduct/add-product",{data,categories,brands,});
   } catch (error) {
     console.log(error);
     res.redirect("/admin/pageerror");

@@ -64,8 +64,9 @@ export const getShopProducts = async (query, userId) => {
       return acc;
     }
 
-    const isUnavailable =
-      product.isBlocked || product.isDeleted;
+    if (product.isBlocked||product.isDeleted){
+      return acc
+    }
 
     const activeVariants = product.variants.filter(
       variant => {
@@ -94,24 +95,19 @@ export const getShopProducts = async (query, userId) => {
     if (!activeVariants.length) {
       return acc;
     }
-
-    const inStock = activeVariants.filter(
-      variant => variant.stock > 0
-    );
-
-    const candidates =
-      inStock.length
-        ? inStock
-        : activeVariants;
-
-    const match = candidates.sort(
+   
+    const availableVariants=activeVariants.filter(v=>v.stock>0)
+    
+    const match =availableVariants.length>0
+     ?availableVariants.sort((a,b)=>a.price-b.price)[0]
+    : activeVariants.sort(
       (a, b) => a.price - b.price
     )[0];
 
     acc.push({
       product,
       variant: match,
-      isUnavailable,
+      
     });
 
     return acc;
@@ -165,10 +161,10 @@ export const getShopProducts = async (query, userId) => {
   );
 
   const products = pageItems.map(
-    ({ product, variant, isUnavailable }) => ({
+    ({ product, variant }) => ({
       ...product,
       _activeVariant: variant,
-      _isUnavailable: isUnavailable,
+     
     })
   );
 

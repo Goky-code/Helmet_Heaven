@@ -65,9 +65,11 @@ export const getProducts=async(page,limit,{search="",category="",brand="",status
 export const getAddProductData=async()=>{
     const brands=await Brand.find({
         isDeleted:false,
+        isListed:true
     })
     const categories=await Category.find({
         isDeleted:false,
+        isListed:true
     })
     return{
         brands,
