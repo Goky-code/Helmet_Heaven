@@ -398,9 +398,15 @@
   <form class="nav-search" method="GET" action="/shop">
     <i class="fa-solid fa-magnifying-glass"></i>
     <input type="text" name="search" value="<%= search %>" placeholder="Search premium helmets..."/>
-    <% if (category) { %><input type="hidden" name="category" value="<%= category %>"/><% } %>
-    <% if (brand)    { %><input type="hidden" name="brand"    value="<%= brand %>"/><% } %>
-    <% if (size)     { %><input type="hidden" name="size"     value="<%= size %>"/><% } %>
+    <%selectedCategories.forEach(category=>{ %><input type="hidden" name="category" value="<%= category %>"/><% }) %>
+    <% selectedBrands.forEach(brand => { %>
+    <input type="hidden" name="brand" value="<%= brand %>">
+<% }) %>
+   
+<% selectedSizes.forEach(size => { %>
+    <input type="hidden" name="size" value="<%= size %>">
+<% }) %>
+
     <% if (sort)     { %><input type="hidden" name="sort"     value="<%= sort %>"/><% } %>
   </form>
 
@@ -453,62 +459,67 @@
       <i class="fa-solid fa-sliders" style="color:var(--blue);font-size:.9rem"></i> Filters
     </div>
 
-    <a href="/shop" class="clear-btn <%= (!category && !brand && !size && !search) ? 'active' : '' %>">
+   <a href="/shop"
+   class="clear-btn <%= (
+      !selectedCategories.length &&
+      !selectedBrands.length &&
+      !selectedSizes.length &&
+      !search
+   ) ? 'active' : '' %>">
       <i class="fa-solid fa-grid-2"></i> All Products
     </a>
 
     <!-- BRAND -->
     <div class="filter-group">
-      <div class="filter-label">Brand</div>
-      <% brands.forEach(b => { %>
-        <%
-          const brandUrl = `/shop?brand=${b._id}`
-            + (category ? `&category=${category}` : '')
-            + (size     ? `&size=${size}`         : '')
-            + (search   ? `&search=${encodeURIComponent(search)}` : '')
-            + (sort     ? `&sort=${sort}`         : '')
-        %>
-        <a href="<%= brandUrl %>" class="brand-pill <%= brand == b._id.toString() ? 'active' : '' %>">
-          <%= b.name %>
-        </a>
-      <% }) %>
-    </div>
+  <div class="filter-label">Brand</div>
+
+  <% brands.forEach(b => { %>
+    <label class="brand-pill">
+      <input
+        type="checkbox"
+        name="brand"
+        value="<%= b._id %>"
+        <%= selectedBrands.includes(b._id.toString()) ? "checked" : "" %>>
+      <%= b.name %>
+    </label>
+  <% }) %>
+</div>
 
     <!-- CATEGORY -->
     <div class="filter-group">
-      <div class="filter-label">Category</div>
-      <% categories.forEach(cat => { %>
-        <%
-          const catUrl = `/shop?category=${cat._id}`
-            + (brand  ? `&brand=${brand}`         : '')
-            + (size   ? `&size=${size}`            : '')
-            + (search ? `&search=${encodeURIComponent(search)}` : '')
-            + (sort   ? `&sort=${sort}`            : '')
-        %>
-        <a href="<%= catUrl %>" class="cat-pill <%= category == cat._id.toString() ? 'active' : '' %>">
-          <%= cat.name %>
-        </a>
-      <% }) %>
-    </div>
+  <div class="filter-label">Category</div>
+
+  <% categories.forEach(cat => { %>
+    <label class="cat-pill">
+      <input
+        type="checkbox"
+        name="category"
+        value="<%= cat._id %>"
+        <%= selectedCategories.includes(cat._id.toString()) ? "checked" : "" %>>
+      <%= cat.name %>
+    </label>
+  <% }) %>
+</div>
 
     <!-- SIZE -->
     <div class="filter-group">
-      <div class="filter-label">Size</div>
-      <div class="size-row">
-        <% ['S','M','L','XL'].forEach(s => { %>
-          <%
-            const isActive = size === s
-            const sizeUrl = `/shop?` +
-              (isActive ? '' : `size=${s}&`) +
-              (category ? `category=${category}&` : '') +
-              (brand    ? `brand=${brand}&`    : '') +
-              (search   ? `search=${encodeURIComponent(search)}&` : '') +
-              (sort     ? `sort=${sort}`       : '')
-          %>
-          <a href="<%= sizeUrl %>" class="size-btn <%= isActive ? 'active' : '' %>"><%= s %></a>
-        <% }) %>
-      </div>
-    </div>
+  <div class="filter-label">Size</div>
+
+  <div class="size-row">
+    <% ['S','M','L','XL'].forEach(s => { %>
+
+      <label class="size-btn">
+        <input
+          type="checkbox"
+          name="size"
+          value="<%= s %>"
+          <%= selectedSizes.includes(s) ? "checked" : "" %>>
+        <%= s %>
+      </label>
+
+    <% }) %>
+  </div>
+</div>
 
     <!-- PRICE RANGE -->
     <div class="filter-group">
@@ -546,41 +557,63 @@
     </div>
 
    
-    <% if (category || brand || size || search || minPrice || maxPrice) { %>
-    <div class="active-filters">
-      <span class="active-filters-label">Active:</span>
-      <% if (search) { %>
-        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
-          Search: <%= search %> <i class="fa-solid fa-xmark"></i>
-        </a>
-      <% } %>
-      <% if (category) { %>
-        <% const cat = categories.find(c => c._id.toString() === category) %>
-        <a href="/shop?<%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
-          Category: <%= cat ? cat.name : category %> <i class="fa-solid fa-xmark"></i>
-        </a>
-      <% } %>
-      <% if (brand) { %>
-        <% const br = brands.find(b => b._id.toString() === brand) %>
-        <a href="/shop?<%= category?`category=${category}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
-          Brand: <%= br ? br.name : brand %> <i class="fa-solid fa-xmark"></i>
-        </a>
-      <% } %>
-      <% if (size) { %>
-        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
-          Size: <%= size %> <i class="fa-solid fa-xmark"></i>
-        </a>
-      <% } %>
-      <% if (maxPrice) { %>
-        <a href="/shop?<%= category?`category=${category}&`:'' %><%= brand?`brand=${brand}&`:'' %><%= size?`size=${size}&`:'' %><%= search?`search=${encodeURIComponent(search)}&`:'' %><%= sort?`sort=${sort}`:'' %>" class="filter-tag">
-          Max: ₹<%= Number(maxPrice).toLocaleString() %> <i class="fa-solid fa-xmark"></i>
-        </a>
-      <% } %>
-      <a href="/shop" class="filter-tag" style="background:rgba(244,67,54,.1);border-color:rgba(244,67,54,.3);color:var(--red)">
-        Clear all <i class="fa-solid fa-xmark"></i>
-      </a>
-    </div>
+   <% if (
+    selectedCategories.length ||
+    selectedBrands.length ||
+    selectedSizes.length ||
+    search ||
+    minPrice ||
+    maxPrice
+) { %>
+
+<div class="active-filters">
+    <span class="active-filters-label">Active:</span>
+
+    <% if (search) { %>
+        <span class="filter-tag">
+            Search: <%= search %>
+        </span>
     <% } %>
+
+    <% selectedCategories.forEach(categoryId => { %>
+        <% const cat = categories.find(c => c._id.toString() === categoryId); %>
+        <% if (cat) { %>
+            <span class="filter-tag">
+                Category: <%= cat.name %>
+            </span>
+        <% } %>
+    <% }) %>
+
+    <% selectedBrands.forEach(brandId => { %>
+        <% const br = brands.find(b => b._id.toString() === brandId); %>
+        <% if (br) { %>
+            <span class="filter-tag">
+                Brand: <%= br.name %>
+            </span>
+        <% } %>
+    <% }) %>
+
+    <% selectedSizes.forEach(size => { %>
+        <span class="filter-tag">
+            Size: <%= size %>
+        </span>
+    <% }) %>
+
+    <% if (maxPrice) { %>
+        <span class="filter-tag">
+            Max: ₹<%= Number(maxPrice).toLocaleString() %>
+        </span>
+    <% } %>
+
+    <a href="/shop"
+       class="filter-tag"
+       style="background:rgba(244,67,54,.1);border-color:rgba(244,67,54,.3);color:var(--red)">
+        Clear all
+    </a>
+
+</div>
+
+<% } %>
 
     <!-- Toolbar -->
     <div class="toolbar">
@@ -589,12 +622,29 @@
         <% if (totalPages > 1) { %> · Page <%= currentPage %> of <%= totalPages %><% } %>
       </div>
       <form method="GET" action="/shop" id="sortForm">
-        <% if (search)   { %><input type="hidden" name="search"   value="<%= search %>"/><% } %>
-        <% if (category) { %><input type="hidden" name="category" value="<%= category %>"/><% } %>
-        <% if (brand)    { %><input type="hidden" name="brand"    value="<%= brand %>"/><% } %>
-        <% if (size)     { %><input type="hidden" name="size"     value="<%= size %>"/><% } %>
-        <% if (minPrice) { %><input type="hidden" name="minPrice" value="<%= minPrice %>"/><% } %>
-        <% if (maxPrice) { %><input type="hidden" name="maxPrice" value="<%= maxPrice %>"/><% } %>
+       <% if (search) { %>
+    <input type="hidden" name="search" value="<%= search %>">
+<% } %>
+
+<% selectedCategories.forEach(category => { %>
+    <input type="hidden" name="category" value="<%= category %>">
+<% }) %>
+
+<% selectedBrands.forEach(brand => { %>
+    <input type="hidden" name="brand" value="<%= brand %>">
+<% }) %>
+
+<% selectedSizes.forEach(size => { %>
+    <input type="hidden" name="size" value="<%= size %>">
+<% }) %>
+
+<% if (minPrice) { %>
+    <input type="hidden" name="minPrice" value="<%= minPrice %>">
+<% } %>
+
+<% if (maxPrice) { %>
+    <input type="hidden" name="maxPrice" value="<%= maxPrice %>">
+<% } %>
         <select class="sort-select" name="sort" onchange="document.getElementById('sortForm').submit()">
           <option value=""          <%= sort === ''         ? 'selected' : '' %>>Sort: Newest</option>
           <option value="low-high"  <%= sort === 'low-high' ? 'selected' : '' %>>Price: Low → High</option>
@@ -681,29 +731,61 @@
  <% } %>
     </div>
 
-    <!-- Pagination -->
-    <% if (totalPages > 1) { %>
-    <div class="pagination">
-      <% if (currentPage > 1) { %>
-        <a href="/shop?page=<%= currentPage - 1 %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>" class="page-btn">
-          <i class="fa-solid fa-chevron-left"></i>
+<%
+function buildQuery(page){
+    const params = new URLSearchParams();
+
+    params.set("page", page);
+
+    if (search) params.set("search", search);
+    if (minPrice) params.set("minPrice", minPrice);
+    if (maxPrice) params.set("maxPrice", maxPrice);
+    if (sort) params.set("sort", sort);
+
+    selectedCategories.forEach(id => params.append("category", id));
+    selectedBrands.forEach(id => params.append("brand", id));
+    selectedSizes.forEach(s => params.append("size", s));
+
+    return params.toString();
+}
+%>
+
+
+   <!-- Pagination -->
+<% if (totalPages > 1) { %>
+<div class="pagination">
+
+    <% if (currentPage > 1) { %>
+        <a href="/shop?<%= buildQuery(currentPage - 1) %>" class="page-btn">
+            <i class="fa-solid fa-chevron-left"></i>
         </a>
-      <% } %>
-      <% for (let i = 1; i <= totalPages; i++) { %>
-        <% if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
-          <a href="/shop?page=<%= i %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>"
-             class="page-btn <%= currentPage === i ? 'active' : '' %>"><%= i %></a>
-        <% } else if (i === currentPage - 2 || i === currentPage + 2) { %>
-          <span style="color:var(--muted);padding:0 4px">…</span>
-        <% } %>
-      <% } %>
-      <% if (currentPage < totalPages) { %>
-        <a href="/shop?page=<%= currentPage + 1 %>&search=<%= search %>&category=<%= category %>&brand=<%= brand %>&size=<%= size %>&minPrice=<%= minPrice %>&maxPrice=<%= maxPrice %>&sort=<%= sort %>" class="page-btn">
-          <i class="fa-solid fa-chevron-right"></i>
-        </a>
-      <% } %>
-    </div>
     <% } %>
+
+    <% for (let i = 1; i <= totalPages; i++) { %>
+
+        <% if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) { %>
+
+            <a href="/shop?<%= buildQuery(i) %>"
+               class="page-btn <%= currentPage === i ? 'active' : '' %>">
+                <%= i %>
+            </a>
+
+        <% } else if (i === currentPage - 2 || i === currentPage + 2) { %>
+
+            <span style="color:var(--muted);padding:0 4px">…</span>
+
+        <% } %>
+
+    <% } %>
+
+    <% if (currentPage < totalPages) { %>
+        <a href="/shop?<%= buildQuery(currentPage + 1) %>" class="page-btn">
+            <i class="fa-solid fa-chevron-right"></i>
+        </a>
+    <% } %>
+
+</div>
+<% } %>
   </main>
 </div>
 

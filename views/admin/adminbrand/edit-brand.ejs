@@ -313,7 +313,11 @@
   <span class="toast-text" id="toastText"></span>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
+const brandId = "<%= brand._id %>";
+const originalStatus = <%- JSON.stringify(brand.isListed ? "active" : "inactive") %>;
   // ── VALIDATION ──
   function validateField(id) {
     const val = document.getElementById(id).value.trim();
@@ -338,48 +342,102 @@
   }
 
   // ── SAVE ROUTINE ──
-  async function saveBrand() {
-    if (!validateAll()) return;
+ async function saveBrand() {
+  if (!validateAll()) return;
 
-    const name        = document.getElementById('bName').value.trim();
-    const description = document.getElementById('bDesc').value.trim();
-    const status      = document.getElementById('bStatus').value;
+  const name = document.getElementById('bName').value.trim();
+  const description = document.getElementById('bDesc').value.trim();
+  const status = document.getElementById('bStatus').value;
 
-    const saveBtn = document.getElementById('saveBtn');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving…';
+  // Show confirmation only if status changed
+  if (status !== originalStatus) {
 
-    try {
-      const response = await fetch('/admin/edit-brand/<%= brand._id %>', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, description, isListed: status === 'active' }),
-      });
+    const action = status === "inactive" ? "Unlist" : "List";
 
-      const result = await response.json();
+    const result = await Swal.fire({
+      title: `${action} Brand?`,
+      text: status === "inactive"
+        ? "This brand will no longer be visible to customers."
+        : "This brand will be visible to customers again.",
+      icon: "warning",
+        background: "#161b24",
+          color: "#ffffff",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: `Yes, ${action}`,
+      cancelButtonText: "Cancel"
+    });
 
-      if (result.success) {
-        toast('✅', 'Brand updated successfully');
-        setTimeout(() => window.location.href = '/admin/brands', 1200);
-      } else {
-        const nameInput = document.getElementById('bName');
-        const nameErr   = document.getElementById('bNameErr');
-        nameInput.classList.add('err');
-        nameErr.textContent = result.message || 'Error occurred';
-        nameErr.classList.add('show');
-        nameInput.focus();
-        
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Update Brand';
-      }
-    } catch (err) {
-      console.error(err);
-      toast('❌', 'Something went wrong. Please try again.');
-      saveBtn.disabled = false;
-      saveBtn.textContent = 'Update Brand';
+    if (!result.isConfirmed) {
+      return;
     }
   }
 
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
+  try {
+
+    const response = await fetch('/admin/edit-brand/' + brandId, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name,
+        description,
+        isListed: status === 'active'
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message || "Brand updated successfully.",
+          background: "#161b24",
+          color: "#ffffff",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      window.location.href = "/admin/brands";
+
+    } else {
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+          background: "#161b24",
+          color: "#ffffff",
+        text: result.message || "Failed to update brand."
+      });
+
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Update Brand';
+    }
+
+  } catch (err) {
+
+    console.error(err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+        background: "#161b24",
+          color: "#ffffff",
+      text: "Something went wrong."
+    });
+
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Update Brand';
+  }
+}
   // ── TOAST MESSAGE ──
   let toastTimer;
   function toast(icon, text) {

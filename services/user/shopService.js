@@ -7,14 +7,15 @@ export const getShopProducts = async (query, userId) => {
 
   const {
     search = "",
-    category = "",
-    brand = "",
-    size = "",
     minPrice = "",
     maxPrice = "",
     sort = "",
     page = 1,
   } = query;
+
+  const selectedCategories=[].concat(query.category||[])
+  const selectedBrands=[].concat(query.brand||[])
+  const selectedSizes=[].concat(query.size||[])
 
   const limit = 6;
   const currentPage = Math.max(1, Number(page));
@@ -30,12 +31,12 @@ export const getShopProducts = async (query, userId) => {
     };
   }
 
-  if (category) {
-    dbFilter.category = category;
+  if (selectedCategories.length) {
+    dbFilter.category = {$in:selectedCategories}
   }
 
-  if (brand) {
-    dbFilter.brand = brand;
+  if (selectedBrands.length) {
+    dbFilter.brand = {$in:selectedBrands}
   }
 
   const raw = await Product.find(dbFilter)
@@ -75,8 +76,8 @@ export const getShopProducts = async (query, userId) => {
           return false;
         }
 
-        if (size && variant.size !== size) {
-          return false;
+       if(selectedSizes.length&!selectedSizes.includes(variant.size)){
+                 return false;
         }
 
         if (minP && variant.price < minP) {
@@ -200,6 +201,7 @@ export const getShopProducts = async (query, userId) => {
     }
 
   }
+  
 
   return {
     products,
@@ -208,9 +210,9 @@ export const getShopProducts = async (query, userId) => {
     currentPage: safePage,
     totalPages,
     search,
-    category,
-    brand,
-    size,
+    selectedCategories,
+    selectedBrands,
+    selectedSizes,
     minPrice,
     maxPrice,
     sort,

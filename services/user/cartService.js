@@ -8,18 +8,44 @@ export const getCart=async(userId)=>{
 
     if(cart){
         const before=cart.items.length
-        cart.items=cart.items.filter(
-            item=>item.productId!==null
+        cart.items=cart.items.filter(item=>{
+          const product=item.productId
+
+        if(!product)
+          return false
+        if(product.isBlocked||product.isDeleted){
+          return false
+        }
+        const variant=product.variants.find(
+          v=>v.size===item.size
         )
+      
+        if(!variant||variant.status!=="ACTIVE"){
+          return false
+        }
+        return true
+      })
+
         if(before!==cart.items.length){
             await cart.save()
         }
     }
     const cartCount=cart?cart.items.reduce((sum,item)=>{
         const product=item.productId
-        if(!product||product.isBlocked||product.isDeleted){
+        if(!product)
+            return sum
+          if(product.isBlocked||product.isDeleted){
             return sum
         }
+          if (!Array.isArray(product.variants)) {
+        return sum;
+      }
+         const variant = product.variants.find(
+        v => v.size === item.size
+      )
+        if (!variant || variant.status !== "ACTIVE") {
+        return sum
+      }
         return sum+item.quantity
     },0) :0
 
@@ -160,10 +186,9 @@ export const updateQuantity = async (
       variant.status === "ACTIVE"
   );
 
-  if (!variant) {
-    throw new Error("Variant not found");
-  }
-
+  if (!variant || variant.status !== "ACTIVE") {
+    throw new Error("This product is no longer available");
+}
   const newQty = item.quantity + Number(count);
 
   if (variant.stock === 0) {

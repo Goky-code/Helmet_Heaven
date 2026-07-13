@@ -326,8 +326,11 @@
   <span class="toast-icon" id="toastIcon">✅</span>
   <span class="toast-text" id="toastText"></span>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
+  const categoryId = "<%= category._id %>";
+const originalStatus = <%- JSON.stringify(category.isListed ? "active" : "inactive") %>;
   // ─── VALIDATION ───
   function validateField(fieldId) {
     const val = document.getElementById(fieldId).value.trim();
@@ -359,60 +362,104 @@
     return a && b && c;
   }
 
-  const categoryId = "<%= category._id %>";
+  
 
   // ─── SUBMIT ───
-  document.getElementById('categoryForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    if (!validateAll()) return;
+ document.getElementById('categoryForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
 
-    const name        = document.getElementById('catName').value.trim();
-    const description = document.getElementById('catDesc').value.trim();
-    const status      = document.getElementById('catStatus').value;
+  if (!validateAll()) return;
 
-    const data = {
-      name,
-      description,
-      isListed: status === "active",
-    };
+  const name = document.getElementById('catName').value.trim();
+  const description = document.getElementById('catDesc').value.trim();
+  const status = document.getElementById('catStatus').value;
 
-    const saveBtn = document.getElementById('saveBtn');
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'Saving…';
+  // Confirmation only if status changed
+  if (status !== originalStatus) {
 
-    try {
-      const response = await fetch('/admin/edit-category/' + categoryId, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+    const action = status === "inactive" ? "Unlist" : "List";
+
+    const result = await Swal.fire({
+      title: `${action} Category?`,
+      text: status === "inactive"
+        ? "This category will no longer be visible to customers."
+        : "This category will be visible to customers again.",
+      icon: "warning",
+      background: "#161b24",
+          color: "#ffffff",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#6c757d",
+      confirmButtonText: `Yes, ${action}`,
+      cancelButtonText: "Cancel"
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+  }
+
+  const data = {
+    name,
+    description,
+    isListed: status === "active"
+  };
+
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
+  try {
+    const response = await fetch('/admin/edit-category/' + categoryId, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message,
+        background: "#161b24",
+          color: "#ffffff",
+        timer: 1500,
+        showConfirmButton: false
       });
 
-      const result = await response.json();
+      window.location.href = "/admin/categories";
 
-      if (result.success) {
-        showToast('✅', result.message || 'Category updated successfully');
-        
-        setTimeout(() => { window.location.href = '/admin/categories'; }, 700);
-      } else {
-        const nameInput = document.getElementById('catName');
-        const nameErr   = document.getElementById('catNameErr');
-        nameInput.classList.add('error');
-        nameErr.textContent = result.message;
-        nameErr.classList.add('show');
-        nameInput.focus();
+    } else {
 
-        saveBtn.disabled = false;
-        saveBtn.textContent = 'Update Category';
-      }
-    } catch (err) {
-      console.error(err);
-      showToast('❌', 'Something went wrong. Please try again.');
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.message
+      });
+
       saveBtn.disabled = false;
       saveBtn.textContent = 'Update Category';
     }
-  });
 
- 
+  } catch (err) {
+    console.error(err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Something went wrong."
+    });
+
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Update Category';
+  }
+});
+
   updateCharCount('catName','catNameCount',60);
   updateCharCount('catDesc','catDescCount',300);
 

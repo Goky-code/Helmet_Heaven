@@ -386,14 +386,13 @@
   })
 }) %>
 </script>
- 
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
    
     const pageData       = JSON.parse(document.getElementById("page-data").textContent);
     const productId      = pageData.productId;
     const existingImages = pageData.existingImages;
- 
-   
+     const originalStatus = <%- JSON.stringify(product.isBlocked ? "INACTIVE" : "ACTIVE") %>;
     let croppedFiles = [null, null, null];
     let cropper = null;
     let currentInputIndex = null;
@@ -503,69 +502,150 @@
     }
  
     /* ── Validate & submit ── */
-    async function saveProduct() {
-      clearErrors();
-      let hasErr = false;
- 
-      const name   = document.getElementById("m-name").value.trim();
-      const brand  = document.getElementById("m-brand").value;
-      const cat    = document.getElementById("m-cat").value;
-      const desc   = document.getElementById("m-desc").value.trim();
-      const status = document.querySelector('input[name="status"]:checked')?.value || "ACTIVE";
- 
-      if (name.length < 3) { document.getElementById("fg-name").classList.add("has-error"); hasErr = true; }
-      if (!brand)           { document.getElementById("fg-brand").classList.add("has-error"); hasErr = true; }
-      if (!cat)             { document.getElementById("fg-cat").classList.add("has-error"); hasErr = true; }
-      if (hasErr) return;
- 
-     
-      const hasAnyImage = croppedFiles.some(f => f !== null) || existingImages.some(u => u !== null);
-      if (!hasAnyImage) {
-        showToast("At least one product photo is required", false);
-        return;
-      }
- 
-      const formData = new FormData();
-      formData.append("productName", name);
-      formData.append("brand",       brand);
-      formData.append("category",    cat);
-      formData.append("description", desc);
-      formData.append("status",      status);
- 
-     
-      croppedFiles.forEach(file => { if (file) formData.append("images", file); });
- 
-     
-      existingImages.forEach((url, i) => {
-        if (url && !croppedFiles[i]) formData.append("existingImages", url);
-      });
- 
-      const btn = document.querySelector(".btn-primary");
-      btn.textContent = "Saving…";
-      btn.disabled    = true;
- 
-      try {
-        const response = await fetch(`/admin/edit-product/${productId}`, { method: "POST", body: formData });
-        const result   = await response.json();
- 
-        if (result.success) {
-          showToast(result.message || "Product updated successfully!");
-          setTimeout(() => {
-            window.location.href = result.redirectUrl || "/admin/adminDashboard";
-          }, 900);
-        } else {
-          showToast(result.message || "Error updating product.", false);
-          btn.textContent = "Save Changes";
-          btn.disabled    = false;
-        }
-      } catch (err) {
-        console.error(err);
-        showToast("Network error. Please try again.", false);
-        btn.textContent = "Save Changes";
-        btn.disabled    = false;
-      }
+  async function saveProduct() {
+  clearErrors();
+  let hasErr = false;
+
+  const name = document.getElementById("m-name").value.trim();
+  const brand = document.getElementById("m-brand").value;
+  const cat = document.getElementById("m-cat").value;
+  const desc = document.getElementById("m-desc").value.trim();
+  const status =
+    document.querySelector('input[name="status"]:checked')?.value || "ACTIVE";
+
+  // Validation
+  if (name.length < 3) {
+    document.getElementById("fg-name").classList.add("has-error");
+    hasErr = true;
+  }
+
+  if (!brand) {
+    document.getElementById("fg-brand").classList.add("has-error");
+    hasErr = true;
+  }
+
+  if (!cat) {
+    document.getElementById("fg-cat").classList.add("has-error");
+    hasErr = true;
+  }
+
+  if (hasErr) return;
+
+  // At least one image is required
+  const hasAnyImage =
+    croppedFiles.some(file => file !== null) ||
+    existingImages.some(img => img !== null);
+
+  if (!hasAnyImage) {
+    showToast("At least one product photo is required", false);
+    return;
+  }
+
+  // ================================
+  // Confirmation before Unlisting
+  // ================================
+  // Show confirmation only if the status has changed
+if (originalStatus !== status) {
+
+  const action = status === "INACTIVE" ? "unlist" : "list";
+
+  const result = await Swal.fire({
+    title: `${action.charAt(0).toUpperCase() + action.slice(1)} Product?`,
+    text: status === "INACTIVE"
+      ? "This product will no longer be visible to customers."
+      : "This product will be visible to customers again.",
+    icon: "warning",
+     background: "#161b24",
+          color: "#ffffff",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: `Yes, ${action}`,
+    cancelButtonText: "Cancel"
+  });
+
+  if (!result.isConfirmed) {
+    return;
+  }
+}
+
+  // Create FormData
+  const formData = new FormData();
+
+  formData.append("productName", name);
+  formData.append("brand", brand);
+  formData.append("category", cat);
+  formData.append("description", desc);
+  formData.append("status", status);
+
+  // New Images
+  croppedFiles.forEach(file => {
+    if (file) {
+      formData.append("images", file);
     }
- 
+  });
+
+  // Existing Images
+  existingImages.forEach((url, index) => {
+    if (url && !croppedFiles[index]) {
+      formData.append("existingImages", url);
+    }
+  });
+
+  const btn = document.querySelector(".btn-primary");
+  btn.disabled = true;
+  btn.textContent = "Saving...";
+
+  try {
+    const response = await fetch(`/admin/edit-product/${productId}`, {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: result.message || "Product updated successfully!",
+        background: "#161b24",
+         color: "#fff",
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      window.location.href =
+        result.redirectUrl || "/admin/products";
+
+    } else {
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.message || "Failed to update product."
+      });
+
+      btn.disabled = false;
+      btn.textContent = "Save Changes";
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Network Error",
+      text: "Please try again."
+    });
+
+    btn.disabled = false;
+    btn.textContent = "Save Changes";
+  }
+}
+
     function clearErrors() {
       ["fg-name", "fg-brand", "fg-cat"].forEach(id => {
         document.getElementById(id).classList.remove("has-error");

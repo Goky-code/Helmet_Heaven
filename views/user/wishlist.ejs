@@ -677,7 +677,7 @@
 </footer>
 
 <div class="toast-container" id="toastContainer" aria-live="polite"></div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   /* ── Toast ── */
   function showToast(msg, type = 'info') {
@@ -763,33 +763,85 @@
 
   
   async function removeWishlist(productId, size) {
-    try {
-      const res  = await fetch(`/user/remove-wishlist/${productId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ size })
-      });
-      const data = await res.json();
-      if (data.success) {
-        const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
-        if (card) {
-          card.style.transition = 'opacity .3s, transform .3s';
-          card.style.opacity = '0';
-          card.style.transform = 'translateX(16px)';
-          setTimeout(() => {
-            card.remove();
-            updateSubtitle();
-            updateWishlistBadge(data.wishlistCount || 0);
-            checkEmpty();
-          }, 300);
-        }
-        showToast('Removed from wishlist.', 'remove');
+
+  const result = await Swal.fire({
+    title: "Remove Item?",
+    text: "Are you sure you want to remove this item from your wishlist?",
+    icon: "warning",
+    background: "#161b24",
+    color: "#fff",
+    iconColor: "#f59e0b",
+    showCancelButton: true,
+    confirmButtonColor: "#ef4444",
+    cancelButtonColor: "#374151",
+    confirmButtonText: "Yes, Remove",
+    cancelButtonText: "Cancel"
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const res = await fetch(`/user/remove-wishlist/${productId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ size })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      const card = document.querySelector(
+        `.product-card[data-product-id="${productId}"]`
+      );
+
+      if (card) {
+        card.style.transition = "opacity .3s, transform .3s";
+        card.style.opacity = "0";
+        card.style.transform = "translateX(16px)";
+
+        setTimeout(() => {
+          card.remove();
+          updateSubtitle();
+          updateWishlistBadge(data.wishlistCount || 0);
+          checkEmpty();
+        }, 300);
       }
-    } catch (err) {
-      console.log(err);
-      showToast('Something went wrong', 'remove');
+
+      Swal.fire({
+        icon: "success",
+        title: "Removed!",
+        text: "Item removed from your wishlist.",
+       background: "#161b24",
+    color: "#fff",
+        timer: 1200,
+        showConfirmButton: false
+      });
+
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: data.message,
+        background: "#161b24",
+        color: "#fff"
+      });
     }
+
+  } catch (err) {
+    console.log(err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Oops!",
+      text: "Something went wrong.",
+      background: "#161b24",
+      color: "#fff"
+    });
   }
+}
 
   
   document.getElementById('addAllBtn').addEventListener('click', async () => {

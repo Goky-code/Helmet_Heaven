@@ -9,7 +9,7 @@ export const loadShop = async (req, res) => {
         req.query,
         req.session.user
       );
-
+console.log(req.query);
     res.render(
       "user/product/productCategory",
       data

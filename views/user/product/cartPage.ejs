@@ -475,7 +475,7 @@
       <div class="qty-value" id="qty-<%= p._id %>-<%= item.size %>"><%= displayQty %></div>
       <button class="qty-btn inc-btn" data-id="<%= p._id %>" data-size="<%= item.size %>" <%= (stock === 0 || isUnavailable) ? 'disabled' : '' %>>+</button>
     </div>
-    <button class="remove-btn" data-id="<%= p._id %>" data-size="<%= item.size %>">Remove</button>
+    <button class="remove-btn" onclick="removeCartItem('<%= p._id %>','<%= item.size %>')">Remove</button>
   </div>
 </article>
   <% }) %>
@@ -616,7 +616,7 @@
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
  /* ── Toast ── */
 function showToast(msg, type = 'success') {
@@ -660,45 +660,45 @@ function updateCartBadge(count) {
 }
 
 /* ── Remove item ── */
-document.querySelectorAll('.remove-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const productId = btn.dataset.id;
-    const size      = btn.dataset.size;
-    try {
-      const res  = await fetch('/user/remove-cart-item', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, size })
-      });
-      const data = await res.json();
-      if (data.success) {
-        const el = document.querySelector(`.cart-item[data-id="${productId}"][data-size="${size}"]`);
-        el.style.transition = 'opacity .3s, transform .3s';
-        el.style.opacity    = '0';
-        el.style.transform  = 'translateX(16px)';
-        setTimeout(() => {
-          el.remove();
-          updateSummary();
+// document.querySelectorAll('.remove-btn').forEach(btn => {
+//   btn.addEventListener('click', async () => {
+//     const productId = btn.dataset.id;
+//     const size      = btn.dataset.size;
+//     try {
+//       const res  = await fetch('/user/remove-cart-item', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({ productId, size })
+//       });
+//       const data = await res.json();
+//       if (data.success) {
+//         const el = document.querySelector(`.cart-item[data-id="${productId}"][data-size="${size}"]`);
+//         el.style.transition = 'opacity .3s, transform .3s';
+//         el.style.opacity    = '0';
+//         el.style.transform  = 'translateX(16px)';
+//         setTimeout(() => {
+//           el.remove();
+//           updateSummary();
           
-          const newTotal = Array.from(document.querySelectorAll('.qty-value'))
-            .reduce((sum, el) => sum + (Number(el.textContent) || 0), 0);
-          updateCartBadge(newTotal);
-          const remaining = document.querySelectorAll('.cart-item');
-          if (remaining.length === 0) {
-            document.getElementById('cartItems').style.display  = 'none';
-            document.getElementById('emptyCart').style.display  = 'block';
-          }
-        }, 300);
-        showToast('Item removed from cart');
-      } else {
-        showToast(data.message, 'error');
-      }
-    } catch (err) {
-      console.log(err);
-      showToast('Something went wrong', 'error');
-    }
-  });
-});
+//           const newTotal = Array.from(document.querySelectorAll('.qty-value'))
+//             .reduce((sum, el) => sum + (Number(el.textContent) || 0), 0);
+//           updateCartBadge(newTotal);
+//           const remaining = document.querySelectorAll('.cart-item');
+//           if (remaining.length === 0) {
+//             document.getElementById('cartItems').style.display  = 'none';
+//             document.getElementById('emptyCart').style.display  = 'block';
+//           }
+//         }, 300);
+//         showToast('Item removed from cart');
+//       } else {
+//         showToast(data.message, 'error');
+//       }
+//     } catch (err) {
+//       console.log(err);
+//       showToast('Something went wrong', 'error');
+//     }
+//   });
+// });
 
 /* ── Quantity ── */
 document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
@@ -806,6 +806,49 @@ ham.addEventListener('click', () => {
   ham.classList.toggle('open', open);
   ham.setAttribute('aria-expanded', open);
 });
+
+async function removeCartItem(productId, size) {
+
+    const result = await Swal.fire({
+        title: "Remove Item?",
+        text: "Are you sure you want to remove this item from your cart?",
+        icon: "warning",
+          background: "#161b24",
+          color: "#ffffff",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, Remove",
+        cancelButtonText: "Cancel"
+    });
+
+    if (!result.isConfirmed) return;
+
+    const response = await fetch("/user/remove-cart-item", {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ productId, size })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+        Swal.fire({
+            icon: "success",
+            title: "Removed",
+            text: "Item removed from cart.",
+            background: "#161b24",
+             color: "#fff",
+            timer: 1500,
+            showConfirmButton: false
+        }).then(() => location.reload());
+    } else {
+        Swal.fire("Error", data.message, "error");
+    }
+}
+
 </script>
 </body>
 </html>

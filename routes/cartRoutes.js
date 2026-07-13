@@ -10,7 +10,7 @@ const router=express.Router()
 router.get("/cart",isUserAuth,loadCart)
 router.post("/add-to-cart/:id", isUserAuth, addToCart);
 router.post("/update-cart",isUserAuth,updateCartQuantity)
-router.post("/remove-cart-item",isUserAuth,removeCartItem)
+router.delete("/remove-cart-item",isUserAuth,removeCartItem)
 router.post("/add-all-to-cart", isUserAuth, addAllToCart);
 
 router.get("/cart/count", getCartCount);
