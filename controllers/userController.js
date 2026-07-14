@@ -4,6 +4,7 @@ import * as profileService from "../services/user/profileService.js";
 import * as addressService from "../services/user/addressService.js";
 import * as emailService from "../services/user/EmailService.js";
 import * as passwordService from "../services/user/passwordService.js";
+import HTTP_STATUS from "../utils/httpStatus.js";
 
 export const getLogin = (req, res) => {
     const blocked = req.query.blocked === 'true';
@@ -51,7 +52,7 @@ export const getHome = async (req, res) => {
     res.render('user/homepage');
   } catch (err) {
     console.error(err);
-    res.status(500).send(err.message);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(err.message);
   }
 };
 
@@ -94,7 +95,7 @@ export const getProfile = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).send("Server Error");
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send("Server Error");
 
   }
 };
@@ -111,15 +112,16 @@ export const updateProfile = async (req, res) => {
 
     req.session.user = updatedUser;
 
-    res.json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
+      message:"Profile updated"
     });
 
   } catch (error) {
 
     console.log(error);
 
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -149,7 +151,7 @@ export const getAddresses = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).send("Server Error");
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send("Server Error");
 
   }
 };
@@ -174,7 +176,7 @@ export const addAddress = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).send(error.message);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(error.message);
 
   }
 };
@@ -228,7 +230,7 @@ export const updateAddress = async (
 
     console.log(error);
 
-    res.status(400).send(
+    res.status(HTTP_STATUS.BAD_REQUEST).send(
       error.message
     );
 
@@ -386,7 +388,7 @@ export const changePassword = async (req, res) => {
   try {
 
     if (!req.session.user) {
-      return res.status(401).json({
+      return res.status(HTTP_STATUS.UNAUTHORIZED).json({
         success: false,
         message: "Not authenticated",
       });
@@ -405,7 +407,7 @@ export const changePassword = async (req, res) => {
       confirmPassword
     );
 
-    res.json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Password updated successfully",
     });
@@ -414,7 +416,7 @@ export const changePassword = async (req, res) => {
 
     console.log(error);
 
-    res.json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });

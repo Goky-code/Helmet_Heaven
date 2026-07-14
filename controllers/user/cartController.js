@@ -1,4 +1,5 @@
 import * as cartService from "../../services/user/cartService.js";
+import HTTP_STATUS from "../../utils/httpStatus.js";
 
 export const loadCart = async (req, res) => {
   
@@ -28,7 +29,7 @@ export const addToCart = async (req, res) => {
     })
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message:error.message, });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false, message:error.message, });
   }
 }
 
@@ -104,7 +105,7 @@ export const addAllToCart=async(req,res) => {
 
     console.log(error);
 
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });

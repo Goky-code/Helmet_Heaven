@@ -436,11 +436,15 @@
 
         <% if (cart && cart.items && cart.items.length > 0) { %>
           <% cart.items.forEach((item, index) => { %>
-            <%
-              
+        <%
   const p = item.productId;
   if (!p) return;
-  const isUnavailable = p.isBlocked || p.isDeleted;
+
+  const isUnavailable =
+    p.isBlocked || p.isDeleted ||
+    !p.category || !p.category.isListed || p.category.isDeleted ||
+    !p.brand || !p.brand.isListed || p.brand.isDeleted;
+
   const variant = p?.variants?.find(v => v.size === item.size);
   const price   = variant?.price || 0;
   const stock   = variant?.stock ?? 0;

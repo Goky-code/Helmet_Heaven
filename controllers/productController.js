@@ -2,7 +2,8 @@
  import * as productService from "../services/admin/productService.js"
  import Category from "../models/categoryModel.js";
  import Brand from "../models/brandModels.js";
- 
+ import HTTP_STATUS from "../utils/httpStatus.js";
+
 export const loadProducts = async (req, res) => {
   try {
      const {search,category,brand,status}=req.query
@@ -44,14 +45,14 @@ export const loadAddProduct = async (req, res) => {
 export const addProduct = async (req, res) => {
   try {
     await productService.createProduct(req.body,req.files)
-    res.status(200).json({
+    res.status(HTTP_STATUS.CREATED).json({
       success:true,
       message:"Product added successfully",
       redirectUrl:'/admin/products',
     })
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     });
@@ -80,7 +81,7 @@ export const editProduct = async (req, res) => {
     req.body,
     req.files
    )
-    res.status(200).json({
+    res.status(HTTP_STATUS.CREATED).json({
       success:true,
       message:"Product updated Successfully",
       redirectUrl:"/admin/products",
@@ -88,7 +89,7 @@ export const editProduct = async (req, res) => {
 
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -99,7 +100,7 @@ export const deleteProduct = async (req, res) => {
   try {
 
    await productService.removeProduct(req.params.id)
-   res.status(200).json({
+   res.status(HTTP_STATUS.OK).json({
     success:true,
     message:"product deleted successfully"
    })
@@ -108,7 +109,7 @@ export const deleteProduct = async (req, res) => {
 
     console.log(error);
 
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     });
@@ -144,7 +145,7 @@ export const addVariant = async (req, res) => {
     const variants=await productService.createVariant(
       req.params.id,req.body
     )
-    res.json({
+    res.status(HTTP_STATUS.OK).json({
       success:true,
       message:"Variant added Successfully",
       variants,
@@ -154,7 +155,7 @@ export const addVariant = async (req, res) => {
 
     console.log(error)
 
-    res.json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     })
@@ -169,7 +170,7 @@ export const deleteVariant = async (req, res) => {
     req.params.productId,
     req.params.variantId
    )
-   res.json({
+   res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Variant deleted",
     })
@@ -179,7 +180,7 @@ export const deleteVariant = async (req, res) => {
 
     console.log(error)
 
-    res.json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message:error.message,
     })
@@ -216,14 +217,14 @@ export const updateVariant = async (req, res) => {
       req.params.productId,req.params.variantId,req.body
     )
 
-    res.json({
+    res.status(HTTP_STATUS.OK).json({
       success:true,
       message:"variant updated",
       variant,
     })
   } catch (error) {
     console.log(error);
-    res.json({ success: false,
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ success: false,
        message: error.message });
   }
 };

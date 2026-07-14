@@ -542,7 +542,10 @@
   const p = item.productId;
   if (!p) return;
 
-  const isUnavailable = p.isBlocked || p.isDeleted;
+  const isUnavailable =  p.isBlocked || p.isDeleted ||
+    !p.category || !p.category.isListed || p.category.isDeleted ||
+    !p.brand || !p.brand.isListed || p.brand.isDeleted;
+
 
   const matchVariant = p.variants
     ? p.variants.find(v => v.size === item.size && v.status === 'ACTIVE')

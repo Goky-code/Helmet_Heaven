@@ -6,6 +6,7 @@ import {
   updateBrand,
   removeBrand,
 } from "../services/admin/brandService.js";
+import HTTP_STATUS from "../utils/httpStatus.js";
 
 export const loadBrand = async (req, res) => {
   try {
@@ -41,13 +42,13 @@ export const loadAddBrand=async(req,res)=>{
 export const addBrand = async (req, res) => {
   try {
      await createBrand(req.body)
-     res.json({
+     res.status(HTTP_STATUS.CREATED).json({
       success:true,
       message:"Brand added Successfully"
      })
 }catch(error){
   console.log(error)
-  res.status(400).json({
+  res.status(HTTP_STATUS.BAD_REQUEST).json({
     success:false,
     message:error.message,
   })
@@ -70,7 +71,7 @@ export const loadEditBrand=async(req,res)=>{
 export const editBrand = async (req, res) => {
   try {
      await updateBrand(req.params.id,req.body)
-     res.json({
+     res.status(HTTP_STATUS.CREATED).json({
       success:true,
       message:"Brand Updated Successfully"
      })
@@ -78,7 +79,7 @@ export const editBrand = async (req, res) => {
   } catch (error) {
     console.log(error)
     
-    return res.status(400).json({
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });

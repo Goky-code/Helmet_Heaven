@@ -1,6 +1,7 @@
 
 import Category from "../models/categoryModel.js";
 import * as categoryService from "../services/admin/categoryService.js"
+import HTTP_STATUS from "../utils/httpStatus.js";
 
 export const loadCategory = async (req, res) => {
   try {
@@ -34,13 +35,13 @@ export const addCategory = async (req, res) => {
 
     await categoryService.createCategory(req.body)
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.CREATED).json({
       success:true,
       message:"Category added successfully"
     })
     }catch(error){
       console.log(error)
-      res.status(400).json({
+      res.status(HTTP_STATUS.BAD_REQUEST).json({
         success:false,
         message:error.message,
         
@@ -73,13 +74,13 @@ export const editCategory = async (req, res) => {
       req.params.id,
       req.body
     )
-    res.status(200).json({
+    res.status(HTTP_STATUS.CREATED).json({
       success:true,
       message:"Category updated successfully",
     })
   }catch(error){
     console.log(error)
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success:false,
       message:error.message,
     })

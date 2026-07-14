@@ -1,5 +1,6 @@
 import User from "../models/userModels.js"
 import * as adminService from "../services/admin/adminService.js"
+import HTTP_STATUS from "../utils/httpStatus.js";
 
 export const getLogin = (req, res) => {
   res.render("admin/adminLogin",{error:null});
@@ -47,7 +48,7 @@ export const listCustomers=async(req,res)=>{
       data)
   }catch(error){
     console.log(error)
-    res.status(500).send("server error")
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send("server error")
   }
 }
 

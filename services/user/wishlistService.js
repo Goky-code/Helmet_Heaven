@@ -1,19 +1,41 @@
 import Wishlist from "../../models/wishlistModel.js";
 import Cart from "../../models/cartModel.js";
 
+ const isItemUnavailable=(product,size)=>{
+    if(!product)
+      return true
+    if(product.isBlocked||product.isDeleted)
+      return true
+    if(!product.category||!product.category.isListed||product.category.isDeleted)
+      return true
+    if(!product.brand||!product.brand.isListed||product.brand.isDeleted)
+      return true
+
+    const variant=product.variants.find(v=>v.size===size)
+    if(!variant||variant.status!=="ACTIVE")
+      return true
+
+    return false
+  }
+
+
 export const getWishlist = async (userId) => {
 
   let wishlist = await Wishlist.findOne({ userId })
-    .populate("products.productId");
+   .populate({
+  path: "products.productId",
+  populate: [
+    {path:"category"},
+    {path:"brand"},
+  ],
+})
 
   if (wishlist) {
 
     const before = wishlist.products.length;
 
-    wishlist.products = wishlist.products.filter(
-      item => item.productId !== null
-    );
-
+    wishlist.products = wishlist.products.filter(item =>!!item.productId)
+    
     if (before !== wishlist.products.length) {
       await wishlist.save();
     }
@@ -34,6 +56,11 @@ export const getWishlist = async (userId) => {
         ) {
           return sum;
         }
+        const variant=product.variants.find(v=>v.size===item.size)
+
+        if(!variant||variant.status!=="ACTIVE"){
+          return sum
+        }
 
         return sum + item.quantity;
 
@@ -42,19 +69,8 @@ export const getWishlist = async (userId) => {
 
   const wishlistCount = wishlist
     ? wishlist.products.reduce((sum, item) => {
-
-        const product = item.productId;
-
-        if (
-          !product ||
-          product.isBlocked ||
-          product.isDeleted
-        ) {
-          return sum;
-        }
-
-        return sum + 1;
-
+    return isItemUnavailable(item.productId, item.size)?sum:sum+1
+      
       }, 0)
     : 0;
 
@@ -171,20 +187,18 @@ export const getWishlistItemCount = async (
 
   const wishlist =
     await Wishlist.findOne({ userId })
-      .populate("products.productId");
+     .populate({
+      path: "products.productId",
+      populate: [
+        { path: "category" },
+        { path: "brand" },
+      ],
+    });
+
 
   const count = wishlist
-    ? wishlist.products.filter(item => {
-
-        const product = item.productId;
-
-        return (
-          product &&
-          !product.isBlocked &&
-          !product.isDeleted
-        );
-
-      }).length
+    ? wishlist.products.filter(item =>!isItemUnavailable
+      (item.productId,item.size)).length
     : 0;
 
   return count;

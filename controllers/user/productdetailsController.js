@@ -1,4 +1,5 @@
 import * as productDetailsService from "../../services/user/productDetailsService.js"
+import HTTP_STATUS from "../../utils/httpStatus.js";
 
 export const loadProductDetails = async (req,res) => {
 
@@ -35,7 +36,7 @@ export const addToCart = async (req,res) => {
       req.body
     );
 
-    res.status(200).json({
+    res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Added to cart",
     });
@@ -47,8 +48,8 @@ export const addToCart = async (req,res) => {
     const status =
       error.message ===
       "Please login to add items to cart"
-        ? 401
-        : 400;
+        ? HTTP_STATUS.UNAUTHORIZED
+        : HTTP_STATUS.BAD_REQUEST
 
     res.status(status).json({
       success: false,

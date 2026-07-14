@@ -1,5 +1,6 @@
 
 import * as authServices from "../services/authServices.js";
+import HTTP_STATUS from "../utils/httpStatus.js";
 
 export const login = async (req,res) => {
 
@@ -24,7 +25,7 @@ export const login = async (req,res) => {
 
   } catch (error) {
 
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       error: error.message,
     });

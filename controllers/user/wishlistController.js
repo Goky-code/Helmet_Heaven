@@ -1,5 +1,5 @@
 import * as wishlistService from "../../services/user/wishlistService.js"
-
+import HTTP_STATUS from "../../utils/httpStatus.js";
 
 export const loadWishlist = async (req, res) => {
 
@@ -49,7 +49,7 @@ export const addToWishlist = async (
 
     console.log(error);
 
-    res.status(400).json({
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
       success: false,
       message: error.message,
     });
@@ -82,7 +82,7 @@ export const removeWishlist = async (
 
     console.log(error);
 
-    res.status(500).json({
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
       success: false,
       message: error.message,
     });

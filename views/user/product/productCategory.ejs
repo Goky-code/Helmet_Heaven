@@ -470,7 +470,7 @@
     </a>
 
     <!-- BRAND -->
-    <div class="filter-group">
+   <div class="filter-group">
   <div class="filter-label">Brand</div>
 
   <% brands.forEach(b => { %>
@@ -479,6 +479,7 @@
         type="checkbox"
         name="brand"
         value="<%= b._id %>"
+        onchange="toggleFilter('brand', '<%= b._id %>')"
         <%= selectedBrands.includes(b._id.toString()) ? "checked" : "" %>>
       <%= b.name %>
     </label>
@@ -486,7 +487,7 @@
 </div>
 
     <!-- CATEGORY -->
-    <div class="filter-group">
+   <div class="filter-group">
   <div class="filter-label">Category</div>
 
   <% categories.forEach(cat => { %>
@@ -495,6 +496,7 @@
         type="checkbox"
         name="category"
         value="<%= cat._id %>"
+        onchange="toggleFilter('category', '<%= cat._id %>')"
         <%= selectedCategories.includes(cat._id.toString()) ? "checked" : "" %>>
       <%= cat.name %>
     </label>
@@ -510,10 +512,11 @@
 
       <label class="size-btn">
         <input
-          type="checkbox"
-          name="size"
-          value="<%= s %>"
-          <%= selectedSizes.includes(s) ? "checked" : "" %>>
+  type="checkbox"
+  name="size"
+  value="<%= s %>"
+  onchange="toggleFilter('size', '<%= s %>')"
+  <%= selectedSizes.includes(s) ? "checked" : "" %>>
         <%= s %>
       </label>
 
@@ -731,24 +734,7 @@
  <% } %>
     </div>
 
-<%
-function buildQuery(page){
-    const params = new URLSearchParams();
 
-    params.set("page", page);
-
-    if (search) params.set("search", search);
-    if (minPrice) params.set("minPrice", minPrice);
-    if (maxPrice) params.set("maxPrice", maxPrice);
-    if (sort) params.set("sort", sort);
-
-    selectedCategories.forEach(id => params.append("category", id));
-    selectedBrands.forEach(id => params.append("brand", id));
-    selectedSizes.forEach(s => params.append("size", s));
-
-    return params.toString();
-}
-%>
 
 
    <!-- Pagination -->
@@ -920,6 +906,23 @@ function buildQuery(page){
       window.history.replaceState({}, '', window.location.pathname);
     }
   })();
+
+  function toggleFilter(type, value) {
+  const params = new URLSearchParams(window.location.search);
+  let values = params.getAll(type);
+
+  if (values.includes(value)) {
+    values = values.filter(v => v !== value);
+  } else {
+    values.push(value);
+  }
+
+  params.delete(type);
+  values.forEach(v => params.append(type, v));
+  params.delete('page'); // reset pagination when filters change
+
+  window.location.href = '/shop?' + params.toString();
+}
 
 </script>
 </body>
