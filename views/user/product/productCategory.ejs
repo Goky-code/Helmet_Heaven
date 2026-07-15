@@ -735,7 +735,20 @@
     </div>
 
 
-
+<%
+  const buildQuery = (page) => {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    selectedCategories.forEach(c => params.append('category', c));
+    selectedBrands.forEach(b => params.append('brand', b));
+    selectedSizes.forEach(s => params.append('size', s));
+    if (minPrice) params.set('minPrice', minPrice);
+    if (maxPrice) params.set('maxPrice', maxPrice);
+    if (sort) params.set('sort', sort);
+    params.set('page', page);
+    return params.toString();
+  };
+%>
 
    <!-- Pagination -->
 <% if (totalPages > 1) { %>
@@ -923,6 +936,7 @@
 
   window.location.href = '/shop?' + params.toString();
 }
+
 
 </script>
 </body>
