@@ -1045,7 +1045,7 @@
           type="number"
           value="1"
           min="1"
-          max="10"
+          max="5"
           aria-label="Quantity"
           readonly
         />
@@ -1065,6 +1065,7 @@
         id="stockMsg"
          data-stock="<%= activeVariant?.stock || 0 %>"
       >
+      
 
         <% if(activeVariant?.stock > 0){ %>
 
@@ -1518,6 +1519,8 @@
     }
   }
 
+  
+
   /* ── QUANTITY ── */
   function changeQty(change) {
   const qtyInput = document.getElementById("qtyDisplay");
@@ -1535,14 +1538,14 @@
   let current = Number(qtyInput.value);
 
   if (change > 0 && current >= limit) {
-    showToast(
-      stock > 5
-        ? "Maximum quantity allowed is 5"
-        : "Out Of Stock",
-      "var(--danger)"
-    );
-    return;
-  }
+  showToast(
+    stock <= 5
+      ? `Only ${stock} item(s) in stock`
+      : "Maximum quantity allowed is 5",
+    "var(--danger)"
+  );
+  return;
+}
 
   current = Math.max(current + change, 1);
 

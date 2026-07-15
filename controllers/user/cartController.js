@@ -20,7 +20,8 @@ export const addToCart = async (req, res) => {
     const cartCount=await cartService.addItemToCart(
       req.session.user,
       req.params.id,
-      req.body.size
+      req.body.size,
+      req.body.quantity
     )
     res.json({
       success:true,

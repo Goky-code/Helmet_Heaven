@@ -66,97 +66,75 @@ export const getCart=async(userId)=>{
     }
 }
 
-export const addItemToCart=async(userId,productId,size)=>{
-    if(!size){
-        throw new Error("please select a size")
+export const addItemToCart = async (userId, productId, size, quantity = 1) => {
+    if (!size) {
+        throw new Error("please select a size");
     }
-    const product=await Product.findById(productId)
-    .populate("category")
-    .populate("brand");
 
-    if(!product){
-        throw new Error("Product not found")
+    const qty = parseInt(quantity);
+    if (!qty || qty < 1) {
+        throw new Error("Invalid quantity");
     }
-    if(product.isBlocked||product.isDeleted){
-        throw new Error("product unavailable")
+
+    const product = await Product.findById(productId)
+        .populate("category")
+        .populate("brand");
+
+    if (!product) throw new Error("Product not found");
+    if (product.isBlocked || product.isDeleted) throw new Error("product unavailable");
+    if (!product.category || !product.category.isListed || product.category.isDeleted) {
+        throw new Error("product unavailable");
     }
-    if(!product.category||!product.category.isListed||product.category.isDeleted){
-      throw new Error("product unavailable")
+    if (!product.brand || !product.brand.isListed || product.category.isDeleted) {
+        throw new Error("product Unavailable");
     }
-    if(!product.brand||!product.brand.isListed||product.category.isDeleted){
-      throw new Error("product Unavailable")
-    }
-    const variant=product.variants.find(
-        variant=>variant.size===size&&variant.status==="ACTIVE"
-    )
-    if(!variant||variant.stock<=0){
-        throw new Error("Out of stock")
-    }
-    let cart=await Cart.findOne({userId})
-    if(!cart){
-        cart=new Cart({
-            userId,
-            items:[
-                {
-                productId,
-                size,
-                quantity:1,
-            },
-        ],
-        })
-    }else{
-        cart.items=cart.items.filter(item=>item.size)
-    const itemIndex = cart.items.findIndex(
-      item =>
-        item.productId.toString() === productId &&
-        item.size === size
+
+    const variant = product.variants.find(
+        v => v.size === size && v.status === "ACTIVE"
     );
+    if (!variant || variant.stock <= 0) {
+        throw new Error("Out of stock");
+    }
 
-    if (itemIndex > -1) {
-
-      const currentQty =
-        cart.items[itemIndex].quantity;
-
-      if (currentQty >= 5) {
-        throw new Error(
-          "Maximum 5 quantity allowed in cart"
-        );
-      }
-
-      if (currentQty + 1 > variant.stock) {
-        throw new Error(
-          "Stock limit exceeded"
-        );
-      }
-
-      cart.items[itemIndex].quantity++;
-
+    let cart = await Cart.findOne({ userId });
+    if (!cart) {
+        cart = new Cart({
+            userId,
+            items: [{ productId, size, quantity: qty }],  
+        });
     } else {
+        cart.items = cart.items.filter(item => item.size);
+        const itemIndex = cart.items.findIndex(
+            item => item.productId.toString() === productId && item.size === size
+        );
 
-      cart.items.push({
-        productId,
-        size,
-        quantity: 1,
-      });
+        if (itemIndex > -1) {
+            const currentQty = cart.items[itemIndex].quantity;
+            const newQty = currentQty + qty;              
 
+            if (newQty > 5) {
+                throw new Error("Maximum 5 quantity allowed in cart");
+            }
+            if (newQty > variant.stock) {
+                throw new Error("Stock limit exceeded");
+            }
+
+            cart.items[itemIndex].quantity = newQty;
+        } else {
+            if (qty > 5) {
+                throw new Error("Maximum 5 quantity allowed in cart");
+            }
+            if (qty > variant.stock) {
+                throw new Error("Stock limit exceeded");
+            }
+            cart.items.push({ productId, size, quantity: qty });
+        }
     }
 
-  }
+    await Wishlist.updateOne({ userId }, { $pull: { products: { productId } } })
+    await cart.save()
 
-  await Wishlist.updateOne(
-    { userId },
-    {
-      $pull: {
-        products: {
-          productId,
-        },
-      },
-    }
-  );
-
-  await cart.save()
-
-  return cart.items.length
+    return cart.items.length
 }
 
 export const updateQuantity = async (
@@ -264,92 +242,54 @@ export const removeItem = async (
 }
 
 export const moveWishlistToCart = async (userId) => {
-
   const wishlist = await Wishlist.findOne({ userId })
-  .populate({
-      path: "products.productId",
-      populate: [
-        { path: "category" },
-        { path: "brand" },
-      ],
-    })
+    .populate({ path: "products.productId", populate: [{ path: "category" }, { path: "brand" }] });
 
   if (!wishlist || wishlist.products.length === 0) {
     throw new Error("Wishlist is empty");
   }
 
   let cart = await Cart.findOne({ userId });
+  if (!cart) cart = new Cart({ userId, items: [] });
 
-  if (!cart) {
-    cart = new Cart({
-      userId,
-      items: [],
-    });
-  }
+  const remaining = [];  
 
   for (const item of wishlist.products) {
-
     const product = item.productId;
     const size = item.size;
 
     if (!product || !size) continue;
-
-    if (product.isBlocked || product.isDeleted) continue
-
-    if(isItemUnavailable(product,size)){
-      remaining.push(item)
-      continue
+    if (isItemUnavailable(product, size)) {
+      remaining.push(item);
+      continue;
     }
 
-    const variant = product.variants.find(
-      variant =>
-        variant.size === size &&
-        variant.status === "ACTIVE"
-    );
-
-    if (!variant || variant.stock <= 0) continue
+    const variant = product.variants.find(v => v.size === size && v.status === "ACTIVE");
 
     if (!variant || variant.stock <= 0) {
-      remaining.push(item)
-      continue
+      remaining.push(item);
+      continue;
     }
 
     const existing = cart.items.find(
-      cartItem =>
-        cartItem.productId.toString() ===
-          product._id.toString() &&
-        cartItem.size === size
-    )
+      ci => ci.productId.toString() === product._id.toString() && ci.size === size
+    );
 
     if (existing) {
-
       const newQty = existing.quantity + 1;
-
-      if (
-        newQty <= 5 &&
-        newQty <= variant.stock
-      ) {
+      if (newQty <= 5 && newQty <= variant.stock) {
         existing.quantity = newQty;
-      
-      } else  {
-        remaining.push(item)
+      } else {
+        remaining.push(item);
       }
-      
     } else {
-
-      cart.items.push({
-        productId: product._id,
-        size,
-        quantity: 1,
-      });
-
+      cart.items.push({ productId: product._id, size, quantity: 1 });
     }
   }
-  
+
   await cart.save();
 
-  wishlist.products = [];
-
+  wishlist.products = remaining;  
   await wishlist.save();
 
   return true;
