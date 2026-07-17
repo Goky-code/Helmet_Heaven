@@ -1486,6 +1486,33 @@
     }
   }
 
+  async function updateHeaderCounts() {
+    try {
+        const res = await fetch("/user/header-counts");
+        const data = await res.json();
+
+        const cartBadge = document.getElementById("cartCount");
+        const wishlistBadge = document.getElementById("wishlistCount");
+
+        if (data.cartCount > 0) {
+            cartBadge.textContent = data.cartCount;
+            cartBadge.style.display = "flex";
+        } else {
+            cartBadge.style.display = "none";
+        }
+
+        if (data.wishlistCount > 0) {
+            wishlistBadge.textContent = data.wishlistCount;
+            wishlistBadge.style.display = "flex";
+        } else {
+            wishlistBadge.style.display = "none";
+        }
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+
   /* ── WISHLIST TOGGLE ── */
   async function toggleWish(productId) {
     if (!selectedSize) {
@@ -1515,11 +1542,11 @@
       if (data.success) {
         if (alreadyWishlisted) {
           wishlistedSizes.splice(wishlistedSizes.indexOf(selectedSize), 1);
-          updateHeaderCounts(); 
+          // updateHeaderCounts(); 
           showToast('Removed from wishlist', '#607d8b');
         } else {
           wishlistedSizes.push(selectedSize);
-          updateHeaderCounts(); 
+          // updateHeaderCounts(); 
           showToast('❤ Added to wishlist!', '#e91e63');
         }
         updateWishBtn();
