@@ -16,6 +16,7 @@ import shopRoutes from "./routes/shopRoutes.js"
 import cartRoutes from "./routes/cartRoutes.js"
 import productDetailsRouter from "./routes/productDetailsRoute.js" 
 import wishlistRoutes from "./routes/wishlistRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js"
 import { setNavCounts } from "./middlewares/setNavCounts.js";
 
 const app = express();
@@ -59,6 +60,7 @@ app.use("/", shopRoutes);
 app.use("/user", productDetailsRouter);
 app.use("/user", wishlistRoutes);
 app.use("/user", cartRoutes);
+app.use("/admin", orderRoutes)
 
 const startServer = async () => {
   try {
