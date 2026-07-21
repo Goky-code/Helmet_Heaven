@@ -8,6 +8,7 @@ export const loadCheckout=async(req,res)=>{
         return res.render("user/checkout/checkoutPage",data)
     }catch(error){
         console.log(error)
+        res.redirect("/user/cart")
     }
 }
 
