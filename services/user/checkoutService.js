@@ -29,8 +29,8 @@ export const getCheckoutData=async(userId)=>{
         })
         .lean(),
         Address.find({
-            userId,
-            isDeleted:false,
+            userId
+           
         }).lean()
     ])
 
@@ -165,7 +165,7 @@ export const placeOrder=async(userId,addressId,paymentMethod,couponCode=null)=>{
              subtotal +
              shipping +
               tax -
-             discount;
+             discount
 
                const order = await Order.create([{
 

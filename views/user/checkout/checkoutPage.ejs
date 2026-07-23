@@ -440,7 +440,7 @@
     <!-- ── SHIPPING ADDRESS ── -->
     <section aria-label="Shipping address" class="card">
       <div class="step-title">
-        <span class="step-num">2</span>
+        
         <h2>Select Shipping Address</h2>
       </div>
 
@@ -459,8 +459,8 @@
               </div>
               <div class="address-detail">
                 <%= addr.name %><br/>
-                <%= [addr.houseName, addr.street].filter(Boolean).join(', ') %><br/>
-                <%= [addr.city, addr.pincode].filter(Boolean).join(', ') %><br/>
+                <%= [addr.street, addr.apartment].filter(Boolean).join(', ') %><br/>
+                <%= [addr.city, addr.state, addr.zip].filter(Boolean).join(', ') %><br/>
                 <%= addr.phone %>
               </div>
             </div>
@@ -544,7 +544,7 @@
         </div>
 
         <div class="promo-row">
-          <input type="text" class="promo-input" id="promoInput" placeholder="Promo Code" aria-label="Promo code"/>
+          <input type="text" class="promo-input" id="promoInput" placeholder="Coupon Code" aria-label="Promo code"/>
           <button class="promo-btn" id="promoBtn">Apply</button>
         </div>
         <div class="promo-feedback" id="promoFeedback" aria-live="polite"></div>
@@ -668,8 +668,7 @@
       inp.disabled = true;
       document.getElementById('promoBtn').disabled = true;
       showToast('Promo code applied!');
-      /* TODO: replace with real fetch() to your promo endpoint,
-         then recompute subtotal/tax/total from the server response */
+      
     } else {
       inp.classList.add('error');
       fb.textContent = 'Invalid or expired promo code.';
