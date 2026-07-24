@@ -30,3 +30,43 @@ export const placeOrder=async(req,res)=>{
         })
     }
 }
+
+export const loadAddAddress = (req, res) => {
+
+    res.render("user/address/addNewAddress", {
+        redirect: req.query.redirect || ""
+    });
+
+}
+
+export const addAddress = async (req, res) => {
+
+    const {
+        redirect,
+        name,
+        street,
+        apartment,
+        city,
+        state,
+        zip,
+        phone
+    } = req.body;
+
+    await Address.create({
+        userId: req.session.user._id,
+        name,
+        street,
+        apartment,
+        city,
+        state,
+        zip,
+        phone
+    });
+
+    if (redirect === "checkout") {
+        return res.redirect("/user/checkout");
+    }
+
+    return res.redirect("/user/address/addresspage");
+
+}

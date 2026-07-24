@@ -189,6 +189,12 @@
     <div class="form-card">
       <form action="/user/addNewaddress" method="POST" id="addressForm" novalidate>
 
+    <input
+        type="hidden"
+        name="redirect"
+        value="<%= redirect %>"
+    >
+
         <div class="mb-form">
           <label class="field-label" for="name">Recipient Name</label>
           <input type="text" name="name" id="name" class="form-control-custom" placeholder="" oninput="clearErr('name'); this.value=this.value.replace(/[^A-Za-z\s]/g,'')"/>
@@ -229,6 +235,7 @@
             <label class="field-label" for="phone">Phone Number</label>
             <input type="tel" name="phone" id="phone" class="form-control-custom" placeholder="" maxlength="10" oninput="clearErr('phone'); this.value=this.value.replace(/[^0-9+\-\s]/g,'')"/>
             <span class="err-msg" id="err-phone"></span>
+
           </div>
         </div>
 
