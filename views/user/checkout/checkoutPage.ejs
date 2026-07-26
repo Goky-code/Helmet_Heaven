@@ -556,15 +556,26 @@
           <span class="summary-label">Total</span>
           <span class="summary-value" id="total">₹ <%= total.toLocaleString('en-IN') %></span>
         </div>
+<form action="/user/payment" method="GET" id="checkoutForm">
 
-        <button class="checkout-btn" id="checkoutBtn" <%= (!_addresses || _addresses.length === 0 || !cart || !cart.items || cart.items.length === 0) ? 'disabled' : '' %>>
-          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+   <input type="hidden" name="addressId" id="selectedAddressIdInput" value="<%= _selectedId || '' %>">
+
+    <button
+        type="submit"
+        class="checkout-btn"
+        id="checkoutSubmitBtn"
+        <%= (!_addresses || _addresses.length === 0 || !cart || !cart.items || cart.items.length === 0) ? 'disabled' : '' %>
+    >
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/>
             <path stroke-linecap="round" stroke-linejoin="round" d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
-          Checkout
-        </button>
+        </svg>
+
+        Checkout
+    </button>
+
+</form>
 
         <div class="secure-note">
           <svg fill="none" viewBox="0 0 24 24" stroke-width="2">
@@ -650,7 +661,16 @@
     selectedAddressId = id;
     document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
+    document.getElementById('selectedAddressIdInput').value = id;
   }
+
+  /* ── Guard the actual form submit ── */
+  document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+    if (!selectedAddressId) {
+      e.preventDefault();
+      showToast('Please select a shipping address.', 'error');
+    }
+  });
 
   /* ── Promo code ── */
   const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
@@ -684,41 +704,6 @@
     document.getElementById('promoInput').classList.remove('error');
     const fb = document.getElementById('promoFeedback');
     if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'promo-feedback'; }
-  });
-
-  /* ── Place order ── */
-  document.getElementById('checkoutBtn').addEventListener('click', async () => {
-    if (!selectedAddressId) {
-      showToast('Please select a shipping address.', 'error');
-      return;
-    }
-    const btn = document.getElementById('checkoutBtn');
-    btn.disabled = true;
-    const originalHTML = btn.innerHTML;
-    btn.textContent = 'Placing order...';
-
-    try {
-      const res = await fetch('/user/place-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ addressId: selectedAddressId })
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        showToast('Order placed successfully!');
-        window.location.href = data.redirectUrl || '/user/order-success';
-      } else {
-        showToast(data.message || 'Failed to place order.', 'error');
-        btn.disabled = false;
-        btn.innerHTML = originalHTML;
-      }
-    } catch (err) {
-      console.log(err);
-      showToast('Something went wrong. Please try again.', 'error');
-      btn.disabled = false;
-      btn.innerHTML = originalHTML;
-    }
   });
 
   /* ── Newsletter ── */

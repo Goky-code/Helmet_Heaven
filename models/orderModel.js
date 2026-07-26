@@ -7,11 +7,11 @@ const orderItemschema = new mongoose.Schema({
         required: true
     },
 
-    variantId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Variant",
-        required: true
-    },
+    // variantId: {
+    //     type: mongoose.Schema.Types.ObjectId,
+    //     ref: "Variant",
+    //     required: true
+    // },
 
     productName: String,
     variantName: String,
@@ -83,7 +83,7 @@ const orderSchema = new mongoose.Schema({
 
     paymentMethod:{
         type: String,
-        enum: ["COD"],
+        enum: ["COD","Razorpay","Wallet"],
         default: "COD"
     },
 
