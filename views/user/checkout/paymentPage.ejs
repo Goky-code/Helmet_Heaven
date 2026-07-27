@@ -181,6 +181,8 @@
     }
     .payment-option:hover { border-color: var(--accent2); }
     .payment-option.selected { border-color: var(--accent); background: rgba(45,156,255,.07); }
+    .payment-option.disabled { opacity: .5; cursor: not-allowed; }
+    .payment-option.disabled:hover { border-color: var(--border); }
     .payment-option input[type="radio"] {
       width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0;
     }
@@ -455,15 +457,11 @@
 
         <div class="payment-options" id="paymentOptions">
 
-          <!-- NOTE: your Order schema's paymentMethod enum currently only allows "COD".
-               Razorpay / Digital Wallet will need that enum expanded and gateway
-               integration added before these options can actually complete an order. -->
-
-          <label class="payment-option selected" data-value="Razorpay">
-            <input type="radio" name="paymentMethod" value="Razorpay" checked />
+          <label class="payment-option disabled" data-value="Razorpay">
+            <input type="radio" name="paymentMethod" value="Razorpay" disabled />
             <div class="payment-option-text">
               <div class="payment-option-title">Razorpay</div>
-              <div class="payment-option-sub">Cards, Netbanking, UPI &amp; Wallets</div>
+              <div class="payment-option-sub">Coming soon &ndash; Cards, Netbanking, UPI &amp; Wallets</div>
             </div>
             <div class="payment-option-icons">
               <div class="icon-chip">
@@ -472,11 +470,11 @@
             </div>
           </label>
 
-          <label class="payment-option" data-value="Wallet">
-            <input type="radio" name="paymentMethod" value="Wallet" />
+          <label class="payment-option disabled" data-value="Wallet">
+            <input type="radio" name="paymentMethod" value="Wallet" disabled />
             <div class="payment-option-text">
               <div class="payment-option-title">Digital Wallet</div>
-              <div class="payment-option-sub">Apple Pay / Google Pay / PayPal</div>
+              <div class="payment-option-sub">Coming soon &ndash; Apple Pay / Google Pay / PayPal</div>
             </div>
             <div class="payment-option-icons">
               <div class="icon-chip">
@@ -488,8 +486,8 @@
             </div>
           </label>
 
-          <label class="payment-option" data-value="COD">
-            <input type="radio" name="paymentMethod" value="COD" />
+          <label class="payment-option selected" data-value="COD">
+            <input type="radio" name="paymentMethod" value="COD" checked />
             <div class="payment-option-text">
               <div class="payment-option-title">Cash on Delivery</div>
               <div class="payment-option-sub">Pay when your helmet arrives</div>
@@ -593,12 +591,17 @@
 
         <input type="hidden" id="addressIdField" value="<%= _addressId %>">
 
-        <button class="pay-btn" id="payBtn" <%= (!_address || availableItems.length === 0) ? 'disabled' : '' %>>
-          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4.5 8-11a8 8 0 1 0-16 0c0 6.5 8 11 8 11z"/>
-          </svg>
-          Pay Now
-        </button>
+       <button 
+          type="button" 
+           class="pay-btn" 
+           id="payBtn" 
+         <%= (!_address || availableItems.length === 0) ? 'disabled' : '' %>
+      >
+  <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4.5 8-11a8 8 0 1 0-16 0c0 6.5 8 11 8 11z"/>
+  </svg>
+  Pay Now
+</button>
 
         <div class="secure-note">
           <svg fill="none" viewBox="0 0 24 24" stroke-width="2">
@@ -676,10 +679,14 @@
   }
 
   /* ── Payment method selection ── */
-  let selectedPaymentMethod = document.querySelector('.payment-option.selected')?.dataset.value || 'Razorpay';
+  let selectedPaymentMethod = document.querySelector('.payment-option.selected')?.dataset.value || 'COD';
 
   document.querySelectorAll('.payment-option').forEach(opt => {
     opt.addEventListener('click', () => {
+      if (opt.classList.contains('disabled')) {
+        showToast('This payment method is coming soon. Please use Cash on Delivery for now.', 'error');
+        return;
+      }
       document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
       opt.querySelector('input[type="radio"]').checked = true;
@@ -688,12 +695,20 @@
   });
 
   /* ── Pay Now ── */
-  document.getElementById('payBtn').addEventListener('click', async () => {
+
+/* ── Pay Now ── */
+document.getElementById('payBtn').addEventListener('click', async (e) => {
+    e.preventDefault();
+
     const addressId = document.getElementById('addressIdField')?.value;
+
     if (!addressId) {
-      showToast('Missing shipping address. Please go back to checkout.', 'error');
-      return;
+        showToast('Missing shipping address. Please go back to checkout.', 'error');
+        return;
     }
+
+    // Safely retrieve payment method
+    const paymentMethodVal = typeof selectedPaymentMethod !== 'undefined' ? selectedPaymentMethod : 'COD';
 
     const btn = document.getElementById('payBtn');
     btn.disabled = true;
@@ -701,29 +716,38 @@
     btn.textContent = 'Processing...';
 
     try {
-      const res = await fetch('/user/place-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ addressId, paymentMethod: selectedPaymentMethod })
-      });
-      const data = await res.json();
+        const payload = {
+            addressId: addressId,
+            paymentMethod: paymentMethodVal
+        };
 
-      if (data.success) {
-        showToast('Order placed successfully!');
-        window.location.href = data.redirectUrl || '/user/order-success';
-      } else {
-        showToast(data.message || 'Payment failed. Please try again.', 'error');
+        const res = await fetch('/user/place-order', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            showToast('Order placed successfully!');
+            setTimeout(() => {
+                window.location.href = data.redirectUrl;
+            }, 500);
+        } else {
+            showToast(data.message || 'Payment failed. Please try again.', 'error');
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+        }
+    } catch (err) {
+        console.error('Fetch Error:', err);
+        showToast('Something went wrong. Please try again.', 'error');
         btn.disabled = false;
         btn.innerHTML = originalHTML;
-      }
-    } catch (err) {
-      console.log(err);
-      showToast('Something went wrong. Please try again.', 'error');
-      btn.disabled = false;
-      btn.innerHTML = originalHTML;
     }
-  });
-
+});
   /* ── Newsletter ── */
   document.getElementById('joinBtn').addEventListener('click', () => {
     const inp     = document.getElementById('newsletterEmail');

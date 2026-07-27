@@ -56,12 +56,18 @@ export const getPaymentPage=async(userId , addressId)=>{
     }
 }
 
+  const IMPLEMENTED_PAYMENT_METHODS = ["COD"]
+
 export const placeOrder=async(userId,addressId,paymentMethod)=>{
-    const seession=await mongoose.startSession()
+    const session=await mongoose.startSession()
 
     session.startTransaction()
 
     try{
+
+        if(!IMPLEMENTED_PAYMENT_METHODS.includes(paymentMethod)){
+            throw new Error(`${paymentMethod} isn't available yet. Please select Cash on Delivery.`)
+        }
         const cart=await Cart.findOne({userId})
         .populate("items.productId")
         .session(session)
@@ -69,11 +75,12 @@ export const placeOrder=async(userId,addressId,paymentMethod)=>{
         if(!cart||cart.items.length===0){
             throw new Error("Cart is empty")
         }
-        const address=await Address.findOne({
-            _id:addressId,
-            userId
-        }).session(session)
-
+        
+       const address = await Address.findOne({
+        _id: new mongoose.Types.ObjectId(addressId),
+         userId
+      }).session(session);
+      
         if(!address){
             throw new Error('Address not found')
         }
@@ -144,6 +151,17 @@ export const placeOrder=async(userId,addressId,paymentMethod)=>{
         const orderId =
             "HH" + Date.now();
 
+            const addressSnapshot = {
+            name: address.name,
+            houseName: address.apartment || "",
+            street: address.street || "",
+            city: address.city || "",
+            state: address.state || "",
+            country: "India",
+            phone: address.phone || "",
+            pincode: address.zip || ""
+        }
+
         const order = await Order.create([{
 
             orderId,
@@ -152,15 +170,12 @@ export const placeOrder=async(userId,addressId,paymentMethod)=>{
 
             items: orderItems,
 
-            address:address._id,
+            address:addressSnapshot,
 
             paymentMethod,
 
-            paymentStatus:
-                paymentMethod === "COD"
-                    ? "Pending"
-                    : "Pending",
-
+            paymentStatus: "Pending",
+   
             subTotal: subtotal,
 
             shipping,
@@ -191,7 +206,7 @@ export const placeOrder=async(userId,addressId,paymentMethod)=>{
         return {
             success: true,
             orderId: order[0]._id,
-            redirectUrl: "/user/order-success"
+            redirectUrl: `/user/checkout/order-success?orderId=${order[0]._id}`
         }
     } catch (error) {
         await session.abortTransaction()
