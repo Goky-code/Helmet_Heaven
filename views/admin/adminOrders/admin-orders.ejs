@@ -309,7 +309,7 @@
                     <td><span class="items-badge"><%= itemCount %> <%= itemCount === 1 ? 'Item' : 'Items' %></span></td>
                     <td><span class="total-amount">₹<%= (o.grandTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></span></td>
                     <td><span class="badge <%= statusCls %>"><%= statusLabel %></span></td>
-                    <td><a href="/admin/orders/<%= o._id %>" class="btn-edit">View Details</a></td>
+                    <td><a href="/admin/orders/<%= o._id.toString()%>" class="btn-edit">View Details</a></td>
                   </tr>
                 <% }) %>
               <% } %>

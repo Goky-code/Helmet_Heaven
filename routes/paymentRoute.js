@@ -11,9 +11,11 @@ router.get(
 );
 
 router.post(
-    "/place-order",
+    "/place-orders",
     isUserAuth,
     paymentController.placeOrder
 );
+router.get("/order-success", isUserAuth, paymentController.loadOrderSuccess);
+ 
 
 export default router;

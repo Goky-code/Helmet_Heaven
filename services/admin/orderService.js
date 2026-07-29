@@ -122,7 +122,7 @@ export const getOrderDetails = async (id) => {
   const order = await Order.findById(id)
     .populate("userId", "firstName lastName email phone")
     .populate("items.productId", "productName")
-    .populate("items.variantId")
+    
     .lean();
 
   if (!order) {

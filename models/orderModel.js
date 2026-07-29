@@ -14,10 +14,11 @@ const orderItemschema = new mongoose.Schema({
     // },
 
     productName: String,
+    size:String,
     variantName: String,
     productImage: String,
     quantity: Number,
-    regularPrice: String,
+    regularPrice: Number,
     salePrice: Number,
     totalPrice: Number,
 

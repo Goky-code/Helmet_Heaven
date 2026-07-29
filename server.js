@@ -20,6 +20,7 @@ import orderRoutes from "./routes/orderRoutes.js"
 import checkoutRoute from "./routes/checkoutRoute.js"
 import paymentRoute from  "./routes/paymentRoute.js"
 import orderSuccessRoutes from "./routes/orderSuccessRoutes.js";
+import myOrdersRoute from "./routes/myOrdersRoute.js"
 import { setNavCounts } from "./middlewares/setNavCounts.js";
 
 const app = express();
@@ -67,6 +68,7 @@ app.use("/admin", orderRoutes)
 app.use("/user",checkoutRoute)
 app.use("/user" ,paymentRoute)
 app.use("/user", orderSuccessRoutes)
+app.use("/user", myOrdersRoute)
 
 const startServer = async () => {
   try {

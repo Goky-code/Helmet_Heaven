@@ -24,4 +24,4 @@ export const loadOrderSuccess = async (req, res) => {
         console.error("Error loading order success page:", error);
         res.redirect("/pageerror");
     }
-};
+}

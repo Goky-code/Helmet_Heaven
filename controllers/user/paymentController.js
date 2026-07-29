@@ -1,37 +1,68 @@
-import * as paymentService from "../../services/user/paymentService.js"
-import HTTP_STATUS from "../../utils/httpStatus.js"
-
-export const loadPayment=async(req,res)=>{
-    try{
-        const userId=req.session.user
-        const {addressId}=req.query
-
-        const data=await paymentService.getPaymentPage(userId,addressId)
-
-        res.render("user/checkout/paymentPage",data)
-    }catch(error){
-         console.log(error);
-
-    res.redirect("/pageerror")
-
+import * as paymentService from "../../services/user/paymentService.js";
+import HTTP_STATUS from "../../utils/httpStatus.js";
+ 
+export const loadPayment = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const addressId = req.query.addressId || req.body.addressId;
+ 
+        const data = await paymentService.getPaymentPageData(userId, addressId);
+ 
+        return res.render("user/checkout/paymentPage", data);
+    } catch (error) {
+        console.log(error);
+        res.redirect("/user/checkout");
     }
-}
-
-export const placeOrder=async(req,res)=>{
-    try{
-        const userId=req.session.user
-
-        const{addressId,paymentMethod}=req.body
-
-        const result=await paymentService.placeOrder(userId,addressId,paymentMethod)
-
-        res.status(HTTP_STATUS.CREATED).json(result)
-    }catch(error){
-        console.log(error)
-        res.status(HTTP_STATUS.BAD_REQUEST).json({
-            success:false,
-            message:error.message,
-        })
-
+};
+ 
+export const placeOrder = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const { addressId, paymentMethod } = req.body;
+ 
+        if (!addressId) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                message: "Shipping address is required.",
+            });
+        }
+        if (!paymentMethod) {
+            return res.status(HTTP_STATUS.BAD_REQUEST).json({
+                success: false,
+                message: "Please select a payment method.",
+            });
+        }
+ 
+        const result = await paymentService.placeOrder(userId, addressId, paymentMethod);
+ 
+        return res.json(result);
+    } catch (error) {
+        console.log(error);
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+            success: false,
+            message: error.message || "Something went wrong",
+        });
     }
-}
+};
+ 
+export const loadOrderSuccess = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const { orderId } = req.query;
+ 
+        if (!orderId) {
+            return res.redirect("/user/orders");
+        }
+ 
+        const order = await paymentService.getOrderSuccessData(userId, orderId);
+ 
+        if (!order) {
+            return res.redirect("/user/orders");
+        }
+ 
+        return res.render("user/checkout/order-success", { order });
+    } catch (error) {
+        console.log(error);
+        res.redirect("/user/orders");
+    }
+};
