@@ -402,47 +402,57 @@
     <% } else { %>
 
       <% _orders.forEach(function(order) { %>
-        <div class="order-card">
+       <div class="order-card">
 
-          <div class="order-card-header">
-            <div>
-              <span class="order-meta-label">Order ID</span>
-              <span class="order-meta-value">#<%= order.orderId %></span>
-            </div>
-            <div>
-              <span class="order-meta-label">Status</span>
-              <span class="order-status <%= statusClass(order.status) %>">
-                <i class="bi <%= statusIcon(order.status) %>"></i> <%= order.status %>
-              </span>
-            </div>
-            <div>
-              <span class="order-meta-label">Date Placed</span>
-              <span class="order-meta-value"><%= order.datePlaced %></span>
-            </div>
-            <div>
-              <span class="order-meta-label">Total Price</span>
-              <span class="order-total-value">₹<%= order.totalPrice %></span>
-            </div>
-          </div>
-
-          <% (order.items || []).forEach(function(item) { %>
-            <div class="order-item-row">
-              <img class="order-item-thumb"
-                   src="<%= item.image %>"
-                   alt="<%= item.name %>">
-              <div class="order-item-info">
-                <div class="order-item-name"><%= item.name %></div>
-                <div class="order-item-sub">
-                  Size: <%= item.size %><br>
-                  Qty: <%= item.qty %>
-                </div>
-              </div>
-              <a href="/user/orders/<%= order.orderId %>" class="btn-view-details">View Details</a>
-            </div>
-          <% }); %>
-
+    <div class="order-card-header">
+        <div>
+            <span class="order-meta-label">Order ID</span>
+            <span class="order-meta-value">#<%= order.orderId %></span>
         </div>
-      <% }); %>
+
+        <div>
+            <span class="order-meta-label">Status</span>
+            <span class="order-status <%= statusClass(order.status) %>">
+                <i class="bi <%= statusIcon(order.status) %>"></i>
+                <%= order.status %>
+            </span>
+        </div>
+
+        <div>
+            <span class="order-meta-label">Date Placed</span>
+            <span class="order-meta-value"><%= order.datePlaced %></span>
+        </div>
+
+        <div>
+            <span class="order-meta-label">Total Price</span>
+            <span class="order-total-value">₹<%= order.totalPrice %></span>
+        </div>
+    </div>
+<% (order.items || []).forEach(function(item) { %>
+
+    <div class="order-item-row">
+        <img class="order-item-thumb"
+             src="<%= item.image %>"
+             alt="<%= item.name %>">
+
+        <div class="order-item-info">
+            <div class="order-item-name"><%= item.name %></div>
+            <div class="order-item-sub">
+                Size: <%= item.size %><br>
+                Qty: <%= item.qty %>
+            </div>
+        </div>
+    </div>
+
+<% }); %>
+
+<div class="text-end p-3">
+    <a href="/user/orders/<%= order.orderId %>" class="btn-view-details">
+        View Details
+    </a>
+</div>
+</div>
+<% }); %>
 
       <% if (_totalPages > 1) { %>
         <div class="pagination-row">
