@@ -262,8 +262,16 @@
     }
     .checkout-btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,156,255,.45); }
     .checkout-btn:active { transform: translateY(0); }
+    .checkout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+}
     .checkout-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
     .checkout-btn svg { width: 18px; height: 18px; }
+    
     .secure-note {
       display: flex; align-items: center; justify-content: center; gap: 6px;
       font-size: .75rem; color: var(--muted); margin-top: 12px;
@@ -548,11 +556,11 @@
         <div class="promo-feedback" id="promoFeedback" aria-live="polite"></div>
 
         <!-- Checkout -->
-        <button class="checkout-btn" id="checkoutBtn">
+        <a href="/user/checkout" class="checkout-btn">
           <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
-          <a href="/user/checkout">
+         
               Proceed to Checkout
           </a>
          

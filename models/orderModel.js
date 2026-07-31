@@ -44,6 +44,10 @@ const orderItemschema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    cancelComment: {
+    type: String,
+    default: ""
+},
 
     returnedAt:{
         type: Date,
@@ -53,7 +57,16 @@ const orderItemschema = new mongoose.Schema({
     returnReason:{
         type: String,
         default: ""
-    }
+    },
+    returnComment:{
+        type:String,
+        default:null
+    },
+    refundStatus: {
+    type: String,
+    enum: ["Pending", "Processing", "Completed"],
+    default: "Pending"
+},
 })
 
 const orderSchema = new mongoose.Schema({

@@ -77,7 +77,16 @@ export const getOrderDetails=async(userId,orderId)=>{
 
             price: `₹${item.totalPrice}`,
 
-            status: item.status
+            status: item.status,
+           
+            cancelReason: item.cancelReason,
+            cancelComment: item.cancelComment,
+
+            returnReason: item.returnReason,
+            returnComment: item.returnComment,
+
+            cancelledAt: item.cancelledAt,
+            returnedAt: item.returnedAt
 
         }))
 

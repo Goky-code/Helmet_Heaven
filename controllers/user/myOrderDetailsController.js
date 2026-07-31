@@ -21,27 +21,116 @@ export const loadOrderDetails=async(req,res)=>{
     }
 }
 
-export const cancelOrder=async(req,res)=>{
-    try{
-        const {orderId}=req.params
-        await Order.updateOne({orderId},{$set:{orderStatus:"Cancelled","items.$[].status":"Cancelled"}})
+export const cancelOrder = async (req, res) => {
+    try {
+        const { orderId } = req.params;
 
-        res.redirect(`/user/orders/${orderId}`)  
-    }catch(error){
-        console.log(error)
-        res.redirect("/pageNotFound")
+        let selectedItems = req.body.items;
+        
+        if (!selectedItems) {
+            return res.redirect(`/user/orders/${orderId}`);
+        }
+        if (!Array.isArray(selectedItems)) {
+            selectedItems = [selectedItems];
+        }
+
+        for (const productId of selectedItems) {
+
+            const reason = req.body[`reason_${productId}`];
+            const comment = req.body[`comment_${productId}`];
+
+            await Order.updateOne(
+                {
+                    orderId,
+                    "items.productId": productId
+                },
+                {
+                    $set: {
+                        "items.$.status": "Cancelled",
+                        "items.$.cancelReason": reason,
+                        "items.$.cancelComment": comment,
+                        "items.$.cancelledAt": new Date()
+                    }
+                }
+            );
+        }
+
+        const order = await Order.findOne({ orderId });
+
+        const allCancelled = order.items.every(
+            item => item.status === "Cancelled"
+        );
+
+        if (allCancelled) {
+            await Order.updateOne(
+                { orderId },
+                {
+                    $set: {
+                        orderStatus: "Cancelled"
+                    }
+                }
+            );
+        }
+
+        res.redirect(`/user/orders/${orderId}`);
+
+    } catch (error) {
+        console.log(error);
+        res.redirect("/pageNotFound");
     }
 }
 
 export const returnOrder=async(req,res)=>{
     try{
         const {orderId}=req.params
-        const { reason, comment } = req.body;
-        await Order.updateOne({orderId},{ reason, comment },{$set:{orderStatus:"Return Requested","items.s[].status":"Return Requested"}})
-        res.redirect(`/user/orders/${orderId}`)
-    }catch(error){
-        console.log(error)
-        res.redirect("/pageNotFound")
+           let selectedItems = req.body.items;
+
+        if (!selectedItems) {
+            return res.redirect(`/user/orders/${orderId}`);
+        }
+
+        if (!Array.isArray(selectedItems)) {
+            selectedItems = [selectedItems];
+        }
+
+        for (const productId of selectedItems) {
+
+            const reason = req.body[`reason_${productId}`];
+            const comment = req.body[`comment_${productId}`];
+
+            await Order.updateOne(
+                {
+                    orderId,
+                    "items.productId": productId
+                },
+                {
+                    $set: {
+                        "items.$.status": "Return Requested",
+                        "items.$.returnReason": reason,
+                        "items.$.returnComment": comment,
+                        "items.$.returnedAt": new Date()
+                    }
+                }
+            )
+              console.log("Product ID:", productId);
+        }
+
+        const order = await Order.findOne({ orderId });
+
+        const allRequested = order.items.every(
+            item => item.status === "Return Requested"
+        );
+
+        if (allRequested) {
+            order.orderStatus = "Return Requested";
+            await order.save();
+        }
+
+        res.redirect(`/user/orders/${orderId}`);
+
+    } catch (error) {
+        console.log(error);
+        res.redirect("/pageNotFound");
     }
 }
 

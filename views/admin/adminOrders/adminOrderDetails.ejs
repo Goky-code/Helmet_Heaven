@@ -322,6 +322,82 @@
           </div>
         </div>
       </div>
+        
+      <div class="card mb-4">
+
+    <div class="card-title mb-4">
+        Order Items
+    </div>
+
+    <% order.items.forEach(item => { %>
+
+        <div class="border rounded p-3 mb-3">
+
+            <div class="d-flex justify-content-between">
+
+                <div>
+
+                    <strong><%= item.productName %></strong>
+
+                    <br>
+
+                    Size :
+                    <%= item.size %>
+
+                    |
+
+                    Qty :
+                    <%= item.quantity %>
+
+                </div>
+
+                <span class="badge">
+                    <%= item.status %>
+                </span>
+
+            </div>
+
+            <% if(item.status==="Return Requested"){ %>
+
+                <div class="alert alert-warning mt-3">
+
+                    <strong>Return Reason :</strong>
+
+                    <%= item.returnReason %>
+
+                    <br>
+
+                    <strong>Comment :</strong>
+
+                    <%= item.returnComment || "-" %>
+
+                </div>
+
+            <% } %>
+
+            <% if(item.status==="Cancelled"){ %>
+
+                <div class="alert alert-danger mt-3">
+
+                    <strong>Cancel Reason :</strong>
+
+                    <%= item.cancelReason %>
+
+                    <br>
+
+                    <strong>Comment :</strong>
+
+                    <%= item.cancelComment || "-" %>
+
+                </div>
+
+            <% } %>
+
+        </div>
+
+    <% }) %>
+
+</div>
 
       <!-- Update Status -->
       <div class="card status-card">

@@ -128,7 +128,16 @@ export const getOrderDetails = async (id) => {
   if (!order) {
     throw new Error("Order not found");
   }
-
+  order.items=order.items.map(item => ({
+    productName: item.productName,
+    status: item.status,
+    returnReason: item.returnReason,
+    returnComment: item.returnComment,
+    cancelReason: item.cancelReason,
+    cancelComment: item.cancelComment,
+    cancelledAt: item.cancelledAt,
+     returnedAt: item.returnedAt
+}))
   return order;
 };
 

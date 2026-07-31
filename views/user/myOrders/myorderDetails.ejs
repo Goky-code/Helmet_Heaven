@@ -454,9 +454,8 @@
     </a>
 <% } %>
 
+
 <% if (order.canReturn) { %>
-    <button class="btn btn-warning">Return Order</button>
-<% } %><% if (order.canReturn) { %>
 
 <button
     class="btn btn-warning"
@@ -470,7 +469,16 @@
 <% } %>
 
 <% if (order.canCancel) { %>
-    <button class="btn btn-danger">Cancel Order</button>
+
+<button
+    class="btn btn-danger"
+    data-bs-toggle="modal"
+    data-bs-target="#cancelModal">
+
+    Cancel Order
+
+</button>
+
 <% } %>
 
 <% if (_order.status === "Return Requested") { %>
@@ -526,7 +534,7 @@
             <% if (_order.paymentMethod) { %>
               <div class="payment-method-row">
                 <span class="payment-badge"><%= _order.paymentMethod.badge || _order.paymentMethod.name %></span>
-                <span class="payment-name"><%= _order.paymentMethod.name %></span>
+               
               </div>
             <% } else { %>
               <p style="color:var(--text-muted); font-size:13px;">No payment info available.</p>
@@ -627,81 +635,121 @@
   </div>
 
   <div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true">
-
-    <div class="modal-dialog">
-
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
 
             <div class="modal-header">
-
-                <h5 class="modal-title">
-                    Return Order
-                </h5>
+                <h5 class="modal-title">Return Order</h5>
 
                 <button
                     type="button"
                     class="btn-close"
                     data-bs-dismiss="modal">
                 </button>
-
             </div>
 
             <form action="/user/orders/<%= order.orderId %>/return" method="POST">
 
                 <div class="modal-body">
 
-                    <label class="form-label">
-                        Reason for Return
-                    </label>
+                    <% order.items.forEach(function(item){ %>
 
-                    <select
-                        class="form-select"
-                        name="reason"
-                        required>
+                        <div class="border rounded p-3 mb-4">
 
-                        <option value="">
-                            Select Reason
-                        </option>
+                            <div class="d-flex align-items-center">
 
-                        <option value="Wrong Product">
-                            Wrong Product
-                        </option>
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input me-3 mt-0"
+                                    name="items"
+                                    value="<%= item.productId %>">
 
-                        <option value="Damaged Product">
-                            Damaged Product
-                        </option>
+                                <img
+                                    src="<%= item.image %>"
+                                    alt="<%= item.name %>"
+                                    width="70"
+                                    height="70"
+                                    class="rounded border me-3">
 
-                        <option value="Size Issue">
-                            Size Issue
-                        </option>
+                                <div>
 
-                        <option value="Quality Issue">
-                            Quality Issue
-                        </option>
+                                    <h6 class="mb-1">
+                                        <%= item.name %>
+                                    </h6>
 
-                        <option value="Changed My Mind">
-                            Changed My Mind
-                        </option>
+                                    <small class="text-muted">
+                                        Size :
+                                        <%= item.size %>
 
-                        <option value="Other">
-                            Other
-                        </option>
+                                        |
 
-                    </select>
+                                        Qty :
+                                        <%= item.qty %>
+                                    </small>
 
-                    <div class="mt-3">
+                                </div>
 
-                        <label class="form-label">
-                            Additional Comment
-                        </label>
+                            </div>
 
-                        <textarea
-                            class="form-control"
-                            name="comment"
-                            rows="4"
-                            placeholder="Write your reason..."></textarea>
+                            <div class="mt-3">
 
-                    </div>
+                                <label class="form-label">
+                                    Reason
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    name="reason_<%= item.productId %>">
+
+                                    <option value="">
+                                        Select Reason
+                                    </option>
+
+                                    <option value="Wrong Product">
+                                        Wrong Product
+                                    </option>
+
+                                    <option value="Damaged Product">
+                                        Damaged Product
+                                    </option>
+
+                                    <option value="Size Issue">
+                                        Size Issue
+                                    </option>
+
+                                    <option value="Quality Issue">
+                                        Quality Issue
+                                    </option>
+
+                                    <option value="Changed My Mind">
+                                        Changed My Mind
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <div class="mt-3">
+
+                                <label class="form-label">
+                                    Comment
+                                </label>
+
+                                <textarea
+                                    class="form-control"
+                                    rows="3"
+                                    name="comment_<%= item.productId %>"
+                                    placeholder="Optional"></textarea>
+
+                            </div>
+
+                        </div>
+
+                    <% }) %>
 
                 </div>
 
@@ -721,6 +769,158 @@
                         class="btn btn-warning">
 
                         Submit Return
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+
+    <div class="modal-dialog modal-lg">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    Cancel Products
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form action="/user/orders/<%= order.orderId %>/cancel" method="POST">
+
+                <div class="modal-body">
+
+                    <% order.items.forEach(function(item){ %>
+
+                        <% if(item.status !== "Cancelled"){ %>
+
+                        <div class="border rounded p-3 mb-3">
+
+                            <div class="d-flex align-items-center">
+
+                                <input
+                                    class="form-check-input me-3"
+                                    type="checkbox"
+                                    name="items"
+                                    value="<%= item.productId %>">
+
+                                <img
+                                    src="<%= item.image %>"
+                                    width="70"
+                                    height="70"
+                                    class="rounded me-3">
+
+                                <div>
+
+                                    <strong>
+                                        <%= item.name %>
+                                    </strong>
+
+                                    <br>
+
+                                    Size :
+                                    <%= item.size %>
+
+                                    |
+
+                                    Qty :
+                                    <%= item.qty %>
+
+                                </div>
+
+                            </div>
+
+                            <div class="mt-3">
+
+                                <label class="form-label">
+                                    Cancellation Reason
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    name="reason_<%= item.productId %>">
+
+                                    <option value="">
+                                        Select Reason
+                                    </option>
+
+                                    <option value="Ordered by mistake">
+                                        Ordered by mistake
+                                    </option>
+
+                                    <option value="Found better price">
+                                        Found better price
+                                    </option>
+
+                                    <option value="Delivery too late">
+                                        Delivery too late
+                                    </option>
+
+                                    <option value="Changed my mind">
+                                        Changed my mind
+                                    </option>
+
+                                    <option value="Other">
+                                        Other
+                                    </option>
+
+                                </select>
+
+                                <div class="mt-3">
+
+    <label class="form-label">
+         Comment
+    </label>
+
+    <textarea
+        class="form-control"
+        name="comment_<%= item.productId %>"
+        rows="3"
+        placeholder="Write your comment (optional)"></textarea>
+
+</div>
+
+                            </div>
+
+                        </div>
+
+                        <% } %>
+
+                    <% }) %>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Close
+
+                    </button>
+
+                    <button
+                        class="btn btn-danger"
+                        type="submit">
+
+                        Cancel Selected Products
 
                     </button>
 
