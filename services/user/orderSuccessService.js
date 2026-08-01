@@ -7,7 +7,6 @@ export const getOrderSuccessDetails = async (orderId, userId) => {
         return null;
     }
 
-    
     return {
         _id: order._id,
         orderNumber: order.orderId,

@@ -11,9 +11,9 @@ export const getCheckoutData=async(userId)=>{
         .populate({
             path:"items.productId",
             populate:[
-                {
-                    path:"category",
-                    match:{
+            {
+              path:"category",
+             match:{
                         isListed:true,
                         isDeleted:false,
                     },
@@ -21,7 +21,7 @@ export const getCheckoutData=async(userId)=>{
                 {
                     path:"brand",
                     match:{
-                        isListed:true,
+                   isListed:true,
                         isDeleted:false,
                     },
                 },

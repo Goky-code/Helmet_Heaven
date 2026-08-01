@@ -1,4 +1,6 @@
 import * as productDetailsService from "../../services/user/productDetailsService.js"
+import Cart from "../../models/cartModel.js"
+import Wishlist from "../../models/wishlistModel.js"
 import HTTP_STATUS from "../../utils/httpStatus.js";
 
 export const loadProductDetails = async (req,res) => {
@@ -58,4 +60,16 @@ export const addToCart = async (req,res) => {
 
   }
 
+}
+
+export const getHeaderCounts = async (req, res) => {
+    const userId = req.session.user;
+
+    const cart = await Cart.findOne({ userId });
+    const wishlist = await Wishlist.findOne({ userId });
+
+    res.json({
+        cartCount: cart ? cart.items.length : 0,
+        wishlistCount: wishlist ? wishlist.products.length : 0
+    })
 }

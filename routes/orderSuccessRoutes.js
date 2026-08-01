@@ -4,10 +4,7 @@ import { isUserAuth } from "../middlewares/userAuth.js";
 
 const router = express.Router();
 
-router.get(
-    "/checkout/order-success",
-    isUserAuth,
-    orderSuccessController.loadOrderSuccess
-);
+router.get("/checkout/order-success", isUserAuth,orderSuccessController.loadOrderSuccess)
+
 
 export default router;

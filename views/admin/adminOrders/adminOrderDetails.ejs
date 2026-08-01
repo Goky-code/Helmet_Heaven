@@ -73,6 +73,109 @@
     .badge-cancelled { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
     .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+    .order-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 14px;
+}
+
+.order-item:last-child {
+    margin-bottom: 0;
+}
+
+.product-name {
+    color: #e8eaf0;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.product-details {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.item-status {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #f59e0b;
+}
+
+/* Delivered */
+
+.item-status.item-delivered {
+    color: #22c55e;
+}
+
+/* Cancelled */
+
+.item-status.item-cancelled {
+    color: #ef4444;
+}
+
+/* Return Requested */
+
+.item-status.item-return-requested {
+    color: #f59e0b;
+}
+
+/* Returned */
+
+.item-status.item-returned {
+    color: #3b82f6;
+}
+
+
+/* RETURN REASON BOX */
+
+.return-info {
+    margin-top: 15px;
+    padding: 14px 16px;
+
+    background: rgba(245, 158, 11, 0.08);
+
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-left: 3px solid #f59e0b;
+
+    border-radius: 7px;
+
+    color: #d1d5db;
+
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.return-info strong {
+    color: #f59e0b;
+}
+
+
+/* CANCEL REASON BOX */
+
+.cancel-info {
+    margin-top: 15px;
+    padding: 14px 16px;
+
+    background: rgba(239, 68, 68, 0.08);
+
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-left: 3px solid #ef4444;
+
+    border-radius: 7px;
+
+    color: #d1d5db;
+
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.cancel-info strong {
+    color: #ef4444;
+}
+
     /* CUSTOMER DETAILS GRID */
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; row-gap: 20px; column-gap: 20px; }
     .info-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
@@ -323,7 +426,7 @@
         </div>
       </div>
         
-      <div class="card mb-4">
+   <div class="card mb-4">
 
     <div class="card-title mb-4">
         Order Items
@@ -331,63 +434,77 @@
 
     <% order.items.forEach(item => { %>
 
-        <div class="border rounded p-3 mb-3">
+        <div class="order-item">
 
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between align-items-center">
 
                 <div>
 
-                    <strong><%= item.productName %></strong>
+                    <div class="product-name">
+                        <%= item.productName %>
+                    </div>
 
-                    <br>
-
-                    Size :
-                    <%= item.size %>
-
-                    |
-
-                    Qty :
-                    <%= item.quantity %>
+                    <div class="product-details">
+                        Size : <%= item.size %>
+                        &nbsp; | &nbsp;
+                        Qty : <%= item.quantity %>
+                    </div>
 
                 </div>
 
-                <span class="badge">
-                    <%= item.status %>
-                </span>
+
+                <!-- ITEM STATUS -->
+
+                <div class="item-status
+                    <%= item.status === 'Delivered' ? 'item-delivered' : '' %>
+                    <%= item.status === 'Cancelled' ? 'item-cancelled' : '' %>
+                    <%= item.status === 'Return Requested' ? 'item-return-requested' : '' %>
+                    <%= item.status === 'Returned' ? 'item-returned' : '' %>
+                ">
+
+                    ● <%= item.status.toUpperCase() %>
+
+                </div>
 
             </div>
 
-            <% if(item.status==="Return Requested"){ %>
 
-                <div class="alert alert-warning mt-3">
+            <!-- RETURN INFORMATION -->
 
-                    <strong>Return Reason :</strong>
+            <% if (item.status === "Return Requested") { %>
 
-                    <%= item.returnReason %>
+                <div class="return-info">
 
-                    <br>
+                    <div>
+                        <strong>Return Reason:</strong>
+                        <%= item.returnReason || "-" %>
+                    </div>
 
-                    <strong>Comment :</strong>
-
-                    <%= item.returnComment || "-" %>
+                    <div>
+                        <strong>Comment:</strong>
+                        <%= item.returnComment || "-" %>
+                    </div>
 
                 </div>
 
             <% } %>
 
-            <% if(item.status==="Cancelled"){ %>
 
-                <div class="alert alert-danger mt-3">
+            <!-- CANCEL INFORMATION -->
 
-                    <strong>Cancel Reason :</strong>
+            <% if (item.status === "Cancelled") { %>
 
-                    <%= item.cancelReason %>
+                <div class="cancel-info">
 
-                    <br>
+                    <div>
+                        <strong>Cancel Reason:</strong>
+                        <%= item.cancelReason || "-" %>
+                    </div>
 
-                    <strong>Comment :</strong>
-
-                    <%= item.cancelComment || "-" %>
+                    <div>
+                        <strong>Comment:</strong>
+                        <%= item.cancelComment || "-" %>
+                    </div>
 
                 </div>
 
@@ -395,7 +512,7 @@
 
         </div>
 
-    <% }) %>
+    <% }); %>
 
 </div>
 

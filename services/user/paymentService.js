@@ -8,19 +8,14 @@ const SHIPPING_THRESHOLD = 500;
 const SHIPPING_FEE = 99;
 const TAX_RATE = 0.08;
  
-// Simple human-readable order id (schema marks orderId unique).
-// Swap for nanoid/uuid if you already use one elsewhere.
+
 const generateOrderId = () => {
   const stamp = Date.now().toString().slice(-8);
   const rand = Math.floor(1000 + Math.random() * 9000);
   return `ORD${stamp}${rand}`;
 };
  
-/**
- * Everything the payment.ejs page needs to render: the selected address,
- * validated cart items, and computed totals. Mirrors getCheckoutData but
- * also resolves which address is "selected" for step 1 of the page.
- */
+
 export const getPaymentPageData = async (userId, addressId) => {
   const [cart, addresses] = await Promise.all([
     Cart.findOne({ userId })
@@ -32,8 +27,8 @@ export const getPaymentPageData = async (userId, addressId) => {
         ],
       })
       .lean(),
-    Address.find({ userId }).lean(), // matches getCheckoutData's query exactly
-  ]);
+    Address.find({ userId }).lean(),
+  ])
  
   const rawItems = cart?.items || [];
   let subtotal = 0;
@@ -66,7 +61,7 @@ export const getPaymentPageData = async (userId, addressId) => {
     addresses,
     shippingAddress,
     addressId: shippingAddress?._id || null,
-    coupon: null, // TODO: wire up your coupon/session logic here if you have one
+    coupon: null,
     subtotal,
     shipping,
     tax,
@@ -74,11 +69,6 @@ export const getPaymentPageData = async (userId, addressId) => {
   };
 };
  
-/**
- * Places a Cash on Delivery order. Razorpay / Wallet are valid enum values
- * on the schema but aren't gateway-integrated yet, so only COD actually
- * completes here — everything else is rejected with a clear message.
- */
 export const placeOrder = async (userId, addressId, paymentMethod) => {
   if (paymentMethod !== "COD") {
     const err = new Error("Only Cash on Delivery is currently supported.");
@@ -103,14 +93,10 @@ export const placeOrder = async (userId, addressId, paymentMethod) => {
  
     let subTotal = 0;
     const orderItems = [];
-    const orderedItems = []; // keep track of which cart items actually made it into the order (for stock decrement below)
- 
+    const orderedItems = []; 
     for (const item of cart.items) {
-      const product = item.productId; // was `items.productId` (undefined) — fixed
+      const product = item.productId; 
  
-      // Skip unavailable items instead of failing the whole order —
-      // these were already excluded from what the user saw on the
-      // payment page summary, so they shouldn't block checkout here.
       if (!product || product.isDeleted || product.isBlocked) continue;
  
       const variant = product.variants.find((v) => v.size === item.size);
@@ -119,10 +105,7 @@ export const placeOrder = async (userId, addressId, paymentMethod) => {
       const totalPrice = variant.price * item.quantity;
       subTotal += totalPrice;
       orderedItems.push(item);
- 
-      // Matches orderItemschema's real fields — the earlier draft pushed
-      // `price` / `total`, which don't exist on the schema and were
-      // silently stripped out by Mongoose before saving.
+
       orderItems.push({
         productId: product._id,
         productName: product.productName,
@@ -143,7 +126,7 @@ export const placeOrder = async (userId, addressId, paymentMethod) => {
  
     const shipping = subTotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const tax = Math.round(subTotal * TAX_RATE);
-    const discount = 0; // TODO: apply couponCode here once you have coupon logic
+    const discount = 0; 
     const grandTotal = subTotal + shipping + tax - discount;
  
     const [order] = await Order.create(
@@ -162,7 +145,7 @@ export const placeOrder = async (userId, addressId, paymentMethod) => {
             pincode: address.zip,
           },
           paymentMethod,
-          paymentStatus: "Pending", // enum is Pending/Paid/Failed — "Unpaid" isn't valid
+          paymentStatus: "Pending", 
           orderStatus: "Pending",
           subTotal,
           shipping,
@@ -201,18 +184,9 @@ export const placeOrder = async (userId, addressId, paymentMethod) => {
   }
 };
  
-/**
- * Loads a placed order and reshapes it into the exact structure
- * order-success.ejs expects (orderNumber, items[].price/color,
- * deliveryAddress, subtotal, couponDiscount, total, etc). Your real Order
- * schema stores different field names (grandTotal, subTotal, address,
- * discount, salePrice...) so this is a pure presentation-layer mapping —
- * it doesn't change how orders are stored.
- */
+
 export const getOrderSuccessData = async (userId, orderId) => {
-  // orderId here is the human-readable Order.orderId (e.g. "ORD..."),
-  // matching what placeOrder() redirects to. Falls back to _id lookup
-  // in case you ever link using the Mongo _id instead.
+ 
   const query = mongoose.Types.ObjectId.isValid(orderId)
     ? { $or: [{ orderId }, { _id: orderId }], userId }
     : { orderId, userId };
@@ -227,7 +201,7 @@ export const getOrderSuccessData = async (userId, orderId) => {
     items: order.items.map((item) => ({
       productName: item.productName,
       size: item.size,
-      color: item.variantName, // no separate "color" field on your schema — variantName fills this slot
+      color: item.variantName, 
       price: item.salePrice,
       productId: {
         productName: item.productName,

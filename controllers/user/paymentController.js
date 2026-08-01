@@ -65,4 +65,4 @@ export const loadOrderSuccess = async (req, res) => {
         console.log(error);
         res.redirect("/user/orders");
     }
-};
+}
