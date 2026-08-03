@@ -5,10 +5,12 @@ export const loadWishlist = async (req, res) => {
 
   try {
 
+    const page=parseInt(req.query.page)||1
+    const limit=5
+
     const data =
       await wishlistService.getWishlist(
-        req.session.user
-      );
+        req.session.user,page,limit)
 
     res.render(
       "user/wishlist",

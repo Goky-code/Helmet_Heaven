@@ -234,10 +234,11 @@
             id="searchInput"
             name="search"
             placeholder="Search order ID, customer..."
-            value="<%= typeof search !== 'undefined' ? search : '' %>"
+            value="<%= search || '' %>"
           />
         </div>
-        <input type="hidden" name="status" id="statusInput" value="<%= typeof status !== 'undefined' ? status : '' %>" />
+
+        <input type="hidden" name="status" id="statusInput" value="<%= status || '' %>" />
 
         <div class="status-tabs ms-md-auto" id="statusTabs">
           <a
@@ -361,14 +362,7 @@
   <div id="toast"></div>
 
   <script>
-    /* ── Debounced live search: resubmits the filter form ── */
-    let searchDebounce;
-    document.getElementById("searchInput").addEventListener("input", () => {
-      clearTimeout(searchDebounce);
-      searchDebounce = setTimeout(() => {
-        document.getElementById("filterForm").submit();
-      }, 400);
-    });
+   
 
     function showToast(msg, isOk = true) {
       const t = document.getElementById("toast");
@@ -377,6 +371,25 @@
       t.style.display = "block";
       setTimeout(() => { t.style.display = "none"; }, 3000);
     }
+   
+  const searchInput = document.getElementById("searchInput");
+
+  searchInput.addEventListener("input", function () {
+
+    if (this.value.trim() === "") {
+
+      const url = new URL(window.location.href);
+
+      // Remove old search
+      url.searchParams.delete("search");
+
+      // Go back to first page
+      url.searchParams.set("page", "1");
+
+      window.location.href = url.toString();
+    }
+
+  });
 
     /* ── Sidebar ── */
     function toggleSidebar() {

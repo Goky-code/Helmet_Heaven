@@ -5,7 +5,7 @@ export const loadOrders=async(req,res)=>{
     try{
         const{search,status,sort}=req.query
         const page=parseInt(req.query.page)||1
-        const limit=10
+        const limit=5
         const data=await orderService.getOrders(page,limit,{search,status,sort})
 
         res.render("admin/adminOrders/admin-orders",data)

@@ -251,6 +251,56 @@
     .promo-feedback.ok { color: var(--success); }
     .promo-feedback.err { color: var(--danger); }
 
+    .cart-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+
+    margin-top: 24px;
+}
+
+.page-btn {
+    min-width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 14px;
+
+    background: var(--bg2);
+    border: 1px solid var(--border);
+
+    color: var(--text);
+    text-decoration: none;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.2s;
+}
+
+.page-btn:hover {
+    background: var(--bg3);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.page-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.page-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
     .checkout-btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 14px 20px; margin-top: 20px;
@@ -504,6 +554,64 @@
         <p>Looks like you haven't added any helmets yet.</p>
         <button class="btn-shop" onclick="window.location.href='/shop'">Continue Shopping</button>
       </div>
+
+<% if (totalPages > 1) { %>
+
+<div class="cart-pagination">
+
+    <!-- Previous -->
+    <% if (currentPage > 1) { %>
+
+        <a
+            href="/user/cart?page=<%= currentPage - 1 %>"
+            class="page-btn"
+        >
+            Previous
+        </a>
+
+    <% } else { %>
+
+        <span class="page-btn disabled">
+            Previous
+        </span>
+
+    <% } %>
+
+
+    <!-- Page Numbers -->
+    <% for (let i = 1; i <= totalPages; i++) { %>
+
+        <a
+            href="/user/cart?page=<%= i %>"
+            class="page-btn <%= currentPage === i ? 'active' : '' %>"
+        >
+            <%= i %>
+        </a>
+
+    <% } %>
+
+
+    <!-- Next -->
+    <% if (currentPage < totalPages) { %>
+
+        <a
+            href="/user/cart?page=<%= currentPage + 1 %>"
+            class="page-btn"
+        >
+            Next
+        </a>
+
+    <% } else { %>
+
+        <span class="page-btn disabled">
+            Next
+        </span>
+
+    <% } %>
+
+</div>
+
+<% } %>
 
     </section>
 

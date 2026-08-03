@@ -12,10 +12,15 @@ const ORDER_STATUSES = [
   "Returned",
 ];
 
-export const getOrders = async (page, limit, { search = "", status = "", sort } = {}) => {
+export const getOrders = async (page, limit, { search = "", status = "", sort="" } = {}) => {
+
+  search = String(search || "").trim();
+  status = String(status || "").trim();
+  sort = String(sort || "").trim();
+
 
   const currentPage = parseInt(page) || 1;
-  const perPage = parseInt(limit) || 10;
+  const perPage = parseInt(limit) || 5;
   const skip = (currentPage - 1) * perPage;
 
   const pipeline = [
@@ -40,10 +45,9 @@ export const getOrders = async (page, limit, { search = "", status = "", sort } 
   if (status && ORDER_STATUSES.includes(status)) {
     match.orderStatus = status;
   }
+if (search) {
 
-  if (search.trim()) {
-
-    const regex = new RegExp(search.trim(), "i");
+  const regex = new RegExp(search, "i");
 
     match.$or = [
       { orderId: regex },
@@ -54,7 +58,7 @@ export const getOrders = async (page, limit, { search = "", status = "", sort } 
     ];
   }
 
-  if (Object.keys(match).length) {
+  if (Object.keys(match).length>0) {
     pipeline.push({ $match: match });
   }
 

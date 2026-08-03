@@ -20,7 +20,11 @@ const isItemUnavailable=(product,size)=>{
 }
 
 
-export const getCart=async(userId)=>{
+export const getCart=async(userId,page=1,limit=4)=>{
+
+  const currentPage=Math.max(parseInt(page)||1,1)
+  const perPage = Math.max(parseInt(limit) || 5, 1)
+
     let cart=await Cart.findOne({userId})
    .populate({
       path: "items.productId",
@@ -58,11 +62,48 @@ export const getCart=async(userId)=>{
     const wishlistCount=wishlist?wishlist.products.reduce((sum,item)=>{
        return isItemUnavailable(item.productId,item.size)?sum:sum+1
     },0):0
+const totalItems = cart
+        ? cart.items.length
+        : 0;
 
-    return{
-        cart:cart||{items:[]},
+    const totalPages = Math.ceil(
+        totalItems / perPage
+    );
+
+    const safePage =
+        totalPages > 0
+            ? Math.min(currentPage, totalPages)
+            : 1;
+
+    const skip =
+        (safePage - 1) * perPage;
+
+
+    const paginatedItems = cart
+        ? cart.items.slice(
+            skip,
+            skip + perPage
+        )
+        : [];
+
+
+    const cartData = cart
+        ? cart.toObject()
+        : { items: [] };
+
+    cartData.items = paginatedItems;
+
+
+    return {
+        cart: cartData,
+
         cartCount,
         wishlistCount,
+
+        currentPage: safePage,
+        totalPages,
+        totalItems,
+        perPage,
     }
 }
 

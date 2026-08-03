@@ -373,6 +373,57 @@
       display: flex; justify-content: space-between; align-items: center;
       flex-wrap: wrap; gap: .75rem; font-size: .8rem; color: var(--muted);
     }
+
+    .wishlist-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  min-width: 40px;
+  height: 40px;
+
+  padding: 0 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: var(--surface);
+
+  border: 1px solid var(--border);
+  border-radius: 8px;
+
+  color: var(--text);
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: all 0.2s ease;
+}
+
+.page-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.page-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+.page-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
     .footer-bottom a { color: var(--muted); text-decoration: none; }
     .footer-bottom a:hover { color: var(--accent); }
     .footer-bottom-links { display: flex; gap: 1.25rem; }
@@ -605,6 +656,66 @@
     <% } %>
 
   </div>
+
+  <!-- Pagination -->
+
+<% if (totalPages > 1) { %>
+
+  <div class="wishlist-pagination">
+
+    <!-- Previous -->
+    <% if (currentPage > 1) { %>
+
+      <a
+        href="/user/wishlist?page=<%= currentPage - 1 %>"
+        class="page-btn"
+      >
+        Previous
+      </a>
+
+    <% } else { %>
+
+      <span class="page-btn disabled">
+        Previous
+      </span>
+
+    <% } %>
+
+
+    <!-- Page numbers -->
+    <% for (let i = 1; i <= totalPages; i++) { %>
+
+      <a
+        href="/user/wishlist?page=<%= i %>"
+        class="page-btn <%= currentPage === i ? 'active' : '' %>"
+      >
+        <%= i %>
+      </a>
+
+    <% } %>
+
+
+    <!-- Next -->
+    <% if (currentPage < totalPages) { %>
+
+      <a
+        href="/user/wishlist?page=<%= currentPage + 1 %>"
+        class="page-btn"
+      >
+        Next
+      </a>
+
+    <% } else { %>
+
+      <span class="page-btn disabled">
+        Next
+      </span>
+
+    <% } %>
+
+  </div>
+
+<% } %>
 
   <!-- Empty State -->
   <div class="empty-state <%= itemCount === 0 ? 'visible' : '' %>" id="emptyState">
