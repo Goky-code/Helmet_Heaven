@@ -73,6 +73,50 @@
     .badge-cancelled { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
     .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
+    /* RETURN INFORMATION */
+
+.return-info {
+    margin-top: 15px;
+    padding: 14px 16px;
+
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-left: 4px solid #f59e0b;
+
+    border-radius: 8px;
+
+    color: #e5e7eb;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.return-info strong {
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+
+/* CANCEL INFORMATION */
+
+.cancel-info {
+    margin-top: 15px;
+    padding: 14px 16px;
+
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-left: 4px solid #ef4444;
+
+    border-radius: 8px;
+
+    color: #e5e7eb;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.cancel-info strong {
+    color: #f87171;
+    font-weight: 600;
+}
     .order-item {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -323,7 +367,7 @@
         </h1>
       </div>
       <div class="topbar-right">
-        <button class="bell-btn" title="Notifications">🔔<span class="bell-dot"></span></button>
+        <button class="bell-btn" title="Notifications"><span class="bell-dot"></span></button>
         <div class="avatar">AD</div>
       </div>
     </header>
@@ -434,26 +478,28 @@
 
     <% order.items.forEach(item => { %>
 
-        <div class="order-item">
+    <div class="order-item">
 
-            <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex justify-content-between align-items-center">
 
-                <div>
-
-                    <div class="product-name">
-                        <%= item.productName %>
-                    </div>
-
-                    <div class="product-details">
-                        Size : <%= item.size %>
-                        &nbsp; | &nbsp;
-                        Qty : <%= item.quantity %>
-                    </div>
-
+            <div>
+                <div class="product-name">
+                    <%= item.productName %>
                 </div>
 
+                <div class="product-details">
+                    Size : <%= item.size %>
+                    &nbsp; | &nbsp;
+                    Qty : <%= item.quantity %>
+                </div>
+            </div>
 
-                <!-- ITEM STATUS -->
+
+            <!-- ITEM STATUS -->
+
+            <div class="text-end">
+
+                <!-- CURRENT STATUS -->
 
                 <div class="item-status
                     <%= item.status === 'Delivered' ? 'item-delivered' : '' %>
@@ -461,58 +507,109 @@
                     <%= item.status === 'Return Requested' ? 'item-return-requested' : '' %>
                     <%= item.status === 'Returned' ? 'item-returned' : '' %>
                 ">
-
                     ● <%= item.status.toUpperCase() %>
+                </div>
 
+
+                <!-- STATUS UPDATE -->
+
+                <select
+                    class="form-select mt-2 item-status-select"
+                    data-order-id="<%= order._id %>"
+                    data-item-id="<%= item._id %>"
+                >
+
+                    <option value="Pending"
+                        <%= item.status === "Pending" ? "selected" : "" %>>
+                        Pending
+                    </option>
+
+                    <option value="Processing"
+                        <%= item.status === "Processing" ? "selected" : "" %>>
+                        Processing
+                    </option>
+
+                    <option value="Shipped"
+                        <%= item.status === "Shipped" ? "selected" : "" %>>
+                        Shipped
+                    </option>
+
+                    <option value="Out For Delivery"
+                        <%= item.status === "Out For Delivery" ? "selected" : "" %>>
+                        Out For Delivery
+                    </option>
+
+                    <option value="Delivered"
+                        <%= item.status === "Delivered" ? "selected" : "" %>>
+                        Delivered
+                    </option>
+
+                    <option value="Cancelled"
+                        <%= item.status === "Cancelled" ? "selected" : "" %>>
+                        Cancelled
+                    </option>
+
+                    <option value="Return Requested"
+                        <%= item.status === "Return Requested" ? "selected" : "" %>>
+                        Return Requested
+                    </option>
+
+                    <option value="Returned"
+                        <%= item.status === "Returned" ? "selected" : "" %>>
+                        Returned
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- RETURN INFORMATION -->
+
+        <% if (item.status === "Return Requested") { %>
+
+            <div class="return-info">
+
+                <div>
+                    <strong>Return Reason:</strong>
+                    <%= item.returnReason || "-" %>
+                </div>
+
+                <div>
+                    <strong>Comment:</strong>
+                    <%= item.returnComment || "-" %>
                 </div>
 
             </div>
 
+        <% } %>
 
-            <!-- RETURN INFORMATION -->
 
-            <% if (item.status === "Return Requested") { %>
+        <!-- CANCEL INFORMATION -->
 
-                <div class="return-info">
+        <% if (item.status === "Cancelled") { %>
 
-                    <div>
-                        <strong>Return Reason:</strong>
-                        <%= item.returnReason || "-" %>
-                    </div>
+            <div class="cancel-info">
 
-                    <div>
-                        <strong>Comment:</strong>
-                        <%= item.returnComment || "-" %>
-                    </div>
-
+                <div>
+                    <strong>Cancel Reason:</strong>
+                    <%= item.cancelReason || "-" %>
                 </div>
 
-            <% } %>
-
-
-            <!-- CANCEL INFORMATION -->
-
-            <% if (item.status === "Cancelled") { %>
-
-                <div class="cancel-info">
-
-                    <div>
-                        <strong>Cancel Reason:</strong>
-                        <%= item.cancelReason || "-" %>
-                    </div>
-
-                    <div>
-                        <strong>Comment:</strong>
-                        <%= item.cancelComment || "-" %>
-                    </div>
-
+                <div>
+                    <strong>Comment:</strong>
+                    <%= item.cancelComment || "-" %>
                 </div>
 
-            <% } %>
+            </div>
 
-        </div>
+        <% } %>
 
-    <% }); %>
+    </div>
+
+<% }); %>
 
 </div>
 
@@ -601,6 +698,47 @@
         btn.textContent = originalText;
       }
     }
+ 
+document.querySelectorAll(".item-status-select").forEach(select => {
+
+    select.addEventListener("change", async function () {
+
+        const orderId = this.dataset.orderId;
+        const itemId = this.dataset.itemId;
+        const status = this.value;
+
+        try {
+
+            const response = await fetch(
+                `/admin/orders/${orderId}/items/${itemId}/status`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ status })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Status update failed");
+            }
+
+            window.location.reload();
+
+        } catch (error) {
+
+            console.error(error);
+            alert(error.message);
+
+            window.location.reload();
+        }
+
+    });
+
+});
 
     function showToast(msg, isOk = true) {
       const t = document.getElementById("toast");

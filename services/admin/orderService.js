@@ -132,52 +132,98 @@ export const getOrderDetails = async (id) => {
   if (!order) {
     throw new Error("Order not found");
   }
-  order.items=order.items.map(item => ({
-    productName: item.productName,
-    status: item.status,
-    returnReason: item.returnReason,
-    returnComment: item.returnComment,
-    cancelReason: item.cancelReason,
-    cancelComment: item.cancelComment,
-    cancelledAt: item.cancelledAt,
-     returnedAt: item.returnedAt
-}))
+//   order.items=order.items.map(item => ({
+//     productName: item.productName,
+//     status: item.status,
+//     returnReason: item.returnReason,
+//     returnComment: item.returnComment,
+//     cancelReason: item.cancelReason,
+//     cancelComment: item.cancelComment,
+//     cancelledAt: item.cancelledAt,
+//      returnedAt: item.returnedAt
+// }))
   return order;
 };
 
-export const changeOrderStatus = async (id, status) => {
+export const calculateOrderStatus = (items) => {
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    throw new Error("Invalid Order Id");
+  const statuses = items.map(item => item.status);
+
+  // All items cancelled
+  if (statuses.every(status => status === "Cancelled")) {
+    return "Cancelled";
   }
 
-  if (!ORDER_STATUSES.includes(status)) {
-    throw new Error("Invalid Order Status");
+  // All items returned
+  if (statuses.every(status => status === "Returned")) {
+    return "Returned";
   }
 
-  const order = await Order.findById(id);
-
-  if (!order) {
-    throw new Error("Order not found");
+  // At least one item has return request
+  if (statuses.some(status => status === "Return Requested")) {
+    return "Return Requested";
   }
 
-  order.orderStatus = status;
-
-  if (["Delivered", "Cancelled"].includes(status)) {
-
-    order.items.forEach(item => {
-
-      if (!["Cancelled", "Returned", "Return Requested"].includes(item.status)) {
-        item.status = status;
-      }
-
-    });
-
+  // All remaining items are completed
+  if (
+    statuses.every(status =>
+      ["Delivered", "Cancelled", "Returned"].includes(status)
+    )
+  ) {
+    return "Delivered";
   }
 
-  await order.save();
+  if (statuses.some(status => status === "Out For Delivery")) {
+    return "Out For Delivery";
+  }
 
-  return order;
+  if (statuses.some(status => status === "Shipped")) {
+    return "Shipped";
+  }
+
+  if (statuses.some(status => status === "Processing")) {
+    return "Processing";
+  }
+
+  return "Pending";
 };
 
 export { ORDER_STATUSES };
+
+export const changeOrderItemStatus=async(orderId,itemId,status)=>{
+
+  if(!mongoose.Types.ObjectId.isValid(orderId)){
+    throw new Error("Invalid Order Id")
+  }
+  if(!mongoose.Types.ObjectId.isValid(itemId)){
+    throw new Error("Invalid Item Id")
+  }
+  if(!ORDER_STATUSES.includes(status)){
+    throw new Error("Invalid Item Status")
+  }
+
+  const order=await Order.findById(orderId)
+
+  if(!order){
+    throw new Error("order not found")
+  }
+
+  const item=order.items.id(itemId)
+
+  if(!item){
+    throw new Error("order item not found")
+  }
+
+  item.status=status
+
+  if(status==="Cancelled"){
+    item.cancelledAt=new Date()
+  }
+  if(status==="Returned"){
+    item.returnedAt=new Date()
+  }
+order.orderStatus=calculateOrderStatus(order.items)
+await order.save()
+
+return order
+}

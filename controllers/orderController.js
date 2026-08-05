@@ -51,3 +51,25 @@ export const updateOrderStatus=async(req,res)=>{
 
   }
 }
+
+export const updateOrderItemStatus=async(req,res)=>{
+    try{
+        const {orderId,itemId}=req.params
+        const {status}=req.body
+
+        const order=await orderService.changeOrderItemStatus(
+            orderId,itemId,status
+        )
+        res.status(HTTP_STATUS.OK).json({
+            success:true,
+            message:"Product status updated successfully",
+            orderStatus:order.orderStatus
+        })
+    }catch(error){
+        console.log(error)
+        res.status(HTTP_STATUS.BAD_REQUEST).json({
+            success:false,
+            message:error.message
+        })
+    }
+}

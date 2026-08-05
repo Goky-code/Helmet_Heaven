@@ -231,7 +231,7 @@ export const getWishlistItemCount = async (
 ) => {
 
   if (!userId) {
-    return 0;
+    return 0
   }
 
   const wishlist =
