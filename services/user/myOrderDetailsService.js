@@ -1,19 +1,39 @@
 import Order from "../../models/orderModel.js"
 
 export const getOrderDetails=async(userId,orderId)=>{
+
+    const CANCELLABLE_ITEM_STATUSES = ["Pending", "Processing", "Confirmed", "Shipped", "Out For Delivery"]
+
     const order=await Order.findOne({
         userId,orderId
     }).lean()
 
     if(!order) return null
 
-    const canCancel=[ "Pending",
-    "Processing",
-    "Confirmed",
-    "Shipped",
-    "Out for Delivery"].includes(order.orderStatus)
-    const canReturn=order.orderStatus==="Delivered"
-    const CanDownloadInvoice=order.orderStatus==="Delivered"
+     const items = order.items.map(item => ({
+        productId: item.productId,
+        image: item.productImage,
+        name: item.productName,
+        description: item.variantName,
+        size: item.size,
+        qty: item.quantity,
+        price: `₹${item.totalPrice}`,
+        status: item.status,
+
+        canCancel: CANCELLABLE_ITEM_STATUSES.includes(item.status),
+        canReturn: item.status === "Delivered",
+
+        cancelReason: item.cancelReason,
+        cancelComment: item.cancelComment,
+        returnReason: item.returnReason,
+        returnComment: item.returnComment,
+        cancelledAt: item.cancelledAt,
+        returnedAt: item.returnedAt
+    }))
+
+    const canCancel = items.some(i => i.canCancel)
+    const canReturn = items.some(i => i.canReturn)
+    const CanDownloadInvoice = order.orderStatus === "Delivered"
 
     return{
         orderId:order.orderId,

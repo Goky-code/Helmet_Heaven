@@ -640,23 +640,27 @@
       <div class="items-card">
         <div class="items-card-header">Order Items</div>
 
-        <% (_order.items || []).forEach(function(item) { %>
-          <div class="order-item-row">
-            <img class="order-item-thumb" src="<%= item.image %>" alt="<%= item.name %>">
-            <div class="order-item-info">
-              <div class="order-item-name"><%= item.name %></div>
-              <% if (item.description) { %>
-                <div class="order-item-desc"><%= item.description %></div>
-              <% } %>
-              <div class="order-item-attrs">
-                Size: <strong><%= item.size %></strong>
-                <span class="sep">•</span>
-                Qty: <strong><%= item.qty %></strong>
-              </div>
-            </div>
-            <div class="order-item-price"><%= item.price %></div>
-          </div>
-        <% }); %>
+      <% (_order.items || []).forEach(function(item) { %>
+        
+  <div class="order-item-row">
+    <img class="order-item-thumb" src="<%= item.image %>" alt="<%= item.name %>">
+    <div class="order-item-info">
+      <div class="order-item-name"><%= item.name %></div>
+      <% if (item.description) { %>
+        <div class="order-item-desc"><%= item.description %></div>
+      <% } %>
+      <div class="order-item-attrs">
+        Size: <strong><%= item.size %></strong>
+        <span class="sep">•</span>
+        Qty: <strong><%= item.qty %></strong>
+      </div>
+      <div class="order-status-inline <%= statusClass(item.status) %>" style="margin-top:6px; font-size:12px;">
+        <i class="bi <%= statusIcon(item.status) %>"></i> <%= item.status %>
+      </div>
+    </div>
+    <div class="order-item-price"><%= item.price %></div>
+  </div>
+<% }); %>
 
         <!-- TOTALS -->
         <div class="totals-block">
@@ -746,7 +750,7 @@
                 <div class="modal-body">
 
                     <% order.items.forEach(function(item){ %>
-
+                          <% if (item.canReturn) { %>
                         <div class="border rounded p-3 mb-4">
 
                             <div class="d-flex align-items-center">
@@ -841,7 +845,7 @@
                             </div>
 
                         </div>
-
+                        <% } %>
                     <% }) %>
 
                 </div>
@@ -900,7 +904,7 @@
 
                     <% order.items.forEach(function(item){ %>
 
-                        <% if(item.status !== "Cancelled"){ %>
+                       <% if (item.canCancel) { %>
 
                         <div class="border rounded p-3 mb-3">
 

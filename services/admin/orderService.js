@@ -149,7 +149,7 @@ export const calculateOrderStatus = (items) => {
 
   const statuses = items.map(item => item.status);
 
-  // All items cancelled
+ 
   if (statuses.every(status => status === "Cancelled")) {
     return "Cancelled";
   }
@@ -226,4 +226,6 @@ order.orderStatus=calculateOrderStatus(order.items)
 await order.save()
 
 return order
+
 }
+
