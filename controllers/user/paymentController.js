@@ -3,12 +3,20 @@ import HTTP_STATUS from "../../utils/httpStatus.js";
  
 export const loadPayment = async (req, res) => {
     try {
-        const userId = req.session.user;
-        const addressId = req.query.addressId || req.body.addressId;
+        const userId = req.session.user
+        const addressId = req.query.addressId || req.body.addressId
+           const { buyNow, productId, size, qty } = req.query;
+        const buyNowItem = (buyNow === 'true' && productId && size)
+            ? { productId, size, quantity: Math.max(1, parseInt(qty) || 1) }
+            : null
  
-        const data = await paymentService.getPaymentPageData(userId, addressId);
+        const data = await paymentService.getPaymentPageData(userId, addressId,buyNowItem)
  
-        return res.render("user/checkout/paymentPage", data);
+        return res.render("user/checkout/paymentPage", {
+            ...data,
+            isBuyNow: !!buyNowItem,
+            buyNowItem,
+        })
     } catch (error) {
         console.log(error);
         res.redirect("/user/checkout");
@@ -18,7 +26,7 @@ export const loadPayment = async (req, res) => {
 export const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        const { addressId, paymentMethod } = req.body;
+        const { addressId, paymentMethod,buyNow,productId,size,qty } = req.body;
  
         if (!addressId) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -32,8 +40,13 @@ export const placeOrder = async (req, res) => {
                 message: "Please select a payment method.",
             });
         }
+
+         const buyNowItem = (buyNow === true || buyNow === 'true')
+            ? { productId, size, quantity: Math.max(1, parseInt(qty) || 1) }
+            : null;
+
  
-        const result = await paymentService.placeOrder(userId, addressId, paymentMethod);
+        const result = await paymentService.placeOrder(userId, addressId, paymentMethod,buyNowItem)
  
         return res.json(result);
     } catch (error) {

@@ -16,9 +16,28 @@ const generateOrderId = () => {
 };
  
 
-export const getPaymentPageData = async (userId, addressId) => {
-  const [cart, addresses] = await Promise.all([
-    Cart.findOne({ userId })
+export const getPaymentPageData = async (userId, addressId,buyNowItem=null) => {
+
+  const addresses=await Address.find({userId}).lean()
+  let validItems=[]
+
+  if (buyNowItem) {
+    const product = await Product.findOne({ _id: buyNowItem.productId })
+      .populate([
+        { path: "category", match: { isListed: true, isDeleted: false } },
+        { path: "brand", match: { isListed: true, isDeleted: false } },
+      ])
+      .lean();
+
+  if (product && !product.isDeleted && !product.isBlocked && product.category && product.brand) {
+      const variant = product.variants.find((v) => v.size === buyNowItem.size);
+      if (variant && variant.stock > 0) {
+        const quantity = Math.min(Number(buyNowItem.quantity) || 1, variant.stock, 5);
+        validItems = [{ productId: product, size: buyNowItem.size, quantity }];
+      }
+    }
+  } else {
+    const cart = await Cart.findOne({ userId })
       .populate({
         path: "items.productId",
         populate: [
@@ -26,38 +45,38 @@ export const getPaymentPageData = async (userId, addressId) => {
           { path: "brand", match: { isListed: true, isDeleted: false } },
         ],
       })
-      .lean(),
-    Address.find({ userId }).lean(),
-  ])
- 
-  const rawItems = cart?.items || [];
-  let subtotal = 0;
-  const validItems = [];
- 
-  for (const item of rawItems) {
-    const product = item.productId;
-    if (!product || product.isDeleted || product.isBlocked) continue;
-    if (!product.category || !product.brand) continue;
- 
-    const variant = product.variants.find((v) => v.size === item.size);
-    if (!variant || variant.stock <= 0) continue;
- 
-    subtotal += variant.price * item.quantity;
-    validItems.push({ ...item, productId: product });
+      .lean();
+
+    for (const item of (cart?.items || [])) {
+      const product = item.productId;
+      if (!product || product.isDeleted || product.isBlocked) continue;
+      if (!product.category || !product.brand) continue;
+
+      const variant = product.variants.find((v) => v.size === item.size);
+      if (!variant || variant.stock <= 0) continue;
+
+      validItems.push({ ...item, productId: product });
+    }
   }
- 
+
+  let subtotal = 0;
+  for (const item of validItems) {
+    const variant = item.productId.variants.find((v) => v.size === item.size);
+    if (variant) subtotal += variant.price * item.quantity;
+  }
+
   const shipping = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
   const tax = Math.round(subtotal * TAX_RATE);
   const total = subtotal + shipping + tax;
- 
+
   const shippingAddress =
     addresses.find((a) => String(a._id) === String(addressId)) ||
     addresses.find((a) => a.isDefault) ||
     addresses[0] ||
     null;
- 
+
   return {
-    cart: { ...(cart || { items: [] }), items: validItems },
+    cart: { items: validItems },
     addresses,
     shippingAddress,
     addressId: shippingAddress?._id || null,
@@ -68,11 +87,12 @@ export const getPaymentPageData = async (userId, addressId) => {
     total,
   };
 };
+
  
-export const placeOrder = async (userId, addressId, paymentMethod) => {
+export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=null) => {
   if (paymentMethod !== "COD") {
     const err = new Error("Only Cash on Delivery is currently supported.");
-    err.statusCode = 400;
+    err.statusCode = 400
     throw err;
   }
  
@@ -80,83 +100,107 @@ export const placeOrder = async (userId, addressId, paymentMethod) => {
   session.startTransaction();
  
   try {
-    const address = await Address.findOne({
-      _id: addressId,
-      userId,
-    }).session(session);
+     const address = await Address.findOne({ _id: addressId, userId }).session(session);
     if (!address) throw new Error("Invalid address");
- 
-    const cart = await Cart.findOne({ userId })
-      .populate("items.productId")
-      .session(session);
-    if (!cart || cart.items.length === 0) throw new Error("Cart is empty");
- 
+
     let subTotal = 0;
     const orderItems = [];
-    const orderedItems = []; 
-    for (const item of cart.items) {
-      const product = item.productId; 
- 
-      if (!product || product.isDeleted || product.isBlocked) continue;
- 
-      const variant = product.variants.find((v) => v.size === item.size);
-      if (!variant || variant.stock <= 0 || variant.stock < item.quantity) continue;
- 
-      const totalPrice = variant.price * item.quantity;
+    const orderedItems = [];
+    let cart = null;
+
+    if (buyNowItem) {
+      const product = await Product.findById(buyNowItem.productId).session(session);
+      if (!product || product.isDeleted || product.isBlocked) {
+        throw new Error("This product is no longer available.");
+      }
+
+      const variant = product.variants.find((v) => v.size === buyNowItem.size);
+      if (!variant || variant.stock <= 0 || variant.stock < buyNowItem.quantity) {
+        throw new Error(`${product.productName} has only ${variant?.stock ?? 0} stock left`);
+      }
+
+      const totalPrice = variant.price * buyNowItem.quantity;
       subTotal += totalPrice;
-      orderedItems.push(item);
 
       orderItems.push({
         productId: product._id,
         productName: product.productName,
-        size: item.size,
+        size: buyNowItem.size,
         variantName: variant.variantName || variant.size,
         productImage: product.productImage?.[0] || "",
-        quantity: item.quantity,
+        quantity: buyNowItem.quantity,
         regularPrice: variant.regularPrice ?? variant.price,
         salePrice: variant.price,
         totalPrice,
         status: "Pending",
       });
+
+      orderedItems.push({ productId: product, size: buyNowItem.size, quantity: buyNowItem.quantity });
+    } else {
+      cart = await Cart.findOne({ userId }).populate("items.productId").session(session);
+      if (!cart || cart.items.length === 0) throw new Error("Cart is empty");
+
+      for (const item of cart.items) {
+        const product = item.productId;
+        if (!product || product.isDeleted || product.isBlocked) continue;
+
+        const variant = product.variants.find((v) => v.size === item.size);
+        if (!variant || variant.stock <= 0 || variant.stock < item.quantity) continue;
+
+        const totalPrice = variant.price * item.quantity;
+        subTotal += totalPrice;
+        orderedItems.push(item);
+
+        orderItems.push({
+          productId: product._id,
+          productName: product.productName,
+          size: item.size,
+          variantName: variant.variantName || variant.size,
+          productImage: product.productImage?.[0] || "",
+          quantity: item.quantity,
+          regularPrice: variant.regularPrice ?? variant.price,
+          salePrice: variant.price,
+          totalPrice,
+          status: "Pending",
+        });
+      }
+
+      if (orderItems.length === 0) {
+        throw new Error("None of the items in your cart are currently available.");
+      }
     }
- 
-    if (orderItems.length === 0) {
-      throw new Error("None of the items in your cart are currently available.");
-    }
- 
+
     const shipping = subTotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const tax = Math.round(subTotal * TAX_RATE);
-    const discount = 0; 
+    const discount = 0;
     const grandTotal = subTotal + shipping + tax - discount;
- 
+
     const [order] = await Order.create(
-      [
-        {
-          orderId: generateOrderId(),
-          userId,
-          items: orderItems,
-          address: {
-            name: address.name,
-            houseName: address.apartment,
-            street: address.street,
-            city: address.city,
-            state: address.state,
-            phone: address.phone,
-            pincode: address.zip,
-          },
-          paymentMethod,
-          paymentStatus: "Pending", 
-          orderStatus: "Pending",
-          subTotal,
-          shipping,
-          tax,
-          discount,
-          grandTotal,
+      [{
+        orderId: generateOrderId(),
+        userId,
+        items: orderItems,
+        address: {
+          name: address.name,
+          houseName: address.apartment,
+          street: address.street,
+          city: address.city,
+          state: address.state,
+          phone: address.phone,
+          pincode: address.zip,
         },
-      ],
+        paymentMethod,
+        paymentStatus: "Pending",
+        orderStatus: "Pending",
+        subTotal,
+        shipping,
+        tax,
+        discount,
+        grandTotal,
+      }],
       { session }
     );
- 
+
     for (const item of orderedItems) {
       await Product.updateOne(
         { _id: item.productId._id, "variants.size": item.size },
@@ -164,12 +208,14 @@ export const placeOrder = async (userId, addressId, paymentMethod) => {
         { session }
       );
     }
- 
-    cart.items = [];
-    await cart.save({ session });
- 
+
+    if (!buyNowItem && cart) {
+      cart.items = [];
+      await cart.save({ session });
+    }
+
     await session.commitTransaction();
- 
+
     return {
       success: true,
       orderId: order.orderId,
@@ -182,7 +228,7 @@ export const placeOrder = async (userId, addressId, paymentMethod) => {
   } finally {
     session.endSession();
   }
-};
+}
  
 
 export const getOrderSuccessData = async (userId, orderId) => {

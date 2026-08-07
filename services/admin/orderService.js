@@ -153,18 +153,14 @@ export const calculateOrderStatus = (items) => {
   if (statuses.every(status => status === "Cancelled")) {
     return "Cancelled";
   }
-
-  // All items returned
   if (statuses.every(status => status === "Returned")) {
     return "Returned";
   }
 
-  // At least one item has return request
   if (statuses.some(status => status === "Return Requested")) {
     return "Return Requested";
   }
 
-  // All remaining items are completed
   if (
     statuses.every(status =>
       ["Delivered", "Cancelled", "Returned"].includes(status)
@@ -190,14 +186,12 @@ export const calculateOrderStatus = (items) => {
 
 export { ORDER_STATUSES };
 
-export const changeOrderItemStatus=async(orderId,itemId,status)=>{
+export const updateOrderStatus=async(orderId,status)=>{
 
   if(!mongoose.Types.ObjectId.isValid(orderId)){
     throw new Error("Invalid Order Id")
   }
-  if(!mongoose.Types.ObjectId.isValid(itemId)){
-    throw new Error("Invalid Item Id")
-  }
+  
   if(!ORDER_STATUSES.includes(status)){
     throw new Error("Invalid Item Status")
   }
@@ -208,20 +202,12 @@ export const changeOrderItemStatus=async(orderId,itemId,status)=>{
     throw new Error("order not found")
   }
 
-  const item=order.items.id(itemId)
+ order.items.forEach(item => {
+    item.status = status;
+    if (status === "Cancelled") item.cancelledAt = new Date();
+    if (status === "Returned") item.returnedAt = new Date();
+  });
 
-  if(!item){
-    throw new Error("order item not found")
-  }
-
-  item.status=status
-
-  if(status==="Cancelled"){
-    item.cancelledAt=new Date()
-  }
-  if(status==="Returned"){
-    item.returnedAt=new Date()
-  }
 order.orderStatus=calculateOrderStatus(order.items)
 await order.save()
 
@@ -229,3 +215,33 @@ return order
 
 }
 
+export const changeOrderItemStatus = async (orderId, itemId, status) => {
+  if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    throw new Error("Invalid Order Id");
+  }
+  if (!mongoose.Types.ObjectId.isValid(itemId)) {
+    throw new Error("Invalid Item Id");
+  }
+  if (!ORDER_STATUSES.includes(status)) {
+    throw new Error("Invalid Item Status");
+  }
+
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new Error("order not found");
+  }
+
+  const item = order.items.id(itemId);
+  if (!item) {
+    throw new Error("order item not found");
+  }
+
+  item.status = status;
+  if (status === "Cancelled") item.cancelledAt = new Date();
+  if (status === "Returned") item.returnedAt = new Date();
+
+  order.orderStatus = calculateOrderStatus(order.items);
+  await order.save();
+
+  return order;
+}

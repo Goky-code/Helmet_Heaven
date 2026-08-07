@@ -1631,30 +1631,17 @@
   }
 }
 
-async function buyNow() {
+function buyNow() {
   if (!validateBeforeAction()) return;
-  try {
-    const response = await fetch(`/user/add-to-cart/<%= product._id %>`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ size: selectedSize, quantity: qty })
-    });
 
-    if (response.status === 401) {
-      window.location.href = '/user/login';
-      return;
-    }
+  const params = new URLSearchParams({
+    buyNow: 'true',
+    productId: '<%= product._id %>',
+    size: selectedSize,
+    qty: qty
+  });
 
-    const data = await response.json();
-    if (data.success) {
-      window.location.href = '/user/checkout';
-    } else {
-      showToast(data.message, 'var(--danger)');
-    }
-  } catch (error) {
-    console.log(error);
-    showToast('Something went wrong', 'var(--danger)');
-  }
+  window.location.href = `/user/checkout?${params.toString()}`;
 }
 
   /* ── NEWSLETTER ── */

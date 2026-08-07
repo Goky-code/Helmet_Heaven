@@ -32,7 +32,7 @@ export const loadOrderDetails=async(req,res)=>{
 export const updateOrderStatus=async(req,res)=>{
     try{
         const {status}=req.body
-        const order=await orderService.calculateOrderStatus(req.params.id,status)
+        const order=await orderService.updateOrderStatus(req.params.id,status)
 
        res.status(HTTP_STATUS.OK).json({
       success: true,

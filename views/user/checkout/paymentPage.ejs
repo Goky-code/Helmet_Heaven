@@ -420,7 +420,7 @@
             <span class="step-num">1</span>
             <h2>Shipping Address</h2>
           </div>
-          <a href="/user/checkout" class="change-link">Change</a>
+          <a href="/user/checkout<% if (typeof isBuyNow !== 'undefined' && isBuyNow) { %>?buyNow=true&productId=<%= buyNowItem.productId %>&size=<%= buyNowItem.size %>&qty=<%= buyNowItem.quantity %><% } %>" class="change-link">Change</a>
         </div>
 
         <% if (_address) { %>
@@ -584,7 +584,13 @@
           <span class="summary-value" id="grandTotal">₹ <%= total.toLocaleString('en-IN') %></span>
         </div>
 
-        <input type="hidden" id="addressIdField" value="<%= _addressId %>">
+      <input type="hidden" id="addressIdField" value="<%= _addressId %>">
+<% if (typeof isBuyNow !== 'undefined' && isBuyNow) { %>
+  <input type="hidden" id="buyNowField" value="true">
+  <input type="hidden" id="buyNowProductId" value="<%= buyNowItem.productId %>">
+  <input type="hidden" id="buyNowSize" value="<%= buyNowItem.size %>">
+  <input type="hidden" id="buyNowQty" value="<%= buyNowItem.quantity %>">
+<% } %>
 
         <button class="pay-btn" id="payBtn" <%= (!_address || !cart || !cart.items || cart.items.length === 0) ? 'disabled' : '' %>>
           <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
@@ -681,41 +687,50 @@
   });
 
   /* ── Pay Now ── */
-  document.getElementById('payBtn').addEventListener('click', async () => {
-    const addressId = document.getElementById('addressIdField')?.value;
-    if (!addressId) {
-      showToast('Missing shipping address. Please go back to checkout.', 'error');
-      return;
-    }
+ document.getElementById('payBtn').addEventListener('click', async () => {
+  const addressId = document.getElementById('addressIdField')?.value;
+  if (!addressId) {
+    showToast('Missing shipping address. Please go back to checkout.', 'error');
+    return;
+  }
 
-    const btn = document.getElementById('payBtn');
-    btn.disabled = true;
-    const originalHTML = btn.innerHTML;
-    btn.textContent = 'Processing...';
+  const payload = { addressId, paymentMethod: selectedPaymentMethod };
+  const buyNowField = document.getElementById('buyNowField');
+  if (buyNowField) {
+    payload.buyNow = true;
+    payload.productId = document.getElementById('buyNowProductId').value;
+    payload.size = document.getElementById('buyNowSize').value;
+    payload.qty = document.getElementById('buyNowQty').value;
+  }
 
-    try {
-      const res = await fetch('/user/place-orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ addressId, paymentMethod: selectedPaymentMethod })
-      });
-      const data = await res.json();
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  const originalHTML = btn.innerHTML;
+  btn.textContent = 'Processing...';
 
-      if (data.success) {
-        showToast('Order placed successfully!');
-        window.location.href = data.redirectUrl || '/user/checkout/order-success';
-      } else {
-        showToast(data.message || 'Payment failed. Please try again.', 'error');
-        btn.disabled = false;
-        btn.innerHTML = originalHTML;
-      }
-    } catch (err) {
-      console.log(err);
-      showToast('Something went wrong. Please try again.', 'error');
+  try {
+    const res = await fetch('/user/place-orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      showToast('Order placed successfully!');
+      window.location.href = data.redirectUrl || '/user/checkout/order-success';
+    } else {
+      showToast(data.message || 'Payment failed. Please try again.', 'error');
       btn.disabled = false;
       btn.innerHTML = originalHTML;
     }
-  });
+  } catch (err) {
+    console.log(err);
+    showToast('Something went wrong. Please try again.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = originalHTML;
+  }
+});
 
   /* ── Newsletter ── */
   document.getElementById('joinBtn').addEventListener('click', () => {
