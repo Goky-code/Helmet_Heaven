@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helmet Haven – Secure Checkout</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #0d1117;
+      --bg2:      #161b24;
+      --bg3:      #1e2535;
+      --border:   #2a3347;
+      --accent:   #2d9cff;
+      --accent2:  #0a78e8;
+      --danger:   #ff4757;
+      --success:  #2ecc71;
+      --text:     #e8edf5;
+      --muted:    #7a8ba3;
+      --price:    #2d9cff;
+      --radius:   12px;
+      --shadow:   0 4px 24px rgba(0,0,0,.45);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 15px;
+      line-height: 1.6; min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar-inner {
+      display: flex; align-items: center; gap: 16px;
+      padding: 14px 20px; max-width: 1200px; margin: 0 auto;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700;
+      color: var(--text); text-decoration: none; flex-shrink: 0;
+    }
+    .brand-icon {
+      width: 32px; height: 32px; background: var(--accent);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 18px; height: 18px; fill: #fff; }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .search-wrap { flex: 1; max-width: 440px; position: relative; margin: 0 auto; }
+    .search-wrap input {
+      width: 100%; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 16px 8px 38px;
+      color: var(--text); font-size: .875rem; outline: none;
+      transition: border-color .2s;
+    }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap svg {
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; stroke: var(--muted); pointer-events: none;
+    }
+
+    /* ── NAV ICONS ── */
+    .nav-icons { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+    .icon-btn {
+      position: relative;
+      background: none; border: none; cursor: pointer;
+      padding: 8px; border-radius: 8px;
+      color: var(--muted); text-decoration: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: color .2s, background .2s;
+    }
+    .icon-btn:hover { color: var(--text); background: var(--bg3); }
+    .icon-btn svg { width: 20px; height: 20px; }
+
+    .icon-btn .badge {
+      position: absolute; top: 3px; right: 3px;
+      background: var(--accent); color: #fff;
+      font-size: .6rem; font-weight: 700;
+      border-radius: 50%; width: 16px; height: 16px;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 6px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--muted); border-radius: 2px;
+      transition: transform .3s, opacity .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; flex-direction: column;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: 16px 20px; gap: 12px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { color: var(--muted); text-decoration: none; font-size: .95rem; }
+    .mobile-menu a:hover { color: var(--text); }
+
+    /* ── BREADCRUMB ── */
+    .breadcrumb {
+      padding: 16px 0 4px; font-size: .8rem; color: var(--muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .breadcrumb a { color: var(--muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--accent); }
+    .breadcrumb span { color: var(--text); font-weight: 500; }
+
+    /* ── PAGE HEADING ── */
+    .page-heading { padding: 12px 0 6px; }
+    .heading-row { display: flex; align-items: center; gap: 10px; }
+    .heading-row h1 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
+    }
+    .heading-row svg { width: 24px; height: 24px; stroke: var(--success); flex-shrink: 0; }
+    .page-heading p { color: var(--muted); font-size: .9rem; margin-top: 6px; margin-bottom: 20px; }
+
+    /* ── CHECKOUT LAYOUT (reuses cart-layout grid) ── */
+    .cart-layout { display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start; padding-bottom: 60px; }
+
+    .card {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px;
+    }
+
+    /* ── STEP TITLE ── */
+    .step-title { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent); color: #fff; font-size: .8rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      font-family: 'Rajdhani', sans-serif;
+    }
+    .step-title h2 { font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; }
+
+    /* ── ADDRESS GRID ── */
+    .address-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .address-card {
+      position: relative; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 18px 20px; cursor: pointer;
+      transition: border-color .2s, background .2s;
+    }
+    .address-card:hover { border-color: var(--accent2); }
+    .address-card.selected { border-color: var(--accent); background: rgba(45,156,255,.07); }
+    .address-card .radio {
+      position: absolute; top: 16px; right: 16px; width: 18px; height: 18px;
+      border-radius: 50%; border: 2px solid var(--muted);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .address-card.selected .radio { border-color: var(--accent); }
+    .address-card.selected .radio::after { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+    .address-label {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 600;
+      color: var(--text); margin-bottom: 10px; padding-right: 24px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .default-tag {
+      font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--success); border: 1px solid var(--success); border-radius: 999px;
+      padding: 2px 8px;
+    }
+    .address-detail { font-size: .82rem; color: var(--muted); line-height: 1.7; }
+
+    .empty-address {
+      grid-column: 1 / -1; text-align: center; padding: 32px 20px;
+      color: var(--muted); font-size: .9rem;
+      background: var(--bg3); border: 1px dashed var(--border); border-radius: 10px;
+    }
+
+    /* ── ADD NEW ADDRESS TRIGGER CARD ── */
+    .add-address-card {
+      border: 1.5px dashed var(--border); border-radius: 10px;
+      background: var(--bg3); display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 10px;
+      padding: 22px; cursor: pointer; min-height: 110px;
+      transition: border-color .2s, background .2s; width: 100%;
+      max-width: 220px;
+    }
+    .add-address-card:hover { border-color: var(--accent); background: rgba(45,156,255,.06); }
+    .add-address-card svg { width: 26px; height: 26px; stroke: var(--accent); }
+    .add-address-card span {
+      color: var(--accent); font-size: .85rem; font-weight: 600; text-decoration: underline;
+    }
+
+    /* ── ADD ADDRESS MODAL ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 2000;
+      background: rgba(0,0,0,.7); backdrop-filter: blur(3px);
+      align-items: center; justify-content: center; padding: 16px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px; width: 100%; max-width: 560px;
+      max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,.6);
+      animation: modalIn .2s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(16px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .modal-header h3 { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; }
+    .modal-close {
+      background: var(--bg3); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; width: 32px; height: 32px; font-size: 1.1rem; line-height: 1;
+      cursor: pointer; transition: border-color .2s, color .2s;
+    }
+    .modal-close:hover { border-color: var(--danger); color: var(--danger); }
+    .modal-subtitle { color: var(--muted); font-size: .85rem; margin-bottom: 20px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group label {
+      display: block; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--muted); font-weight: 600; margin-bottom: 6px;
+    }
+    .form-group input {
+      width: 100%; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 14px; color: var(--text);
+      font-size: .9rem; outline: none; font-family: inherit;
+      transition: border-color .15s;
+    }
+    .form-group input:focus { border-color: var(--accent); }
+    .form-group input.error { border-color: var(--danger); }
+    .field-error { color: var(--danger); font-size: .75rem; margin-top: 5px; min-height: 14px; }
+
+    .checkbox-row {
+      display: flex; align-items: center; gap: 8px; font-size: .85rem;
+      color: var(--text); margin: 4px 0 22px; cursor: pointer;
+    }
+    .checkbox-row input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+    .modal-footer { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-save-address {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+      background: var(--accent); color: #fff; border: none; border-radius: 8px;
+      padding: 12px 20px; font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: background .2s;
+    }
+    .btn-save-address:hover { background: var(--accent2); }
+    .btn-save-address:disabled { opacity: .6; cursor: not-allowed; }
+    .btn-save-address svg { width: 16px; height: 16px; }
+    .btn-cancel-address {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; padding: 12px 20px; font-size: .9rem; cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-cancel-address:hover { border-color: var(--muted); color: var(--text); }
+
+    /* ── ORDER SUMMARY (reuses cart's order-summary styling) ── */
+    .order-summary { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; position: sticky; top: 80px; }
+    .summary-title { font-family: 'Rajdhani', sans-serif; font-size: 1.25rem; font-weight: 700; margin-bottom: 18px; }
+
+    .summary-product-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); max-height: 260px; overflow-y: auto; }
+    .summary-product { display: flex; gap: 12px; align-items: center; }
+    .summary-product img, .summary-product .img-ph {
+      width: 52px; height: 52px; border-radius: 8px; object-fit: contain;
+      background: var(--bg3); border: 1px solid var(--border); flex-shrink: 0;
+    }
+    .summary-product .img-ph { display: flex; align-items: center; justify-content: center; }
+    .summary-product-name { font-family: 'Rajdhani', sans-serif; font-size: .95rem; font-weight: 600; line-height: 1.3; }
+    .summary-product-variant { font-size: .75rem; color: var(--muted); margin: 2px 0 4px; }
+    .summary-product-price { font-family: 'Rajdhani', sans-serif; font-size: .9rem; font-weight: 700; color: var(--price); }
+
+    .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; font-size: .9rem; }
+    .summary-row + .summary-row { border-top: 1px solid var(--border); }
+    .summary-label { color: var(--muted); }
+    .summary-value { font-weight: 500; }
+    .summary-value.free { color: var(--success); font-weight: 600; }
+    .summary-total { border-top: 2px solid var(--border) !important; margin-top: 4px; }
+    .summary-total .summary-label { font-weight: 700; font-size: 1rem; color: var(--text); font-family: 'Rajdhani', sans-serif; }
+    .summary-total .summary-value { font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+
+    .promo-row { display: flex; gap: 8px; margin: 16px 0 8px; }
+    .promo-input {
+      flex: 1; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px; color: var(--text);
+      font-size: .85rem; outline: none; transition: border-color .2s; min-width: 0;
+    }
+    .promo-input::placeholder { color: var(--muted); }
+    .promo-input:focus { border-color: var(--accent); }
+    .promo-input.error { border-color: var(--danger); }
+    .promo-btn {
+      background: var(--bg3); border: 1px solid var(--border);
+      color: var(--text); border-radius: 8px; padding: 9px 16px;
+      font-size: .85rem; font-weight: 600; cursor: pointer; transition: border-color .2s, background .2s;
+      white-space: nowrap;
+    }
+    .promo-btn:hover { border-color: var(--accent); background: var(--bg); }
+    .promo-feedback { font-size: .78rem; margin-top: 4px; min-height: 16px; }
+    .promo-feedback.ok { color: var(--success); }
+    .promo-feedback.err { color: var(--danger); }
+    .link-coupons { display: inline-block; font-size: .8rem; color: var(--accent); margin-bottom: 4px; cursor: pointer; }
+    .link-coupons:hover { text-decoration: underline; }
+
+    .checkout-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; padding: 14px 20px; margin-top: 18px;
+      background: var(--accent); color: #fff; border: none; border-radius: 10px;
+      font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700;
+      letter-spacing: .5px; cursor: pointer;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(45,156,255,.3);
+    }
+    .checkout-btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,156,255,.45); }
+    .checkout-btn:active { transform: translateY(0); }
+    .checkout-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .checkout-btn svg { width: 18px; height: 18px; }
+    .secure-note {
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      font-size: .75rem; color: var(--muted); margin-top: 12px;
+      text-transform: uppercase; letter-spacing: .08em;
+    }
+    .secure-note svg { width: 13px; height: 13px; stroke: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer { margin-top: 20px; background: var(--bg2); border-top: 1px solid var(--border); padding: 48px 20px 28px; }
+    .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 32px; }
+    .footer-brand { display: flex; flex-direction: column; gap: 12px; }
+    .footer-logo { display: flex; align-items: center; gap: 8px; font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; }
+    .footer-desc { color: var(--muted); font-size: .85rem; line-height: 1.7; }
+    .footer-col h4 { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1rem; margin-bottom: 14px; color: var(--text); }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { color: var(--muted); text-decoration: none; font-size: .875rem; transition: color .2s; }
+    .footer-col ul a:hover { color: var(--accent); }
+    .newsletter-row { display: flex; gap: 8px; margin-top: 4px; }
+    .newsletter-input {
+      flex: 1; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px; color: var(--text);
+      font-size: .85rem; outline: none; transition: border-color .2s;
+    }
+    .newsletter-input::placeholder { color: var(--muted); }
+    .newsletter-input:focus { border-color: var(--accent); }
+    .newsletter-input.error { border-color: var(--danger); }
+    .newsletter-feedback { font-size: .75rem; margin-top: 4px; min-height: 14px; }
+    .newsletter-feedback.ok { color: var(--success); }
+    .newsletter-feedback.err { color: var(--danger); }
+    .join-btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+    .join-btn:hover { background: var(--accent2); }
+    .footer-bottom { max-width: 1200px; margin: 32px auto 0; border-top: 1px solid var(--border); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: .78rem; color: var(--muted); flex-wrap: wrap; gap: 12px; }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { color: var(--muted); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 24px;
+      font-size: 1rem; color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      transform: translateY(80px); opacity: 0;
+      transition: transform .3s, opacity .3s;
+      max-width: 375px;
+    }
+    .toast.error { font-weight: 600; border-color: var(--danger); }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: var(--success); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) { .cart-layout { grid-template-columns: 1fr 300px; } .footer-grid { grid-template-columns: 1fr 1fr; gap: 28px; } }
+    @media (max-width: 860px) {
+      .cart-layout { grid-template-columns: 1fr; }
+      .order-summary { position: static; }
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .search-wrap { max-width: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .address-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .navbar-inner { gap: 10px; }
+      .search-wrap { display: none; }
+      .card { padding: 18px; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+      .form-row { grid-template-columns: 1fr; }
+      .modal-box { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<%
+  const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
+  const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
+  const _addresses     = typeof addresses     !== 'undefined' ? addresses     : [];
+  const _selectedId    = typeof selectedAddressId !== 'undefined' ? selectedAddressId : (_addresses[0] ? _addresses[0]._id : null);
+%>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="navbar-inner">
+
+    <a href="/user/homepage" class="brand" aria-label="Helmet Haven home">
+      <div class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9v4l-2 2v1h18v-1l-2-2V9c0-3.87-3.13-7-7-7zm0 20c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/></svg>
+      </div>
+      Helmet Haven
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="/user/homepage">Home</a></li>
+      <li><a href="#">About Us</a></li>
+      <li><a href="#">Contact Us</a></li>
+    </ul>
+
+    <div class="search-wrap" role="search">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+      </svg>
+      <input type="search" placeholder="Search premium helmets…" aria-label="Search helmets" autocomplete="off" />
+    </div>
+
+    <div class="nav-icons">
+      <a href="/user/cart" class="icon-btn" aria-label="Shopping cart">
+        <svg fill="none" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2
+             2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        <% if (_cartCount > 0) { %>
+          <span class="badge" id="cartBadge"><%= _cartCount %></span>
+        <% } else { %>
+          <span class="badge" id="cartBadge" style="display:none">0</span>
+        <% } %>
+      </a>
+
+      <a href="/user/wishlist" class="icon-btn" aria-label="Wishlist">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 0 1 6.364 0L12 7.636l1.318-1.318a4.5 4.5 0 1 1 6.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 0 1 0-6.364z"/>
+        </svg>
+        <% if (_wishlistCount > 0) { %>
+          <span class="badge" id="wishlistBadge"><%= _wishlistCount %></span>
+        <% } else { %>
+          <span class="badge" id="wishlistBadge" style="display:none">0</span>
+        <% } %>
+      </a>
+
+      <a href="/user/profileinformation" class="icon-btn" aria-label="Account">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+        </svg>
+      </a>
+
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu" role="menu">
+    <a href="/user/homepage" role="menuitem">Home</a>
+    <a href="#" role="menuitem">About Us</a>
+    <a href="#" role="menuitem">Contact Us</a>
+    <a href="/user/cart" role="menuitem">Cart (<%= _cartCount %>)</a>
+    <a href="/user/wishlist" role="menuitem">Wishlist (<%= _wishlistCount %>)</a>
+  </div>
+</nav>
+<!-- ── END NAVBAR ── -->
+
+
+<!-- ── ADD ADDRESS MODAL ── -->
+<div class="modal-overlay" id="addAddressModalOverlay">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="addAddressTitle">
+    <div class="modal-header">
+      <h3 id="addAddressTitle">Add New Address</h3>
+      <button type="button" class="modal-close" onclick="closeAddAddressModal()" aria-label="Close">&times;</button>
+    </div>
+    <p class="modal-subtitle">Provide your shipping details for faster checkout.</p>
+
+    <form id="addAddressForm" novalidate>
+      <div class="form-group">
+        <label for="addr-name">Recipient Name</label>
+        <input type="text" id="addr-name" name="name" autocomplete="name">
+        <div class="field-error" id="err-name"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="addr-street">Street Address</label>
+        <input type="text" id="addr-street" name="street" autocomplete="address-line1">
+        <div class="field-error" id="err-street"></div>
+      </div>
+
+      <div class="form-group">
+        <label for="addr-apartment">Apartment / Suite (Optional)</label>
+        <input type="text" id="addr-apartment" name="apartment" autocomplete="address-line2">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="addr-city">City</label>
+          <input type="text" id="addr-city" name="city" autocomplete="address-level2">
+          <div class="field-error" id="err-city"></div>
+        </div>
+        <div class="form-group">
+          <label for="addr-state">State / Province</label>
+          <input type="text" id="addr-state" name="state" autocomplete="address-level1">
+          <div class="field-error" id="err-state"></div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="addr-zip">Zip / Postal Code</label>
+          <input type="text" id="addr-zip" name="zip" autocomplete="postal-code">
+          <div class="field-error" id="err-zip"></div>
+        </div>
+        <div class="form-group">
+          <label for="addr-phone">Phone Number</label>
+          <input type="tel" id="addr-phone" name="phone" inputmode="numeric" maxlength="10" autocomplete="tel">
+          <div class="field-error" id="err-phone"></div>
+        </div>
+      </div>
+
+      <label class="checkbox-row" for="addr-default">
+        <input type="checkbox" id="addr-default" name="isDefault">
+        Set as Default Address
+      </label>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn-save-address" id="btnSaveAddress">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-8H7v8M7 3v5h8"/>
+          </svg>
+          Save Address
+        </button>
+        <button type="button" class="btn-cancel-address" onclick="closeAddAddressModal()">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- ── END ADD ADDRESS MODAL ── -->
+
+
+<!-- ── MAIN ── -->
+<main class="container">
+  <nav aria-label="Breadcrumb">
+    <div class="breadcrumb">
+      <a href="/user/homepage">Home ></a>
+      <a href="/user/cart">Cart</a>
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6"/>
+      </svg>
+      <span>Checkout</span>
+    </div>
+  </nav>
+
+  <div class="page-heading">
+    <div class="heading-row">
+      <h1>Secure Checkout</h1>
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <p>Complete your purchase safely and securely.</p>
+  </div>
+
+  <div class="cart-layout">
+
+    <!-- ── SHIPPING ADDRESS ── -->
+    <section aria-label="Shipping address" class="card">
+      <div class="step-title">
+        <h2>Select Shipping Address</h2>
+      </div>
+
+      <div class="address-grid" id="addressGrid">
+        <% if (_addresses && _addresses.length > 0) { %>
+          <% _addresses.forEach((addr) => { %>
+            <div
+              class="address-card <%= String(addr._id) === String(_selectedId) ? 'selected' : '' %>"
+              data-address-id="<%= addr._id %>"
+              onclick="selectAddress('<%= addr._id %>', this)"
+            >
+              <div class="radio"></div>
+              <div class="address-label">
+                <%= addr.name %>
+                <% if (addr.isDefault) { %><span class="default-tag">Default</span><% } %>
+              </div>
+              <div class="address-detail">
+                <%= addr.name %><br/>
+                <%= [addr.street, addr.apartment].filter(Boolean).join(', ') %><br/>
+                <%= [addr.city, addr.state, addr.zip].filter(Boolean).join(', ') %><br/>
+                <%= addr.phone %>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="empty-address">No saved addresses yet. Add one to continue.</div>
+        <% } %>
+      </div>
+
+      <div class="add-address-card" onclick="openAddAddressModal()" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter') openAddAddressModal()">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <span>Add New Address</span>
+      </div>
+    </section>
+
+    <!-- ── ORDER SUMMARY ── -->
+    <aside aria-label="Order summary">
+      <div class="order-summary">
+        <div class="summary-title">Order Summary</div>
+
+        <%
+          let subtotal = 0;
+        %>
+
+        <div class="summary-product-list">
+          <% if (cart && cart.items && cart.items.length > 0) { %>
+            <% cart.items.forEach((item) => { %>
+              <%
+                const p = item.productId;
+                if (!p) return;
+                const variant = p.variants?.find(v => v.size === item.size);
+                const price = variant?.price || 0;
+                const stock = variant?.stock ?? 0;
+                if (stock > 0 && !p.isBlocked && !p.isDeleted) subtotal += price * item.quantity;
+              %>
+              <div class="summary-product">
+                <% if (p?.productImage?.[0]) { %>
+                  <img src="<%= p.productImage[0] %>" alt="<%= p.productName %>"/>
+                <% } else { %>
+                  <div class="img-ph">
+                    <svg width="24" height="24" fill="none" stroke="#3a4a63" stroke-width="1.2" viewBox="0 0 64 64">
+                      <ellipse cx="32" cy="28" rx="20" ry="18" stroke-linecap="round"/>
+                      <path d="M14 32c0 8.8 8.1 16 18 16s18-7.2 18-16" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                <% } %>
+                <div>
+                  <div class="summary-product-name"><%= p?.productName %> <span style="color:var(--muted); font-weight:400;">×<%= item.quantity %></span></div>
+                  <div class="summary-product-variant">Size: <%= item.size %></div>
+                  <div class="summary-product-price">₹ <%= price.toLocaleString('en-IN') %></div>
+                </div>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <div style="color: var(--muted); font-size: .85rem; text-align: center; padding: 12px 0;">Your cart is empty.</div>
+          <% } %>
+        </div>
+
+        <%
+          const shipping = subtotal > 500 ? 0 : 99;
+          const tax      = Math.round(subtotal * 0.08);
+          const total    = subtotal + shipping + tax;
+        %>
+
+        <div class="summary-row">
+          <span class="summary-label">Subtotal</span>
+          <span class="summary-value" id="subtotal">₹ <%= subtotal.toLocaleString('en-IN') %></span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Shipping</span>
+          <span class="summary-value <%= shipping === 0 ? 'free' : '' %>" id="shipping">
+            <%= shipping === 0 ? 'Free' : '₹ ' + shipping %>
+          </span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Estimated Tax</span>
+          <span class="summary-value" id="tax">₹ <%= tax.toLocaleString('en-IN') %></span>
+        </div>
+
+        <div class="promo-row">
+          <input type="text" class="promo-input" id="promoInput" placeholder="Coupon Code" aria-label="Promo code"/>
+          <button class="promo-btn" id="promoBtn">Apply</button>
+        </div>
+        <div class="promo-feedback" id="promoFeedback" aria-live="polite"></div>
+        <a class="link-coupons" onclick="showToast('Showing all available coupons.')">Show all coupons</a>
+
+        <div class="summary-row summary-total">
+          <span class="summary-label">Total</span>
+          <span class="summary-value" id="total">₹ <%= total.toLocaleString('en-IN') %></span>
+        </div>
+<form action="/user/payment" method="GET" id="checkoutForm">
+
+   <input type="hidden" name="addressId" id="selectedAddressIdInput" value="<%= _selectedId || '' %>">
+<% if (typeof isBuyNow !== 'undefined' && isBuyNow) { %>
+   <input type="hidden" name="buyNow" value="true">
+    <input type="hidden" name="productId" value="<%= buyNowItem.productId %>">
+    <input type="hidden" name="size" value="<%= buyNowItem.size %>">
+    <input type="hidden" name="qty" value="<%= buyNowItem.quantity %>">
+  <% } %>
+    <button
+        type="submit"
+        class="checkout-btn"
+        id="checkoutSubmitBtn"
+        <%= (!_addresses || _addresses.length === 0 || !cart || !cart.items || cart.items.length === 0) ? 'disabled' : '' %>
+    >
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+
+        Checkout
+    </button>
+
+</form>
+
+        <div class="secure-note">
+          <svg fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          30-Day Easy Returns
+        </div>
+      </div>
+    </aside>
+
+  </div>
+</main>
+
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="white" width="16" height="16">
+            <path d="M12 2C8.13 2 5 5.13 5 9v4l-2 2v1h18v-1l-2-2V9c0-3.87-3.13-7-7-7zm0 20c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/>
+          </svg>
+        </div>
+        Helmet Haven
+      </div>
+      <p class="footer-desc">The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">Full Face</a></li>
+        <li><a href="#">Off-Road</a></li>
+        <li><a href="#">Modular</a></li>
+        <li><a href="#">Accessories</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Shipping Policy</a></li>
+        <li><a href="#">Return &amp; Exchange</a></li>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Newsletter</h4>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:10px;">Get early access to drops and exclusive offers.</p>
+      <div class="newsletter-row">
+        <input type="email" class="newsletter-input" id="newsletterEmail" placeholder="Email address" aria-label="Newsletter email"/>
+        <button class="join-btn" id="joinBtn">Join</button>
+      </div>
+      <div class="newsletter-feedback" id="newsletterFeedback" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Helmet Haven. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  let selectedAddressId = <%- JSON.stringify(_selectedId) %>;
+
+  /* ── Toast ── */
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    clearTimeout(t._timer);
+    const duration = type === 'error' ? 4500 : 3000;
+    t._timer = setTimeout(() => { t.className = 'toast'; }, duration);
+  }
+
+  /* ── Select shipping address ── */
+  function selectAddress(id, el) {
+    selectedAddressId = id;
+    document.querySelectorAll('.address-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('selectedAddressIdInput').value = id;
+    document.getElementById('checkoutSubmitBtn').disabled = false;
+  }
+
+  /* ── Guard the actual form submit ── */
+  document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+    if (!selectedAddressId) {
+      e.preventDefault();
+      showToast('Please select a shipping address.', 'error');
+    }
+  });
+
+  /* ══════════════ ADD NEW ADDRESS MODAL ══════════════ */
+  const addAddressOverlay = document.getElementById('addAddressModalOverlay');
+  const addAddressForm    = document.getElementById('addAddressForm');
+
+  function openAddAddressModal() {
+    addAddressOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('addr-name').focus();
+  }
+  function closeAddAddressModal() {
+    addAddressOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+    addAddressForm.reset();
+    addAddressForm.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+    addAddressForm.querySelectorAll('input').forEach(i => i.classList.remove('error'));
+  }
+  addAddressOverlay.addEventListener('click', (e) => {
+    if (e.target === addAddressOverlay) closeAddAddressModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && addAddressOverlay.classList.contains('open')) closeAddAddressModal();
+  });
+
+  // Digits-only phone field
+  document.getElementById('addr-phone').addEventListener('input', function () {
+    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+  });
+
+  function buildAddressCardEl(addr) {
+    const div = document.createElement('div');
+    div.className = 'address-card';
+    div.dataset.addressId = addr._id;
+    div.setAttribute('onclick', `selectAddress('${addr._id}', this)`);
+
+    const defaultTag = addr.isDefault ? '<span class="default-tag">Default</span>' : '';
+    const line2 = [addr.street, addr.apartment].filter(Boolean).join(', ');
+    const line3 = [addr.city, addr.state, addr.zip].filter(Boolean).join(', ');
+
+    div.innerHTML = `
+      <div class="radio"></div>
+      <div class="address-label">${addr.name}${defaultTag}</div>
+      <div class="address-detail">
+        ${addr.name}<br/>
+        ${line2}<br/>
+        ${line3}<br/>
+        ${addr.phone}
+      </div>`;
+    return div;
+  }
+
+  addAddressForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    addAddressForm.querySelectorAll('.field-error').forEach(el => el.textContent = '');
+    addAddressForm.querySelectorAll('input').forEach(i => i.classList.remove('error'));
+
+    const name      = document.getElementById('addr-name').value.trim();
+    const street    = document.getElementById('addr-street').value.trim();
+    const apartment = document.getElementById('addr-apartment').value.trim();
+    const city      = document.getElementById('addr-city').value.trim();
+    const state     = document.getElementById('addr-state').value.trim();
+    const zip       = document.getElementById('addr-zip').value.trim();
+    const phone     = document.getElementById('addr-phone').value.trim();
+    const isDefault = document.getElementById('addr-default').checked;
+
+    let valid = true;
+    const markError = (id, errId, msg) => {
+      document.getElementById(id).classList.add('error');
+      document.getElementById(errId).textContent = msg;
+      valid = false;
+    };
+
+    if (!name)   markError('addr-name', 'err-name', 'Recipient name is required.');
+    if (!street) markError('addr-street', 'err-street', 'Street address is required.');
+    if (!city)   markError('addr-city', 'err-city', 'City is required.');
+    if (!state)  markError('addr-state', 'err-state', 'State is required.');
+    if (!zip)    markError('addr-zip', 'err-zip', 'Zip / postal code is required.');
+    if (!phone) {
+      markError('addr-phone', 'err-phone', 'Phone number is required.');
+    } else if (!/^[0-9]{10}$/.test(phone)) {
+      markError('addr-phone', 'err-phone', 'Enter a valid 10-digit phone number.');
+    }
+
+    if (!valid) return;
+
+    const btn = document.getElementById('btnSaveAddress');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+
+    fetch('/user/address/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: JSON.stringify({ name, street, apartment, city, state, zip, phone, isDefault })
+    })
+      .then(r => r.json())
+      .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+
+        if (data.success && data.address) {
+          const grid = document.getElementById('addressGrid');
+          const emptyMsg = grid.querySelector('.empty-address');
+          if (emptyMsg) emptyMsg.remove();
+
+          if (isDefault) {
+            grid.querySelectorAll('.default-tag').forEach(tag => tag.remove());
+          }
+
+          const card = buildAddressCardEl(data.address);
+          grid.appendChild(card);
+          selectAddress(String(data.address._id), card);
+
+          closeAddAddressModal();
+          showToast('Address saved successfully!');
+        } else {
+          showToast(data.message || 'Failed to save address.', 'error');
+        }
+      })
+      .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        showToast('Network error. Please try again.', 'error');
+      });
+  });
+
+  /* ── Promo code ── */
+  const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
+  document.getElementById('promoBtn').addEventListener('click', () => {
+    const inp  = document.getElementById('promoInput');
+    const fb   = document.getElementById('promoFeedback');
+    const code = inp.value.trim().toUpperCase();
+    if (!code) {
+      inp.classList.add('error');
+      fb.textContent = 'Please enter a promo code.';
+      fb.className = 'promo-feedback err'; return;
+    }
+    inp.classList.remove('error');
+    if (PROMO_CODES[code]) {
+      fb.textContent = `Code applied! ${(PROMO_CODES[code] * 100).toFixed(0)}% off.`;
+      fb.className = 'promo-feedback ok';
+      inp.disabled = true;
+      document.getElementById('promoBtn').disabled = true;
+      showToast('Promo code applied!');
+      
+    } else {
+      inp.classList.add('error');
+      fb.textContent = 'Invalid or expired promo code.';
+      fb.className = 'promo-feedback err';
+    }
+  });
+  document.getElementById('promoInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('promoBtn').click();
+  });
+  document.getElementById('promoInput').addEventListener('input', () => {
+    document.getElementById('promoInput').classList.remove('error');
+    const fb = document.getElementById('promoFeedback');
+    if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'promo-feedback'; }
+  });
+
+  /* ── Newsletter ── */
+  document.getElementById('joinBtn').addEventListener('click', () => {
+    const inp     = document.getElementById('newsletterEmail');
+    const fb      = document.getElementById('newsletterFeedback');
+    const val     = inp.value.trim();
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!val) {
+      inp.classList.add('error'); fb.textContent = 'Please enter your email address.'; fb.className = 'newsletter-feedback err'; return;
+    }
+    if (!emailRe.test(val)) {
+      inp.classList.add('error'); fb.textContent = 'Please enter a valid email address.'; fb.className = 'newsletter-feedback err'; return;
+    }
+    inp.classList.remove('error'); inp.value = '';
+    fb.textContent = "You're in! Welcome to Helmet Haven."; fb.className = 'newsletter-feedback ok';
+    showToast('Subscribed successfully!');
+  });
+  document.getElementById('newsletterEmail').addEventListener('input', () => {
+    document.getElementById('newsletterEmail').classList.remove('error');
+    const fb = document.getElementById('newsletterFeedback');
+    if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'newsletter-feedback'; }
+  });
+  document.getElementById('newsletterEmail').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('joinBtn').click();
+  });
+
+  /* ── Hamburger ── */
+  const ham = document.getElementById('hamburger');
+  const mob = document.getElementById('mobileMenu');
+  ham.addEventListener('click', () => {
+    const open = mob.classList.toggle('open');
+    ham.classList.toggle('open', open);
+    ham.setAttribute('aria-expanded', open);
+  });
+</script>
+</body>
+</html>

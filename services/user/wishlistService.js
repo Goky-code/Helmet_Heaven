@@ -19,7 +19,10 @@ import Cart from "../../models/cartModel.js";
   }
 
 
-export const getWishlist = async (userId) => {
+export const getWishlist = async (userId,page=1,limit=5) => {
+
+   const currentPage = Math.max(parseInt(page) || 1, 1);
+  const perPage = Math.max(parseInt(limit) || 5, 1);
 
   let wishlist = await Wishlist.findOne({ userId })
    .populate({
@@ -74,12 +77,58 @@ export const getWishlist = async (userId) => {
       }, 0)
     : 0;
 
+ const totalItems = wishlist
+    ? wishlist.products.length
+    : 0;
+
+  const totalPages = Math.ceil(
+    totalItems / perPage
+  );
+
+
+
+  const safePage =
+    totalPages > 0
+      ? Math.min(currentPage, totalPages)
+      : 1;
+
+
+  const skip =
+    (safePage - 1) * perPage;
+
+
+  const paginatedProducts = wishlist
+    ? wishlist.products.slice(
+        skip,
+        skip + perPage
+      )
+    : [];
+
+
+  
+  const wishlistData = wishlist
+    ? wishlist.toObject()
+    : { products: [] };
+
+
+ 
+  wishlistData.products = paginatedProducts;
+
+
   return {
-    wishlist: wishlist || { products: [] },
+
+    wishlist: wishlistData,
+
     cartCount,
     wishlistCount,
-  };
-};
+
+    totalItems,
+    totalPages,
+    currentPage: safePage,
+    perPage,
+
+  }
+}
 
 export const addWishlistItem = async (
   userId,
@@ -182,7 +231,7 @@ export const getWishlistItemCount = async (
 ) => {
 
   if (!userId) {
-    return 0;
+    return 0
   }
 
   const wishlist =

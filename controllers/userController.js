@@ -158,8 +158,13 @@ export const getAddresses = async (req, res) => {
 
 
 export const getAddAddress = (req, res) => {
-  res.render("user/address/addNewaddress");
-};
+  const redirect = req.query.redirect || "/user/address/addressPage";
+
+    res.render("user/address/addNewaddress", {
+        redirect
+    })
+}
+
 export const addAddress = async (req, res) => {
   try {
 

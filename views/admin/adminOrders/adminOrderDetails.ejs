@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helmet Haven – Order Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --sidebar: #111318;
+      --card: #161a22;
+      --border: #252934;
+      --surface: #1e2330;
+      --accent: #3b6ef5;
+      --accent2: #5c87ff;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --green: #22c55e;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --font-head: "Syne", sans-serif;
+      --font-body: "DM Sans", sans-serif;
+      --sidebar-w: 240px;
+      --radius: 10px;
+    }
+
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.3s ease; }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid var(--border); }
+    .logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .logo-text { font-family: var(--font-head); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+    nav.nav-list { flex: 1; padding: 14px 0; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; text-decoration: none; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--accent2); background: rgba(59,110,245,0.1); border-left-color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg, .nav-item:hover svg { opacity: 1; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* TOPBAR */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid var(--border); background: var(--sidebar); position: sticky; top: 0; z-index: 50; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .hamburger { display: none; background: none; border: none; color: var(--text); cursor: pointer; font-size: 20px; padding: 4px; }
+    .back-btn { background: none; border: none; color: var(--text); cursor: pointer; display: flex; align-items: center; padding: 4px; text-decoration: none; }
+    .back-btn:hover { color: var(--accent2); }
+    .page-title { font-size: 20px; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 18px; }
+    .bell-btn { position: relative; background: none; border: none; color: var(--text); font-size: 18px; cursor: pointer; }
+    .bell-dot { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); border: 2px solid var(--sidebar); }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 700; font-size: 13px; flex-shrink: 0; }
+
+    /* CONTENT */
+    .content { padding: 24px 28px; flex: 1; }
+
+    .details-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; margin-bottom: 22px; align-items: start; }
+
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+    .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 10px; }
+    .card-title { display: flex; align-items: center; gap: 10px; font-family: var(--font-head); font-size: 17px; font-weight: 700; color: var(--text); }
+    .card-title svg { color: var(--accent2); flex-shrink: 0; }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; }
+    .badge-delivered { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+    .badge-pending { background: rgba(245,158,11,0.12); color: var(--orange); border: 1px solid rgba(245,158,11,0.25); }
+    .badge-cancelled { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+    .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* RETURN INFORMATION */
+
+.return-info {
+    margin-top: 15px;
+    padding: 14px 16px;
+
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-left: 4px solid #f59e0b;
+
+    border-radius: 8px;
+
+    color: #e5e7eb;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.return-info strong {
+    color: #fbbf24;
+    font-weight: 600;
+}
+
+
+/* CANCEL INFORMATION */
+
+.cancel-info {
+    margin-top: 15px;
+    padding: 14px 16px;
+
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-left: 4px solid #ef4444;
+
+    border-radius: 8px;
+
+    color: #e5e7eb;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.cancel-info strong {
+    color: #f87171;
+    font-weight: 600;
+}
+    .order-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 14px;
+}
+
+.order-item:last-child {
+    margin-bottom: 0;
+}
+
+.product-name {
+    color: #e8eaf0;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.product-details {
+    color: #9ca3af;
+    font-size: 13px;
+}
+
+.item-status {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #f59e0b;
+}
+
+/* Delivered */
+
+.item-status.item-delivered {
+    color: #22c55e;
+}
+
+/* Cancelled */
+
+.item-status.item-cancelled {
+    color: #ef4444;
+}
+
+/* Return Requested */
+
+.item-status.item-return-requested {
+    color: #f59e0b;
+}
+
+/* Returned */
+
+.item-status.item-returned {
+    color: #3b82f6;
+}
+
+
+/* RETURN REASON BOX */
+
+.return-info {
+    margin-top: 15px;
+    padding: 14px 16px;
+
+    background: rgba(245, 158, 11, 0.08);
+
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-left: 3px solid #f59e0b;
+
+    border-radius: 7px;
+
+    color: #d1d5db;
+
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.return-info strong {
+    color: #f59e0b;
+}
+
+
+/* CANCEL REASON BOX */
+
+.cancel-info {
+    margin-top: 15px;
+    padding: 14px 16px;
+
+    background: rgba(239, 68, 68, 0.08);
+
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    border-left: 3px solid #ef4444;
+
+    border-radius: 7px;
+
+    color: #d1d5db;
+
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.cancel-info strong {
+    color: #ef4444;
+}
+
+    /* CUSTOMER DETAILS GRID */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; row-gap: 20px; column-gap: 20px; }
+    .info-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .info-value { font-size: 15px; color: var(--text); font-weight: 500; }
+
+    /* ORDER SUMMARY */
+    .summary-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; font-size: 14px; color: var(--text); }
+    .summary-row .label { color: var(--muted); }
+    .summary-total { display: flex; align-items: center; justify-content: space-between; padding-top: 16px; margin-top: 6px; border-top: 1px solid var(--border); }
+    .summary-total .label { font-size: 15px; font-weight: 700; color: var(--text); }
+    .summary-total .value { font-size: 20px; font-weight: 800; color: var(--accent2);  }
+
+    /* UPDATE STATUS */
+    .status-card { margin-bottom: 22px; }
+    .status-label { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; display: block; }
+    .status-select-wrap { position: relative; max-width: 340px; }
+    .status-select-wrap select {
+      width: 100%; appearance: none; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px 40px 12px 16px; color: var(--text); font-family: var(--font-body); font-size: 15px; font-weight: 600;
+      outline: none; cursor: pointer; transition: border-color 0.2s;
+    }
+    .status-select-wrap select:focus { border-color: var(--accent); }
+    .status-select-wrap svg { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--muted); }
+
+    /* ACTION BAR */
+    .action-bar { display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+    .btn-back { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 9px; padding: 12px 24px; font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-back:hover { background: rgba(255,255,255,0.06); }
+    .btn-save { background: var(--accent); border: none; color: #fff; border-radius: 9px; padding: 12px 26px; font-family: var(--font-body); font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .btn-save:hover { background: var(--accent2); }
+    .btn-save:active { transform: scale(0.97); }
+    .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* PAGE FOOTER */
+    .page-footer { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; flex-wrap: wrap; gap: 10px; }
+    .page-footer a { color: var(--muted); text-decoration: none; margin-left: 18px; }
+    .page-footer a:hover { color: var(--text); }
+    .footer-links a:first-child { margin-left: 0; }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 30px; right: 30px; background: var(--green); color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; z-index: 999; }
+    #toast.error { background: var(--red); }
+
+    /* SIDEBAR OVERLAY BG */
+    .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .details-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(-240px); width: 240px; }
+      .sidebar.open { transform: translateX(0); }
+      .overlay-bg.open { display: block; }
+      .main { margin-left: 0; }
+      .hamburger { display: block; }
+      .content { padding: 16px; }
+      .card { padding: 18px; }
+      .info-grid { grid-template-columns: 1fr; row-gap: 16px; }
+      .page-title { font-size: 17px; }
+      .page-footer { flex-direction: column; align-items: flex-start; text-align: left; }
+      .footer-links { display: flex; flex-direction: column; gap: 4px; }
+      .footer-links a { margin-left: 0; }
+      .action-bar { justify-content: stretch; }
+      .action-bar .btn-back, .action-bar .btn-save { flex: 1; text-align: center; justify-content: center; }
+    }
+    @media (max-width: 420px) {
+      .card-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay-bg" id="sidebarBg" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🪖</div>
+      <span class="logo-text">Helmet Haven</span>
+    </div>
+    <nav class="nav-list">
+      <a class="nav-item" href="/admin/adminDashboard">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="/admin/products">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </a>
+      <a class="nav-item" href="/admin/adminCustomer">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <a class="nav-item active" href="/admin/orders">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+        Orders
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Coupons
+      </a>
+      <a class="nav-item" href="/admin/categories">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 20h16M4 4h16M9 4v16M15 4v16"/></svg>
+        Category
+      </a>
+      <a class="nav-item" href="/admin/brands">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Brands
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Return Requests
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        Offers
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="3 9 12 15 21 9"/></svg>
+        Banner
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Sales Report
+      </a>
+      <a class="nav-item" href="/admin/logout">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <a href="/admin/orders" class="back-btn" title="Back to Orders">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </a>
+        <h1 class="page-title">
+          Order Details - #<%= order.orderId || order._id %>
+        </h1>
+      </div>
+      <div class="topbar-right">
+        <button class="bell-btn" title="Notifications"><span class="bell-dot"></span></button>
+        <div class="avatar">AD</div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <%
+        const currentStatus = order.orderStatus || 'Pending';
+        const badgeClsMap = {
+          Delivered: 'badge-delivered',
+          Cancelled: 'badge-cancelled',
+          Returned:  'badge-cancelled'
+        };
+        const currentBadgeCls = badgeClsMap[currentStatus] || 'badge-pending';
+
+        const orderedOn = order.createdAt
+          ? new Date(order.createdAt).toLocaleString('en-US', {
+              month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            })
+          : 'N/A';
+
+        const customerName = (order.userId && order.userId.firstName)
+          ? `${order.userId.firstName} ${order.userId.lastName || ''}`.trim()
+          : (order.address && order.address.name ? order.address.name : 'N/A');
+
+        const subtotal = order.subTotal || 0;
+        const shipping = order.shipping || 0;
+        const discount = order.discount || 0;
+        const total = order.grandTotal || (subtotal + shipping - discount);
+      %>
+
+      <div class="details-grid">
+        <!-- Customer Details -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Customer Details
+            </div>
+            <span class="badge <%= currentBadgeCls %>" id="orderStatusBadge"><%= currentStatus %></span>
+          </div>
+          <div class="info-grid">
+            <div>
+              <div class="info-label">Order ID</div>
+              <div class="info-value">#<%= order.orderId || order._id %></div>
+            </div>
+            <div>
+              <div class="info-label">Ordered On</div>
+              <div class="info-value"><%= orderedOn %></div>
+            </div>
+            <div>
+              <div class="info-label">Customer Name</div>
+              <div class="info-value"><%= customerName %></div>
+            </div>
+            <div>
+              <div class="info-label">Email Address</div>
+              <div class="info-value">
+                <%= (order.userId && order.userId.email) ? order.userId.email : 'N/A' %>
+              </div>
+            </div>
+            <div>
+              <div class="info-label">Phone No.</div>
+              <div class="info-value">
+                <%= (order.address && order.address.phone) ? order.address.phone : 'N/A' %>
+              </div>
+            </div>
+            <div>
+              <div class="info-label">Payment Type</div>
+              <div class="info-value"><%= order.paymentMethod || 'N/A' %></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="card">
+          <div class="card-header" style="margin-bottom: 6px;">
+            <div class="card-title">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+              Order Summary
+            </div>
+          </div>
+          <div class="summary-row">
+            <span class="label">Subtotal</span>
+            <span class="value">₹<%= subtotal.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></span>
+          </div>
+          <div class="summary-row">
+            <span class="label">Shipping</span>
+            <span class="value">₹<%= shipping.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></span>
+          </div>
+          <% if (discount > 0) { %>
+          <div class="summary-row">
+            <span class="label">Discount</span>
+            <span class="value" style="color: var(--green);">-₹<%= discount.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></span>
+          </div>
+          <% } %>
+          <div class="summary-total">
+            <span class="label">Total Amount</span>
+            <span class="value">₹<%= total.toLocaleString('en-IN', { minimumFractionDigits: 2 }) %></span>
+          </div>
+        </div>
+      </div>
+        
+   <div class="card mb-4">
+
+    <div class="card-title mb-4">
+        Order Items
+    </div>
+
+    <% order.items.forEach(item => { %>
+
+    <div class="order-item">
+
+        <div class="d-flex justify-content-between align-items-center">
+
+            <div>
+                <div class="product-name">
+                    <%= item.productName %>
+                </div>
+
+                <div class="product-details">
+                    Size : <%= item.size %>
+                    &nbsp; | &nbsp;
+                    Qty : <%= item.quantity %>
+                </div>
+            </div>
+
+
+            <!-- ITEM STATUS -->
+
+            <div class="text-end">
+
+                <!-- CURRENT STATUS -->
+
+                <div class="item-status
+                    <%= item.status === 'Delivered' ? 'item-delivered' : '' %>
+                    <%= item.status === 'Cancelled' ? 'item-cancelled' : '' %>
+                    <%= item.status === 'Return Requested' ? 'item-return-requested' : '' %>
+                    <%= item.status === 'Returned' ? 'item-returned' : '' %>
+                ">
+                    ● <%= item.status.toUpperCase() %>
+                </div>
+
+
+                <!-- STATUS UPDATE -->
+
+                <select
+                    class="form-select mt-2 item-status-select"
+                    data-order-id="<%= order._id %>"
+                    data-item-id="<%= item._id %>"
+                >
+
+                    <option value="Pending"
+                        <%= item.status === "Pending" ? "selected" : "" %>>
+                        Pending
+                    </option>
+
+                    <option value="Processing"
+                        <%= item.status === "Processing" ? "selected" : "" %>>
+                        Processing
+                    </option>
+
+                    <option value="Shipped"
+                        <%= item.status === "Shipped" ? "selected" : "" %>>
+                        Shipped
+                    </option>
+
+                    <option value="Out For Delivery"
+                        <%= item.status === "Out For Delivery" ? "selected" : "" %>>
+                        Out For Delivery
+                    </option>
+
+                    <option value="Delivered"
+                        <%= item.status === "Delivered" ? "selected" : "" %>>
+                        Delivered
+                    </option>
+
+                    <option value="Cancelled"
+                        <%= item.status === "Cancelled" ? "selected" : "" %>>
+                        Cancelled
+                    </option>
+
+                    <option value="Return Requested"
+                        <%= item.status === "Return Requested" ? "selected" : "" %>>
+                        Return Requested
+                    </option>
+
+                    <option value="Returned"
+                        <%= item.status === "Returned" ? "selected" : "" %>>
+                        Returned
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <!-- RETURN INFORMATION -->
+
+        <% if (item.status === "Return Requested") { %>
+
+            <div class="return-info">
+
+                <div>
+                    <strong>Return Reason:</strong>
+                    <%= item.returnReason || "-" %>
+                </div>
+
+                <div>
+                    <strong>Comment:</strong>
+                    <%= item.returnComment || "-" %>
+                </div>
+
+            </div>
+
+        <% } %>
+
+
+        <!-- CANCEL INFORMATION -->
+
+        <% if (item.status === "Cancelled") { %>
+
+            <div class="cancel-info">
+
+                <div>
+                    <strong>Cancel Reason:</strong>
+                    <%= item.cancelReason || "-" %>
+                </div>
+
+                <div>
+                    <strong>Comment:</strong>
+                    <%= item.cancelComment || "-" %>
+                </div>
+
+            </div>
+
+        <% } %>
+
+    </div>
+
+<% }); %>
+
+</div>
+
+      <!-- Update Status -->
+      <div class="card status-card">
+        <div class="card-title" style="margin-bottom: 20px;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+          Update Status
+        </div>
+        <label class="status-label" for="statusSelect">Select New Status</label>
+        <div class="status-select-wrap">
+          <select id="statusSelect">
+            <% ['Pending','Processing','Shipped','Out For Delivery','Delivered','Cancelled','Return Requested','Returned'].forEach(s => { %>
+              <option value="<%= s %>" <%= currentStatus === s ? 'selected' : '' %>><%= s %></option>
+            <% }) %>
+          </select>
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+
+      <!-- Action bar -->
+      <div class="action-bar">
+        <a href="/admin/orders" class="btn-back">Back to Orders</a>
+        <button class="btn-save" id="saveBtn" onclick="saveChanges()">Save Changes</button>
+      </div>
+
+    </div>
+
+    <footer class="page-footer">
+      <span>© 2024 Helmet Haven HQ — Administrative Panel</span>
+      <span class="footer-links">
+        <a href="#">System Status</a>
+        <a href="#">Security Policy</a>
+        <a href="#">V4.2.0-Admin</a>
+      </span>
+    </footer>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    const orderId = "<%= order._id %>";
+
+    const badgeMap = {
+      "Pending":           { cls: "badge-pending",   label: "Pending" },
+      "Processing":        { cls: "badge-pending",   label: "Processing" },
+      "Shipped":           { cls: "badge-pending",   label: "Shipped" },
+      "Out For Delivery":  { cls: "badge-pending",   label: "Out For Delivery" },
+      "Delivered":         { cls: "badge-delivered", label: "Delivered" },
+      "Cancelled":         { cls: "badge-cancelled", label: "Cancelled" },
+      "Return Requested":  { cls: "badge-pending",   label: "Return Requested" },
+      "Returned":          { cls: "badge-cancelled", label: "Returned" }
+    };
+
+    document.getElementById("statusSelect").addEventListener("change", function () {
+      const badge = document.getElementById("orderStatusBadge");
+      const s = badgeMap[this.value];
+      badge.className = "badge " + s.cls;
+      badge.textContent = s.label;
+    });
+
+    async function saveChanges() {
+      const status = document.getElementById("statusSelect").value;
+      const btn = document.getElementById("saveBtn");
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = "Saving...";
+
+      try {
+        const res = await fetch(`/admin/orders/${orderId}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(`Order status updated to "${badgeMap[status].label}".`);
+        } else {
+          showToast(data.message || "Failed to update status.", false);
+        }
+      } catch (err) {
+        showToast("Server error. Please try again.", false);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    }
+ 
+document.querySelectorAll(".item-status-select").forEach(select => {
+
+    select.addEventListener("change", async function () {
+
+        const orderId = this.dataset.orderId;
+        const itemId = this.dataset.itemId;
+        const status = this.value;
+
+        try {
+
+            const response = await fetch(
+                `/admin/orders/${orderId}/items/${itemId}/status`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ status })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                throw new Error(data.message || "Status update failed");
+            }
+
+            window.location.reload();
+
+        } catch (error) {
+
+            console.error(error);
+            alert(error.message);
+
+            window.location.reload();
+        }
+
+    });
+
+});
+
+    function showToast(msg, isOk = true) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.className = isOk ? "" : "error";
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 3000);
+    }
+
+    /* ── Sidebar ── */
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebarBg").classList.toggle("open");
+    }
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarBg").classList.remove("open");
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -251,6 +251,56 @@
     .promo-feedback.ok { color: var(--success); }
     .promo-feedback.err { color: var(--danger); }
 
+    .cart-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+
+    margin-top: 24px;
+}
+
+.page-btn {
+    min-width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 0 14px;
+
+    background: var(--bg2);
+    border: 1px solid var(--border);
+
+    color: var(--text);
+    text-decoration: none;
+
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.2s;
+}
+
+.page-btn:hover {
+    background: var(--bg3);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.page-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.page-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
     .checkout-btn {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 14px 20px; margin-top: 20px;
@@ -262,8 +312,16 @@
     }
     .checkout-btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,156,255,.45); }
     .checkout-btn:active { transform: translateY(0); }
+    .checkout-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+}
     .checkout-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
     .checkout-btn svg { width: 18px; height: 18px; }
+    
     .secure-note {
       display: flex; align-items: center; justify-content: center; gap: 6px;
       font-size: .75rem; color: var(--muted); margin-top: 12px;
@@ -423,7 +481,7 @@
       <span>Shopping Cart</span>
     </div>
   </nav>
-
+ 
   <h1 class="page-title">Your Shopping Cart</h1>
 
   <div class="cart-layout">
@@ -497,6 +555,64 @@
         <button class="btn-shop" onclick="window.location.href='/shop'">Continue Shopping</button>
       </div>
 
+<% if (totalPages > 1) { %>
+
+<div class="cart-pagination">
+
+    <!-- Previous -->
+    <% if (currentPage > 1) { %>
+
+        <a
+            href="/user/cart?page=<%= currentPage - 1 %>"
+            class="page-btn"
+        >
+            Previous
+        </a>
+
+    <% } else { %>
+
+        <span class="page-btn disabled">
+            Previous
+        </span>
+
+    <% } %>
+
+
+    <!-- Page Numbers -->
+    <% for (let i = 1; i <= totalPages; i++) { %>
+
+        <a
+            href="/user/cart?page=<%= i %>"
+            class="page-btn <%= currentPage === i ? 'active' : '' %>"
+        >
+            <%= i %>
+        </a>
+
+    <% } %>
+
+
+    <!-- Next -->
+    <% if (currentPage < totalPages) { %>
+
+        <a
+            href="/user/cart?page=<%= currentPage + 1 %>"
+            class="page-btn"
+        >
+            Next
+        </a>
+
+    <% } else { %>
+
+        <span class="page-btn disabled">
+            Next
+        </span>
+
+    <% } %>
+
+</div>
+
+<% } %>
+
     </section>
 
     <!-- ── ORDER SUMMARY ── -->
@@ -548,11 +664,14 @@
         <div class="promo-feedback" id="promoFeedback" aria-live="polite"></div>
 
         <!-- Checkout -->
-        <button class="checkout-btn" id="checkoutBtn">
+        <a href="/user/checkout" class="checkout-btn">
           <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
           </svg>
-          Proceed to Checkout
+         
+              Proceed to Checkout
+          </a>
+         
         </button>
 
         <div class="secure-note">

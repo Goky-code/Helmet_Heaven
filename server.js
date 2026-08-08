@@ -1,3 +1,5 @@
+import dns from "node:dns"
+dns.setDefaultResultOrder("ipv4first");
 import dotenv from "dotenv"
 dotenv.config()
 import express from "express";
@@ -16,6 +18,12 @@ import shopRoutes from "./routes/shopRoutes.js"
 import cartRoutes from "./routes/cartRoutes.js"
 import productDetailsRouter from "./routes/productDetailsRoute.js" 
 import wishlistRoutes from "./routes/wishlistRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js"
+import checkoutRoute from "./routes/checkoutRoute.js"
+import paymentRoute from  "./routes/paymentRoute.js"
+import orderSuccessRoutes from "./routes/orderSuccessRoutes.js";
+import myOrdersRoute from "./routes/myOrdersRoute.js"
+import myOrderDetailsRoute from "./routes/myOrderDetailsRoute.js"
 import { setNavCounts } from "./middlewares/setNavCounts.js";
 
 const app = express();
@@ -59,6 +67,12 @@ app.use("/", shopRoutes);
 app.use("/user", productDetailsRouter);
 app.use("/user", wishlistRoutes);
 app.use("/user", cartRoutes);
+app.use("/admin", orderRoutes)
+app.use("/user",checkoutRoute)
+app.use("/user" ,paymentRoute)
+app.use("/user", orderSuccessRoutes)
+app.use("/user", myOrdersRoute)
+app.use("/user",myOrderDetailsRoute)
 
 const startServer = async () => {
   try {

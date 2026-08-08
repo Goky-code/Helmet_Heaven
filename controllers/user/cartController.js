@@ -4,7 +4,10 @@ import HTTP_STATUS from "../../utils/httpStatus.js";
 export const loadCart = async (req, res) => {
   
   try {
-    const data=await cartService.getCart(req.session.user)
+
+    const page=parseInt(req.query.page)||1
+    const limit=4
+    const data=await cartService.getCart(req.session.user,page,limit)
 
     res.render("user/product/cartPage",data)
     

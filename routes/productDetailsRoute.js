@@ -1,5 +1,5 @@
 import express from "express"
-import {addToCart, loadProductDetails} from "../controllers/user/productdetailsController.js"
+import {addToCart, loadProductDetails,getHeaderCounts} from "../controllers/user/productdetailsController.js"
 
 import { isUserAuth } from "../middlewares/userAuth.js"
  const router=express.Router()
@@ -7,5 +7,6 @@ import { isUserAuth } from "../middlewares/userAuth.js"
 
 router.get('/product/:id', loadProductDetails)
 router.get('/add-to-cart/:id',isUserAuth,addToCart)
+router.get("/header-counts", getHeaderCounts);
 
 export default router

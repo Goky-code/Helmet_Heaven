@@ -1542,11 +1542,11 @@
       if (data.success) {
         if (alreadyWishlisted) {
           wishlistedSizes.splice(wishlistedSizes.indexOf(selectedSize), 1);
-          // updateHeaderCounts(); 
+         await updateHeaderCounts(); 
           showToast('Removed from wishlist', '#607d8b');
         } else {
           wishlistedSizes.push(selectedSize);
-          // updateHeaderCounts(); 
+          await updateHeaderCounts(); 
           showToast('❤ Added to wishlist!', '#e91e63');
         }
         updateWishBtn();
@@ -1620,8 +1620,8 @@
 
     const data = await response.json();
     if (data.success) {
-      updateHeaderCounts();
-      window.location.href = '/user/cart';
+      await updateHeaderCounts();
+      showToast("Added to cart");
     } else {
       showToast(data.message, 'var(--danger)');
     }
@@ -1631,30 +1631,17 @@
   }
 }
 
-async function buyNow() {
+function buyNow() {
   if (!validateBeforeAction()) return;
-  try {
-    const response = await fetch(`/user/add-to-cart/<%= product._id %>`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ size: selectedSize, quantity: qty })
-    });
 
-    if (response.status === 401) {
-      window.location.href = '/user/login';
-      return;
-    }
+  const params = new URLSearchParams({
+    buyNow: 'true',
+    productId: '<%= product._id %>',
+    size: selectedSize,
+    qty: qty
+  });
 
-    const data = await response.json();
-    if (data.success) {
-      window.location.href = '/user/checkout';
-    } else {
-      showToast(data.message, 'var(--danger)');
-    }
-  } catch (error) {
-    console.log(error);
-    showToast('Something went wrong', 'var(--danger)');
-  }
+  window.location.href = `/user/checkout?${params.toString()}`;
 }
 
   /* ── NEWSLETTER ── */

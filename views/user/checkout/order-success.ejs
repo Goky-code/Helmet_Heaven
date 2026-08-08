@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helmet Haven – Order Confirmed</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:       #0d1117;
+      --bg2:      #161b24;
+      --bg3:      #1e2535;
+      --border:   #2a3347;
+      --accent:   #2d9cff;
+      --accent2:  #0a78e8;
+      --danger:   #ff4757;
+      --success:  #2ecc71;
+      --text:     #e8edf5;
+      --muted:    #7a8ba3;
+      --price:    #2d9cff;
+      --radius:   12px;
+      --shadow:   0 4px 24px rgba(0,0,0,.45);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'DM Sans', sans-serif; font-size: 15px;
+      line-height: 1.6; min-height: 100vh;
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .navbar-inner {
+      display: flex; align-items: center; gap: 16px;
+      padding: 14px 20px; max-width: 1200px; margin: 0 auto;
+    }
+    .brand {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700;
+      color: var(--text); text-decoration: none; flex-shrink: 0;
+    }
+    .brand-icon {
+      width: 32px; height: 32px; background: var(--accent);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    }
+    .brand-icon svg { width: 18px; height: 18px; fill: #fff; }
+    .nav-links { display: flex; gap: 24px; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+    .search-wrap { flex: 1; max-width: 440px; position: relative; margin: 0 auto; }
+    .search-wrap input {
+      width: 100%; background: var(--bg3);
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 16px 8px 38px;
+      color: var(--text); font-size: .875rem; outline: none;
+      transition: border-color .2s;
+    }
+    .search-wrap input::placeholder { color: var(--muted); }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap svg {
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      width: 16px; height: 16px; stroke: var(--muted); pointer-events: none;
+    }
+
+    /* ── NAV ICONS ── */
+    .nav-icons { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+    .icon-btn {
+      position: relative;
+      background: none; border: none; cursor: pointer;
+      padding: 8px; border-radius: 8px;
+      color: var(--muted); text-decoration: none;
+      display: flex; align-items: center; justify-content: center;
+      transition: color .2s, background .2s;
+    }
+    .icon-btn:hover { color: var(--text); background: var(--bg3); }
+    .icon-btn svg { width: 20px; height: 20px; }
+
+    .icon-btn .badge {
+      position: absolute; top: 3px; right: 3px;
+      background: var(--accent); color: #fff;
+      font-size: .6rem; font-weight: 700;
+      border-radius: 50%; width: 16px; height: 16px;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none;
+    }
+
+    .hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 6px;
+    }
+    .hamburger span {
+      display: block; width: 22px; height: 2px;
+      background: var(--muted); border-radius: 2px;
+      transition: transform .3s, opacity .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none; flex-direction: column;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: 16px 20px; gap: 12px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a { color: var(--muted); text-decoration: none; font-size: .95rem; }
+    .mobile-menu a:hover { color: var(--text); }
+
+    /* ── SUCCESS HERO ── */
+    .success-wrap { max-width: 640px; margin: 0 auto; padding: 56px 20px 0; text-align: center; }
+    .success-icon {
+      width: 76px; height: 76px; border-radius: 50%;
+      background: rgba(46,204,113,.12); border: 2px solid var(--success);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .success-icon svg { width: 36px; height: 36px; stroke: var(--success); }
+    .success-title {
+      font-family: 'Rajdhani', sans-serif; font-size: clamp(1.6rem, 4vw, 2.1rem);
+      font-weight: 700; margin-bottom: 10px;
+    }
+    .success-sub { color: var(--muted); font-size: .95rem; }
+    .success-sub .order-id { color: var(--accent); font-weight: 600; }
+
+    /* ── ORDER DETAILS CARD ── */
+    .details-card {
+      max-width: 640px; margin: 32px auto 0;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .details-header {
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+    }
+    .details-header h2 {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.15rem; font-weight: 700;
+    }
+    .details-body { padding: 24px; }
+
+    .order-item { display: flex; gap: 14px; align-items: center; padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
+    .order-item:last-of-type { padding-bottom: 0; margin-bottom: 0; border-bottom: none; }
+    .order-item img, .order-item .img-ph {
+      width: 64px; height: 64px; border-radius: 8px; object-fit: contain;
+      background: var(--bg3); border: 1px solid var(--border); flex-shrink: 0;
+    }
+    .order-item .img-ph { display: flex; align-items: center; justify-content: center; }
+    .order-item-name { font-family: 'Rajdhani', sans-serif; font-size: 1.05rem; font-weight: 700; }
+    .order-item-variant { font-size: .82rem; color: var(--muted); margin: 3px 0 6px; }
+    .order-item-price { font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700; color: var(--price); }
+
+    .items-block { padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
+
+    .address-block { padding-bottom: 18px; margin-bottom: 18px; border-bottom: 1px solid var(--border); }
+    .address-block h4 {
+      font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--muted); font-weight: 700; margin-bottom: 8px;
+    }
+    .address-block p { font-size: .88rem; color: var(--text); line-height: 1.7; }
+
+    .totals-block .summary-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 0; font-size: .9rem;
+    }
+    .totals-block .summary-label { color: var(--muted); }
+    .totals-block .summary-value { font-weight: 600; }
+    .totals-block .summary-value.free { color: var(--success); }
+    .totals-block .summary-value.discount { color: var(--success); }
+    .totals-block .summary-total {
+      border-top: 2px solid var(--border); margin-top: 10px; padding-top: 14px;
+    }
+    .totals-block .summary-total .summary-label {
+      font-weight: 700; font-size: 1.05rem; color: var(--text); font-family: 'Rajdhani', sans-serif;
+    }
+    .totals-block .summary-total .summary-value {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; color: var(--accent);
+    }
+
+    /* ── ACTIONS ── */
+    .actions-row {
+      max-width: 640px; margin: 24px auto 0; padding: 0 20px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    }
+    .action-btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 13px 20px; border-radius: 10px;
+      font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700;
+      text-decoration: none; cursor: pointer; letter-spacing: .3px;
+      transition: background .2s, transform .15s, box-shadow .2s, border-color .2s;
+    }
+    .action-btn svg { width: 18px; height: 18px; }
+    .action-btn.primary {
+      background: var(--accent); color: #fff; border: none;
+      box-shadow: 0 4px 20px rgba(45,156,255,.3);
+    }
+    .action-btn.primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(45,156,255,.45); }
+    .action-btn.secondary {
+      background: transparent; color: var(--text); border: 1px solid var(--border);
+    }
+    .action-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    .support-note {
+      max-width: 640px; margin: 28px auto 0; padding: 0 20px 60px;
+      text-align: center; font-size: .85rem; color: var(--muted);
+    }
+    .support-note a { color: var(--accent); text-decoration: none; }
+    .support-note a:hover { text-decoration: underline; }
+
+    /* ── FOOTER ── */
+    footer { margin-top: 20px; background: var(--bg2); border-top: 1px solid var(--border); padding: 48px 20px 28px; }
+    .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 32px; }
+    .footer-brand { display: flex; flex-direction: column; gap: 12px; }
+    .footer-logo { display: flex; align-items: center; gap: 8px; font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; }
+    .footer-desc { color: var(--muted); font-size: .85rem; line-height: 1.7; }
+    .footer-col h4 { font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1rem; margin-bottom: 14px; color: var(--text); }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { color: var(--muted); text-decoration: none; font-size: .875rem; transition: color .2s; }
+    .footer-col ul a:hover { color: var(--accent); }
+    .newsletter-row { display: flex; gap: 8px; margin-top: 4px; }
+    .newsletter-input {
+      flex: 1; background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 12px; color: var(--text);
+      font-size: .85rem; outline: none; transition: border-color .2s;
+    }
+    .newsletter-input::placeholder { color: var(--muted); }
+    .newsletter-input:focus { border-color: var(--accent); }
+    .newsletter-input.error { border-color: var(--danger); }
+    .newsletter-feedback { font-size: .75rem; margin-top: 4px; min-height: 14px; }
+    .newsletter-feedback.ok { color: var(--success); }
+    .newsletter-feedback.err { color: var(--danger); }
+    .join-btn { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 9px 18px; font-size: .85rem; font-weight: 600; cursor: pointer; transition: background .2s; }
+    .join-btn:hover { background: var(--accent2); }
+    .footer-bottom { max-width: 1200px; margin: 32px auto 0; border-top: 1px solid var(--border); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: .78rem; color: var(--muted); flex-wrap: wrap; gap: 12px; }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { color: var(--muted); text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--accent); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: var(--bg3); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 24px;
+      font-size: 1rem; color: var(--text);
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      transform: translateY(80px); opacity: 0;
+      transition: transform .3s, opacity .3s;
+      max-width: 375px;
+    }
+    .toast.error { font-weight: 600; border-color: var(--danger); }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: var(--success); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .search-wrap { max-width: none; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 600px) {
+      .navbar-inner { gap: 10px; }
+      .search-wrap { display: none; }
+      .details-body { padding: 18px; }
+      .actions-row { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<%
+  const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
+  const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
+  const _order         = typeof order         !== 'undefined' ? order        : {};
+  const _items         = _order.items || [];
+  const _address       = _order.deliveryAddress || {};
+
+  const subtotal        = _order.subtotal ?? 0;
+  const shipping         = _order.shipping ?? 0;
+  const couponDiscount   = _order.couponDiscount ?? 0;
+  const tax              = _order.tax ?? 0;
+  const total            = _order.total ?? (subtotal + shipping + tax - couponDiscount);
+%>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar" role="navigation" aria-label="Main navigation">
+  <div class="navbar-inner">
+
+    <a href="/user/homepage" class="brand" aria-label="Helmet Haven home">
+      <div class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9v4l-2 2v1h18v-1l-2-2V9c0-3.87-3.13-7-7-7zm0 20c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/></svg>
+      </div>
+      Helmet Haven
+    </a>
+
+    <ul class="nav-links" role="list">
+      <li><a href="/user/homepage">Home</a></li>
+      <li><a href="#">About Us</a></li>
+      <li><a href="#">Contact Us</a></li>
+    </ul>
+
+    <div class="search-wrap" role="search">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+      </svg>
+      <input type="search" placeholder="Search premium helmets…" aria-label="Search helmets" autocomplete="off" />
+    </div>
+
+    <div class="nav-icons">
+      <a href="/user/cart" class="icon-btn" aria-label="Shopping cart">
+        <svg fill="none" width="20" height="20" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2
+             2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        <% if (_cartCount > 0) { %>
+          <span class="badge" id="cartBadge"><%= _cartCount %></span>
+        <% } else { %>
+          <span class="badge" id="cartBadge" style="display:none">0</span>
+        <% } %>
+      </a>
+
+      <a href="/user/wishlist" class="icon-btn" aria-label="Wishlist">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 0 1 6.364 0L12 7.636l1.318-1.318a4.5 4.5 0 1 1 6.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 0 1 0-6.364z"/>
+        </svg>
+        <% if (_wishlistCount > 0) { %>
+          <span class="badge" id="wishlistBadge"><%= _wishlistCount %></span>
+        <% } else { %>
+          <span class="badge" id="wishlistBadge" style="display:none">0</span>
+        <% } %>
+      </a>
+
+      <a href="/user/profileinformation" class="icon-btn" aria-label="Account">
+        <svg fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+        </svg>
+      </a>
+
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-menu" id="mobileMenu" role="menu">
+    <a href="/user/homepage" role="menuitem">Home</a>
+    <a href="#" role="menuitem">About Us</a>
+    <a href="#" role="menuitem">Contact Us</a>
+    <a href="/user/cart" role="menuitem">Cart (<%= _cartCount %>)</a>
+    <a href="/user/wishlist" role="menuitem">Wishlist (<%= _wishlistCount %>)</a>
+  </div>
+</nav>
+<!-- ── END NAVBAR ── -->
+
+
+<!-- ── MAIN ── -->
+<main>
+
+  <div class="success-wrap">
+    <div class="success-icon" aria-hidden="true">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+      </svg>
+    </div>
+    <h1 class="success-title">Order Confirmed!</h1>
+    <p class="success-sub">
+      Thank you for your purchase! Your order
+      <span class="order-id">#<%= _order.orderNumber || _order._id || '—' %></span>
+      is being processed.
+    </p>
+  </div>
+
+  <div class="details-card">
+    <div class="details-header">
+      <h2>Order Details</h2>
+    </div>
+    <div class="details-body">
+
+      <!-- ── ITEM(S) ── -->
+      <div class="items-block">
+        <% if (_items && _items.length > 0) { %>
+          <% _items.forEach((item) => { %>
+            <%
+              const p = item.productId || item.product || {};
+              const itemPrice = item.price ?? p.price ?? 0;
+            %>
+            <div class="order-item">
+              <% if (p.productImage && p.productImage[0]) { %>
+                <img src="<%= p.productImage[0] %>" alt="<%= p.productName %>"/>
+              <% } else { %>
+                <div class="img-ph">
+                  <svg width="26" height="26" fill="none" stroke="#3a4a63" stroke-width="1.2" viewBox="0 0 64 64">
+                    <ellipse cx="32" cy="28" rx="20" ry="18" stroke-linecap="round"/>
+                    <path d="M14 32c0 8.8 8.1 16 18 16s18-7.2 18-16" stroke-linecap="round"/>
+                  </svg>
+                </div>
+              <% } %>
+              <div>
+                <div class="order-item-name"><%= p.productName || item.productName %></div>
+                <div class="order-item-variant">
+                  <%= [item.color, item.size].filter(Boolean).join(' • ') %>
+                </div>
+                <div class="order-item-price">₹ <%= Number(itemPrice).toLocaleString('en-IN') %></div>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <p style="color:var(--muted); font-size:.85rem;">No items found for this order.</p>
+        <% } %>
+      </div>
+
+      <!-- ── DELIVERY ADDRESS ── -->
+      <div class="address-block">
+        <h4>Delivery Address</h4>
+        <p>
+          <%= [_address.street, _address.apartment].filter(Boolean).join(', ') %><br/>
+          <%= [_address.city, _address.zip].filter(Boolean).join(' ') %><br/>
+          <%= _address.state %>
+        </p>
+      </div>
+
+      <!-- ── TOTALS ── -->
+      <div class="totals-block">
+        <div class="summary-row">
+          <span class="summary-label">Subtotal</span>
+          <span class="summary-value">₹ <%= Number(subtotal).toLocaleString('en-IN') %></span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Shipping</span>
+          <span class="summary-value <%= shipping === 0 ? 'free' : '' %>">
+            <%= shipping === 0 ? 'Free' : '₹ ' + Number(shipping).toLocaleString('en-IN') %>
+          </span>
+        </div>
+        <% if (tax) { %>
+        <div class="summary-row">
+          <span class="summary-label">Estimated Tax</span>
+          <span class="summary-value">₹ <%= Number(tax).toLocaleString('en-IN') %></span>
+        </div>
+        <% } %>
+        <% if (couponDiscount) { %>
+        <div class="summary-row">
+          <span class="summary-label">Coupon Discount</span>
+          <span class="summary-value discount">-₹ <%= Number(couponDiscount).toLocaleString('en-IN') %></span>
+        </div>
+        <% } %>
+        <div class="summary-row summary-total">
+          <span class="summary-label">Total</span>
+          <span class="summary-value">₹ <%= Number(total).toLocaleString('en-IN') %></span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <a href="/user/myOrders" class="action-btn primary">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M9 8h1M5 3h14a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+      </svg>
+      My Orders
+    </a>
+     <a href="/shop" class="action-btn secondary">
+      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/>
+      </svg>
+      Continue Shopping
+    </a>
+  </div>
+
+  <div class="support-note">
+    Need help with your order? <a href="/user/support">Contact Support</a> or visit our <a href="/user/faqs">FAQs</a>.
+  </div>
+
+</main>
+
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="white" width="16" height="16">
+            <path d="M12 2C8.13 2 5 5.13 5 9v4l-2 2v1h18v-1l-2-2V9c0-3.87-3.13-7-7-7zm0 20c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2z"/>
+          </svg>
+        </div>
+        Helmet Haven
+      </div>
+      <p class="footer-desc">The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">Full Face</a></li>
+        <li><a href="#">Off-Road</a></li>
+        <li><a href="#">Modular</a></li>
+        <li><a href="#">Accessories</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Shipping Policy</a></li>
+        <li><a href="#">Return &amp; Exchange</a></li>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Newsletter</h4>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:10px;">Get early access to drops and exclusive offers.</p>
+      <div class="newsletter-row">
+        <input type="email" class="newsletter-input" id="newsletterEmail" placeholder="Email address" aria-label="Newsletter email"/>
+        <button class="join-btn" id="joinBtn">Join</button>
+      </div>
+      <div class="newsletter-feedback" id="newsletterFeedback" aria-live="polite"></div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2024 Helmet Haven. All rights reserved.</span>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+  /* ── Toast ── */
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast ' + type + ' show';
+    clearTimeout(t._timer);
+    const duration = type === 'error' ? 4500 : 3000;
+    t._timer = setTimeout(() => { t.className = 'toast'; }, duration);
+  }
+
+  /* ── Newsletter ── */
+  document.getElementById('joinBtn').addEventListener('click', () => {
+    const inp     = document.getElementById('newsletterEmail');
+    const fb      = document.getElementById('newsletterFeedback');
+    const val     = inp.value.trim();
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!val) {
+      inp.classList.add('error'); fb.textContent = 'Please enter your email address.'; fb.className = 'newsletter-feedback err'; return;
+    }
+    if (!emailRe.test(val)) {
+      inp.classList.add('error'); fb.textContent = 'Please enter a valid email address.'; fb.className = 'newsletter-feedback err'; return;
+    }
+    inp.classList.remove('error'); inp.value = '';
+    fb.textContent = "You're in! Welcome to Helmet Haven."; fb.className = 'newsletter-feedback ok';
+    showToast('Subscribed successfully!');
+  });
+  document.getElementById('newsletterEmail').addEventListener('input', () => {
+    document.getElementById('newsletterEmail').classList.remove('error');
+    const fb = document.getElementById('newsletterFeedback');
+    if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'newsletter-feedback'; }
+  });
+  document.getElementById('newsletterEmail').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('joinBtn').click();
+  });
+
+  /* ── Hamburger ── */
+  const ham = document.getElementById('hamburger');
+  const mob = document.getElementById('mobileMenu');
+  ham.addEventListener('click', () => {
+    const open = mob.classList.toggle('open');
+    ham.classList.toggle('open', open);
+    ham.setAttribute('aria-expanded', open);
+  });
+</script>
+</body>
+</html>
