@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Order from "../../models/orderModel.js";
+import PDFDocument from "pdfkit";
 
 const ORDER_STATUSES = [
   "Pending",
@@ -62,7 +63,8 @@ if (search) {
     pipeline.push({ $match: match });
   }
 
-  let sortOption = { createdAt: -1 };
+ 
+  let sortOption = {createdAt: -1 };
 
   switch (sort) {
 
@@ -79,7 +81,7 @@ if (search) {
       break;
 
     default:
-      sortOption = { createdAt: -1 };
+      sortOption = {createdAt: -1 };
   }
 
   pipeline.push({ $sort: sortOption });
@@ -103,8 +105,8 @@ if (search) {
     userId: order.user || null,
   }));
 
-  const totalOrders = result[0].total[0]?.count || 0;
-  const totalPages = Math.ceil(totalOrders / perPage);
+  const totalOrders = result[0].total[0]?.count || 0
+  const totalPages = Math.ceil(totalOrders / perPage)
 
   return {
     orders,
@@ -114,8 +116,8 @@ if (search) {
     search,
     status,
     sort,
-  };
-};
+  }
+}
 
 export const getOrderDetails = async (id) => {
 
@@ -132,16 +134,7 @@ export const getOrderDetails = async (id) => {
   if (!order) {
     throw new Error("Order not found");
   }
-//   order.items=order.items.map(item => ({
-//     productName: item.productName,
-//     status: item.status,
-//     returnReason: item.returnReason,
-//     returnComment: item.returnComment,
-//     cancelReason: item.cancelReason,
-//     cancelComment: item.cancelComment,
-//     cancelledAt: item.cancelledAt,
-//      returnedAt: item.returnedAt
-// }))
+
   return order;
 };
 
@@ -166,7 +159,7 @@ export const calculateOrderStatus = (items) => {
       ["Delivered", "Cancelled", "Returned"].includes(status)
     )
   ) {
-    return "Delivered";
+    return "Delivered"
   }
 
   if (statuses.some(status => status === "Out For Delivery")) {
@@ -244,4 +237,12 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
   await order.save();
 
   return order;
+}
+
+export const delivery=async(orderId)=>{
+  const product=await Order.findById(orderId)
+
+  if(ORDER_STATUSES.includes("Delivery")){
+    
+  }
 }

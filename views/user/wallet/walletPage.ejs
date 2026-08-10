@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Helmet Haven - My Wallet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg-main:           #0d1117;
+      --bg-sidebar:        #0d1117;
+      --bg-card:           #161b22;
+      --bg-input:          #0d1117;
+      --border-color:      #2a3240;
+      --text-primary:      #e6edf3;
+      --text-muted:        #8b949e;
+      --accent-blue:       #1f6feb;
+      --accent-blue-hover: #388bfd;
+      --sidebar-active-bg: #161b22;
+      --danger-color:      #f85149;
+      --success-color:     #3fb950;
+      --warning-color:     #d29922;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar-custom {
+      background-color: #0d1117;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 16px;
+      position: sticky; top: 0; z-index: 1000;
+    }
+    .navbar-inner {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px; flex-wrap: wrap;
+    }
+    .navbar-left { display: flex; align-items: center; gap: 16px; flex-shrink: 0; }
+    .navbar-brand-text {
+      font-weight: 700; font-size: 18px; color: var(--text-primary) !important;
+      display: flex; align-items: center; gap: 8px;
+      text-decoration: none; white-space: nowrap;
+    }
+    .navbar-brand-text i { color: var(--accent-blue); font-size: 20px; }
+    .nav-links { display: flex; gap: 2px; }
+    .nav-link-custom {
+      color: var(--text-primary) !important; font-size: 14px;
+      padding: 6px 10px !important; text-decoration: none; white-space: nowrap;
+    }
+    .nav-link-custom:hover { color: var(--accent-blue) !important; }
+    .search-input {
+      background-color: #161b22; border: 1px solid var(--border-color);
+      color: var(--text-muted); border-radius: 6px;
+      padding: 6px 14px 6px 36px; font-size: 13px;
+      width: 100%; max-width: 320px; min-width: 120px; outline: none;
+    }
+    .search-input:focus { border-color: var(--accent-blue); }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-wrapper { position: relative; flex: 1; max-width: 320px; }
+    .search-wrapper i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+
+    .navbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    .icon-btn {
+      background: #161b22; border: 1px solid var(--border-color);
+      color: var(--text-primary); border-radius: 8px;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; position: relative; cursor: pointer;
+      text-decoration: none; flex-shrink: 0;
+      transition: border-color .2s, color .2s;
+    }
+    .icon-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+    .icon-btn .nbadge {
+      position: absolute; top: -4px; right: -4px;
+      background: var(--accent-blue); color: #fff;
+      font-size: 9px; border-radius: 10px;
+      padding: 1px 5px; font-weight: 700;
+      border: 1px solid var(--bg-main);
+      pointer-events: none;
+    }
+
+    .hamburger-btn {
+      display: none; background: #161b22; border: 1px solid var(--border-color);
+      color: var(--text-primary); border-radius: 8px;
+      width: 38px; height: 38px; align-items: center; justify-content: center;
+      font-size: 18px; cursor: pointer; flex-shrink: 0;
+    }
+
+    /* ── LAYOUT ── */
+    .page-wrapper { display: flex; flex: 1; min-height: 0; }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 240px; min-width: 240px; background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      padding: 24px 0; transition: transform 0.3s ease;
+    }
+    .sidebar-heading {
+      display: flex; align-items: center; gap: 10px;
+      font-weight: 700; font-size: 15px; padding: 0 20px 20px;
+      color: var(--text-primary);
+    }
+    .sidebar-heading i { color: var(--accent-blue); font-size: 18px; }
+    .sidebar-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 20px; color: var(--text-primary);
+      text-decoration: none; font-size: 14px; cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background .15s, color .15s; white-space: nowrap;
+    }
+    .sidebar-item:hover { background: var(--bg-card); color: var(--accent-blue); }
+    .sidebar-item.active { background: var(--bg-card); color: var(--accent-blue); border-left-color: var(--accent-blue); }
+    .sidebar-item i { font-size: 16px; width: 18px; text-align: center; }
+    .sidebar-divider { border-top: 1px solid var(--border-color); margin: 12px 0; }
+    .sidebar-item.logout { color: var(--danger-color); }
+    .sidebar-item.logout:hover { background: rgba(248,81,73,0.08); color: var(--danger-color); }
+    .sidebar-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 900;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main-content {
+      flex: 1; padding: 32px 28px;
+      background: var(--bg-main); overflow-x: hidden; min-width: 0;
+    }
+    .page-title { font-size: 22px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+    .page-subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
+
+    /* ── BALANCE CARD ── */
+    .balance-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 12px; padding: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 20px; flex-wrap: wrap; margin-bottom: 32px;
+    }
+    .balance-left { display: flex; align-items: center; gap: 16px; }
+    .balance-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(31,111,235,0.12);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent-blue); font-size: 22px; flex-shrink: 0;
+    }
+    .balance-label {
+      font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 4px; display: block;
+    }
+    .balance-value { font-size: 30px; font-weight: 700; color: var(--accent-blue); line-height: 1.2; }
+    .btn-add-money {
+      background: var(--accent-blue); color: #fff; border: none;
+      border-radius: 8px; font-size: 14px; font-weight: 700;
+      padding: 12px 22px; cursor: pointer; white-space: nowrap;
+      display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.15s;
+    }
+    .btn-add-money:hover { background: var(--accent-blue-hover); }
+
+    /* ── TRANSACTIONS ── */
+    .section-heading { font-size: 18px; font-weight: 500; color: var(--text-primary); margin-bottom: 16px; }
+
+    .transactions-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 12px; overflow: hidden;
+    }
+    .transactions-table { width: 100%; border-collapse: collapse; }
+    .transactions-table thead th {
+      font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
+      color: var(--text-muted); text-align: left; font-weight: 600;
+      padding: 16px 24px; border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+    .transactions-table tbody tr { border-bottom: 1px solid var(--border-color); }
+    .transactions-table tbody tr:last-child { border-bottom: none; }
+    .transactions-table tbody td {
+      padding: 16px 24px; vertical-align: middle; color: var(--text-primary);
+    }
+    .tx-date { font-weight: 600; white-space: nowrap; }
+    .tx-id { font-weight: 700; white-space: nowrap; }
+    .tx-desc-main { font-weight: 600; color: var(--text-primary); }
+    .tx-desc-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .tx-amount { font-weight: 700; white-space: nowrap; }
+    .tx-amount.positive { color: var(--success-color); }
+    .tx-amount.negative { color: var(--text-primary); }
+
+    .tx-status {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11.5px; font-weight: 700; letter-spacing: 0.02em;
+      padding: 5px 12px; border-radius: 20px; text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .tx-status .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .tx-status.status-completed { background: rgba(63,185,80,0.12); color: var(--success-color); }
+    .tx-status.status-completed .dot { background: var(--success-color); }
+    .tx-status.status-pending { background: rgba(210,153,34,0.12); color: var(--warning-color); }
+    .tx-status.status-pending .dot { background: var(--warning-color); }
+    .tx-status.status-failed { background: rgba(248,81,73,0.12); color: var(--danger-color); }
+    .tx-status.status-failed .dot { background: var(--danger-color); }
+
+    /* ── EMPTY STATE ── */
+    .empty-transactions {
+      background: var(--bg-card); padding: 60px 24px; text-align: center;
+    }
+    .empty-transactions i { font-size: 40px; color: var(--text-muted); margin-bottom: 14px; display: block; }
+    .empty-transactions p { color: var(--text-muted); font-size: 14px; }
+
+    /* ── PAGINATION ── */
+    .pagination-row {
+      display: flex; justify-content: center; align-items: center;
+      gap: 8px; margin-top: 28px; flex-wrap: wrap;
+    }
+    .page-btn {
+      background: #161b22; border: 1px solid var(--border-color);
+      color: var(--text-primary); border-radius: 8px;
+      width: 38px; height: 38px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .page-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .page-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+    .page-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg-main); border-top: 1px solid var(--border-color);
+      padding: 36px 20px 20px;
+    }
+    .footer-brand { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .footer-brand i { color: var(--accent-blue); }
+    .footer-desc { color: var(--text-muted); font-size: 12.5px; max-width: 220px; line-height: 1.6; }
+    .footer-heading { font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 14px; }
+    .footer-link { display: block; color: var(--text-muted); text-decoration: none; font-size: 12.5px; margin-bottom: 8px; transition: color 0.15s; }
+    .footer-link:hover { color: var(--accent-blue); }
+    .footer-input {
+      background: var(--bg-input); border: 1px solid var(--border-color);
+      border-radius: 6px 0 0 6px; color: var(--text-primary);
+      font-size: 13px; padding: 8px 12px; outline: none; flex: 1; min-width: 0;
+    }
+    .footer-input:focus { border-color: var(--accent-blue); }
+    .footer-input::placeholder { color: var(--text-muted); }
+    .btn-join {
+      background: var(--accent-blue); color: #fff; border: none;
+      border-radius: 0 6px 6px 0; padding: 8px 16px;
+      font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    }
+    .btn-join:hover { background: var(--accent-blue-hover); }
+    .footer-newsletter-row { display: flex; width: 100%; max-width: 280px; }
+    .footer-bottom {
+      border-top: 1px solid var(--border-color); margin-top: 30px; padding-top: 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .footer-bottom-text { color: var(--text-muted); font-size: 12px; }
+    .footer-bottom-link { color: var(--text-muted); font-size: 12px; text-decoration: none; }
+    .footer-bottom-link:hover { color: var(--text-primary); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 992px) {
+      .sidebar { width: 200px; min-width: 200px; }
+      .sidebar-item { font-size: 13px; padding: 10px 14px; gap: 10px; }
+      .main-content { padding: 24px 20px; }
+    }
+    @media (max-width: 768px) {
+      .hamburger-btn { display: flex; }
+      .nav-links { display: none; }
+      .sidebar {
+        position: fixed; top: 0; left: 0; height: 100%; z-index: 950;
+        transform: translateX(-100%); width: 240px; min-width: 240px; padding-top: 60px;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .sidebar-overlay.open { display: block; }
+      .main-content { padding: 20px 16px; }
+      .balance-card { padding: 20px; }
+      .balance-value { font-size: 24px; }
+      /* stack the table into cards on small screens */
+      .transactions-table thead { display: none; }
+      .transactions-table, .transactions-table tbody, .transactions-table tr, .transactions-table td {
+        display: block; width: 100%;
+      }
+      .transactions-table tbody tr { padding: 16px 20px; }
+      .transactions-table tbody td {
+        padding: 4px 0; border: none;
+        display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      }
+      .transactions-table tbody td::before {
+        content: attr(data-label);
+        font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
+        color: var(--text-muted); font-weight: 600; flex-shrink: 0;
+      }
+      .tx-desc-cell { flex-direction: column !important; align-items: flex-start !important; }
+    }
+    @media (max-width: 480px) {
+      .navbar-brand-text { font-size: 16px; }
+      .search-wrapper { display: none; }
+      .page-title { font-size: 18px; }
+      .footer-desc { max-width: 100%; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+      .balance-card { flex-direction: column; align-items: flex-start; }
+      .btn-add-money { width: 100%; justify-content: center; }
+    }
+    @media (max-width: 360px) {
+      .main-content { padding: 16px 12px; }
+      .navbar-custom { padding: 8px 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<%
+  const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
+  const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
+  const _balance        = typeof balance        !== 'undefined' ? balance        : 0;
+  const _transactions    = typeof transactions    !== 'undefined' ? transactions    : [];
+  const _currentPage    = typeof currentPage   !== 'undefined' ? Number(currentPage) : 1;
+  const _totalPages     = typeof totalPages    !== 'undefined' ? Number(totalPages)  : 1;
+
+  function formatAmount(n) {
+    const num = Number(n) || 0;
+    return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  function txStatusClass(status) {
+    const s = String(status || '').toLowerCase();
+    if (s === 'completed') return 'status-completed';
+    if (s === 'failed' || s === 'cancelled' || s === 'canceled') return 'status-failed';
+    return 'status-pending';
+  }
+%>
+
+<!-- Sidebar overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar-custom">
+  <div class="navbar-inner">
+
+    <div class="navbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <a class="navbar-brand-text" href="/user/homepage">
+        <i class="bi bi-shield-fill"></i> Helmet Haven
+      </a>
+      <div class="nav-links">
+        <a href="/user/homepage" class="nav-link-custom">Home</a>
+        <a href="#" class="nav-link-custom">About Us</a>
+        <a href="#" class="nav-link-custom">Contact Us</a>
+      </div>
+    </div>
+
+    <div class="search-wrapper">
+      <i class="bi bi-search"></i>
+      <input type="text" class="search-input" placeholder="Search premium helmets..."/>
+    </div>
+
+    <div class="navbar-right">
+
+      <a href="/user/cart" class="icon-btn" aria-label="Cart">
+        <i class="bi bi-cart2"></i>
+        <% if (_cartCount > 0) { %>
+          <span class="nbadge" id="cartBadge"><%= _cartCount %></span>
+        <% } else { %>
+          <span class="nbadge" id="cartBadge" style="display:none">0</span>
+        <% } %>
+      </a>
+
+      <a href="/user/wishlist" class="icon-btn" aria-label="Wishlist">
+        <i class="bi bi-heart"></i>
+        <% if (_wishlistCount > 0) { %>
+          <span class="nbadge" id="wishlistBadge"><%= _wishlistCount %></span>
+        <% } else { %>
+          <span class="nbadge" id="wishlistBadge" style="display:none">0</span>
+        <% } %>
+      </a>
+
+      <a href="/user/profileinformation" class="icon-btn" aria-label="Account">
+        <i class="bi bi-person"></i>
+      </a>
+
+    </div>
+  </div>
+</nav>
+<!-- ── END NAVBAR ── -->
+
+
+<!-- ── PAGE BODY ── -->
+<div class="page-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-heading"><i class="bi bi-person-circle"></i> My Account</div>
+    <a href="/user/profileinformation" class="sidebar-item"><i class="bi bi-person"></i> Profile Info</a>
+    <a href="/user/myOrders" class="sidebar-item"><i class="bi bi-bag"></i> My Orders</a>
+    <a href="/user/address/addressPage" class="sidebar-item"><i class="bi bi-geo-alt"></i> Address</a>
+    <a href="/user/wallet" class="sidebar-item active"><i class="bi bi-wallet2"></i> Wallet</a>
+    <a href="#" class="sidebar-item"><i class="bi bi-scissors"></i> Coupon</a>
+    <a href="/user/passwordChange" class="sidebar-item"><i class="bi bi-lock"></i> Password Change</a>
+    <div class="sidebar-divider"></div>
+    <a href="/user/logout" class="sidebar-item logout"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <h1 class="page-title">My Wallet</h1>
+    <p class="page-subtitle">Manage your funds and view transaction history.</p>
+
+    <!-- BALANCE CARD -->
+    <div class="balance-card">
+      <div class="balance-left">
+        <div class="balance-icon"><i class="bi bi-wallet2"></i></div>
+        <div>
+          <span class="balance-label">Available Balance</span>
+          <div class="balance-value">&#8377;<%= formatAmount(_balance) %></div>
+        </div>
+      </div>
+      <a href="/user/wallet/addMoney" class="btn-add-money">
+        <i class="bi bi-plus-circle-fill"></i> Add Money
+      </a>
+    </div>
+
+    <h2 class="section-heading">Recent Transactions</h2>
+
+    <% if (_transactions.length === 0) { %>
+
+      <div class="transactions-card">
+        <div class="empty-transactions">
+          <i class="bi bi-receipt"></i>
+          <p>You don't have any transactions yet.</p>
+        </div>
+      </div>
+
+    <% } else { %>
+
+      <div class="transactions-card">
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Transaction ID</th>
+              <th>Description</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% _transactions.forEach(function(tx) { %>
+              <% const isPositive = Number(tx.amount) >= 0; %>
+              <tr>
+                <td data-label="Date" class="tx-date"><%= tx.date %></td>
+                <td data-label="Transaction ID" class="tx-id">#<%= tx.transactionId %></td>
+                <td data-label="Description" class="tx-desc-cell">
+                  <div>
+                    <div class="tx-desc-main"><%= tx.description %></div>
+                    <% if (tx.subDescription) { %>
+                      <div class="tx-desc-sub"><%= tx.subDescription %></div>
+                    <% } %>
+                  </div>
+                </td>
+                <td data-label="Amount" class="tx-amount <%= isPositive ? 'positive' : 'negative' %>">
+                  <%= isPositive ? '+' : '-' %><%= formatAmount(Math.abs(tx.amount)) %>
+                </td>
+                <td data-label="Status">
+                  <span class="tx-status <%= txStatusClass(tx.status) %>">
+                    <span class="dot"></span><%= tx.status %>
+                  </span>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if (_totalPages > 1) { %>
+        <div class="pagination-row">
+          <a class="page-btn <%= _currentPage <= 1 ? 'disabled' : '' %>"
+             href="?page=<%= _currentPage - 1 %>" aria-label="Previous">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+
+          <% for (let i = 1; i <= _totalPages; i++) { %>
+            <a class="page-btn <%= i === _currentPage ? 'active' : '' %>"
+               href="?page=<%= i %>"><%= i %></a>
+          <% } %>
+
+          <a class="page-btn <%= _currentPage >= _totalPages ? 'disabled' : '' %>"
+             href="?page=<%= _currentPage + 1 %>" aria-label="Next">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </div>
+      <% } %>
+
+    <% } %>
+
+  </main>
+</div>
+
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="row g-4">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="footer-brand"><i class="bi bi-shield-fill"></i> Helmet Haven</div>
+      <p class="footer-desc">The world's premier destination for high-end safety and performance headgear.</p>
+    </div>
+    <div class="col-6 col-sm-3 col-lg-2">
+      <p class="footer-heading">Shop</p>
+      <a href="#" class="footer-link">Full Face</a>
+      <a href="#" class="footer-link">Off-Road</a>
+      <a href="#" class="footer-link">Modular</a>
+      <a href="#" class="footer-link">Accessories</a>
+    </div>
+    <div class="col-6 col-sm-3 col-lg-2">
+      <p class="footer-heading">Support</p>
+      <a href="#" class="footer-link">Shipping Policy</a>
+      <a href="#" class="footer-link">Return &amp; Exchange</a>
+      <a href="#" class="footer-link">Size Guide</a>
+      <a href="#" class="footer-link">FAQ</a>
+    </div>
+    <div class="col-12 col-sm-6 col-lg-3">
+      <p class="footer-heading">Newsletter</p>
+      <p class="footer-desc mb-3">Get early access to drops and exclusive offers.</p>
+      <div class="footer-newsletter-row">
+        <input type="email" class="footer-input" placeholder="Email address"/>
+        <button class="btn-join">Join</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-bottom-text">© 2024 Helmet Haven. All rights reserved.</span>
+    <div class="d-flex gap-3 flex-wrap">
+      <a href="#" class="footer-bottom-link">Privacy Policy</a>
+      <a href="#" class="footer-bottom-link">Terms of Service</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+  }
+  function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarOverlay').classList.remove('open');
+  }
+</script>
+</body>
+</html>
