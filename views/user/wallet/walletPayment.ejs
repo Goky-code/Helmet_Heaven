@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Helmet Haven - My Wallet</title>
+  <title>Helmet Haven - Add Funds</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
   <style>
@@ -139,98 +139,105 @@
     .page-title { font-size: 22px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
     .page-subtitle { color: var(--text-muted); font-size: 13px; margin-bottom: 24px; }
 
-    /* ── BALANCE CARD ── */
-    .balance-card {
-      background: var(--bg-card); border: 1px solid var(--border-color);
-      border-radius: 12px; padding: 24px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 20px; flex-wrap: wrap; margin-bottom: 32px;
-    }
-    .balance-left { display: flex; align-items: center; gap: 16px; }
-    .balance-icon {
-      width: 52px; height: 52px; border-radius: 50%;
-      background: rgba(31,111,235,0.12);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--accent-blue); font-size: 22px; flex-shrink: 0;
-    }
-    .balance-label {
-      font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--text-muted); margin-bottom: 4px; display: block;
-    }
-    .balance-value { font-size: 30px; font-weight: 700; color: var(--accent-blue); line-height: 1.2; }
-    .btn-add-money {
-      background: var(--accent-blue); color: #fff; border: none;
-      border-radius: 8px; font-size: 14px; font-weight: 700;
-      padding: 12px 22px; cursor: pointer; white-space: nowrap;
-      display: inline-flex; align-items: center; gap: 8px;
-      transition: background 0.15s;
-    }
-    .btn-add-money:hover { background: var(--accent-blue-hover); }
-
-    /* ── TRANSACTIONS ── */
-    .section-heading { font-size: 18px; font-weight: 500; color: var(--text-primary); margin-bottom: 16px; }
-
-    .transactions-card {
-      background: var(--bg-card); border: 1px solid var(--border-color);
-      border-radius: 12px; overflow: hidden;
-    }
-    .transactions-table { width: 100%; border-collapse: collapse; }
-    .transactions-table thead th {
-      font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase;
-      color: var(--text-muted); text-align: left; font-weight: 600;
-      padding: 16px 24px; border-bottom: 1px solid var(--border-color);
-      white-space: nowrap;
-    }
-    .transactions-table tbody tr { border-bottom: 1px solid var(--border-color); }
-    .transactions-table tbody tr:last-child { border-bottom: none; }
-    .transactions-table tbody td {
-      padding: 16px 24px; vertical-align: middle; color: var(--text-primary);
-    }
-    .tx-date { font-weight: 600; white-space: nowrap; }
-    .tx-id { font-weight: 700; white-space: nowrap; }
-    .tx-desc-main { font-weight: 600; color: var(--text-primary); }
-    .tx-desc-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-    .tx-amount { font-weight: 700; white-space: nowrap; }
-    .tx-amount.positive { color: var(--success-color); }
-    .tx-amount.negative { color: var(--text-primary); }
-
-    .tx-status {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 11.5px; font-weight: 700; letter-spacing: 0.02em;
-      padding: 5px 12px; border-radius: 20px; text-transform: uppercase;
-      white-space: nowrap;
-    }
-    .tx-status .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-    .tx-status.status-completed { background: rgba(63,185,80,0.12); color: var(--success-color); }
-    .tx-status.status-completed .dot { background: var(--success-color); }
-    .tx-status.status-pending { background: rgba(210,153,34,0.12); color: var(--warning-color); }
-    .tx-status.status-pending .dot { background: var(--warning-color); }
-    .tx-status.status-failed { background: rgba(248,81,73,0.12); color: var(--danger-color); }
-    .tx-status.status-failed .dot { background: var(--danger-color); }
-
-    /* ── EMPTY STATE ── */
-    .empty-transactions {
-      background: var(--bg-card); padding: 60px 24px; text-align: center;
-    }
-    .empty-transactions i { font-size: 40px; color: var(--text-muted); margin-bottom: 14px; display: block; }
-    .empty-transactions p { color: var(--text-muted); font-size: 14px; }
-
-    /* ── PAGINATION ── */
-    .pagination-row {
-      display: flex; justify-content: center; align-items: center;
-      gap: 8px; margin-top: 28px; flex-wrap: wrap;
-    }
-    .page-btn {
+    /* ── ADD FUNDS HEADER ── */
+    .addfunds-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px; }
+    .btn-back {
       background: #161b22; border: 1px solid var(--border-color);
       color: var(--text-primary); border-radius: 8px;
-      width: 38px; height: 38px;
+      width: 40px; height: 40px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      font-size: 14px; font-weight: 600; cursor: pointer;
-      text-decoration: none; transition: border-color 0.15s, color 0.15s, background 0.15s;
+      font-size: 16px; cursor: pointer; text-decoration: none;
+      transition: border-color .15s, color .15s;
     }
-    .page-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
-    .page-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
-    .page-btn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+    .btn-back:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .addfunds-title { font-size: 26px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+    .addfunds-subtitle { color: var(--text-muted); font-size: 14px; }
+
+    /* ── ADD FUNDS CARD ── */
+    .addfunds-card {
+      background: var(--bg-card); border: 1px solid var(--border-color);
+      border-radius: 14px; padding: 28px; max-width: 760px;
+    }
+
+    .field-label {
+      font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 10px; display: block; font-weight: 600;
+    }
+
+    .amount-input {
+      width: 100%; background: var(--bg-input); border: 1px solid var(--border-color);
+      border-radius: 10px; color: var(--text-primary);
+      font-size: 30px; font-weight: 700; padding: 14px 20px;
+      outline: none; transition: border-color .15s;
+    }
+    .amount-input:focus { border-color: var(--accent-blue); }
+    .amount-input::placeholder { color: var(--text-muted); font-weight: 700; }
+
+    .quick-amounts {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+      margin: 16px 0 28px;
+    }
+    .quick-amount-btn {
+      background: #1c2330; border: 1px solid var(--border-color);
+      color: var(--text-primary); border-radius: 10px;
+      font-size: 14px; font-weight: 700; padding: 12px 8px;
+      cursor: pointer; text-align: center;
+      transition: border-color .15s, color .15s, background .15s;
+    }
+    .quick-amount-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .quick-amount-btn.active {
+      background: rgba(31,111,235,0.15); border-color: var(--accent-blue); color: var(--accent-blue);
+    }
+
+    .divider-line { border-top: 1px solid var(--border-color); margin-bottom: 24px; }
+
+    .payment-methods { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+    .payment-option {
+      display: flex; align-items: center; gap: 16px;
+      background: #1c2330; border: 1px solid var(--border-color);
+      border-radius: 10px; padding: 16px 20px; cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .payment-option:hover { border-color: var(--accent-blue); }
+    .payment-option.selected {
+      border-color: var(--accent-blue); background: rgba(31,111,235,0.10);
+    }
+    .payment-icon {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: rgba(31,111,235,0.12); color: var(--accent-blue);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .payment-info { flex: 1; min-width: 0; }
+    .payment-name { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+    .payment-desc { font-size: 12.5px; color: var(--text-muted); }
+    .payment-radio {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2px solid var(--border-color); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .15s;
+    }
+    .payment-option.selected .payment-radio { border-color: var(--accent-blue); }
+    .payment-radio .radio-dot {
+      width: 10px; height: 10px; border-radius: 50%; background: var(--accent-blue);
+      display: none;
+    }
+    .payment-option.selected .radio-dot { display: block; }
+    .payment-option input[type="radio"] { display: none; }
+
+    .btn-proceed {
+      width: 100%; background: var(--accent-blue); color: #fff; border: none;
+      border-radius: 10px; font-size: 16px; font-weight: 700;
+      padding: 15px 24px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background 0.15s;
+    }
+    .btn-proceed:hover { background: var(--accent-blue-hover); }
+
+    .secure-note {
+      text-align: center; color: var(--text-muted); font-size: 12px;
+      margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
 
     /* ── FOOTER ── */
     footer {
@@ -282,24 +289,11 @@
       .sidebar.open { transform: translateX(0); }
       .sidebar-overlay.open { display: block; }
       .main-content { padding: 20px 16px; }
-      .balance-card { padding: 20px; }
-      .balance-value { font-size: 24px; }
-      /* stack the table into cards on small screens */
-      .transactions-table thead { display: none; }
-      .transactions-table, .transactions-table tbody, .transactions-table tr, .transactions-table td {
-        display: block; width: 100%;
-      }
-      .transactions-table tbody tr { padding: 16px 20px; }
-      .transactions-table tbody td {
-        padding: 4px 0; border: none;
-        display: flex; justify-content: space-between; align-items: center; gap: 12px;
-      }
-      .transactions-table tbody td::before {
-        content: attr(data-label);
-        font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em;
-        color: var(--text-muted); font-weight: 600; flex-shrink: 0;
-      }
-      .tx-desc-cell { flex-direction: column !important; align-items: flex-start !important; }
+      .addfunds-card { padding: 20px; }
+      .addfunds-title { font-size: 21px; }
+      .amount-input { font-size: 24px; padding: 12px 16px; }
+      .quick-amounts { grid-template-columns: repeat(2, 1fr); }
+      .payment-option { padding: 14px 16px; gap: 12px; }
     }
     @media (max-width: 480px) {
       .navbar-brand-text { font-size: 16px; }
@@ -307,12 +301,16 @@
       .page-title { font-size: 18px; }
       .footer-desc { max-width: 100%; }
       .footer-bottom { flex-direction: column; align-items: flex-start; }
-      .balance-card { flex-direction: column; align-items: flex-start; }
-      .btn-add-money { width: 100%; justify-content: center; }
+      .addfunds-header { gap: 12px; }
+      .addfunds-title { font-size: 19px; }
+      .addfunds-subtitle { font-size: 12.5px; }
+      .payment-name { font-size: 14px; }
+      .payment-desc { font-size: 12px; }
     }
     @media (max-width: 360px) {
       .main-content { padding: 16px 12px; }
       .navbar-custom { padding: 8px 12px; }
+      .quick-amounts { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     }
   </style>
 </head>
@@ -321,21 +319,13 @@
 <%
   const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
   const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
-  const _balance        = typeof balance        !== 'undefined' ? balance        : 0;
-  const _transactions    = typeof transactions    !== 'undefined' ? transactions    : [];
-  const _currentPage    = typeof currentPage   !== 'undefined' ? Number(currentPage) : 1;
-  const _totalPages     = typeof totalPages    !== 'undefined' ? Number(totalPages)  : 1;
-
-  function formatAmount(n) {
-    const num = Number(n) || 0;
-    return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  }
-  function txStatusClass(status) {
-    const s = String(status || '').toLowerCase();
-    if (s === 'completed') return 'status-completed';
-    if (s === 'failed' || s === 'cancelled' || s === 'canceled') return 'status-failed';
-    return 'status-pending';
-  }
+  const _quickAmounts   = typeof quickAmounts   !== 'undefined' ? quickAmounts   : [100, 500, 1000, 2000];
+  const _selectedAmount = typeof selectedAmount !== 'undefined' ? selectedAmount : 500;
+  const _paymentMethods = typeof paymentMethods !== 'undefined' ? paymentMethods : [
+    { id: 'saved_card', icon: 'bi-credit-card-2-front-fill', name: 'Saved Credit/Debit Card', desc: 'Visa ending in •••• 4242', selected: true },
+    { id: 'razorpay',   icon: 'bi-bank',                     name: 'Razorpay',                desc: 'UPI, Net Banking, and Cards', selected: false },
+    { id: 'paypal',     icon: 'bi-paypal',                   name: 'PayPal',                   desc: 'Pay via PayPal account',       selected: false }
+  ];
 %>
 
 <!-- Sidebar overlay -->
@@ -412,137 +402,68 @@
 
   <!-- MAIN -->
   <main class="main-content">
-    <h1 class="page-title">My Wallet</h1>
-    <p class="page-subtitle">Manage your funds and view transaction history.</p>
 
-    <!-- BALANCE CARD -->
-    <div class="balance-card">
-      <div class="balance-left">
-        <div class="balance-icon"><i class="bi bi-wallet2"></i></div>
-        <div>
-          <span class="balance-label">Available Balance</span>
-          <div class="balance-value">&#8377;<%= formatAmount(_balance) %></div>
-        </div>
-      </div>
-      <a href="/user/wallet/addMoney" class="btn-add-money">
-        <i class="bi bi-plus-circle-fill"></i> Add Money
+    <div class="addfunds-header">
+      <a href="/user/wallet" class="btn-back" aria-label="Back to wallet">
+        <i class="bi bi-arrow-left"></i>
       </a>
+      <div>
+        <div class="addfunds-title">Add Funds to Wallet</div>
+        <div class="addfunds-subtitle">Recharge your wallet for a faster checkout experience.</div>
+      </div>
     </div>
 
-    <h2 class="section-heading">Recent Transactions</h2>
+    <form class="addfunds-card" action="/user/wallet/addMoney" method="POST" id="addFundsForm">
 
-    <% if (_transactions.length === 0) { %>
+      <label class="field-label" for="amountInput">Enter Amount</label>
+      <input
+        type="number"
+        min="1"
+        step="0.01"
+        class="amount-input"
+        id="amountInput"
+        name="amount"
+        value="<%= _selectedAmount %>"
+        placeholder="0.00"
+        required
+      />
 
-      <div class="transactions-card">
-        <div class="empty-transactions">
-          <i class="bi bi-receipt"></i>
-          <p>You don't have any transactions yet.</p>
-        </div>
+      <div class="quick-amounts" id="quickAmounts">
+        <% _quickAmounts.forEach(function(amt) { %>
+          <button
+            type="button"
+            class="quick-amount-btn <%= Number(amt) === Number(_selectedAmount) ? 'active' : '' %>"
+            data-amount="<%= amt %>"
+          >+<%= amt %></button>
+        <% }); %>
       </div>
 
-    <% } else { %>
+      <div class="divider-line"></div>
 
-      <div class="transactions-card">
-        <table class="transactions-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Transaction ID</th>
-              <th>Description</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-        <tbody>
-  <% transactions.forEach(function(tx) { %>
-
-    <% const isPositive = tx.type === "CREDIT"; %>
-
-    <tr>
-      <td data-label="Date" class="tx-date">
-        <%= new Date(tx.createdAt).toLocaleDateString("en-IN") %>
-      </td>
-
-      <td data-label="Transaction ID" class="tx-id">
-        #<%= tx.transactionId %>
-      </td>
-
-      <td data-label="Description" class="tx-desc-cell">
-        <div>
-          <div class="tx-desc-main">
-            <%= tx.description %>
-          </div>
-
-          <% if (tx.subDescription) { %>
-            <div class="tx-desc-sub">
-              <%= tx.subDescription %>
+      <label class="field-label">Select Payment Method</label>
+      <div class="payment-methods" id="paymentMethods">
+        <% _paymentMethods.forEach(function(pm, idx) { %>
+          <label class="payment-option <%= pm.selected ? 'selected' : '' %>" data-method-id="<%= pm.id %>">
+            <input type="radio" name="paymentMethod" value="<%= pm.id %>" <%= pm.selected ? 'checked' : '' %> />
+            <div class="payment-icon"><i class="bi <%= pm.icon %>"></i></div>
+            <div class="payment-info">
+              <div class="payment-name"><%= pm.name %></div>
+              <div class="payment-desc"><%= pm.desc %></div>
             </div>
-          <% } %>
-        </div>
-      </td>
-
-      <td data-label="Amount"
-          class="tx-amount <%= isPositive ? 'positive' : 'negative' %>">
-
-        <%= isPositive ? '+' : '-' %>
-        <%= formatAmount(Math.abs(tx.amount)) %>
-
-      </td>
-
-      <td data-label="Status">
-        <span class="tx-status <%= txStatusClass(tx.status) %>">
-          <span class="dot"></span>
-          <%= tx.status %>
-        </span>
-      </td>
-    </tr>
-
-  <% }); %>
-</tbody>
-        </table>
+            <div class="payment-radio"><span class="radio-dot"></span></div>
+          </label>
+        <% }); %>
       </div>
 
-     <% if (totalPages > 1) { %>
+      <button type="submit" class="btn-proceed">
+        Proceed to Top-up <i class="bi bi-arrow-right"></i>
+      </button>
 
-  <div class="pagination-row">
+      <div class="secure-note">
+        <i class="bi bi-lock-fill"></i> Secure 256-bit SSL Encrypted Payment
+      </div>
 
-    <!-- Previous -->
-    <a
-      class="page-btn <%= currentPage <= 1 ? 'disabled' : '' %>"
-      href="?page=<%= currentPage - 1 %>"
-      aria-label="Previous"
-    >
-      <i class="bi bi-chevron-left"></i>
-    </a>
-
-
-    <!-- Page numbers -->
-    <% for (let i = 1; i <= totalPages; i++) { %>
-
-      <a
-        class="page-btn <%= i === currentPage ? 'active' : '' %>"
-        href="?page=<%= i %>"
-      >
-        <%= i %>
-      </a>
-
-    <% } %>
-
-
-    <!-- Next -->
-    <a
-      class="page-btn <%= currentPage >= totalPages ? 'disabled' : '' %>"
-      href="?page=<%= currentPage + 1 %>"
-      aria-label="Next"
-    >
-      <i class="bi bi-chevron-right"></i>
-    </a>
-
-  </div>
-
-<% } %>
-
-    <% } %>
+    </form>
 
   </main>
 </div>
@@ -597,6 +518,25 @@
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebarOverlay').classList.remove('open');
   }
+
+  // Quick amount buttons fill the amount input
+  const amountInput = document.getElementById('amountInput');
+  document.querySelectorAll('.quick-amount-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.quick-amount-btn').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      amountInput.value = Number(btn.dataset.amount).toFixed(2);
+    });
+  });
+
+  // Payment method selection
+  document.querySelectorAll('.payment-option').forEach(function (option) {
+    option.addEventListener('click', function () {
+      document.querySelectorAll('.payment-option').forEach(function (o) { o.classList.remove('selected'); });
+      option.classList.add('selected');
+      option.querySelector('input[type="radio"]').checked = true;
+    });
+  });
 </script>
 </body>
 </html>

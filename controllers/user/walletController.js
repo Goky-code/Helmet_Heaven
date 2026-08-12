@@ -4,10 +4,10 @@ import HTTP_STATUS from "../../utils/httpStatus.js";
 
 export const loadWallet =async(req,res)=>{
     try{
-        const userId=req.session.userId
+        const userId=req.session.user?._id
 
         if(!userId){
-            return res.redirect("/login")
+            return res.redirect("/user/login")
         }
 
         const page=parseInt(req.query.page)||1

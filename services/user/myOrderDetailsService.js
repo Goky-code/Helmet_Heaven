@@ -80,35 +80,36 @@ export const getOrderDetails=async(userId,orderId)=>{
             badge: order.paymentMethod
 
         },
+         items
 
-        items: order.items.map(item => ({
+        //: order.items.map(item => ({
 
-            productId: item.productId,
+        //     productId: item.productId,
 
-            image: item.productImage,
+        //     image: item.productImage,
 
-            name: item.productName,
+        //     name: item.productName,
 
-            description: item.variantName,
+        //     description: item.variantName,
 
-            size: item.size,
+        //     size: item.size,
 
-            qty: item.quantity,
+        //     qty: item.quantity,
 
-            price: `₹${item.totalPrice}`,
+        //     price: `₹${item.totalPrice}`,
 
-            status: item.status,
+        //     status: item.status,
            
-            cancelReason: item.cancelReason,
-            cancelComment: item.cancelComment,
+        //     cancelReason: item.cancelReason,
+        //     cancelComment: item.cancelComment,
 
-            returnReason: item.returnReason,
-            returnComment: item.returnComment,
+        //     returnReason: item.returnReason,
+        //     returnComment: item.returnComment,
 
-            cancelledAt: item.cancelledAt,
-            returnedAt: item.returnedAt
+        //     cancelledAt: item.cancelledAt,
+        //     returnedAt: item.returnedAt
 
-        }))
+        // }))
 
     }
 
