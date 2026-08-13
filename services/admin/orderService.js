@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Order from "../../models/orderModel.js";
 import PDFDocument from "pdfkit";
+import * as walletService from "../user/walletService.js"
 
 const ORDER_STATUSES = [
   "Pending",
@@ -195,11 +196,43 @@ export const updateOrderStatus=async(orderId,status)=>{
     throw new Error("order not found")
   }
 
+  if(status==="Returned"){
+    for(const item of order.items){
+
+      if(item.refundStatus==="Completed"){
+        item.status="Returned"
+
+        if(!item.returnedAt){
+          item.returnedAt=new Date()
+        }
+        continue
+      }
+      const refundAmount=Number(item.totalPrice)
+
+      if(!refundAmount||refundAmount<=0){
+        throw new Error(`Invalid refund Amount for ${item.productName}`)
+      }
+
+      await walletService.refundToWallet({
+        userId:order.userId,
+        amount:refundAmount,
+        orderId:order._id.toString(),
+        itemId:item._id.toString(),
+        productName:item.productName,
+      })
+      item.status = "Returned"
+      item.returnedAt = new Date()
+      item.refundStatus = "Completed"
+    }
+  }else{
+
  order.items.forEach(item => {
     item.status = status;
-    if (status === "Cancelled") item.cancelledAt = new Date();
-    if (status === "Returned") item.returnedAt = new Date();
-  });
+    if (status === "Cancelled"){
+       item.cancelledAt = new Date();
+    }
+  })
+}
 
 order.orderStatus=calculateOrderStatus(order.items)
 await order.save()
@@ -229,14 +262,47 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
     throw new Error("order item not found");
   }
 
-  item.status = status;
-  if (status === "Cancelled") item.cancelledAt = new Date();
-  if (status === "Returned") item.returnedAt = new Date();
+  if(status==="Returned"){
 
-  order.orderStatus = calculateOrderStatus(order.items);
+    if(item.refundStatus==='Completed'){
+      item.status="Returned"
+
+      if(!item.returnedAt){
+        item.returnedAt=new Date()
+      }
+      order.orderStatus=calculateOrderStatus(order.items)
+      await order.save()
+      return order
+    }
+    const refundAmount=Number(item.totalPrice)
+
+    if(!refundAmount||refundAmount<=0){
+      throw new Error("Invalid refund amount")
+    }
+    await walletService.refundToWallet({
+      userId:order.userId,
+      amount:refundAmount,
+      orderId:order._id.toString(),
+      productName:item.productName,
+    })
+
+    item.status="Returned"
+    item.returnedAt=new Date()
+    item.refundStatus="Completed"
+
+  }else{
+
+  item.status = status
+  if (status === "Cancelled") {
+    item.cancelledAt = new Date();
+  }
+}
+
+
+order.orderStatus = calculateOrderStatus(order.items);
   await order.save();
 
-  return order;
+  return order
 }
 
 export const delivery=async(orderId)=>{
