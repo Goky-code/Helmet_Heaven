@@ -3,6 +3,9 @@ import Order from "../../models/orderModel.js";
 import Product from "../../models/productModel.js";
 import Cart from "../../models/cartModel.js";
 import Address from "../../models/addressModel.js";
+import Wallet from "../../models/walletModel.js";
+import WalletTransaction from "../../models/walletTransaction.js";
+import crypto from "crypto";
  
 const SHIPPING_THRESHOLD = 500;
 const SHIPPING_FEE = 99;
@@ -90,11 +93,7 @@ export const getPaymentPageData = async (userId, addressId,buyNowItem=null) => {
 
  
 export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=null) => {
-  if (paymentMethod !== "COD") {
-    const err = new Error("Only Cash on Delivery is currently supported.");
-    err.statusCode = 400
-    throw err;
-  }
+  
  
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -175,6 +174,19 @@ export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=nul
     const discount = 0;
     const grandTotal = subTotal + shipping + tax - discount;
 
+    let wallet=null
+
+    if(paymentMethod==="Wallet"){
+      wallet=await Wallet.findOne({userId}).session(session)
+
+      if(!wallet){
+        throw new Error("Wallet not found")
+      }
+      if(wallet.balance<grandTotal){
+        throw new Error( `Insufficient wallet balance. Available balance: ₹${wallet.balance}`)      
+      }
+    }
+
     const [order] = await Order.create(
       [{
         orderId: generateOrderId(),
@@ -190,7 +202,7 @@ export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=nul
           pincode: address.zip,
         },
         paymentMethod,
-        paymentStatus: "Pending",
+        paymentStatus: paymentMethod === "Wallet" ? "Paid" : "Pending",
         orderStatus: "Pending",
         subTotal,
         shipping,
@@ -199,7 +211,28 @@ export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=nul
         grandTotal,
       }],
       { session }
-    );
+    )
+       let debitedAmount=0
+       let availableBalance=0
+    if(paymentMethod==="Wallet"){
+      debitedAmount=grandTotal
+      wallet.balance-=debitedAmount
+
+      await wallet.save({session})
+      availableBalance=wallet.balance
+
+      await WalletTransaction.create([{
+        walletId:wallet._id,
+        userId,
+        transactionId: `TXN_${crypto.randomUUID()}`,
+        type:"DEBIT",
+        amount:grandTotal,
+        description:"Order Payment",
+        subDescription: `Payment for order ${order.orderId}`,
+        status:"COMPLETED",
+        referenceId:order.orderId,
+      }],{session})
+    }
 
     for (const item of orderedItems) {
       await Product.updateOne(
@@ -209,9 +242,10 @@ export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=nul
       );
     }
 
+
     if (!buyNowItem && cart) {
       cart.items = [];
-      await cart.save({ session });
+      await cart.save({ session })
     }
 
     await session.commitTransaction();
@@ -221,7 +255,10 @@ export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=nul
       orderId: order.orderId,
       redirectUrl: `/user/order-success?orderId=${order.orderId}`,
       message: "Order placed successfully",
-    };
+      paymentMethod,
+      debitedAmount,
+      availableBalance
+    }
   } catch (error) {
     await session.abortTransaction();
     throw error;

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import Order from "../../models/orderModel.js";
 import PDFDocument from "pdfkit";
 import * as walletService from "../user/walletService.js"
+import Product from "../../models/productModel.js";
 
 const ORDER_STATUSES = [
   "Pending",
@@ -196,7 +197,48 @@ export const updateOrderStatus=async(orderId,status)=>{
     throw new Error("order not found")
   }
 
-  if(status==="Returned"){
+  if(status==="Cancelled"){
+    for(const item of order.items){
+      if(item.status==="Cancelled"){
+        continue
+      }
+      if(order.paymentMethod === "Wallet" &&
+        order.paymentStatus === "Paid"){
+
+          const refundAmount=Number(item.totalPrice)
+
+          if(!refundAmount||refundAmount<=0){
+            throw new Error(`Invalid refund amount for ${item.productName}`)
+          }
+        
+
+        await walletService.refundToWallet({
+          userId: order.userId,
+          amount: refundAmount,
+          orderId: order._id.toString(),
+          itemId: item._id.toString(),
+          productName: item.productName,
+        })
+        item.refundStatus="Completed"
+    }
+     item.status = "Cancelled"
+      item.cancelledAt = new Date()
+     
+      await Product.updateOne(
+        {
+          _id:item.productId,
+          "variants.size":item.size,
+        },
+        {
+          $inc:{
+            "variants.$.stock":item.quantity,
+          },
+        }
+      )
+  }
+}
+
+ else if(status==="Returned"){
     for(const item of order.items){
 
       if(item.refundStatus==="Completed"){
@@ -223,14 +265,24 @@ export const updateOrderStatus=async(orderId,status)=>{
       item.status = "Returned"
       item.returnedAt = new Date()
       item.refundStatus = "Completed"
+
+      await Product.updateOne(
+        {
+          _id:item.productId,
+          "variants.size":item.size,
+        },
+        {
+          $inc:{
+            "variants.$.stock":item.quantity,
+          },
+        }
+      )
     }
   }else{
 
  order.items.forEach(item => {
     item.status = status;
-    if (status === "Cancelled"){
-       item.cancelledAt = new Date();
-    }
+   
   })
 }
 
@@ -262,7 +314,43 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
     throw new Error("order item not found");
   }
 
-  if(status==="Returned"){
+  if(status==="Cancelled"){
+
+    if(item.status==="Cancelled"){
+      throw new Error("This product is already cancelled")
+    }
+
+    if(order.paymentMethod==="Wallet"&& order.paymentStatus==="Paid"){
+      const refundAmount=Number(item.totalPrice)
+
+      if(!refundAmount||refundAmount<=0){
+        throw new Error("Invalid refund amount")
+      }
+      await walletService.refundToWallet({
+        userId:order.userId,
+        amount:refundAmount,
+        orderId:order._id.toString(),
+        itemId:item._id.toString(),
+        productName:item.productName,
+      })
+      item.refundStatus='Completed'
+    }
+    item.status="Cancelled"
+    item.cancelledAt=new Date()
+
+    await Product.updateOne({
+      _id:item.productId,
+      "variants.size":item.size
+    },
+    {
+      $inc:{
+        "variants.$.stock":item.quantity
+      }
+    }
+  )
+  }
+
+  else if(status==="Returned"){
 
     if(item.refundStatus==='Completed'){
       item.status="Returned"
@@ -283,12 +371,25 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
       userId:order.userId,
       amount:refundAmount,
       orderId:order._id.toString(),
+      itemId: item._id.toString(),
       productName:item.productName,
     })
 
     item.status="Returned"
     item.returnedAt=new Date()
     item.refundStatus="Completed"
+
+    await Product.updateOne(
+      {
+        _id:item.productId,
+        "variants.size":item.size
+      },
+      {
+        $inc:{
+          "variants.$.stock":item.quantity
+        }
+      }
+    )
 
   }else{
 

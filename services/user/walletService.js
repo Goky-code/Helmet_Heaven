@@ -2,7 +2,7 @@ import Wallet from "../../models/walletModel.js"
 import WalletTransaction from "../../models/walletTransaction.js"
 import crypto from "crypto"
 
-export const getWalletDetails=async(userId,page=1,limit=10)=>{
+export const getWalletDetails=async(userId,page=1,limit=8)=>{
     const skip=(page-1)*limit
 
     let wallet=await Wallet.findOne({userId})
