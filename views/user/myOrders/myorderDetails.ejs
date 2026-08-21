@@ -914,7 +914,7 @@
                                     class="form-check-input me-3"
                                     type="checkbox"
                                     name="items"
-                                    value="<%= item.productId %>">
+                                    value="<%= item.itemId %>">
 
                                 <img
                                     src="<%= item.image %>"
@@ -950,7 +950,7 @@
 
                                 <select
                                     class="form-select"
-                                    name="reason_<%= item.productId %>">
+                                    name="reason_<%= item.itemId %>">
 
                                     <option value="">
                                         Select Reason
@@ -986,7 +986,7 @@
 
     <textarea
         class="form-control"
-        name="comment_<%= item.productId %>"
+        name="comment_<%= item.itemId %>"
         rows="3"
         placeholder="Write your comment (optional)"></textarea>
 

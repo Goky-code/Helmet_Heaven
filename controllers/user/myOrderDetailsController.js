@@ -22,61 +22,28 @@ export const loadOrderDetails=async(req,res)=>{
 }
 
 export const cancelOrder = async (req, res) => {
+
     try {
+
+        const userId = req.session.user;
         const { orderId } = req.params;
 
-        let selectedItems = req.body.items;
-        
-        if (!selectedItems) {
-            return res.redirect(`/user/orders/${orderId}`);
-        }
-        if (!Array.isArray(selectedItems)) {
-            selectedItems = [selectedItems];
-        }
+        const selectedItems = req.body.items;
 
-        for (const productId of selectedItems) {
-
-            const reason = req.body[`reason_${productId}`];
-            const comment = req.body[`comment_${productId}`];
-
-            await Order.updateOne(
-                {
-                    orderId,
-                    "items.productId": productId
-                },
-                {
-                    $set: {
-                        "items.$.status": "Cancelled",
-                        "items.$.cancelReason": reason,
-                        "items.$.cancelComment": comment,
-                        "items.$.cancelledAt": new Date()
-                    }
-                }
-            );
-        }
-
-        const order = await Order.findOne({ orderId });
-
-        const allCancelled = order.items.every(
-            item => item.status === "Cancelled"
+        await myOrderDetailsService.cancelOrderItems(
+            userId,
+            orderId,
+            selectedItems,
+            req.body
         );
 
-        if (allCancelled) {
-            await Order.updateOne(
-                { orderId },
-                {
-                    $set: {
-                        orderStatus: "Cancelled"
-                    }
-                }
-            );
-        }
-
-        res.redirect(`/user/orders/${orderId}`);
+        return res.redirect(`/user/orders/${orderId}`);
 
     } catch (error) {
-        console.log(error);
-        res.redirect("/pageNotFound");
+
+        console.log("CANCEL ORDER ERROR:", error);
+
+        return res.redirect(`/user/orders/${req.params.orderId}`);
     }
 }
 

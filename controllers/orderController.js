@@ -54,6 +54,11 @@ export const updateOrderStatus=async(req,res)=>{
 
 export const updateOrderItemStatus=async(req,res)=>{
     try{
+
+         console.log("🔥 UPDATE ITEM STATUS CONTROLLER CALLED");
+    console.log("PARAMS:", req.params);
+    console.log("BODY:", req.body);
+
         const {orderId,itemId}=req.params
         const {status}=req.body
 

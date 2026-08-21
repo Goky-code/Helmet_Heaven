@@ -118,15 +118,16 @@ export const placeOrder = async (userId, addressId, paymentMethod, couponCode = 
                 productName: product.productName,
                 size: buyNowItem.size,
                 quantity: buyNowItem.quantity,
-                price: variant.price,
-                total: subtotal,
+               regularPrice: variant.price,
+                salePrice: variant.price,
+               totalPrice: variant.price * buyNowItem.quantity,
             });
         } else {
             cart = await Cart.findOne({ userId }).populate("items.productId").session(session);
             if (!cart || cart.items.length === 0) throw new Error("Cart is empty");
 
             for (const item of cart.items) {
-                const product = item.productId;               // ← fixed (was "items.productId")
+                const product = item.productId;               
                 if (!product) throw new Error("Product not found");
                 if (product.isDeleted) throw new Error(`${product.productName} is unavailable`);
                 if (product.isBlocked) throw new Error(`${product.productName} is blocked`);
@@ -143,8 +144,9 @@ export const placeOrder = async (userId, addressId, paymentMethod, couponCode = 
                     productName: product.productName,
                     size: item.size,
                     quantity: item.quantity,
-                    price: variant.price,
-                    total: variant.price * item.quantity,
+                   regularPrice: variant.price,
+                    salePrice: variant.price,
+                   totalPrice: variant.price * item.quantity,
                 });
             }
         }
@@ -155,10 +157,10 @@ export const placeOrder = async (userId, addressId, paymentMethod, couponCode = 
         const grandTotal = subtotal + shipping + tax - discount;
 
         const order = await Order.create([{
-            userId, items: orderItems, shippingAddress: address, paymentMethod,
-            subtotal, shippingCharge: shipping, tax, discount,
-            totalAmount: grandTotal, orderStatus: "Pending",
-            paymentStatus: paymentMethod === "COD" ? "Pending" : "Unpaid",
+            userId, items: orderItems,address, paymentMethod,
+            subTotal:subtotal,shipping, tax, discount,
+            grandTotal, orderStatus: "Pending",
+            paymentStatus: paymentMethod === "COD" ? "Pending" : "Paid",
         }], { session });
 
         if (buyNowItem) {
@@ -187,4 +189,4 @@ export const placeOrder = async (userId, addressId, paymentMethod, couponCode = 
     } finally {
         session.endSession();
     }
-};
+}

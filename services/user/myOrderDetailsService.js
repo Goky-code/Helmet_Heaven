@@ -1,4 +1,7 @@
 import Order from "../../models/orderModel.js"
+import Product from "../../models/productModel.js"
+import { calculateOrderStatus } from "../admin/orderService.js"
+import * as walletService from "./walletService.js"
 
 export const getOrderDetails=async(userId,orderId)=>{
 
@@ -11,6 +14,7 @@ export const getOrderDetails=async(userId,orderId)=>{
     if(!order) return null
 
      const items = order.items.map(item => ({
+        itemId:item._id,
         productId: item.productId,
         image: item.productImage,
         name: item.productName,
@@ -113,6 +117,111 @@ export const getOrderDetails=async(userId,orderId)=>{
 
     }
 
+}
+
+export const cancelOrderItems=async(userId,orderId,selectedItems,body)=>{
+
+    const order=await Order.findOne({
+        userId,orderId
+    })
+    if (!order) {
+        throw new Error("Order not found");
+    }
+     if (!Array.isArray(selectedItems)) {
+        selectedItems = [selectedItems];
+    }
+
+    if (selectedItems.length === 0) {
+        throw new Error("Please select at least one product");
+    }
+
+      const cancellableStatuses = [
+            "Pending",
+            "Processing",
+            "Confirmed",
+            "Shipped",
+            "Out For Delivery"
+        ]
+
+    for (const itemId of selectedItems) {
+
+        const item = order.items.id(itemId);
+
+        if (!item) {
+            throw new Error("Order item not found");
+        }
+       
+        if (item.status === "Cancelled") {
+            continue;
+        }
+
+        if (!cancellableStatuses.includes(item.status)) {
+            throw new Error(
+                `${item.productName} cannot be cancelled now`
+            );
+        }
+
+        const reason = body[`reason_${itemId}`] || ""
+        const comment = body[`comment_${itemId}`] || ""
+
+        if(order.paymentMethod==="Wallet"&&order.paymentStatus==="Paid"){
+            const refundAmount=Number(item.totalPrice)
+
+            if(!refundAmount||refundAmount<=0){
+                throw new Error(`Invalid refund amount for ${item.productName}`)
+            }
+
+            const refundResult=await walletService.refundToWallet({
+                userId:order.userId,
+                amount:refundAmount,
+                orderId:order._id.toString(),
+                itemId:item._id.toString(),
+                productName:item.productName
+            })
+
+            item.refundStatus="Completed"
+
+        }
+
+      
+        const stockResult = await Product.updateOne(
+            {
+                _id: item.productId,
+                "variants.size": item.size
+            },
+            {
+                $inc: {
+                    "variants.$.stock": item.quantity
+                }
+            }
+        )
+
+         if (stockResult.matchedCount === 0) {
+            throw new Error(
+                `Product/variant not found for ${item.productName}`
+            );
+        }
+
+        item.status = "Cancelled";
+        item.cancelledAt = new Date();
+        item.cancelReason = reason;
+        item.cancelComment = comment;
+    }
+
+    
+    const allCancelled = order.items.every(
+        item => item.status === "Cancelled"
+    );
+
+    if (allCancelled) {
+        order.orderStatus = "Cancelled";
+    }else{
+        order.orderStatus=calculateOrderStatus(order.items)
+    }
+
+    await order.save();
+
+    return order;
 }
 
 export const getInvoiceData=async(userId,orderId)=>{

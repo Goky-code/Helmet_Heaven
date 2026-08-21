@@ -294,6 +294,11 @@ return order
 }
 
 export const changeOrderItemStatus = async (orderId, itemId, status) => {
+
+   console.log("🔥 changeOrderItemStatus CALLED");
+  console.log("orderId:", orderId);
+  console.log("itemId:", itemId);
+  console.log("status:", status);
   if (!mongoose.Types.ObjectId.isValid(orderId)) {
     throw new Error("Invalid Order Id");
   }
@@ -305,6 +310,10 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
   }
 
   const order = await Order.findById(orderId);
+
+  console.log("ORDER FOUND:", order?._id);
+console.log("PAYMENT METHOD:", order?.paymentMethod);
+console.log("PAYMENT STATUS:", order?.paymentStatus);
   if (!order) {
     throw new Error("order not found");
   }
@@ -316,13 +325,33 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
 
   if(status==="Cancelled"){
 
-    if(item.status==="Cancelled"){
-      throw new Error("This product is already cancelled")
+       if(item.status === "Cancelled"){
+        throw new Error("This product is already cancelled")
     }
+
+    console.log("========== STOCK RESTORE ==========");
+    console.log("PRODUCT ID:", item.productId);
+    console.log("SIZE:", item.size);
+    console.log("QUANTITY:", item.quantity);
+
+    const result = await Product.updateOne(
+        {
+            _id: item.productId,
+            "variants.size": item.size
+        },
+        {
+            $inc: {
+                "variants.$.stock": item.quantity
+            }
+        }
+    );
+
+    console.log("STOCK UPDATE RESULT:", result);
+    console.log("===================================");
 
     if(order.paymentMethod==="Wallet"&& order.paymentStatus==="Paid"){
       const refundAmount=Number(item.totalPrice)
-
+        
       if(!refundAmount||refundAmount<=0){
         throw new Error("Invalid refund amount")
       }
@@ -333,6 +362,8 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
         itemId:item._id.toString(),
         productName:item.productName,
       })
+
+       console.log("REFUND COMPLETED");
       item.refundStatus='Completed'
     }
     item.status="Cancelled"
