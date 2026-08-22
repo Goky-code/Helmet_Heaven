@@ -55,10 +55,7 @@ export const updateOrderStatus=async(req,res)=>{
 export const updateOrderItemStatus=async(req,res)=>{
     try{
 
-         console.log("🔥 UPDATE ITEM STATUS CONTROLLER CALLED");
-    console.log("PARAMS:", req.params);
-    console.log("BODY:", req.body);
-
+       
         const {orderId,itemId}=req.params
         const {status}=req.body
 
@@ -79,22 +76,3 @@ export const updateOrderItemStatus=async(req,res)=>{
     }
 }
 
-// export const updatingOrderStatus = async (req, res) => {
-//     try {
-//         const { status } = req.body;
-//         const order = await orderService.changeOrderStatus(req.params.id, status)
-
-//         res.status(HTTP_STATUS.OK).json({
-//             success: true,
-//             message: "Order status updated successfully",
-//             orderStatus: order.orderStatus,
-//         });
-
-//     } catch (error) {
-//         console.log(error);
-//         res.status(HTTP_STATUS.BAD_REQUEST).json({
-//             success: false,
-//             message: error.message,
-//         });
-//     }
-// };
