@@ -10,6 +10,19 @@ export const loadCheckout=async(req,res)=>{
             ? { productId, size, quantity: Math.max(1, parseInt(qty) || 1) }
             : null
 
+            if (!buyNowItem) {
+
+      const validation =
+        await checkoutService.validateCheckout(userId);
+
+      if (!validation.success) {
+
+        return res.redirect(
+          `/user/cart?error=${encodeURIComponent(validation.message)}`
+        )
+      }
+    }
+
         const data=await checkoutService.getCheckoutData(userId,buyNowItem)
         return res.render("user/checkout/checkoutPage",{ ...data, isBuyNow: !!buyNowItem, buyNowItem })
     }catch(error){
@@ -94,4 +107,47 @@ export const addAddress = async (req, res) => {
     }
     return res.redirect("/user/address/addresspage");
   }
-};
+}
+
+export const validateCheckout = async (req, res) => {
+    try {
+
+        const userId = req.session.user;
+
+        const {
+            buyNow,
+            productId,
+            size,
+            qty
+        } = req.body;
+
+        const buyNowItem =
+            (buyNow === true || buyNow === "true")
+                ? {
+                    productId,
+                    size,
+                    quantity: Math.max(
+                        1,
+                        parseInt(qty) || 1
+                    )
+                }
+                : null;
+
+        const result =
+            await checkoutService.validateCheckout(
+                userId,
+                buyNowItem
+            );
+
+        return res.json(result);
+
+    } catch (error) {
+
+        console.log(error);
+
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+            success: false,
+            message: "Unable to validate product availability."
+        })
+    }
+}

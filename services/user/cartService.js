@@ -359,3 +359,78 @@ export const getCartItemCount = async (userId) => {
 
   return count;
 }
+
+export const validateCheckout = async (userId) => {
+
+  const cart = await Cart.findOne({ userId })
+    .populate("items.productId");
+
+  if (!cart || cart.items.length === 0) {
+    throw new Error("Your cart is empty.");
+  }
+
+  const unavailableItems = [];
+
+  for (const item of cart.items) {
+
+    const product = item.productId;
+
+    if (!product) {
+      unavailableItems.push("Product no longer exists");
+      continue;
+    }
+
+    if (product.isDeleted) {
+      unavailableItems.push(`${product.productName} is unavailable`);
+      continue;
+    }
+
+    if (product.isBlocked) {
+      unavailableItems.push(`${product.productName} is currently unavailable`);
+      continue;
+    }
+
+    const variant = product.variants.find(
+      v => v.size === item.size
+    );
+
+    if (!variant) {
+      unavailableItems.push(
+        `${product.productName} (${item.size}) is unavailable`
+      );
+      continue;
+    }
+
+    if (variant.status !== "ACTIVE") {
+      unavailableItems.push(
+        `${product.productName} (${item.size}) is unavailable`
+      );
+      continue;
+    }
+
+    if (variant.stock <= 0) {
+      unavailableItems.push(
+        `${product.productName} (${item.size}) is out of stock`
+      );
+      continue;
+    }
+
+    if (variant.stock < item.quantity) {
+      unavailableItems.push(
+        `${product.productName} has only ${variant.stock} stock left`
+      );
+    }
+  }
+
+  if (unavailableItems.length > 0) {
+    return {
+      success: false,
+      message: unavailableItems.join(", ")
+    };
+  }
+
+  return {
+    success: true,
+    message: "Cart is ready for checkout"
+  }
+}

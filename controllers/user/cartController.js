@@ -145,5 +145,23 @@ export const getCartCount=async(req,res) => {
 
 }
 
+export const validateCheckout = async (req, res) => {
+  try {
+    const result = await cartService.validateCheckout(
+      req.session.user
+    );
+
+    return res.json(result);
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(400).json({
+      success: false,
+      message: error.message || "Unable to validate cart"
+    });
+  }
+};
+
 
 

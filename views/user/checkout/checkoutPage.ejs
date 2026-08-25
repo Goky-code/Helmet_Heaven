@@ -818,12 +818,79 @@
   }
 
   /* ── Guard the actual form submit ── */
-  document.getElementById('checkoutForm').addEventListener('submit', (e) => {
+ document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+
+    e.preventDefault();
+
     if (!selectedAddressId) {
-      e.preventDefault();
-      showToast('Please select a shipping address.', 'error');
+        showToast(
+            'Please select a shipping address.',
+            'error'
+        );
+        return;
     }
-  });
+
+    const button = document.getElementById('checkoutSubmitBtn');
+
+    const originalHTML = button.innerHTML;
+
+    button.disabled = true;
+    button.innerHTML = 'Checking availability...';
+
+    try {
+
+        const formData = new FormData(
+            document.getElementById('checkoutForm')
+        );
+
+        const response = await fetch(
+            '/user/checkout/validate',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    buyNow: formData.get('buyNow'),
+                    productId: formData.get('productId'),
+                    size: formData.get('size'),
+                    qty: formData.get('qty')
+                })
+            }
+        );
+
+        const result = await response.json();
+
+        if (!result.success) {
+
+            showToast(
+                result.message || 'Product is unavailable.',
+                'error'
+            );
+
+            button.disabled = false;
+            button.innerHTML = originalHTML;
+
+            return;
+        }
+
+        document.getElementById(
+            'checkoutForm'
+        ).submit();
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            'Unable to check product availability. Please try again.',
+            'error'
+        );
+
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+    }
+})
 
   /* ══════════════ ADD NEW ADDRESS MODAL ══════════════ */
   const addAddressOverlay = document.getElementById('addAddressModalOverlay');

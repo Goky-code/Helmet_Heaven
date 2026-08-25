@@ -664,15 +664,15 @@
         <div class="promo-feedback" id="promoFeedback" aria-live="polite"></div>
 
         <!-- Checkout -->
-        <a href="/user/checkout" class="checkout-btn">
-          <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-          </svg>
+      <button type="button" id="checkoutBtn" class="checkout-btn">
+  <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round"
+          d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+  </svg>
+  Proceed to Checkout
+</button>
          
-              Proceed to Checkout
-          </a>
-         
-        </button>
+        
 
         <div class="secure-note">
           <svg fill="none" viewBox="0 0 24 24" stroke-width="2">
@@ -892,10 +892,52 @@ document.getElementById('promoInput').addEventListener('input', () => {
 });
 
 /* ── Checkout ── */
-document.getElementById('checkoutBtn').addEventListener('click', () => {
-  window.location.href = '/user/checkout';
-});
+document.getElementById('checkoutBtn').addEventListener('click', async () => {
+  const checkoutBtn = document.getElementById('checkoutBtn');
 
+  checkoutBtn.disabled = true;
+
+  try {
+    const response = await fetch('/user/validate-checkout', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Product Unavailable',
+        text: data.message,
+        background: '#161b24',
+        color: '#fff',
+        confirmButtonColor: '#2d9cff'
+      });
+
+      return;
+    }
+
+    window.location.href = '/user/checkout';
+
+  } catch (error) {
+    console.log(error);
+
+    Swal.fire({
+      icon: 'error',
+      title: 'Something went wrong',
+      text: 'Unable to validate your cart. Please try again.',
+      background: '#161b24',
+      color: '#fff',
+      confirmButtonColor: '#2d9cff'
+    });
+
+  } finally {
+    checkoutBtn.disabled = false;
+  }
+});
 /* ── Newsletter ── */
 document.getElementById('joinBtn').addEventListener('click', () => {
   const inp     = document.getElementById('newsletterEmail');

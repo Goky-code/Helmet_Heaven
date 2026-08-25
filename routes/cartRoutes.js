@@ -1,5 +1,5 @@
 import express from"express"
-import { addToCart, loadCart, removeCartItem,updateCartQuantity,addAllToCart,getCartCount} from "../controllers/user/cartController.js"
+import { addToCart, loadCart, removeCartItem,updateCartQuantity,addAllToCart,getCartCount,validateCheckout} from "../controllers/user/cartController.js"
 import { getWishlistCount } from "../controllers/user/wishlistController.js";
 import { isUserAuth } from "../middlewares/userAuth.js";
 
@@ -15,5 +15,6 @@ router.post("/add-all-to-cart", isUserAuth, addAllToCart);
 
 router.get("/cart/count", getCartCount);
 router.get("/wishlist/count", getWishlistCount);
+router.get("/validate-checkout",isUserAuth,validateCheckout)
 
 export default router

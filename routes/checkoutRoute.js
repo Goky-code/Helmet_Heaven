@@ -9,5 +9,6 @@ router.get("/checkout",isUserAuth,checkoutController.loadCheckout)
 router.post("/place-order",isUserAuth,checkoutController.placeOrder)
 router.get('/address/add',isUserAuth,checkoutController.loadAddAddress)
 router.post(  "/address/add",isUserAuth, checkoutController.addAddress)
+router.post("/checkout/validate",isUserAuth,checkoutController.validateCheckout)
 
 export default router
