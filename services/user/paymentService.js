@@ -114,9 +114,23 @@ export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=nul
       }
 
       const variant = product.variants.find((v) => v.size === buyNowItem.size);
-      if (!variant || variant.stock <= 0 || variant.stock < buyNowItem.quantity) {
-        throw new Error(`${product.productName} has only ${variant?.stock ?? 0} stock left`);
-      }
+      if(!variant){
+          throw new Error(
+    `${product.productName} (${buyNowItem.size}) is no longer available.`)  
+        }
+        if(variant.status!=="ACTIVE"){
+           throw new Error(
+    `${product.productName} (${buyNowItem.size}) is no longer available.`)
+        }
+        if (variant.stock <= 0) {
+  throw new Error(
+    `${product.productName} is out of stock.`)
+}
+
+if (variant.stock < buyNowItem.quantity) {
+  throw new Error(
+    `${product.productName} has only ${variant.stock} stock left.`)
+}
 
       const totalPrice = variant.price * buyNowItem.quantity;
       subTotal += totalPrice;
@@ -143,9 +157,24 @@ export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=nul
         const product = item.productId;
         if (!product || product.isDeleted || product.isBlocked) continue;
 
-        const variant = product.variants.find((v) => v.size === item.size);
-        if (!variant || variant.stock <= 0 || variant.stock < item.quantity) continue;
+        const variant = product.variants.find((v) => v.size === item.size)
+        if(!variant){
+          throw new Error(
+    `${product.productName} (${item.size}) is no longer available.`)  
+        }
+        if(variant.status!=="ACTIVE"){
+           throw new Error(
+    `${product.productName} (${item.size}) is no longer available.`)
+        }
+        if (variant.stock <= 0) {
+  throw new Error(
+    `${product.productName} is out of stock.`)
+}
 
+if (variant.stock < item.quantity) {
+  throw new Error(
+    `${product.productName} has only ${variant.stock} stock left.`)
+}
         const totalPrice = variant.price * item.quantity;
         subTotal += totalPrice;
         orderedItems.push(item);
