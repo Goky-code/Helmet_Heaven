@@ -460,19 +460,33 @@
                integration added before these options can actually complete an order. -->
 
           <label class="payment-option selected" data-value="Razorpay">
-            <input type="radio" name="paymentMethod" value="Razorpay" checked />
-            <div class="payment-option-text">
-              <div class="payment-option-title">Razorpay</div>
-              <div class="payment-option-sub">Cards, Netbanking, UPI &amp; Wallets</div>
-            </div>
-            <div class="payment-option-icons">
-              <div class="icon-chip">
-                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              </div>
-            </div>
-          </label>
+    <input
+        type="radio"
+        name="paymentMethod"
+        value="Razorpay"
+        checked
+    />
 
-        <label class="payment-option" data-value="Wallet">
+    <div class="payment-option-text">
+        <div class="payment-option-title">Razorpay</div>
+        <div class="payment-option-sub">
+            Cards, Netbanking, UPI &amp; Wallets
+        </div>
+    </div>
+
+    <div class="payment-option-icons">
+        <div class="icon-chip">
+            <svg fill="none" viewBox="0 0 24 24"
+                 stroke-width="2"
+                 stroke="currentColor">
+                <rect x="2" y="5" width="20" height="14" rx="2"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+        </div>
+    </div>
+</label>
+
+<label class="payment-option" data-value="Wallet">
 
     <input
         type="radio"
@@ -481,40 +495,57 @@
     />
 
     <div class="payment-option-text">
-
-        <div class="payment-option-title">
-            Wallet
-        </div>
-
+        <div class="payment-option-title">Wallet</div>
         <div class="payment-option-sub">
             Pay securely using your Helmet Heaven wallet
         </div>
-
     </div>
 
     <div class="payment-option-icons">
-
         <div class="icon-chip">
             <i class="bi bi-wallet2"></i>
         </div>
-
     </div>
 
 </label>
 
-          <label class="payment-option" data-value="COD">
-            <input type="radio" name="paymentMethod" value="COD" />
-            <div class="payment-option-text">
-              <div class="payment-option-title">Cash on Delivery</div>
-              <div class="payment-option-sub">Pay when your helmet arrives</div>
-            </div>
-            <div class="payment-option-icons">
-              <div class="icon-chip">
-                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg>
-              </div>
-            </div>
-          </label>
+<label class="payment-option" data-value="COD">
 
+    <input
+        type="radio"
+        name="paymentMethod"
+        value="COD"
+    />
+
+    <div class="payment-option-text">
+        <div class="payment-option-title">
+            Cash on Delivery
+        </div>
+
+        <div class="payment-option-sub">
+            Pay when your helmet arrives
+        </div>
+    </div>
+
+    <div class="payment-option-icons">
+        <div class="icon-chip">
+            <svg fill="none"
+                 viewBox="0 0 24 24"
+                 stroke-width="2"
+                 stroke="currentColor">
+                <rect x="2"
+                      y="7"
+                      width="20"
+                      height="10"
+                      rx="2"/>
+                <circle cx="12"
+                        cy="12"
+                        r="2.5"/>
+            </svg>
+        </div>
+    </div>
+
+</label>
         </div>
       </section>
 
@@ -679,131 +710,463 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
-  /* ── Toast ── */
+
+  /* =========================================
+     TOAST
+  ========================================= */
+
   function showToast(msg, type = 'success') {
+
     const t = document.getElementById('toast');
+
     t.textContent = msg;
+
     t.className = 'toast ' + type + ' show';
+
     clearTimeout(t._timer);
-    t._timer = setTimeout(() => { t.className = 'toast'; }, type === 'error' ? 4500 : 3000);
+
+    t._timer = setTimeout(() => {
+      t.className = 'toast';
+    }, type === 'error' ? 4500 : 3000);
   }
 
-  /* ── Payment method selection ── */
-  let selectedPaymentMethod = document.querySelector('.payment-option.selected')?.dataset.value || 'Razorpay';
 
-  document.querySelectorAll('.payment-option').forEach(opt => {
-    opt.addEventListener('click', () => {
-      document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
-      opt.classList.add('selected');
-      opt.querySelector('input[type="radio"]').checked = true;
-      selectedPaymentMethod = opt.dataset.value;
-    });
-  });
+  /* =========================================
+     PAYMENT METHOD
+  ========================================= */
 
-  /* ── Pay Now ── */
- document.getElementById('payBtn').addEventListener('click', async () => {
-  const addressId = document.getElementById('addressIdField')?.value;
-  if (!addressId) {
-    showToast('Missing shipping address. Please go back to checkout.', 'error');
-    return;
-  }
+  const payBtn = document.getElementById('payBtn');
 
-  const payload = { addressId, paymentMethod: selectedPaymentMethod };
-  const buyNowField = document.getElementById('buyNowField');
-  if (buyNowField) {
-    payload.buyNow = true;
-    payload.productId = document.getElementById('buyNowProductId').value;
-    payload.size = document.getElementById('buyNowSize').value;
-    payload.qty = document.getElementById('buyNowQty').value;
-  }
+  let selectedPaymentMethod =
+    document.querySelector(
+      '.payment-option.selected'
+    )?.dataset.value || 'Razorpay';
 
-  const btn = document.getElementById('payBtn');
-  btn.disabled = true;
-  const originalHTML = btn.innerHTML;
-  btn.textContent = 'Processing...';
 
-  try {
-    const res = await fetch('/user/place-orders', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const data = await res.json();
+  function updatePayButton() {
 
-   if (data.success) {
+    if (!payBtn) return;
 
-    if (selectedPaymentMethod === "Wallet") {
+    if (selectedPaymentMethod === 'COD') {
 
-               showToast(
-            `Order placed successfully! 
-            ₹${Number(data.debitedAmount).toLocaleString("en-IN")} debited from wallet.
-            Available balance: ₹${Number(data.availableBalance).toLocaleString("en-IN")}`
-        )
-        
-        setTimeout(() => {
-            window.location.href =
-                data.redirectUrl || '/user/checkout/order-success';
-        }, 2000);
+      payBtn.textContent = 'Place Order';
+
+    } else if (selectedPaymentMethod === 'Wallet') {
+
+      payBtn.textContent = 'Pay with Wallet';
 
     } else {
 
-        showToast('Order placed successfully!');
+      payBtn.textContent = 'Pay Now';
 
-        window.location.href =
-            data.redirectUrl || '/user/checkout/order-success';
     }
-
-} else {
-
-    showToast(
-        data.message || 'Payment failed. Please try again.',
-        'error'
-    );
-
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
-}
-  } catch (err) {
-    console.log(err);
-    showToast('Something went wrong. Please try again.', 'error');
-    btn.disabled = false;
-    btn.innerHTML = originalHTML;
   }
-});
 
-  /* ── Newsletter ── */
-  document.getElementById('joinBtn').addEventListener('click', () => {
-    const inp     = document.getElementById('newsletterEmail');
-    const fb      = document.getElementById('newsletterFeedback');
-    const val     = inp.value.trim();
-    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!val) {
-      inp.classList.add('error'); fb.textContent = 'Please enter your email address.'; fb.className = 'newsletter-feedback err'; return;
+
+  /* Initial button text */
+  updatePayButton();
+
+
+  /* =========================================
+     PAYMENT OPTION CLICK
+  ========================================= */
+
+  document
+    .querySelectorAll('.payment-option')
+    .forEach(option => {
+
+      option.addEventListener('click', () => {
+
+        /* Remove previous selected */
+        document
+          .querySelectorAll('.payment-option')
+          .forEach(o => {
+            o.classList.remove('selected');
+          });
+
+
+        /* Select current */
+        option.classList.add('selected');
+
+
+        /* Check radio */
+        const radio =
+          option.querySelector(
+            'input[type="radio"]'
+          );
+
+        if (radio) {
+          radio.checked = true;
+        }
+
+
+        /* Store payment method */
+        selectedPaymentMethod =
+          option.dataset.value;
+
+
+        /* Update button */
+        updatePayButton();
+
+      });
+
+    });
+
+
+  /* =========================================
+     PLACE ORDER / PAYMENT
+  ========================================= */
+
+  payBtn.addEventListener('click', async () => {
+
+    /* -----------------------------------------
+       ADDRESS VALIDATION
+    ----------------------------------------- */
+
+    const addressId =
+      document.getElementById(
+        'addressIdField'
+      )?.value;
+
+
+    if (!addressId) {
+
+      showToast(
+        'Missing shipping address. Please go back to checkout.',
+        'error'
+      );
+
+      return;
     }
-    if (!emailRe.test(val)) {
-      inp.classList.add('error'); fb.textContent = 'Please enter a valid email address.'; fb.className = 'newsletter-feedback err'; return;
+
+
+    /* -----------------------------------------
+       PAYMENT METHOD VALIDATION
+    ----------------------------------------- */
+
+    if (!selectedPaymentMethod) {
+
+      showToast(
+        'Please select a payment method.',
+        'error'
+      );
+
+      return;
     }
-    inp.classList.remove('error'); inp.value = '';
-    fb.textContent = "You're in! Welcome to Helmet Haven."; fb.className = 'newsletter-feedback ok';
-    showToast('Subscribed successfully!');
-  });
-  document.getElementById('newsletterEmail').addEventListener('input', () => {
-    document.getElementById('newsletterEmail').classList.remove('error');
-    const fb = document.getElementById('newsletterFeedback');
-    if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'newsletter-feedback'; }
-  });
-  document.getElementById('newsletterEmail').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('joinBtn').click();
+
+
+    /* -----------------------------------------
+       PAYLOAD
+    ----------------------------------------- */
+
+    const payload = {
+
+      addressId,
+
+      paymentMethod:
+        selectedPaymentMethod
+
+    };
+
+
+    /* -----------------------------------------
+       BUY NOW DATA
+    ----------------------------------------- */
+
+    const buyNowField =
+      document.getElementById(
+        'buyNowField'
+      );
+
+
+    if (buyNowField) {
+
+      payload.buyNow = true;
+
+      payload.productId =
+        document.getElementById(
+          'buyNowProductId'
+        )?.value;
+
+      payload.size =
+        document.getElementById(
+          'buyNowSize'
+        )?.value;
+
+      payload.qty =
+        document.getElementById(
+          'buyNowQty'
+        )?.value;
+    }
+
+
+    /* -----------------------------------------
+       DISABLE BUTTON
+    ----------------------------------------- */
+
+    const originalText =
+      payBtn.textContent;
+
+    payBtn.disabled = true;
+
+    payBtn.textContent =
+      'Processing...';
+
+
+    try {
+
+      /* -----------------------------------------
+         SEND REQUEST
+      ----------------------------------------- */
+
+      const response = await fetch(
+        '/user/place-orders',
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body: JSON.stringify(payload)
+        }
+      );
+
+
+      const data =
+        await response.json();
+
+
+      /* -----------------------------------------
+         SUCCESS
+      ----------------------------------------- */
+
+      if (data.success) {
+
+        /* COD */
+        if (
+          selectedPaymentMethod === 'COD'
+        ) {
+
+          showToast(
+            'Order placed successfully!'
+          );
+
+          setTimeout(() => {
+
+            window.location.href =
+              data.redirectUrl ||
+              `/user/order-success?orderId=${data.orderId}`;
+
+          }, 1000);
+
+          return;
+        }
+
+
+        /* WALLET */
+        if (
+          selectedPaymentMethod === 'Wallet'
+        ) {
+
+          showToast(
+            `Order placed successfully! ₹${Number(
+              data.debitedAmount || 0
+            ).toLocaleString('en-IN')} debited from wallet.`
+          );
+
+          setTimeout(() => {
+
+            window.location.href =
+              data.redirectUrl ||
+              `/user/order-success?orderId=${data.orderId}`;
+
+          }, 1500);
+
+          return;
+        }
+
+
+        /* RAZORPAY */
+        if (
+          selectedPaymentMethod === 'Razorpay'
+        ) {
+
+          /*
+             Your current backend does not have
+             Razorpay gateway logic here.
+
+             So if backend creates the order,
+             redirect to success.
+          */
+
+          showToast(
+            'Order placed successfully!'
+          );
+
+          setTimeout(() => {
+
+            window.location.href =
+              data.redirectUrl ||
+              `/user/order-success?orderId=${data.orderId}`;
+
+          }, 1000);
+
+          return;
+        }
+
+      }
+
+
+      /* -----------------------------------------
+         ERROR FROM BACKEND
+      ----------------------------------------- */
+
+      showToast(
+        data.message ||
+        'Unable to place order.',
+        'error'
+      );
+
+
+      payBtn.disabled = false;
+
+      payBtn.textContent =
+        originalText;
+
+
+    } catch (error) {
+
+      console.error(error);
+
+
+      showToast(
+        'Something went wrong. Please try again.',
+        'error'
+      );
+
+
+      payBtn.disabled = false;
+
+      payBtn.textContent =
+        originalText;
+    }
+
   });
 
-  /* ── Hamburger ── */
-  const ham = document.getElementById('hamburger');
-  const mob = document.getElementById('mobileMenu');
-  ham.addEventListener('click', () => {
-    const open = mob.classList.toggle('open');
-    ham.classList.toggle('open', open);
-    ham.setAttribute('aria-expanded', open);
-  });
+
+  /* =========================================
+     NEWSLETTER
+  ========================================= */
+
+  const joinBtn =
+    document.getElementById('joinBtn');
+
+  if (joinBtn) {
+
+    joinBtn.addEventListener(
+      'click',
+      () => {
+
+        const inp =
+          document.getElementById(
+            'newsletterEmail'
+          );
+
+        const fb =
+          document.getElementById(
+            'newsletterFeedback'
+          );
+
+        const val =
+          inp.value.trim();
+
+        const emailRe =
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+        if (!val) {
+
+          inp.classList.add('error');
+
+          fb.textContent =
+            'Please enter your email address.';
+
+          fb.className =
+            'newsletter-feedback err';
+
+          return;
+        }
+
+
+        if (!emailRe.test(val)) {
+
+          inp.classList.add('error');
+
+          fb.textContent =
+            'Please enter a valid email address.';
+
+          fb.className =
+            'newsletter-feedback err';
+
+          return;
+        }
+
+
+        inp.classList.remove('error');
+
+        inp.value = '';
+
+        fb.textContent =
+          "You're in! Welcome to Helmet Haven.";
+
+        fb.className =
+          'newsletter-feedback ok';
+
+        showToast(
+          'Subscribed successfully!'
+        );
+
+      }
+    );
+  }
+
+
+  /* =========================================
+     HAMBURGER
+  ========================================= */
+
+  const ham =
+    document.getElementById('hamburger');
+
+  const mob =
+    document.getElementById('mobileMenu');
+
+
+  if (ham && mob) {
+
+    ham.addEventListener(
+      'click',
+      () => {
+
+        const open =
+          mob.classList.toggle('open');
+
+        ham.classList.toggle(
+          'open',
+          open
+        );
+
+        ham.setAttribute(
+          'aria-expanded',
+          open
+        );
+
+      }
+    );
+  }
+
 </script>
 </body>
 </html>
