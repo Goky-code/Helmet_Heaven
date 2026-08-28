@@ -223,7 +223,11 @@ doc
 
 doc.y = startY + 30;
 
-order.items.forEach((item) => {
+const invoiceItems = order.items.filter(
+    item => item.status !== "Cancelled"
+);
+
+invoiceItems.forEach((item) => {
 
     doc.fillColor("black");
 
@@ -240,8 +244,7 @@ order.items.forEach((item) => {
         .stroke();
 
     doc.moveDown(0.5);
-
-});
+})
 
 // ===== TOTAL =====
 

@@ -62,9 +62,12 @@ export const updateOrderItemStatus=async(req,res)=>{
         const order=await orderService.changeOrderItemStatus(
             orderId,itemId,status
         )
+       const updatedItem = order.items.id(itemId)
+
         res.status(HTTP_STATUS.OK).json({
             success:true,
             message:"Product status updated successfully",
+            itemStatus: updatedItem.status,
             orderStatus:order.orderStatus
         })
     }catch(error){

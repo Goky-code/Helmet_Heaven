@@ -1,6 +1,6 @@
 import Order from "../../models/orderModel.js"
 import Product from "../../models/productModel.js"
-import { calculateOrderStatus } from "../admin/orderService.js"
+import { calculateOrderStatus, recalculateOrderTotals } from "../admin/orderService.js"
 import * as walletService from "./walletService.js"
 
 export const getOrderDetails=async(userId,orderId)=>{
@@ -218,6 +218,8 @@ export const cancelOrderItems=async(userId,orderId,selectedItems,body)=>{
     }else{
         order.orderStatus=calculateOrderStatus(order.items)
     }
+
+    recalculateOrderTotals(order)
 
     await order.save();
 
