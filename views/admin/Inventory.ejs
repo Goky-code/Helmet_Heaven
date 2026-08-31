@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helmet Haven – Inventory</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --sidebar: #111318;
+      --card: #161a22;
+      --border: #252934;
+      --surface: #1e2330;
+      --accent: #3b6ef5;
+      --accent2: #5c87ff;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --font-head: "Syne", sans-serif;
+      --font-body: "DM Sans", sans-serif;
+      --sidebar-w: 240px;
+      --radius: 10px;
+    }
+
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.3s ease; }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid var(--border); }
+    .logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .logo-text { font-family: var(--font-head); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+    nav { flex: 1; padding: 14px 0; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; text-decoration: none; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--accent2); background: rgba(59,110,245,0.1); border-left-color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg, .nav-item:hover svg { opacity: 1; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* TOPBAR */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid var(--border); background: var(--sidebar); position: sticky; top: 0; z-index: 50; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .hamburger { display: none; background: none; border: none; color: var(--text); cursor: pointer; font-size: 20px; padding: 4px; }
+    .page-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+    .btn-primary { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    /* CONTENT */
+    .content { padding: 24px 28px; flex: 1; }
+
+    /* FILTER CARD */
+    .filter-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 22px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; align-items: end; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-group label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+    .field-group input, .field-group select { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color 0.2s; width: 100%; }
+    .field-group input::placeholder { color: var(--muted); }
+    .field-group input:focus, .field-group select:focus { border-color: var(--accent); }
+    .field-group select option { background: var(--surface); }
+
+    /* TABLE */
+    .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--surface); }
+    th { padding: 13px 18px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+    tbody tr { border-top: 1px solid var(--border); transition: background 0.15s; }
+    tbody tr:hover { background: rgba(255,255,255,0.025); }
+    td { padding: 15px 18px; font-size: 14px; vertical-align: middle; }
+    .product-name { font-weight: 600; color: var(--text); display: block; margin-bottom: 3px; }
+    .product-sub { font-size: 11px; color: var(--muted); font-weight: 400; }
+    .sku-code { font-family: "DM Sans", monospace; font-size: 12.5px; color: var(--muted); background: rgba(255,255,255,0.04); border: 1px solid var(--border); padding: 3px 8px; border-radius: 6px; letter-spacing: 0.03em; }
+    .stock-num { font-weight: 700; }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    .badge-active   { background: rgba(34,197,94,0.12);  color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+    .badge-warning  { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+    .badge-inactive { background: rgba(239,68,68,0.12);  color: var(--red);   border: 1px solid rgba(239,68,68,0.25); }
+    .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .btn-action { border: none; border-radius: 7px; padding: 7px 15px; font-family: var(--font-body); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; cursor: pointer; transition: background 0.2s, transform 0.1s; white-space: nowrap; color: #fff; }
+    .btn-action:active { transform: scale(0.96); }
+    /* dynamic action colors, driven from data-status on the button */
+    .btn-action[data-status="OUT"]  { background: var(--red); }
+    .btn-action[data-status="OUT"]:hover  { background: #dc2626; }
+    .btn-action[data-status="LOW"]  { background: var(--amber); }
+    .btn-action[data-status="LOW"]:hover  { background: #d97706; }
+    .btn-action[data-status="OK"]   { background: var(--accent); }
+    .btn-action[data-status="OK"]:hover   { background: var(--accent2); }
+
+    .table-footer { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
+    .results-count { font-size: 13px; color: var(--muted); }
+
+    .pagination { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .pagination a { text-decoration: none; padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--surface); transition: .2s; }
+    .pagination a:hover { background: var(--accent); color: #fff; }
+    .pagination a.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* EMPTY STATE */
+    .empty-row td { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; }
+
+    /* MODAL (quick stock update) */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 420px; padding: 28px; position: relative; animation: fadeUp 0.25s ease; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+    .modal-sub { font-size: 12.5px; color: var(--muted); margin-bottom: 20px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+    .btn-cancel { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.06); }
+    .modal-close { position: absolute; top: 18px; right: 18px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+    .modal-close:hover { color: var(--text); }
+    .modal-field { display: flex; flex-direction: column; gap: 6px; }
+    .modal-field label { font-size: 11px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+    .modal-field input { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 14px; outline: none; }
+    .modal-field input:focus { border-color: var(--accent); }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 30px; right: 30px; background: var(--green); color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; z-index: 999; animation: slideUp 0.25s ease; }
+    #toast.error { background: var(--red); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .filter-card { grid-template-columns: 1fr 1fr; }
+      th:nth-child(2), td:nth-child(2) { display: none; }
+    }
+    @media (max-width: 700px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(-240px); width: 240px; }
+      .sidebar.open { transform: translateX(0); }
+      .overlay-bg.open { display: block; }
+      .main { margin-left: 0; }
+      .hamburger { display: block; }
+      .filter-card { grid-template-columns: 1fr; }
+      .content { padding: 16px; }
+    }
+    @media (max-width: 480px) {
+      th:nth-child(3), td:nth-child(3) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay-bg" id="sidebarBg" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🪖</div>
+      <span class="logo-text">Helmet Haven</span>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="/admin/adminDashboard">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="/admin/products">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </a>
+      <a class="nav-item active" href="/admin/inventory">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 8V21H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg>
+        Inventory
+      </a>
+      <a class="nav-item" href="/admin/adminCustomer">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <a class="nav-item" href="/admin/orders">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Orders
+      </a>
+      <a class="nav-item" href="/admin/categories">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 20h16M4 4h16M9 4v16M15 4v16"/></svg>
+        Category
+      </a>
+      <a class="nav-item" href="/admin/brands">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Brands
+      </a>
+      <a class="nav-item" href="/admin/logout">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <h1 class="page-title">Inventory</h1>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Filter -->
+      <div class="filter-card">
+        <div class="field-group">
+          <label>Search</label>
+          <input type="text" id="searchInput" placeholder="Search product or SKU..." value="<%= typeof search !== 'undefined' ? search : '' %>"/>
+        </div>
+        <div class="field-group">
+          <label>Status</label>
+          <select id="statusFilter" onchange="filterTable()">
+            <option value="">All Status</option>
+            <option value="OK"  <%= typeof selectedStatus !== 'undefined' && selectedStatus === 'OK'  ? 'selected' : '' %>>In Stock</option>
+            <option value="LOW" <%= typeof selectedStatus !== 'undefined' && selectedStatus === 'LOW' ? 'selected' : '' %>>Low Stock</option>
+            <option value="OUT" <%= typeof selectedStatus !== 'undefined' && selectedStatus === 'OUT' ? 'selected' : '' %>>Out of Stock</option>
+          </select>
+        </div>
+        <div class="field-group">
+          <label>Category</label>
+          <select id="catFilter" onchange="filterTable()">
+            <option value="">All Categories</option>
+            <% categories.forEach(cat => { %>
+              <option value="<%= cat._id %>" <%= typeof category !== 'undefined' && category === cat._id.toString() ? 'selected' : '' %>>
+                <%= cat.name %>
+              </option>
+            <% }) %>
+          </select>
+        </div>
+      </div>
+
+      <!-- Table — rendered by EJS, one row per variant -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Variant</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%
+              // Flatten products -> one row per variant so the table matches the
+              // requested layout (Product / Variant / SKU / Stock / Status / Action).
+              // Low-stock threshold is configurable per deployment; 5 is the default here.
+              const LOW_STOCK_THRESHOLD = 5;
+              let rowCount = 0;
+            %>
+            <% products.forEach((p) => { %>
+              <% (p.variants || []).forEach((v) => {
+                    rowCount++;
+                    let statusKey, statusLabel, badgeClass;
+                    if (v.stock === 0) {
+                      statusKey = 'OUT'; statusLabel = 'Out of Stock'; badgeClass = 'badge-inactive';
+                    } else if (v.stock <= LOW_STOCK_THRESHOLD) {
+                      statusKey = 'LOW'; statusLabel = 'Low Stock'; badgeClass = 'badge-warning';
+                    } else {
+                      statusKey = 'OK'; statusLabel = 'In Stock'; badgeClass = 'badge-active';
+                    }
+                    // SKU is generated on the fly from the product code (or a short
+                    // slice of the product id when no explicit code exists) plus size —
+                    // never hard-coded in the template.
+                    const baseCode = (p.productCode || p._id.toString().slice(-6)).toUpperCase();
+                    const sku = `${baseCode}-${String(v.size).toUpperCase()}`;
+                    const actionLabel = statusKey === 'OUT' ? 'Restock' : (statusKey === 'LOW' ? 'Top Up' : 'Edit Stock');
+              %>
+                <tr>
+                  <td>
+                    <span class="product-name"><%= p.productName || 'N/A' %></span>
+                    <span class="product-sub"><%= p.brand ? p.brand.name : '' %></span>
+                  </td>
+                  <td><%= v.size %></td>
+                  <td><span class="stock-num"><%= v.stock %></span></td>
+                  <td><span class="badge <%= badgeClass %>"><%= statusLabel %></span></td>
+                  <td>
+                    <div class="actions">
+                      <button
+                        class="btn-action"
+                        data-status="<%= statusKey %>"
+                        data-product-id="<%= p._id %>"
+                        data-variant-id="<%= v._id %>"
+                        data-product-name="<%= p.productName %>"
+                        data-variant-size="<%= v.size %>"
+                        data-current-stock="<%= v.stock %>"
+                        onclick="openStockModal(this)">
+                        <%= actionLabel %>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% }) %>
+            <% if (rowCount === 0) { %>
+              <tr class="empty-row">
+                <td colspan="6">No inventory items found.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+
+        <div class="table-footer">
+          <span class="results-count">Showing <%= rowCount %> item<%= rowCount !== 1 ? "s" : "" %></span>
+
+          <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+          <div class="pagination">
+            <% if (currentPage > 1) { %>
+              <a href="?page=<%= currentPage - 1 %>&search=<%= search %>&category=<%= category || '' %>&status=<%= selectedStatus || '' %>">Previous</a>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <a href="?page=<%= i %>&search=<%= search %>&category=<%= category || '' %>&status=<%= selectedStatus || '' %>"
+                 class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+              <a href="?page=<%= currentPage + 1 %>&search=<%= search %>&category=<%= category || '' %>&status=<%= selectedStatus || '' %>">Next</a>
+            <% } %>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUICK STOCK UPDATE MODAL (dynamic — reused for Restock / Top Up / Edit Stock) -->
+  <div class="overlay" id="stockModal">
+    <div class="modal">
+      <button class="modal-close" onclick="closeStockModal()">✕</button>
+      <h2 class="modal-title" id="stockModalTitle">Update Stock</h2>
+      <p class="modal-sub" id="stockModalSub"></p>
+      <div class="modal-field">
+        <label>New Stock Quantity</label>
+        <input type="number" id="stockInput" min="0" placeholder="Enter quantity"/>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeStockModal()">Cancel</button>
+        <button class="btn-primary" onclick="submitStockUpdate()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let activeProductId = null;
+    let activeVariantId = null;
+
+    /* ── Filter — reloads the page with query params ── */
+    function filterTable() {
+      const q      = document.getElementById("searchInput").value.trim();
+      const status = document.getElementById("statusFilter").value;
+      const cat    = document.getElementById("catFilter").value;
+
+      const params = new URLSearchParams();
+      if (q)      params.set("search",   q);
+      if (status) params.set("status",   status);
+      if (cat)    params.set("category", cat);
+
+      window.location.href = `/admin/inventory?${params.toString()}`;
+    }
+
+    let searchDebounce;
+    document.getElementById("searchInput").addEventListener("input", () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(filterTable, 400);
+    });
+
+    /* ── Dynamic action button -> opens the quick stock modal ── */
+    function openStockModal(btn) {
+      activeProductId = btn.dataset.productId;
+      activeVariantId  = btn.dataset.variantId;
+
+      const status = btn.dataset.status;
+      const titleByStatus = { OUT: "Restock Item", LOW: "Top Up Stock", OK: "Edit Stock" };
+
+      document.getElementById("stockModalTitle").textContent = titleByStatus[status] || "Update Stock";
+      document.getElementById("stockModalSub").textContent =
+        `${btn.dataset.productName} — Size ${btn.dataset.variantSize} (current: ${btn.dataset.currentStock})`;
+      document.getElementById("stockInput").value = btn.dataset.currentStock;
+
+      document.getElementById("stockModal").classList.add("open");
+    }
+
+    function closeStockModal() {
+      document.getElementById("stockModal").classList.remove("open");
+      activeProductId = null;
+      activeVariantId  = null;
+    }
+
+    async function submitStockUpdate() {
+      const stock = parseInt(document.getElementById("stockInput").value, 10);
+      if (isNaN(stock) || stock < 0) { showToast("Enter a valid stock quantity", false); return; }
+
+      try {
+        const res = await fetch(`/admin/product/${activeProductId}/variant/${activeVariantId}/stock`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stock })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast("Stock updated successfully");
+          closeStockModal();
+          setTimeout(() => location.reload(), 600);
+        } else {
+          showToast(data.message || "Failed to update stock", false);
+        }
+      } catch (e) { showToast("Server error", false); }
+    }
+
+    /* ── Toast ── */
+    function showToast(msg, isOk = true) {
+      const t = document.getElementById("toast");
+      t.textContent   = msg;
+      t.className     = isOk ? "" : "error";
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 3000);
+    }
+
+    /* ── Sidebar ── */
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebarBg").classList.toggle("open");
+    }
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarBg").classList.remove("open");
+    }
+
+    /* ── Close modal on backdrop click ── */
+    document.querySelectorAll(".overlay").forEach(ov => {
+      ov.addEventListener("click", e => { if (e.target === ov) ov.classList.remove("open"); });
+    });
+  </script>
+</body>
+</html>

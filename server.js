@@ -24,6 +24,7 @@ import paymentRoute from  "./routes/paymentRoute.js"
 import orderSuccessRoutes from "./routes/orderSuccessRoutes.js";
 import myOrdersRoute from "./routes/myOrdersRoute.js"
 import myOrderDetailsRoute from "./routes/myOrderDetailsRoute.js"
+import InventoryRoute from "./routes/InventoryRoute.js"
 import { setNavCounts } from "./middlewares/setNavCounts.js";
 import walletRoutes from "./routes/walletRoute.js"
 
@@ -75,6 +76,7 @@ app.use("/user", orderSuccessRoutes)
 app.use("/user", myOrdersRoute)
 app.use("/user",myOrderDetailsRoute)
 app.use("/user",walletRoutes)
+app.use("/admin",InventoryRoute)
 
 const startServer = async () => {
   try {
