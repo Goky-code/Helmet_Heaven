@@ -1,5 +1,5 @@
-import Product from "../../models/productModel";
-import Category from "../../models/categoryModel"
+import Product from "../../models/productModel.js";
+import Category from "../../models/categoryModel.js"
 
 export const getInventory=async(page,limit,search,status,category)=>{
     const skip=(page-1)*limit
@@ -26,7 +26,14 @@ export const getInventory=async(page,limit,search,status,category)=>{
   products.forEach(product=>{
     product.variants.forEach(variant=>{
         let statusKey
-        if(variant.stock===0){
+
+        if(product.isBlocked){
+            statusKey="INACTIVE"
+        }
+        else if(variant.status==="INACTIVE"){
+            statusKey="INACTIVE"
+        }
+       else if(variant.stock===0){
             statusKey="OUT"
         }else if(variant.stock<=5){
             statusKey="LOW"
@@ -37,7 +44,7 @@ export const getInventory=async(page,limit,search,status,category)=>{
             return
         }
         inventoryRows.push({
-            product,variant
+            product,variant,statusKey
         })
     })
   })

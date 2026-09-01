@@ -1,6 +1,6 @@
 import express from "express";
 import * as InventoryController from "../controllers/InventoryController.js"
-import { isAdminAuth } from "../middlewares/adminAuth";
+import { isAdminAuth } from "../middlewares/adminAuth.js";
 
 const router=express.Router()
 

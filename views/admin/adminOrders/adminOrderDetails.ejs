@@ -331,9 +331,9 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
         Brands
       </a>
-      <a class="nav-item" href="#">
+      <a class="nav-item" href="/admin/Inventory">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-        Return Requests
+        Inventory
       </a>
       <a class="nav-item" href="#">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
@@ -496,117 +496,127 @@
 
 
             <!-- ITEM STATUS -->
+<div class="text-end">
 
-            <div class="text-end">
+    <!-- CURRENT STATUS -->
 
-                <!-- CURRENT STATUS -->
+    <div class="item-status
+        <%= item.status === 'Delivered' ? 'item-delivered' : '' %>
+        <%= item.status === 'Cancelled' ? 'item-cancelled' : '' %>
+        <%= item.status === 'Return Requested' ? 'item-return-requested' : '' %>
+        <%= item.status === 'Returned' ? 'item-returned' : '' %>
+    ">
 
-                <div class="item-status
-                    <%= item.status === 'Delivered' ? 'item-delivered' : '' %>
-                    <%= item.status === 'Cancelled' ? 'item-cancelled' : '' %>
-                    <%= item.status === 'Return Requested' ? 'item-return-requested' : '' %>
-                    <%= item.status === 'Returned' ? 'item-returned' : '' %>
-                ">
-                    ● <%= item.status.toUpperCase() %>
-                </div>
+        ● <%= item.status.toUpperCase() %>
+
+    </div>
 
 
-                <!-- STATUS UPDATE -->
+    <!-- STATUS UPDATE -->
 
-                <select
-                    class="form-select mt-2 item-status-select"
-                    data-order-id="<%= order._id %>"
-                    data-item-id="<%= item._id %>"
-                >
+    <%
+        const itemStatusFlow = {
 
-                    <option value="Pending"
-                        <%= item.status === "Pending" ? "selected" : "" %>>
-                        Pending
-                    </option>
+            "Pending": "Processing",
 
-                    <option value="Processing"
-                        <%= item.status === "Processing" ? "selected" : "" %>>
-                        Processing
-                    </option>
+            "Processing": "Shipped",
 
-                    <option value="Shipped"
-                        <%= item.status === "Shipped" ? "selected" : "" %>>
-                        Shipped
-                    </option>
+            "Shipped": "Out For Delivery",
 
-                    <option value="Out For Delivery"
-                        <%= item.status === "Out For Delivery" ? "selected" : "" %>>
-                        Out For Delivery
-                    </option>
+            "Out For Delivery": "Delivered"
 
-                    <option value="Delivered"
-                        <%= item.status === "Delivered" ? "selected" : "" %>>
-                        Delivered
-                    </option>
+        };
 
-                    <option value="Cancelled"
-                        <%= item.status === "Cancelled" ? "selected" : "" %>>
-                        Cancelled
-                    </option>
+        const itemNextStatus =
+            itemStatusFlow[item.status];
+    %>
 
-                    <option value="Return Requested"
-                        <%= item.status === "Return Requested" ? "selected" : "" %>>
-                        Return Requested
-                    </option>
 
-                    <option value="Returned"
-                        <%= item.status === "Returned" ? "selected" : "" %>>
-                        Returned
-                    </option>
+    <select
+        class="form-select mt-2 item-status-select"
+        data-order-id="<%= order._id %>"
+        data-item-id="<%= item._id %>"
+    >
 
-                </select>
+        <!-- CURRENT STATUS -->
 
-            </div>
+        <option
+            value="<%= item.status %>"
+            selected
+        >
+            <%= item.status %>
+        </option>
 
+
+        <!-- NEXT STATUS -->
+
+        <% if (itemNextStatus) { %>
+
+            <option value="<%= itemNextStatus %>">
+                <%= itemNextStatus %>
+            </option>
+
+        <% } %>
+
+
+        <!-- CANCEL -->
+
+        <% if (
+            item.status === "Pending" ||
+            item.status === "Processing"
+        ) { %>
+
+            <option value="Cancelled">
+                Cancelled
+            </option>
+
+        <% } %>
+
+    </select>
+
+</div>
+
+
+<!-- RETURN INFORMATION -->
+
+<% if (item.status === "Return Requested") { %>
+
+    <div class="return-info">
+
+        <div>
+            <strong>Return Reason:</strong>
+            <%= item.returnReason || "-" %>
         </div>
 
+        <div>
+            <strong>Comment:</strong>
+            <%= item.returnComment || "-" %>
+        </div>
 
-        <!-- RETURN INFORMATION -->
+    </div>
 
-        <% if (item.status === "Return Requested") { %>
-
-            <div class="return-info">
-
-                <div>
-                    <strong>Return Reason:</strong>
-                    <%= item.returnReason || "-" %>
-                </div>
-
-                <div>
-                    <strong>Comment:</strong>
-                    <%= item.returnComment || "-" %>
-                </div>
-
-            </div>
-
-        <% } %>
+<% } %>
 
 
-        <!-- CANCEL INFORMATION -->
+<!-- CANCEL INFORMATION -->
 
-        <% if (item.status === "Cancelled") { %>
+<% if (item.status === "Cancelled") { %>
 
-            <div class="cancel-info">
+    <div class="cancel-info">
 
-                <div>
-                    <strong>Cancel Reason:</strong>
-                    <%= item.cancelReason || "-" %>
-                </div>
+        <div>
+            <strong>Cancel Reason:</strong>
+            <%= item.cancelReason || "-" %>
+        </div>
 
-                <div>
-                    <strong>Comment:</strong>
-                    <%= item.cancelComment || "-" %>
-                </div>
+        <div>
+            <strong>Comment:</strong>
+            <%= item.cancelComment || "-" %>
+        </div>
 
-            </div>
+    </div>
 
-        <% } %>
-
+<% } %>
     </div>
 
 <% }); %>
@@ -614,22 +624,102 @@
 </div>
 
       <!-- Update Status -->
-      <div class="card status-card">
-        <div class="card-title" style="margin-bottom: 20px;">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
-          Update Status
-        </div>
-        <label class="status-label" for="statusSelect">Select New Status</label>
-        <div class="status-select-wrap">
-          <select id="statusSelect">
-            <% ['Pending','Processing','Shipped','Out For Delivery','Delivered','Cancelled','Return Requested','Returned'].forEach(s => { %>
-              <option value="<%= s %>" <%= currentStatus === s ? 'selected' : '' %>><%= s %></option>
-            <% }) %>
-          </select>
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-      </div>
+      <!-- Update Status -->
+<div class="card status-card">
 
+    <div class="card-title" style="margin-bottom: 20px;">
+
+        <svg
+            width="18"
+            height="18"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+        >
+            <polyline points="17 1 21 5 17 9"/>
+            <path d="M3 11V9a4 4 0 014-4h14"/>
+            <polyline points="7 23 3 19 7 15"/>
+            <path d="M21 13v2a4 4 0 01-4 4H3"/>
+        </svg>
+
+        Update Status
+
+    </div>
+
+    <label
+        class="status-label"
+        for="statusSelect"
+    >
+        Select New Status
+    </label>
+
+    <div class="status-select-wrap">
+
+        <%
+            const globalNextStatus = {
+                "Pending": "Processing",
+                "Processing": "Shipped",
+                "Shipped": "Out For Delivery",
+                "Out For Delivery": "Delivered"
+            };
+
+            const nextStatus =
+                globalNextStatus[currentStatus];
+        %>
+
+        <select id="statusSelect">
+
+            <!-- CURRENT STATUS -->
+
+            <option
+                value="<%= currentStatus %>"
+                selected
+            >
+                <%= currentStatus %>
+            </option>
+
+
+            <!-- NEXT STATUS -->
+
+            <% if (nextStatus) { %>
+
+                <option value="<%= nextStatus %>">
+                    <%= nextStatus %>
+                </option>
+
+            <% } %>
+
+
+            <!-- CANCEL -->
+
+            <% if (
+                currentStatus === "Pending" ||
+                currentStatus === "Processing"
+            ) { %>
+
+                <option value="Cancelled">
+                    Cancelled
+                </option>
+
+            <% } %>
+
+        </select>
+
+        <svg
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+        >
+            <polyline points="6 9 12 15 18 9"/>
+        </svg>
+
+    </div>
+
+</div>
       <!-- Action bar -->
       <div class="action-bar">
         <a href="/admin/orders" class="btn-back">Back to Orders</a>
@@ -650,115 +740,363 @@
 
   <div id="toast"></div>
 
-  <script>
-    const orderId = "<%= order._id %>";
+<script>
 
-    const badgeMap = {
-      "Pending":           { cls: "badge-pending",   label: "Pending" },
-      "Processing":        { cls: "badge-pending",   label: "Processing" },
-      "Shipped":           { cls: "badge-pending",   label: "Shipped" },
-      "Out For Delivery":  { cls: "badge-pending",   label: "Out For Delivery" },
-      "Delivered":         { cls: "badge-delivered", label: "Delivered" },
-      "Cancelled":         { cls: "badge-cancelled", label: "Cancelled" },
-      "Return Requested":  { cls: "badge-pending",   label: "Return Requested" },
-      "Returned":          { cls: "badge-cancelled", label: "Returned" }
-    };
+const orderId = "<%= order._id %>";
 
-    document.getElementById("statusSelect").addEventListener("change", function () {
-      const badge = document.getElementById("orderStatusBadge");
-      const s = badgeMap[this.value];
-      badge.className = "badge " + s.cls;
-      badge.textContent = s.label;
-    });
+const currentStatus = "<%= currentStatus %>";
 
-    async function saveChanges() {
-      const status = document.getElementById("statusSelect").value;
-      const btn = document.getElementById("saveBtn");
-      btn.disabled = true;
-      const originalText = btn.textContent;
-      btn.textContent = "Saving...";
+const badgeMap = {
 
-      try {
-        const res = await fetch(`/admin/orders/${orderId}/status`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status })
-        });
-        const data = await res.json();
+    "Pending": {
+        cls: "badge-pending",
+        label: "Pending"
+    },
 
-        if (data.success) {
-          showToast(`Order status updated to "${badgeMap[status].label}".`);
-        } else {
-          showToast(data.message || "Failed to update status.", false);
-        }
-      } catch (err) {
-        showToast("Server error. Please try again.", false);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = originalText;
-      }
+    "Processing": {
+        cls: "badge-pending",
+        label: "Processing"
+    },
+
+    "Shipped": {
+        cls: "badge-pending",
+        label: "Shipped"
+    },
+
+    "Out For Delivery": {
+        cls: "badge-pending",
+        label: "Out For Delivery"
+    },
+
+    "Delivered": {
+        cls: "badge-delivered",
+        label: "Delivered"
+    },
+
+    "Cancelled": {
+        cls: "badge-cancelled",
+        label: "Cancelled"
+    },
+
+    "Return Requested": {
+        cls: "badge-pending",
+        label: "Return Requested"
+    },
+
+    "Returned": {
+        cls: "badge-cancelled",
+        label: "Returned"
     }
- 
-document.querySelectorAll(".item-status-select").forEach(select => {
+};
 
-    select.addEventListener("change", async function () {
 
-        const orderId = this.dataset.orderId;
-        const itemId = this.dataset.itemId;
-        const status = this.value;
+/* ==========================================
+   MAIN ORDER STATUS CHANGE
+========================================== */
 
-        try {
+const statusSelect =
+    document.getElementById("statusSelect");
 
-            const response = await fetch(
-                `/admin/orders/${orderId}/items/${itemId}/status`,
+if (statusSelect) {
+
+    statusSelect.addEventListener(
+        "change",
+        function () {
+
+            const badge =
+                document.getElementById(
+                    "orderStatusBadge"
+                );
+
+            const selectedStatus =
+                this.value;
+
+            const statusData =
+                badgeMap[selectedStatus];
+
+            if (!statusData) {
+                return;
+            }
+
+            badge.className =
+                "badge " + statusData.cls;
+
+            badge.textContent =
+                statusData.label;
+        }
+    );
+}
+
+
+/* ==========================================
+   SAVE GLOBAL ORDER STATUS
+========================================== */
+
+async function saveChanges() {
+
+    const select =
+        document.getElementById(
+            "statusSelect"
+        );
+
+    const status =
+        select.value;
+
+
+    /* Same status */
+
+    if (status === currentStatus) {
+
+        showToast(
+            "Please select the next status.",
+            false
+        );
+
+        return;
+    }
+
+
+    const btn =
+        document.getElementById(
+            "saveBtn"
+        );
+
+    btn.disabled = true;
+
+    const originalText =
+        btn.textContent;
+
+    btn.textContent =
+        "Saving...";
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/admin/orders/${orderId}/status`,
                 {
                     method: "PATCH",
+
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type":
+                            "application/json"
                     },
-                    body: JSON.stringify({ status })
+
+                    body: JSON.stringify({
+                        status: status
+                    })
                 }
             );
 
-            const data = await response.json();
 
-            if (!response.ok || !data.success) {
-                throw new Error(data.message || "Status update failed");
-            }
+        const data =
+            await response.json();
 
-            window.location.reload();
 
-        } catch (error) {
+        if (
+            !response.ok ||
+            !data.success
+        ) {
 
-            console.error(error);
-            alert(error.message);
+            showToast(
+                data.message ||
+                "Failed to update status.",
+                false
+            );
 
-            window.location.reload();
+            return;
         }
 
+
+        showToast(
+            `Order status updated to "${status}".`
+        );
+
+
+        setTimeout(() => {
+
+            window.location.reload();
+
+        }, 800);
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Server error. Please try again.",
+            false
+        );
+
+    } finally {
+
+        btn.disabled = false;
+
+        btn.textContent =
+            originalText;
+    }
+}
+
+
+/* ==========================================
+   ITEM STATUS UPDATE
+========================================== */
+
+document
+    .querySelectorAll(
+        ".item-status-select"
+    )
+    .forEach(select => {
+
+        select.addEventListener(
+            "change",
+            async function () {
+
+                const orderId =
+                    this.dataset.orderId;
+
+                const itemId =
+                    this.dataset.itemId;
+
+                const status =
+                    this.value;
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            `/admin/orders/${orderId}/items/${itemId}/status`,
+                            {
+                                method: "PATCH",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+                                    status: status
+                                })
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (
+                        !response.ok ||
+                        !data.success
+                    ) {
+
+                        throw new Error(
+                            data.message ||
+                            "Status update failed"
+                        );
+                    }
+
+
+                    showToast(
+                        "Product status updated successfully."
+                    );
+
+
+                    setTimeout(() => {
+
+                        window.location.reload();
+
+                    }, 500);
+
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    showToast(
+                        error.message,
+                        false
+                    );
+
+                    setTimeout(() => {
+
+                        window.location.reload();
+
+                    }, 1000);
+                }
+            }
+        );
     });
 
-});
 
-    function showToast(msg, isOk = true) {
-      const t = document.getElementById("toast");
-      t.textContent = msg;
-      t.className = isOk ? "" : "error";
-      t.style.display = "block";
-      setTimeout(() => { t.style.display = "none"; }, 3000);
-    }
+/* ==========================================
+   TOAST
+========================================== */
 
-    /* ── Sidebar ── */
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("open");
-      document.getElementById("sidebarBg").classList.toggle("open");
-    }
-    function closeSidebar() {
-      document.getElementById("sidebar").classList.remove("open");
-      document.getElementById("sidebarBg").classList.remove("open");
-    }
-  </script>
+function showToast(
+    message,
+    isOk = true
+) {
 
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    toast.textContent =
+        message;
+
+    toast.className =
+        isOk ? "" : "error";
+
+    toast.style.display =
+        "block";
+
+
+    setTimeout(() => {
+
+        toast.style.display =
+            "none";
+
+    }, 3000);
+}
+
+
+/* ==========================================
+   SIDEBAR
+========================================== */
+
+function toggleSidebar() {
+
+    document
+        .getElementById("sidebar")
+        .classList
+        .toggle("open");
+
+    document
+        .getElementById("sidebarBg")
+        .classList
+        .toggle("open");
+}
+
+
+function closeSidebar() {
+
+    document
+        .getElementById("sidebar")
+        .classList
+        .remove("open");
+
+    document
+        .getElementById("sidebarBg")
+        .classList
+        .remove("open");
+}
+
+</script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
