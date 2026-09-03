@@ -101,204 +101,449 @@ export const returnOrder=async(req,res)=>{
     }
 }
 
-export const downloadInvoice=async(req,res)=> {
-    try{
-        const userId=req.session.user
-        const {orderId}=req.params
-        
-        const order=await myOrderDetailsService.getInvoiceData(userId,orderId)
+export const downloadInvoice = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const { orderId } = req.params;
 
-        if(!order){
-            return res.redirect("/user/myOrders/myorders")
+        const order = await myOrderDetailsService.getInvoiceData(
+            userId,
+            orderId
+        );
+
+        if (!order) {
+            return res.redirect("/user/myOrders/myorders");
         }
 
-        const doc=new PDFDocument({
-            margin:50
-        })
+        const doc = new PDFDocument({
+            margin: 50
+        });
 
         res.setHeader(
             "Content-Disposition",
             `attachment; filename=Invoice-${order.orderId}.pdf`
         );
 
-        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader(
+            "Content-Type",
+            "application/pdf"
+        );
 
         doc.pipe(res);
 
-       // ===== HEADER =====
-doc
-    .fontSize(24)
-    .fillColor("#1E40AF")
-    .text("HELMET HEAVEN", { align: "center" });
+        // ==========================================
+        // HEADER
+        // ==========================================
 
-doc
-    .fontSize(11)
-    .fillColor("black")
-    .text("Premium Helmet Store", { align: "center" });
+        doc
+            .fontSize(24)
+            .fillColor("#1E40AF")
+            .text("HELMET HEAVEN", {
+                align: "center"
+            });
 
-doc.moveDown(0.5);
+        doc
+            .fontSize(11)
+            .fillColor("black")
+            .text("Premium Helmet Store", {
+                align: "center"
+            });
 
-doc
-    .moveTo(50, doc.y)
-    .lineTo(545, doc.y)
-    .stroke();
+        doc.moveDown(0.5);
 
-doc.moveDown();
+        // Header line
+        doc
+            .moveTo(50, doc.y)
+            .lineTo(545, doc.y)
+            .stroke();
 
-doc
-    .fontSize(18)
-    .fillColor("#111827")
-    .text("TAX INVOICE", { align: "center" });
+        doc.moveDown();
 
-doc.moveDown(1.5);
+        // Tax Invoice
+        doc
+            .fontSize(18)
+            .fillColor("#111827")
+            .text("TAX INVOICE", {
+                align: "center"
+            });
 
-// ===== ORDER INFO =====
-doc.fontSize(12).fillColor("black");
+        doc.moveDown(1.5);
 
-doc.text(`Invoice No : ${order.orderId}`);
-doc.text(`Invoice Date : ${new Date(order.createdAt).toLocaleDateString("en-IN")}`);
-doc.text(`Order Status : ${order.orderStatus}`);
+        // ==========================================
+        // ORDER INFORMATION
+        // ==========================================
 
-doc.moveDown();
+        doc
+            .fontSize(12)
+            .fillColor("black");
 
-// ===== ADDRESS =====
-doc
-    .fontSize(14)
-    .fillColor("#1E40AF")
-    .text("Shipping Address");
+        doc.text(
+            `Invoice No : ${order.orderId}`
+        );
 
-doc.moveDown(0.5);
+        doc.text(
+            `Invoice Date : ${new Date(order.createdAt).toLocaleDateString("en-IN")}`
+        );
 
-doc
-    .fontSize(11)
-    .fillColor("black");
+        doc.text(
+            `Order Status : ${order.orderStatus}`
+        );
 
-doc.text(order.address.name);
-doc.text(order.address.houseName);
-doc.text(order.address.street);
-doc.text(`${order.address.city}, ${order.address.state}`);
-doc.text(order.address.pincode);
+        doc.moveDown();
 
-doc.moveDown();
+        // ==========================================
+        // SHIPPING ADDRESS
+        // ==========================================
 
-// ===== PAYMENT =====
-doc
-    .fontSize(14)
-    .fillColor("#1E40AF")
-    .text("Payment Details");
+        doc
+            .fontSize(14)
+            .fillColor("#1E40AF")
+            .text("Shipping Address");
 
-doc.moveDown(0.5);
+        doc.moveDown(0.5);
 
-doc
-    .fontSize(11)
-    .fillColor("black");
+        doc
+            .fontSize(11)
+            .fillColor("black");
 
-doc.text(`Payment Method : ${order.paymentMethod}`);
+        doc.text(
+            order.address.name
+        );
 
+        doc.text(
+            order.address.houseName
+        );
 
-doc.moveDown();
+        doc.text(
+            order.address.street
+        );
 
-// ===== PRODUCT TABLE =====
-doc
-    .fontSize(14)
-    .fillColor("#1E40AF")
-    .text("Products");
+        doc.text(
+            `${order.address.city}, ${order.address.state}`
+        );
 
-doc.moveDown(0.5);
+        doc.text(
+            order.address.pincode
+        );
 
-const startY = doc.y;
+        doc.moveDown();
 
-doc
-    .fontSize(11)
-    .fillColor("white")
-    .rect(50, startY, 495, 22)
-    .fill("#1E40AF");
+        // ==========================================
+        // PAYMENT DETAILS
+        // ==========================================
 
-doc
-    .fillColor("white")
-    .text("Product", 60, startY + 6)
-    .text("Size", 290, startY + 6)
-    .text("Qty", 350, startY + 6)
-    .text("Amount", 430, startY + 6);
+        doc
+            .fontSize(14)
+            .fillColor("#1E40AF")
+            .text("Payment Details");
 
-doc.y = startY + 30;
+        doc.moveDown(0.5);
 
-const invoiceItems = order.items.filter(
-    item => item.status !== "Cancelled"
-);
+        doc
+            .fontSize(11)
+            .fillColor("black")
+            .text(
+                `Payment Method : ${order.paymentMethod}`
+            );
 
-invoiceItems.forEach((item) => {
+        doc.moveDown();
 
-    doc.fillColor("black");
+        // ==========================================
+        // PRODUCTS
+        // ==========================================
 
-    doc.text(item.productName, 60, doc.y);
-    doc.text(item.size, 290, doc.y);
-    doc.text(item.quantity.toString(), 350, doc.y);
-    doc.text(`₹${item.totalPrice}`, 430, doc.y);
+        doc
+            .fontSize(14)
+            .fillColor("#1E40AF")
+            .text("Products");
 
-    doc.moveDown();
+        doc.moveDown(0.5);
 
-    doc
-        .moveTo(50, doc.y)
-        .lineTo(545, doc.y)
-        .stroke();
+        // ------------------------------------------
+        // TABLE SETTINGS
+        // ------------------------------------------
 
-    doc.moveDown(0.5);
-})
+        const tableX = 50;
+        const tableWidth = 495;
 
-// ===== TOTAL =====
+        const headerHeight = 24;
+        const rowHeight = 30;
 
-doc.moveDown();
+        const headerY = doc.y;
 
-doc.fontSize(12);
+        // Column positions
+        const productX = 60;
+        const sizeX = 315;
+        const qtyX = 375;
+        const amountX = 445;
 
-doc.text(`Subtotal : ₹${order.subTotal}`, {
-    align: "right"
-});
+        // ------------------------------------------
+        // TABLE HEADER
+        // ------------------------------------------
 
-doc.text(
-    `Shipping : ${
-        order.shipping === 0
-            ? "Free"
-            : "₹" + order.shipping
-    }`,
-    {
-        align: "right"
+        doc
+            .rect(
+                tableX,
+                headerY,
+                tableWidth,
+                headerHeight
+            )
+            .fill("#1E40AF");
+
+        // Header text
+        doc
+            .fontSize(11)
+            .fillColor("white");
+
+        doc.text(
+            "Product",
+            productX,
+            headerY + 7
+        );
+
+        doc.text(
+            "Size",
+            sizeX,
+            headerY + 7,
+            {
+                width: 40,
+                align: "center"
+            }
+        );
+
+        doc.text(
+            "Qty",
+            qtyX,
+            headerY + 7,
+            {
+                width: 40,
+                align: "center"
+            }
+        );
+
+        doc.text(
+            "Amount",
+            amountX,
+            headerY + 7,
+            {
+                width: 80,
+                align: "right"
+            }
+        );
+
+        // ------------------------------------------
+        // FILTER CANCELLED PRODUCTS
+        // ------------------------------------------
+
+        const invoiceItems = order.items.filter(
+            item => item.status !== "Cancelled"
+        );
+
+        // Start first row
+        let rowY = headerY + headerHeight;
+
+        // ------------------------------------------
+        // TABLE ROWS
+        // ------------------------------------------
+
+        invoiceItems.forEach((item) => {
+
+            // Same Y position for every column
+            const currentY = rowY + 8;
+
+            doc
+                .fontSize(11)
+                .fillColor("black");
+
+            // Product
+            doc.text(
+                item.productName,
+                productX,
+                currentY,
+                {
+                    width: 230,
+                    ellipsis: true
+                }
+            );
+
+            // Size
+            doc.text(
+                item.size || "-",
+                sizeX,
+                currentY,
+                {
+                    width: 40,
+                    align: "center"
+                }
+            );
+
+            // Quantity
+            doc.text(
+                String(item.quantity),
+                qtyX,
+                currentY,
+                {
+                    width: 40,
+                    align: "center"
+                }
+            );
+
+            // Amount
+            doc.text(
+                `₹${item.totalPrice}`,
+                amountX,
+                currentY,
+                {
+                    width: 80,
+                    align: "right"
+                }
+            );
+
+            // Row bottom line
+            doc
+                .moveTo(
+                    tableX,
+                    rowY + rowHeight
+                )
+                .lineTo(
+                    tableX + tableWidth,
+                    rowY + rowHeight
+                )
+                .stroke();
+
+            // Next row
+            rowY += rowHeight;
+        });
+
+        // ------------------------------------------
+        // MOVE BELOW TABLE
+        // ------------------------------------------
+
+        doc.y = rowY + 10;
+
+        // ==========================================
+        // TOTAL SECTION
+        // ==========================================
+
+        const totalX = 350;
+        const totalWidth = 195;
+
+        doc
+            .fontSize(12)
+            .fillColor("black");
+
+        // ------------------------------------------
+        // SUBTOTAL
+        // ------------------------------------------
+
+        doc.text(
+            `Subtotal : ₹${order.subTotal}`,
+            totalX,
+            doc.y,
+            {
+                width: totalWidth,
+                align: "right"
+            }
+        );
+
+        doc.moveDown(0.3);
+
+        // ------------------------------------------
+        // SHIPPING
+        // ------------------------------------------
+
+        doc.text(
+            `Shipping : ${
+                order.shipping === 0
+                    ? "Free"
+                    : "₹" + order.shipping
+            }`,
+            totalX,
+            doc.y,
+            {
+                width: totalWidth,
+                align: "right"
+            }
+        );
+
+        doc.moveDown(0.3);
+
+        // ------------------------------------------
+        // TAX
+        // ------------------------------------------
+
+        doc.text(
+            `Tax : ₹${order.tax}`,
+            totalX,
+            doc.y,
+            {
+                width: totalWidth,
+                align: "right"
+            }
+        );
+
+        doc.moveDown(0.3);
+
+        // ------------------------------------------
+        // DISCOUNT
+        // ------------------------------------------
+
+        doc.text(
+            `Discount : ₹${order.discount}`,
+            totalX,
+            doc.y,
+            {
+                width: totalWidth,
+                align: "right"
+            }
+        );
+
+        doc.moveDown(0.5);
+
+        // ------------------------------------------
+        // GRAND TOTAL LINE
+        // ------------------------------------------
+
+        doc
+            .moveTo(
+                totalX,
+                doc.y
+            )
+            .lineTo(
+                545,
+                doc.y
+            )
+            .stroke();
+
+        doc.moveDown(0.5);
+
+        // ------------------------------------------
+        // GRAND TOTAL
+        // ------------------------------------------
+
+        doc
+            .fontSize(15)
+            .fillColor("#1E40AF")
+            .text(
+                `Grand Total : ₹${order.grandTotal}`,
+                totalX,
+                doc.y,
+                {
+                    width: totalWidth,
+                    align: "right"
+                }
+            );
+
+        // ==========================================
+        // END PDF
+        // ==========================================
+
+        doc.end();
+
+    } catch (error) {
+
+        console.log(error);
+
+        res.redirect("/pageNotFound");
     }
-);
-
-doc.text(`Tax : ₹${order.tax}`, {
-    align: "right"
-});
-
-doc.text(`Discount : ₹${order.discount}`, {
-    align: "right"
-});
-
-doc.moveDown(0.5);
-
-doc
-    .moveTo(350, doc.y)
-    .lineTo(545, doc.y)
-    .stroke();
-
-doc.moveDown(0.5);
-
-doc
-    .fontSize(15)
-    .fillColor("#1E40AF")
-    .text(`Grand Total : ₹${order.grandTotal}`, {
-        align: "right"
-    });
-
-doc.moveDown(2);
-
-
-doc.end();
-
-    }catch(error){
-        console.log(error)
-        res.redirect("/pageNotFound")
-    }
-    
-}
+};
