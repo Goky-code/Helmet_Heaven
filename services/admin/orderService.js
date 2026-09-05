@@ -153,7 +153,7 @@ export const getOrderDetails = async (id) => {
       item.status !== "Returned"
   );
 
-  // Active products subtotal
+  
   const subtotal = activeItems.reduce(
     (sum, item) => {
       return sum + Number(item.totalPrice || 0);
@@ -161,28 +161,24 @@ export const getOrderDetails = async (id) => {
     0
   );
 
-  // Tax - 8%
+  
   const tax = Number((subtotal * 0.08).toFixed(2));
 
-  // Shipping
+  
   const shipping = activeItems.length > 0
     ? Number(order.shipping || 0)
     : 0;
 
-  // Discount
+ 
   const discount = Number(order.discount || 0);
 
-  // Prevent discount from making total negative
+ 
   const total = Math.max(
     0,
     Number(
       (subtotal + shipping + tax - discount).toFixed(2)
     )
-  );
-
-  // -----------------------------------------
-  // SEND CALCULATED VALUES TO EJS
-  // -----------------------------------------
+  )
 
   order.calculatedSummary = {
     subtotal,
@@ -202,39 +198,39 @@ export const calculateOrderStatus = (items) => {
         return "Pending";
     }
 
-     const activeItems = items.filter(
-        item => item.status !== "Cancelled"
+    const nonCancelledItems=items.filter(item=>item.status!=="Cancelled")
+
+    if(nonCancelledItems.length===0){
+      return "Cancelled" 
+    }
+    if(nonCancelledItems.some(item=>item.status==="Return Requested")){
+      return "Return Requested"
+    }
+
+     const activeDeliveryItems = nonCancelledItems.filter(
+        item => item.status !== "Returned"
     )
 
-     if (activeItems.length === 0) {
-        return "Cancelled";
+     if (activeDeliveryItems.length === 0) {
+        return "Returned";
     }
 
 
-  const statuses = activeItems.map(item => item.status);
+  const statuses = activeDeliveryItems.map(item => item.status)
 
-  if (statuses.every(status => status === "Returned")) {
-    return "Returned";
-  }
-
-  if (statuses.some(status => status === "Return Requested")) {
-    return "Return Requested";
-  }
-
-  if (
-    statuses.every(status =>status===
-      "Delivered"
-    )
-  ) {
+  if (statuses.every(status => status === "Delivered")) {
     return "Delivered"
   }
 
   if (statuses.some(status => status === "Out For Delivery")) {
-    return "Out For Delivery";
+    return "Out For Delivery"
   }
 
-  if (statuses.some(status => status === "Shipped")) {
-    return "Shipped";
+  if (
+    statuses.some(status =>status=== "Shipped"
+    )
+  ) {
+    return "Shipped"
   }
 
   if (statuses.some(status => status === "Processing")) {
@@ -302,7 +298,10 @@ export const updateOrderStatus=async(orderId,status)=>{
     throw new Error("order not found")
   }
 
-  const allowedStatuses=ADMIN_STATUS_TRANSITIONS[order.orderStatus]||[]
+  const currentStatus=calculateOrderStatus(order.items)
+  order.orderStatus=currentStatus
+
+  const allowedStatuses=ADMIN_STATUS_TRANSITIONS[currentStatus]||[]
 
   if(!allowedStatuses.includes(status)){
     throw new Error(`Cannot change order status from "${currentStatus}" to "${status}"`)
@@ -310,7 +309,10 @@ export const updateOrderStatus=async(orderId,status)=>{
 
   if(status==="Cancelled"){
     for(const item of order.items){
-      if(item.status==="Cancelled"||item.status==="Returned"){
+      if(item.status==="Cancelled"){
+        continue
+      }
+      if(item.status==="Returned"){
         continue
       }
       if(order.paymentMethod === "Wallet" &&
@@ -397,9 +399,12 @@ export const updateOrderStatus=async(orderId,status)=>{
     continue
   }
 
-  if(item.status==="Return Requested"||item.status==="Returned"){
+  if(item.status==="Returned"){
     continue
   }
+ if(item.status==="Return Requested"){
+   continue
+ }
     item.status=status
   }
 }
@@ -424,15 +429,6 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
     throw new Error("Invalid Item Id");
   }
 
-  //   const allowedAdminStatuses = [
-  //   "Pending",
-  //   "Processing",
-  //   "Shipped",
-  //   "Out For Delivery",
-  //   "Delivered",
-  //   "Cancelled"
-  // ]
-
   if (!ORDER_STATUSES.includes(status)) {
     throw new Error("Invalid Item Status");
   }
@@ -449,11 +445,14 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
     throw new Error("order item not found");
   }
 
-   const allowedNextStatuses=ADMIN_STATUS_TRANSITIONS[item.status]||[]
+   const currentItemStatus = item.status
+
+
+   const allowedNextStatuses=ADMIN_STATUS_TRANSITIONS[currentItemStatus]||[]
 
   if(!allowedNextStatuses.includes(status)){
     throw  new Error(
-            `Cannot change item status from "${item.status}" to "${status}"` )
+            `Cannot change item status from "${currentItemStatus}" to "${status}"` )
   }
 
 
@@ -479,6 +478,8 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
       if(!refundAmount||refundAmount<=0){
         throw new Error("Invalid refund amount")
       }
+       if (item.refundStatus !== "Completed") {
+
       await walletService.refundToWallet({
         userId:order.userId,
         amount:refundAmount,
@@ -487,16 +488,13 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
         productName:item.productName,
       })
 
-       console.log("REFUND COMPLETED");
       item.refundStatus='Completed'
     }
     item.status="Cancelled"
     item.cancelledAt=new Date()
-
    
   }
-
-  
+  }
    else if(status==="Returned"){
     
     const refundAmount= calculateItemRefundAmount(order, item)
@@ -505,6 +503,7 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
       throw new Error("Invalid refund amount")
     }
       if (item.refundStatus !== "Completed") {
+
     await walletService.refundToWallet({
       userId:order.userId,
       amount:refundAmount,
@@ -540,9 +539,11 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
 
 order.orderStatus = calculateOrderStatus(order.items)
 
+if(status==="Cancelled"||status==="Returned"){
+  recalculateOrderTotals(order)
+}
 
   await order.save();
 
 return order
 }
-

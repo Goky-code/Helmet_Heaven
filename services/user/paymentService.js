@@ -209,8 +209,11 @@ if (variant.stock < item.quantity) {
       wallet=await Wallet.findOne({userId}).session(session)
 
       if(!wallet){
-        throw new Error("Wallet not found")
+        wallet = new Wallet({userId,balance:0})
+
+        await wallet.save({session})
       }
+      
       if(wallet.balance<grandTotal){
         throw new Error( `Insufficient wallet balance. Available balance: ₹${wallet.balance}`)      
       }

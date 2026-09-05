@@ -62,7 +62,16 @@ export const updateOrderItemStatus=async(req,res)=>{
         const order=await orderService.changeOrderItemStatus(
             orderId,itemId,status
         )
+      if (!order) {
+      throw new Error("Order update failed")
+    }
+
        const updatedItem = order.items.id(itemId)
+
+        if (!updatedItem) {
+      throw new Error("Order item not found")
+    }
+
 
         res.status(HTTP_STATUS.OK).json({
             success:true,
