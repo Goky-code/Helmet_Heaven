@@ -5,6 +5,7 @@ import HTTP_STATUS from "../../utils/httpStatus.js"
 export const loadCheckout=async(req,res)=>{
     try{
         const userId=req.session.user
+
          const { buyNow, productId, size, qty } = req.query
          const buyNowItem = (buyNow === 'true' && productId && size)
             ? { productId, size, quantity: Math.max(1, parseInt(qty) || 1) }
@@ -65,7 +66,7 @@ export const loadAddAddress = (req, res) => {
 
 export const addAddress = async (req, res) => {
   try {
-    const userId = req.session.user; // matches how loadCheckout uses it
+    const userId = req.session.user; 
     const { redirect, name, street, apartment, city, state, zip, phone, isDefault } = req.body;
 
     

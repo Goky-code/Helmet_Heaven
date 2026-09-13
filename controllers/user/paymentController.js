@@ -4,6 +4,8 @@ import HTTP_STATUS from "../../utils/httpStatus.js";
 export const loadPayment = async (req, res) => {
     try {
         const userId = req.session.user
+
+        
         const addressId = req.query.addressId || req.body.addressId
            const { buyNow, productId, size, qty } = req.query;
         const buyNowItem = (buyNow === 'true' && productId && size)
@@ -47,7 +49,8 @@ export const placeOrder = async (req, res) => {
 
  
         const result = await paymentService.placeOrder(userId, addressId, paymentMethod,buyNowItem)
- 
+
+      
         return res.json(result);
     } catch (error) {
         console.log(error);
@@ -60,22 +63,29 @@ export const placeOrder = async (req, res) => {
  
 export const loadOrderSuccess = async (req, res) => {
     try {
+
+         res.set({
+            "Cache-Control": "no-store, no-cache, must-revalidate, private",
+            "Pragma": "no-cache",
+            "Expires": "0"
+        })
+
         const userId = req.session.user;
         const { orderId } = req.query;
  
         if (!orderId) {
-            return res.redirect("/user/orders");
+            return res.redirect("/user/myOrders");
         }
  
         const order = await paymentService.getOrderSuccessData(userId, orderId);
  
         if (!order) {
-            return res.redirect("/user/orders");
+            return res.redirect("/user/myOrders");
         }
  
         return res.render("user/checkout/order-success", { order });
     } catch (error) {
         console.log(error);
-        res.redirect("/user/orders");
+        res.redirect("/user/myOrders");
     }
 }

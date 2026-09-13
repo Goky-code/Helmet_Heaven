@@ -1,7 +1,7 @@
 import Order from "../../models/orderModel.js";
 
 export const getOrderSuccessDetails = async (orderId, userId) => {
-    const order = await Order.findOne({ _id: orderId, userId }).lean();
+   const order = await Order.findOne({ orderId: orderId, userId }).lean();
 
     if (!order) {
         return null;

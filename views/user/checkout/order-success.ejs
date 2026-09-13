@@ -397,10 +397,19 @@
             <%
               const p = item.productId || item.product || {};
               const itemPrice = item.price ?? p.price ?? 0;
+
+               const productImage = Array.isArray(item.productImage)
+        ? item.productImage[0]
+        : item.productImage;
             %>
-            <div class="order-item">
-              <% if (p.productImage && p.productImage[0]) { %>
-                <img src="<%= p.productImage[0] %>" alt="<%= p.productName %>"/>
+           <div class="order-item">
+
+<% if (productImage) { %>
+
+    <img
+        src="<%= productImage %>"
+        alt="<%= item.productName || p.productName || 'Product' %>"
+    />
               <% } else { %>
                 <div class="img-ph">
                   <svg width="26" height="26" fill="none" stroke="#3a4a63" stroke-width="1.2" viewBox="0 0 64 64">
@@ -410,7 +419,7 @@
                 </div>
               <% } %>
               <div>
-                <div class="order-item-name"><%= p.productName || item.productName %></div>
+                <div class="order-item-name"><%= item.productName || p.productName %></div>
                 <div class="order-item-variant">
                   <%= [item.color, item.size].filter(Boolean).join(' • ') %>
                 </div>
@@ -585,6 +594,28 @@
     ham.classList.toggle('open', open);
     ham.setAttribute('aria-expanded', open);
   });
+
+   
+    const orderId = "<%= order.orderNumber %>";
+
+    history.replaceState(
+        null,
+        "",
+        window.location.href
+    );
+
+    history.pushState(
+        null,
+        "",
+        window.location.href
+    );
+
+    window.addEventListener("popstate", function () {
+        window.location.href =
+            "/user/checkout/order-success?orderId=" +
+            encodeURIComponent(orderId);
+    });
+
 </script>
 </body>
 </html>

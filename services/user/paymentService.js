@@ -285,7 +285,7 @@ if (variant.stock < item.quantity) {
     return {
       success: true,
       orderId: order.orderId,
-      redirectUrl: `/user/order-success?orderId=${order.orderId}`,
+      redirectUrl: `/user/checkout/order-success?orderId=${order.orderId}`,
       message: "Order placed successfully",
       paymentMethod,
       debitedAmount,
