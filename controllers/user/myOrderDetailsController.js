@@ -336,8 +336,10 @@ export const downloadInvoice = async (req, res) => {
         // ------------------------------------------
 
         const invoiceItems = order.items.filter(
-            item => item.status !== "Cancelled"
-        );
+    item =>
+        item.status !== "Cancelled" &&
+        item.status !== "Returned"
+)
 
         // Start first row
         let rowY = headerY + headerHeight;
