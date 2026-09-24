@@ -234,7 +234,7 @@ if (variant.stock < item.quantity) {
           pincode: address.zip,
         },
         paymentMethod,
-        paymentStatus: paymentMethod === "Wallet" ? "Paid" : "Pending",
+        paymentStatus: paymentMethod === "Wallet" || paymentMethod==="Razorpay" ? "Paid" : "Pending",
         orderStatus: "Pending",
         subTotal,
         shipping,
