@@ -27,6 +27,7 @@ import myOrderDetailsRoute from "./routes/myOrderDetailsRoute.js"
 import InventoryRoute from "./routes/InventoryRoute.js"
 import { setNavCounts } from "./middlewares/setNavCounts.js";
 import walletRoutes from "./routes/walletRoute.js"
+import couponRoute from "./routes/couponRoute.js"
 
 const app = express();
 
@@ -65,6 +66,7 @@ app.use("/admin", adminRoutes);
 app.use("/admin", categoryRouter);
 app.use("/admin", brandRouter);
 app.use("/admin", productRouter);
+app.use("/admin",couponRoute)
 app.use("/", shopRoutes);
 app.use("/user", productDetailsRouter);
 app.use("/user", wishlistRoutes);
@@ -76,6 +78,7 @@ app.use("/user", orderSuccessRoutes)
 app.use("/user", myOrdersRoute)
 app.use("/user",myOrderDetailsRoute)
 app.use("/user",walletRoutes)
+
 app.use("/admin",InventoryRoute)
 
 const startServer = async () => {

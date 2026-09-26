@@ -312,17 +312,12 @@ export const getOrderSuccessData = async (userId, orderId) => {
   return {
     _id: order._id,
     orderNumber: order.orderId,
- 
-    items: order.items.map((item) => ({
-      productName: item.productName,
-      size: item.size,
-      color: item.variantName, 
-      price: item.salePrice,
-      productId: {
-        productName: item.productName,
-        productImage: item.productImage ? [item.productImage] : [],
-      },
-    })),
+ items: order.items.map((item) => ({
+  productName: item.productName,
+  size: item.size,
+  price: item.salePrice,
+  productImage: item.productImage ? [item.productImage] : [],
+})),
  
     deliveryAddress: {
       street: order.address?.street,
