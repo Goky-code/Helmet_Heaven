@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helmet Haven – Edit Offer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --sidebar: #111318;
+      --card: #161a22;
+      --border: #252934;
+      --surface: #1e2330;
+      --accent: #3b6ef5;
+      --accent2: #5c87ff;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --green: #22c55e;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --font-head: "Syne", sans-serif;
+      --font-body: "DM Sans", sans-serif;
+      --sidebar-w: 240px;
+      --radius: 10px;
+    }
+
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.3s ease; }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid var(--border); }
+    .logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .logo-text { font-family: var(--font-head); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+    nav { flex: 1; padding: 14px 0; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; text-decoration: none; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--accent2); background: rgba(59,110,245,0.1); border-left-color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg, .nav-item:hover svg { opacity: 1; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; min-width: 0; }
+
+    /* TOPBAR */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid var(--border); background: var(--sidebar); position: sticky; top: 0; z-index: 50; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .hamburger { display: none; background: none; border: none; color: var(--text); cursor: pointer; font-size: 20px; padding: 4px; }
+    .back-link { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; color: var(--text); text-decoration: none; border-radius: 7px; transition: background 0.2s; }
+    .back-link:hover { background: rgba(255,255,255,0.06); }
+    .page-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; }
+    .btn-primary { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* CONTENT */
+    .content { padding: 24px 28px; flex: 1; display: flex; justify-content: center; }
+
+    /* FORM CARD */
+    .form-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 32px; width: 100%; max-width: 830px; }
+
+    .form-group { margin-bottom: 22px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    label { display: block; font-size: 13px; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
+    .required { color: var(--red); }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+    input::placeholder { color: #4b5160; }
+    input:focus, select:focus { border-color: var(--accent); }
+    input[type="date"] { color-scheme: dark; }
+
+    select {
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      background-size: 16px;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+    select option { background: var(--surface); color: var(--text); }
+
+    /* Discount input with dynamic symbol */
+    .discount-input-wrap { position: relative; }
+    .discount-input-wrap input { padding-right: 38px; }
+    .discount-symbol { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; font-weight: 600; pointer-events: none; }
+
+    .form-error { display: none; color: var(--red); font-size: 12px; margin-top: 6px; }
+    .form-error.show { display: block; }
+
+    .form-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; padding-top: 24px; border-top: 1px solid var(--border); }
+    .btn-cancel { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px 22px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.06); }
+
+    /* FOOTER */
+    .site-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 20px 28px; border-top: 1px solid var(--border); background: var(--sidebar); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+    .footer-links { display: flex; gap: 18px; flex-wrap: wrap; }
+    .footer-links a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 30px; right: 30px; background: var(--green); color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; z-index: 999; animation: slideUp 0.25s ease; }
+    #toast.error { background: var(--red); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(-240px); width: 240px; }
+      .sidebar.open { transform: translateX(0); }
+      .overlay-bg.open { display: block; }
+      .main { margin-left: 0; }
+      .hamburger { display: block; }
+      .content { padding: 16px; }
+      .topbar { padding: 14px 16px; }
+      .form-card { padding: 22px; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      .site-footer { padding: 16px; flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 480px) {
+      .form-footer { flex-direction: column-reverse; }
+      .form-footer .btn-primary, .form-footer .btn-cancel { width: 100%; justify-content: center; text-align: center; }
+      #toast { left: 16px; right: 16px; bottom: 16px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay-bg" id="sidebarBg" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🪖</div>
+      <span class="logo-text">Helmet Haven</span>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="/admin/adminDashboard">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="/admin/products">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </a>
+      <a class="nav-item" href="/admin/adminCustomer">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <a class="nav-item" href="/admin/orders">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Orders
+      </a>
+      <a class="nav-item" href="/admin/coupons">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Coupons
+      </a>
+      <a class="nav-item" href="/admin/categories">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 20h16M4 4h16M9 4v16M15 4v16"/></svg>
+        Category
+      </a>
+      <a class="nav-item" href="/admin/brands">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Brands
+      </a>
+      <a class="nav-item" href="/admin/Inventory">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Inventory
+      </a>
+      <a class="nav-item active" href="/admin/offers">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        Offers
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="3 9 12 15 21 9"/></svg>
+        Banner
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Sales Report
+      </a>
+      <a class="nav-item" href="/admin/logout">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <a href="/admin/offers" class="back-link" title="Back to Offers">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        </a>
+        <h1 class="page-title">Edit Offer</h1>
+      </div>
+      <div class="avatar">AD</div>
+    </header>
+
+    <div class="content">
+  
+      <form class="form-card" id="offerForm" action="/admin/offers/edit/<%= offer._id %>" method="POST" novalidate>
+
+        <!-- Offer Name -->
+        <div class="form-group">
+          <label for="offerName">Offer Name <span class="required">*</span></label>
+          <input type="text" id="offerName" name="offerName" placeholder="e.g. Summer Special 2024" value="<%= offer.offerName %>" required />
+          <span class="form-error" id="err-offerName">Offer name is required.</span>
+        </div>
+
+        <!-- Discount Type + Discount Value -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="discountType">Discount Type <span class="required">*</span></label>
+            <select id="discountType" name="discountType" required onchange="updateDiscountSymbol()">
+              <option value="" disabled>Select</option>
+              <option value="PERCENTAGE" <%= offer.discountType === 'PERCENTAGE' ? 'selected' : '' %>>Percentage (%)</option>
+              <option value="FIXED" <%= offer.discountType === 'FIXED' ? 'selected' : '' %>>Fixed Amount (₹)</option>
+            </select>
+            <span class="form-error" id="err-discountType">Please select a discount type.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="discountValue" id="discountValueLabel">Discount</label>
+            <div class="discount-input-wrap">
+              <input type="number" id="discountValue" name="discountValue" min="0" step="0.01" placeholder="0" value="<%= offer.discountValue %>" required />
+              <span class="discount-symbol" id="discountSymbol">₹</span>
+            </div>
+            <span class="form-error" id="err-discountValue">Enter a valid discount value.</span>
+          </div>
+        </div>
+
+        <!-- Start Date + Expiry Date -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="startDate">Start Date <span class="required">*</span></label>
+            <input type="date" id="startDate" name="startDate" value="<%= offer.startDate ? new Date(offer.startDate).toISOString().slice(0,10) : '' %>" required />
+            <span class="form-error" id="err-startDate">Start date is required.</span>
+          </div>
+
+         <div class="form-group">
+
+    <label for="endDate">
+        Expiry Date <span class="required">*</span>
+    </label>
+
+    <input
+        type="date"
+        id="endDate"
+        name="endDate"
+        value="<%= offer.endDate ? new Date(offer.endDate).toISOString().slice(0,10) : '' %>"
+        required
+    >
+
+    <span
+        class="form-error"
+        id="err-endDate"
+    >
+        Expiry date must be after start date.
+    </span>
+
+</div>
+        </div>
+
+        <!-- Offer Type -->
+        <div class="form-group">
+          <label for="offerType">Offer Type <span class="required">*</span></label>
+          <select id="offerType" name="offerType" required onchange="updateOfferForOptions()">
+            <option value="" disabled>Select</option>
+            <option value="PRODUCT" <%= offer.offerType === 'PRODUCT' ? 'selected' : '' %>>Products</option>
+            <option value="CATEGORY" <%= offer.offerType === 'CATEGORY' ? 'selected' : '' %>>Category</option>
+            <option value="BRAND" <%= offer.offerType === 'BRAND' ? 'selected' : '' %>>Brand</option>
+          </select>
+          <span class="form-error" id="err-offerType">Please select an offer type.</span>
+        </div>
+
+       <!-- Offer For -->
+<div class="form-group">
+
+  <label for="offerFor">
+    Offer For <span class="required">*</span>
+  </label>
+
+  <!-- Actual value saved in database -->
+  <input
+    type="hidden"
+    name="offerFor"
+    id="offerForValue"
+    value="<%= offer.offerFor || '' %>"
+  >
+
+  <!-- Selected Product ID -->
+  <input
+    type="hidden"
+    name="productId"
+    id="productId"
+    value="<%= offer.productId || '' %>"
+  >
+
+  <!-- Selected Category ID -->
+  <input
+    type="hidden"
+    name="categoryId"
+    id="categoryId"
+    value="<%= offer.categoryId || '' %>"
+  >
+
+ 
+  
+
+  <!-- Visible dropdown -->
+ <select id="offerFor" required>
+    <option value="">Select</option>
+
+    <% if (offer.offerType === "PRODUCT") { %>
+
+        <option
+            value="ALL_PRODUCTS"
+            <%= !offer.productId ? "selected" : "" %>
+        >
+            All Products
+        </option>
+
+        <% products.forEach(product => { %>
+
+            <option
+                value="<%= product._id %>"
+                <%= offer.productId && String(offer.productId) === String(product._id) ? "selected" : "" %>
+            >
+                <%= product.productName %>
+            </option>
+
+        <% }) %>
+
+    <% } %>
+
+
+    <% if (offer.offerType === "CATEGORY") { %>
+
+        <% categories.forEach(category => { %>
+
+            <option
+                value="<%= category._id %>"
+                <%= offer.categoryId && String(offer.categoryId) === String(category._id) ? "selected" : "" %>
+            >
+                <%= category.name %>
+            </option>
+
+        <% }) %>
+
+    <% } %>
+
+</select>
+
+  <span
+    class="form-error"
+    id="err-offerFor"
+  >
+    Please select what this offer applies to.
+  </span>
+
+</div>
+
+<div class="form-footer">
+
+  <a
+    href="/admin/offers"
+    class="btn-cancel"
+  >
+    Cancel
+  </a>
+
+  <button
+    type="submit"
+    class="btn-primary"
+    id="submitBtn"
+  >
+    Update Offer
+  </button>
+
+</div>
+</form>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+      <span>© <%= new Date().getFullYear() %> Helmet Haven HQ — Administrative Panel</span>
+      <div class="footer-links">
+        <a href="#">System Status</a>
+        <a href="#">Security Policy</a>
+        <a href="#">V4.2.0-Admin</a>
+      </div>
+    </footer>
+  </div>
+
+  <div id="toast"></div>
+
+ <script>
+
+  // =========================================================
+  // OFFER DATA FROM BACKEND
+  // =========================================================
+
+ const OFFER_FOR_DATA = {
+
+    PRODUCT: <%- JSON.stringify(
+        products.map(p => ({
+            id: p._id,
+            name: p.productName
+        }))
+    ) %>,
+
+    CATEGORY: <%- JSON.stringify(
+        categories.map(c => ({
+            id: c._id,
+            name: c.name
+        }))
+    ) %>
+   
+
+  };
+
+  // Existing offer values, used to pre-select the dropdown once options are built
+  const EXISTING_OFFER = {
+    offerType: "<%= offer.offerType || '' %>",
+    productId: "<%= offer.productId || '' %>",
+    categoryId: "<%= offer.categoryId || '' %>"
+   
+  };
+
+
+  console.log("OFFER_FOR_DATA:", OFFER_FOR_DATA);
+
+
+
+  // =========================================================
+  // DISCOUNT SYMBOL
+  // =========================================================
+
+  function updateDiscountSymbol() {
+
+    const type =
+      document.getElementById('discountType').value;
+
+    const symbolEl =
+      document.getElementById('discountSymbol');
+
+    const input =
+      document.getElementById('discountValue');
+
+    const label =
+      document.getElementById('discountValueLabel');
+
+
+    if (type === 'PERCENTAGE') {
+
+      symbolEl.textContent = '%';
+
+      input.max = 100;
+
+      label.textContent =
+        'Discount Percentage (%)';
+
+      input.placeholder = 'e.g. 20';
+
+    }
+
+    else if (type === 'FIXED') {
+
+      symbolEl.textContent = '₹';
+
+      input.removeAttribute('max');
+
+      label.textContent =
+        'Discount Amount (₹)';
+
+      input.placeholder = 'e.g. 500';
+
+    }
+
+    else {
+
+      symbolEl.textContent = '₹';
+
+      label.textContent =
+        'Discount';
+
+      input.placeholder = '0';
+
+    }
+
+  }
+
+
+
+  // =========================================================
+  // OFFER FOR OPTIONS
+  // =========================================================
+
+function updateOfferForOptions() {
+
+    const offerType =
+        document.getElementById("offerType").value;
+
+    const offerFor =
+        document.getElementById("offerFor");
+
+    const offerForValue =
+        document.getElementById("offerForValue");
+
+    const productId =
+        document.getElementById("productId");
+
+    const categoryId =
+        document.getElementById("categoryId");
+
+    const brandId =
+        document.getElementById("brandId");
+
+
+    // Clear everything first
+    offerFor.innerHTML = "";
+
+    offerForValue.value = "";
+
+    productId.value = "";
+
+    categoryId.value = "";
+
+    brandId.value = "";
+
+
+    // Default option
+    const defaultOption =
+        document.createElement("option");
+
+    defaultOption.value = "";
+
+    defaultOption.textContent = "Select";
+
+    defaultOption.disabled = true;
+
+    defaultOption.selected = true;
+
+    offerFor.appendChild(defaultOption);
+
+
+    // ==========================================
+    // PRODUCT
+    // ==========================================
+
+    if (offerType === "PRODUCT") {
+
+        const allProducts =
+            document.createElement("option");
+
+        allProducts.value = "ALL_PRODUCTS";
+
+        allProducts.textContent = "All Products";
+
+        offerFor.appendChild(allProducts);
+
+
+        OFFER_FOR_DATA.PRODUCT.forEach(product => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = product.id;
+
+            option.textContent = product.name;
+
+            offerFor.appendChild(option);
+
+        });
+
+
+        // Existing product
+        if (EXISTING_OFFER.productId) {
+
+            offerFor.value =
+                EXISTING_OFFER.productId;
+
+        } else {
+
+            offerFor.value =
+                "ALL_PRODUCTS";
+
+        }
+
+
+        // Set hidden values
+        setProductValue();
+
+
+        return;
+    }
+
+
+    // ==========================================
+    // CATEGORY
+    // ==========================================
+
+    if (offerType === "CATEGORY") {
+
+        OFFER_FOR_DATA.CATEGORY.forEach(category => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = category.id;
+
+            option.textContent = category.name;
+
+            offerFor.appendChild(option);
+
+        });
+
+
+        // Existing category
+        if (EXISTING_OFFER.categoryId) {
+
+            offerFor.value =
+                EXISTING_OFFER.categoryId;
+
+            setCategoryValue();
+
+        }
+
+        return;
+    }
+}
+
+    const type = document.getElementById("offerType").value;
+
+    const select = document.getElementById("offerFor");
+
+    const offerForValue =
+        document.getElementById("offerForValue");
+
+    const productId =
+        document.getElementById("productId");
+
+    const categoryId =
+        document.getElementById("categoryId");
+
+    const brandId =
+        document.getElementById("brandId");
+
+
+    select.innerHTML = "";
+
+
+    // =========================
+    // PRODUCT
+    // =========================
+
+    if (type === "PRODUCT") {
+
+        const allOption =
+            document.createElement("option");
+
+        allOption.value = "ALL_PRODUCTS";
+        allOption.textContent = "All Products";
+
+        select.appendChild(allOption);
+
+
+        <% products.forEach(product => { %>
+
+            const option =
+                document.createElement("option");
+
+            option.value =
+                "<%= product._id %>";
+
+            option.textContent =
+                "<%= product.productName %>";
+
+            select.appendChild(option);
+
+        <% }) %>
+
+
+        // Existing product
+        <% if (offer.productId) { %>
+
+            select.value =
+                "<%= offer.productId %>";
+
+        <% } else { %>
+
+            select.value =
+                "ALL_PRODUCTS";
+
+        <% } %>
+
+
+        select.onchange = function () {
+
+            if (this.value === "ALL_PRODUCTS") {
+
+                offerForValue.value =
+                    "All Products";
+
+                productId.value = "";
+
+            } else {
+
+                const selectedOption =
+                    this.options[this.selectedIndex];
+
+                offerForValue.value =
+                    selectedOption.textContent.trim();
+
+                productId.value =
+                    this.value;
+
+            }
+
+        };
+
+
+        // Set hidden values initially
+        select.onchange();
+
+        return;
+    }
+
+
+    // =========================
+    // CATEGORY
+    // =========================
+
+    if (type === "CATEGORY") {
+
+        <% categories.forEach(category => { %>
+
+            const option =
+                document.createElement("option");
+
+            option.value =
+                "<%= category._id %>";
+
+            option.textContent =
+                "<%= category.name %>";
+
+            select.appendChild(option);
+
+        <% }) %>
+
+
+        <% if (offer.categoryId) { %>
+
+            select.value =
+                "<%= offer.categoryId %>";
+
+        <% } %>
+
+
+        select.onchange = function () {
+
+            const selectedOption =
+                this.options[this.selectedIndex];
+
+            if (selectedOption) {
+
+                offerForValue.value =
+                    selectedOption.textContent.trim();
+
+                categoryId.value =
+                    this.value;
+
+            }
+
+        };
+
+
+        select.onchange();
+
+        return;
+    }
+}
+
+    const type = document.getElementById("offerType").value;
+
+    const offerForSelect =
+        document.getElementById("offerFor");
+
+    const offerForValue =
+        document.getElementById("offerForValue");
+
+    const productIdInput =
+        document.getElementById("productId");
+
+    const categoryIdInput =
+        document.getElementById("categoryId");
+
+    const brandIdInput =
+        document.getElementById("brandId");
+
+
+    // Clear dropdown
+    offerForSelect.innerHTML = "";
+
+    // Clear hidden values
+    offerForValue.value = "";
+    productIdInput.value = "";
+    categoryIdInput.value = "";
+    brandIdInput.value = "";
+
+
+    // =====================================================
+    // PRODUCT
+    // =====================================================
+
+    if (type === "PRODUCT") {
+
+        const products = OFFER_FOR_DATA.PRODUCT || [];
+
+
+        // All Products
+        const allOption =
+            document.createElement("option");
+
+        allOption.value = "ALL_PRODUCTS";
+        allOption.textContent = "All Products";
+
+        offerForSelect.appendChild(allOption);
+
+
+        // Products
+        products.forEach(product => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = String(product.id);
+
+            option.textContent = product.name;
+
+            offerForSelect.appendChild(option);
+
+        });
+
+
+        // Existing product
+        const existingProductId =
+            String(EXISTING_OFFER.productId || "");
+
+
+        if (existingProductId) {
+
+            offerForSelect.value = existingProductId;
+
+            const selectedProduct =
+                products.find(
+                    product =>
+                        String(product.id) === existingProductId
+                );
+
+
+            if (selectedProduct) {
+
+                offerForValue.value =
+                    selectedProduct.name;
+
+                productIdInput.value =
+                    selectedProduct.id;
+
+            }
+
+        } else {
+
+            // All Products
+            offerForSelect.value =
+                "ALL_PRODUCTS";
+
+            offerForValue.value =
+                "All Products";
+
+        }
+
+
+        // When changed
+        offerForSelect.onchange = function () {
+
+            if (this.value === "ALL_PRODUCTS") {
+
+                offerForValue.value =
+                    "All Products";
+
+                productIdInput.value = "";
+
+                return;
+            }
+
+
+            const selectedProduct =
+                products.find(
+                    product =>
+                        String(product.id) === this.value
+                );
+
+
+            if (selectedProduct) {
+
+                offerForValue.value =
+                    selectedProduct.name;
+
+                productIdInput.value =
+                    selectedProduct.id;
+
+            }
+
+        };
+
+
+        return;
+    }
+
+
+    // =====================================================
+    // CATEGORY
+    // =====================================================
+
+    if (type === "CATEGORY") {
+
+        const categories =
+            OFFER_FOR_DATA.CATEGORY || [];
+
+
+        categories.forEach(category => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = String(category.id);
+
+            option.textContent = category.name;
+
+            offerForSelect.appendChild(option);
+
+        });
+
+
+        const existingCategoryId =
+            String(EXISTING_OFFER.categoryId || "");
+
+
+        if (existingCategoryId) {
+
+            offerForSelect.value =
+                existingCategoryId;
+
+
+            const selectedCategory =
+                categories.find(
+                    category =>
+                        String(category.id) ===
+                        existingCategoryId
+                );
+
+
+            if (selectedCategory) {
+
+                offerForValue.value =
+                    selectedCategory.name;
+
+                categoryIdInput.value =
+                    selectedCategory.id;
+
+            }
+
+        }
+
+
+        offerForSelect.onchange = function () {
+
+            const selectedCategory =
+                categories.find(
+                    category =>
+                        String(category.id) === this.value
+                );
+
+
+            if (selectedCategory) {
+
+                offerForValue.value =
+                    selectedCategory.name;
+
+                categoryIdInput.value =
+                    selectedCategory.id;
+
+            }
+
+        };
+
+
+        return;
+    }
+
+}
+
+   const type = document.getElementById("offerType").value;
+
+const offerForSelect = document.getElementById("offerFor");
+const offerForValue = document.getElementById("offerForValue");
+
+const productId = document.getElementById("productId");
+const categoryId = document.getElementById("categoryId");
+
+    offerForSelect.innerHTML = "";
+
+    offerForValue.value = "";
+
+    productIdInput.value = "";
+
+    categoryIdInput.value = "";
+
+
+    // =========================
+    // PRODUCT
+    // =========================
+
+    if (type === "PRODUCT") {
+
+        const allOption = document.createElement("option");
+
+        allOption.value = "ALL_PRODUCTS";
+        allOption.textContent = "All Products";
+
+        offerForSelect.appendChild(allOption);
+
+
+        const products = OFFER_FOR_DATA.PRODUCT || [];
+
+
+        products.forEach(product => {
+
+            const option = document.createElement("option");
+
+            option.value = product.id;
+            option.textContent = product.name;
+
+            offerForSelect.appendChild(option);
+
+        });
+
+
+        // Existing product
+        const existingProductId =
+            "<%= offer.productId ? offer.productId._id : '' %>";
+
+
+        if (existingProductId) {
+
+            offerForSelect.value = existingProductId;
+
+            const selectedProduct =
+                products.find(
+                    product => product.id === existingProductId
+                );
+
+            if (selectedProduct) {
+
+                offerForValue.value =
+                    selectedProduct.name;
+
+                productIdInput.value =
+                    selectedProduct.id;
+
+            }
+
+        } else {
+
+            // Existing offer is All Products
+
+            offerForSelect.value = "ALL_PRODUCTS";
+
+            offerForValue.value = "All Products";
+
+        }
+
+
+        // Change selection
+        offerForSelect.onchange = function () {
+
+            if (this.value === "ALL_PRODUCTS") {
+
+                offerForValue.value = "All Products";
+
+                productIdInput.value = "";
+
+            } else {
+
+                const selectedProduct =
+                    products.find(
+                        product => product.id === this.value
+                    );
+
+                if (selectedProduct) {
+
+                    offerForValue.value =
+                        selectedProduct.name;
+
+                    productIdInput.value =
+                        selectedProduct.id;
+
+                }
+
+            }
+
+        };
+
+
+        return;
+    }
+
+
+    // =========================
+    // CATEGORY
+    // =========================
+
+    if (type === "CATEGORY") {
+
+        const categories = OFFER_FOR_DATA.CATEGORY || [];
+
+
+        categories.forEach(category => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = category.id;
+            option.textContent = category.name;
+
+            offerForSelect.appendChild(option);
+
+        });
+
+
+        const existingCategoryId =
+            "<%= offer.categoryId ? offer.categoryId._id : '' %>";
+
+
+        if (existingCategoryId) {
+
+            offerForSelect.value =
+                existingCategoryId;
+
+            const selectedCategory =
+                categories.find(
+                    category =>
+                        category.id === existingCategoryId
+                );
+
+            if (selectedCategory) {
+
+                offerForValue.value =
+                    selectedCategory.name;
+
+                categoryIdInput.value =
+                    selectedCategory.id;
+
+            }
+
+        }
+
+
+        offerForSelect.onchange = function () {
+
+            const selectedCategory =
+                categories.find(
+                    category =>
+                        category.id === this.value
+                );
+
+            if (selectedCategory) {
+
+                offerForValue.value =
+                    selectedCategory.name;
+
+                categoryIdInput.value =
+                    selectedCategory.id;
+
+            }
+
+        };
+
+
+        return;
+    }
+}
+
+    const type = document.getElementById("offerType").value;
+
+    const offerForSelect = document.getElementById("offerFor");
+    const offerForValue = document.getElementById("offerForValue");
+
+    const productId = document.getElementById("productId");
+    const categoryId = document.getElementById("categoryId");
+    const brandId = document.getElementById("brandId");
+
+    // Clear old values
+    offerForSelect.innerHTML = "";
+
+    offerForValue.value = "";
+    productId.value = "";
+    categoryId.value = "";
+    brandId.value = "";
+
+
+    // =========================
+    // PRODUCT
+    // =========================
+
+    if (type === "PRODUCT") {
+
+        // All Products
+        const allOption = document.createElement("option");
+
+        allOption.value = "ALL_PRODUCTS";
+        allOption.textContent = "All Products";
+
+        offerForSelect.appendChild(allOption);
+
+
+        // Product list
+        const products = OFFER_FOR_DATA.PRODUCT || [];
+
+        products.forEach(product => {
+
+            const option = document.createElement("option");
+
+            option.value = product.id;
+            option.textContent = product.name;
+
+            offerForSelect.appendChild(option);
+
+        });
+
+
+        // Default = All Products
+        offerForValue.value = "All Products";
+
+
+        // When product is selected
+        offerForSelect.onchange = function () {
+
+            if (this.value === "ALL_PRODUCTS") {
+
+                offerForValue.value = "All Products";
+
+                productId.value = "";
+
+            } else {
+
+                const selectedProduct =
+                    products.find(product => product.id === this.value);
+
+                if (selectedProduct) {
+
+                    offerForValue.value = selectedProduct.name;
+
+                    productId.value = selectedProduct.id;
+
+                }
+
+            }
+
+        };
+
+        // Pre-select existing product (edit mode)
+        if (EXISTING_OFFER.offerType === "PRODUCT") {
+            if (EXISTING_OFFER.productId) {
+                offerForSelect.value = EXISTING_OFFER.productId;
+            } else {
+                offerForSelect.value = "ALL_PRODUCTS";
+            }
+            offerForSelect.onchange();
+        }
+
+        return;
+    }
+
+
+    // =========================
+    // CATEGORY
+    // =========================
+
+    if (type === "CATEGORY") {
+
+        const placeholder = document.createElement("option");
+
+        placeholder.value = "";
+        placeholder.textContent = "Select Category";
+        placeholder.disabled = true;
+        placeholder.selected = true;
+
+        offerForSelect.appendChild(placeholder);
+
+
+        const categories = OFFER_FOR_DATA.CATEGORY || [];
+
+        categories.forEach(category => {
+
+            const option = document.createElement("option");
+
+            option.value = category.id;
+            option.textContent = category.name;
+
+            offerForSelect.appendChild(option);
+
+        });
+
+
+        offerForSelect.onchange = function () {
+
+            const selectedCategory =
+                categories.find(category => category.id === this.value);
+
+            if (selectedCategory) {
+
+                offerForValue.value = selectedCategory.name;
+
+                categoryId.value = selectedCategory.id;
+
+            }
+
+        };
+
+        // Pre-select existing category (edit mode)
+        if (EXISTING_OFFER.offerType === "CATEGORY" && EXISTING_OFFER.categoryId) {
+            offerForSelect.value = EXISTING_OFFER.categoryId;
+            offerForSelect.onchange();
+        }
+
+        return;
+    }
+}
+
+
+  // =========================================================
+  // FORM VALIDATION
+  // =========================================================
+
+  function clearErrors() {
+
+    document
+      .querySelectorAll('.form-error')
+      .forEach(el => {
+
+        el.classList.remove('show');
+
+      });
+
+  }
+
+
+
+  function showError(fieldId) {
+
+    const err =
+      document.getElementById(
+        'err-' + fieldId
+      );
+
+
+    if (err) {
+
+      err.classList.add('show');
+
+    }
+
+  }
+
+
+
+  // =========================================================
+  // PAGE INITIALIZATION
+  // =========================================================
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+      const offerType =
+        document.getElementById('offerType');
+
+
+      const offerFor =
+        document.getElementById('offerFor');
+
+
+      const discountType =
+        document.getElementById('discountType');
+
+
+      // -----------------------------------------------
+      // Discount
+      // -----------------------------------------------
+
+      updateDiscountSymbol();
+
+
+      discountType.addEventListener(
+        'change',
+        updateDiscountSymbol
+      );
+
+
+      // -----------------------------------------------
+      // Offer Type
+      // -----------------------------------------------
+
+      offerType.addEventListener(
+        'change',
+        updateOfferForOptions
+      );
+
+
+      // -----------------------------------------------
+      // IMPORTANT
+      // Populate Offer For immediately (pre-filled for edit)
+      // -----------------------------------------------
+
+      updateOfferForOptions();
+
+
+
+      // =================================================
+      // FORM SUBMIT
+      // =================================================
+
+      document
+        .getElementById('offerForm')
+        .addEventListener(
+          'submit',
+          function (e) {
+
+            clearErrors();
+
+            let valid = true;
+
+
+
+            // -----------------------------------------
+            // Get values
+            // -----------------------------------------
+
+            const offerName =
+              document
+                .getElementById('offerName')
+                .value
+                .trim();
+
+
+            const discountTypeValue =
+              document
+                .getElementById('discountType')
+                .value;
+
+
+            const discountValue =
+              document
+                .getElementById('discountValue')
+                .value;
+
+
+            const startDate =
+              document
+                .getElementById('startDate')
+                .value;
+
+
+            const endDate =
+              document
+                .getElementById('endDate')
+                .value;
+
+
+            const offerTypeValue =
+              document
+                .getElementById('offerType')
+                .value;
+
+
+            const offerForSelectValue =
+              document
+                .getElementById('offerFor')
+                .value;
+
+
+            const offerForValue =
+              document
+                .getElementById('offerForValue')
+                .value;
+
+
+
+            // -----------------------------------------
+            // Offer Name
+            // -----------------------------------------
+
+            if (!offerName) {
+
+              showError('offerName');
+
+              valid = false;
+
+            }
+
+
+
+            // -----------------------------------------
+            // Discount Type
+            // -----------------------------------------
+
+            if (!discountTypeValue) {
+
+              showError('discountType');
+
+              valid = false;
+
+            }
+
+
+
+            // -----------------------------------------
+            // Discount Value
+            // -----------------------------------------
+
+            if (
+              !discountValue ||
+              Number(discountValue) <= 0
+            ) {
+
+              showError('discountValue');
+
+              valid = false;
+
+            }
+
+
+            if (
+              discountTypeValue === 'PERCENTAGE' &&
+              Number(discountValue) > 100
+            ) {
+
+              showError('discountValue');
+
+              valid = false;
+
+            }
+
+
+
+            // -----------------------------------------
+            // Start Date
+            // -----------------------------------------
+
+            if (!startDate) {
+
+              showError('startDate');
+
+              valid = false;
+
+            }
+
+
+
+            // -----------------------------------------
+            // End Date
+            // -----------------------------------------
+
+            if (!endDate) {
+
+              showError('endDate');
+
+              valid = false;
+
+            }
+
+            if (
+             startDate &&
+             endDate &&
+             new Date(endDate) <= new Date(startDate)
+            ) {
+
+              showError('endDate');
+
+              valid = false;
+
+            }
+
+
+
+            // -----------------------------------------
+            // Offer Type
+            // -----------------------------------------
+
+            if (!offerTypeValue) {
+
+              showError('offerType');
+
+              valid = false;
+
+            }
+
+
+
+            // -----------------------------------------
+            // Offer For
+            // -----------------------------------------
+
+            if (
+              !offerForSelectValue ||
+              !offerForValue
+            ) {
+
+              showError('offerFor');
+
+              valid = false;
+
+            }
+
+
+
+            // -----------------------------------------
+            // Stop submit if invalid
+            // -----------------------------------------
+
+            if (!valid) {
+
+              e.preventDefault();
+
+              if (typeof showToast === 'function') {
+
+                showToast(
+                  'Please fix the highlighted fields.',
+                  false
+                );
+
+              }
+
+              return;
+
+            }
+
+          }
+        );
+
+    }
+  );
+
+
+
+  // =========================================================
+  // SIDEBAR
+  // =========================================================
+
+  function toggleSidebar() {
+
+    document
+      .getElementById('sidebar')
+      .classList
+      .toggle('open');
+
+
+    document
+      .getElementById('sidebarBg')
+      .classList
+      .toggle('open');
+
+  }
+
+
+
+  function closeSidebar() {
+
+    document
+      .getElementById('sidebar')
+      .classList
+      .remove('open');
+
+
+    document
+      .getElementById('sidebarBg')
+      .classList
+      .remove('open');
+
+  }
+
+</script>
+</body>
+</html>

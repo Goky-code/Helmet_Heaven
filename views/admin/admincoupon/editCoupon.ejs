@@ -304,9 +304,8 @@
   <div id="toast"></div>
 
   <script>
-    const isEdit   = <%= typeof coupon !== 'undefined' && coupon ? 'true' : 'false' %>;
-    const couponId = <%= typeof coupon !== 'undefined' && coupon ? ("'" + coupon._id + "'") : 'null' %>;
-
+     const isEdit = true;
+    const couponId = "<%= coupon._id %>";
     /* ── Discount type → dynamic suffix + max discount enable/disable ── */
     function onDiscountTypeChange() {
       const type       = document.getElementById("discountType").value;
