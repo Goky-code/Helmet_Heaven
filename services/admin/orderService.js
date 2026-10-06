@@ -255,7 +255,7 @@ export const recalculateOrderTotals=(order)=>{
   return order
 }
 
-const calculateItemRefundAmount=(order,item)=>{
+export const calculateItemRefundAmount=(order,item)=>{
   const activeItems=order.items.filter(existingItem=>existingItem.status!=="Cancelled"&&existingItem.status!=="Returned")
   const activeSubtotal=activeItems.reduce((sum,existingItem)=>sum+Number(existingItem.totalPrice||0),0)
   const orderTax=Number(order.tax||0)
@@ -264,16 +264,16 @@ const calculateItemRefundAmount=(order,item)=>{
   if (activeSubtotal <= 0) {
     return Number(itemPrice.toFixed(2));
   }
-
+ const ratio = itemPrice / activeSubtotal
   const itemTax = Number(
     (
       (itemPrice / activeSubtotal) *
       orderTax
     ).toFixed(2)
   )
-
+const itemDiscount = Number((ratio * orderDiscount).toFixed(2))
   const refundAmount = Number(
-    (itemPrice + itemTax).toFixed(2)
+    Math.max(itemPrice + itemTax - itemDiscount, 0).toFixed(2)
   )
 
   return refundAmount

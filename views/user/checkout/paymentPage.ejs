@@ -639,6 +639,7 @@
 <% if (typeof isBuyNow !== 'undefined' && isBuyNow) { %>
   <input type="hidden" id="buyNowField" value="true">
   <input type="hidden" id="buyNowProductId" value="<%= buyNowItem.productId %>">
+  <input type="hidden" id="couponCodeField" value="<%= _coupon ? _coupon.code : '' %>">
   <input type="hidden" id="buyNowSize" value="<%= buyNowItem.size %>">
   <input type="hidden" id="buyNowQty" value="<%= buyNowItem.quantity %>">
 <% } %>
@@ -865,13 +866,14 @@
     /* -----------------------------------------
        PAYLOAD
     ----------------------------------------- */
-
+   const couponCode = document.getElementById('couponCodeField')?.value || '';
     const payload = {
 
       addressId,
 
       paymentMethod:
-        selectedPaymentMethod
+        selectedPaymentMethod,
+        couponCode
 
     };
 
@@ -980,6 +982,7 @@ if (selectedPaymentMethod === 'Razorpay') {
               ...paymentResponse,
 
               addressId: payload.addressId,
+               couponCode: payload.couponCode,
 
               buyNow: payload.buyNow || false,
 

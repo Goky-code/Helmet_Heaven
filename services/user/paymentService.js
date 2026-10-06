@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Order from "../../models/orderModel.js";
 import Product from "../../models/productModel.js";
+import Coupon from "../../models/couponModel.js";
 import Cart from "../../models/cartModel.js";
 import Address from "../../models/addressModel.js";
 import Wallet from "../../models/walletModel.js";
@@ -19,7 +20,7 @@ const generateOrderId = () => {
 };
  
 
-export const getPaymentPageData = async (userId, addressId,buyNowItem=null) => {
+export const getPaymentPageData = async (userId, addressId,buyNowItem=null, couponCode=null) => {
 
   const addresses=await Address.find({userId}).lean()
   let validItems=[]
@@ -68,9 +69,82 @@ export const getPaymentPageData = async (userId, addressId,buyNowItem=null) => {
     if (variant) subtotal += variant.price * item.quantity;
   }
 
-  const shipping = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
-  const tax = Math.round(subtotal * TAX_RATE);
-  const total = subtotal + shipping + tax;
+  const shipping =
+    subtotal >= SHIPPING_THRESHOLD
+        ? 0
+        : SHIPPING_FEE;
+
+const tax =
+    Math.round(subtotal * TAX_RATE);
+
+let discount = 0;
+let coupon = null;
+
+if (couponCode) {
+
+    const code = couponCode.trim().toUpperCase();
+
+    const couponData = await Coupon.findOne({
+        code
+    }).lean();
+
+    if (!couponData) {
+        throw new Error("Invalid coupon code");
+    }
+
+    if (couponData.isDisabled) {
+        throw new Error("This coupon is disabled");
+    }
+
+    const now = new Date();
+
+    if (
+        now < new Date(couponData.startDate) ||
+        now > new Date(couponData.expiryDate)
+    ) {
+        throw new Error("This coupon is expired or not active");
+    }
+
+    if (subtotal < couponData.minPurchase) {
+        throw new Error(
+            `Minimum purchase is ₹${couponData.minPurchase}`
+        );
+    }
+
+    if (couponData.discountType === "PERCENTAGE") {
+
+        discount =
+            subtotal *
+            couponData.discountValue /
+            100;
+
+        if (
+            couponData.maxDiscount !== null &&
+            couponData.maxDiscount !== undefined
+        ) {
+            discount = Math.min(
+                discount,
+                couponData.maxDiscount
+            );
+        }
+
+    } else if (couponData.discountType === "FIXED") {
+
+        discount = couponData.discountValue;
+    }
+
+    discount = Math.min(discount, subtotal);
+
+    coupon = {
+        code: couponData.code,
+        discount
+    };
+}
+
+const total = Math.max(
+    subtotal + shipping + tax - discount,
+    0
+);
 
   const shippingAddress =
     addresses.find((a) => String(a._id) === String(addressId)) ||
@@ -83,7 +157,7 @@ export const getPaymentPageData = async (userId, addressId,buyNowItem=null) => {
     addresses,
     shippingAddress,
     addressId: shippingAddress?._id || null,
-    coupon: null,
+    coupon,
     subtotal,
     shipping,
     tax,
@@ -92,7 +166,7 @@ export const getPaymentPageData = async (userId, addressId,buyNowItem=null) => {
 };
 
  
-export const placeOrder = async (userId, addressId, paymentMethod,buyNowItem=null) => {
+export const placeOrder = async (userId, addressId, paymentMethod,couponCode=null,buyNowItem=null) => {
   
  
   const session = await mongoose.startSession();
@@ -200,8 +274,45 @@ if (variant.stock < item.quantity) {
 
     const shipping = subTotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
     const tax = Math.round(subTotal * TAX_RATE);
-    const discount = 0;
-    const grandTotal = subTotal + shipping + tax - discount;
+    let discount = 0;
+    let appliedCouponCode=null
+       
+      if(couponCode){
+        const code=couponCode.trim().toUpperCase()
+
+        const couponData=await Coupon.findOne({
+          code
+        }).session(session).lean()
+
+        if(!couponData){
+          throw new Error("Invalid coupon code")
+        }
+        if(couponData.isDisabled){
+          throw new Error("This coupon is disabled")
+        }
+        const now =new Date()
+
+        if(now<new Date(couponData.startDate)||now>new Date(couponData.expiryDate)){
+          throw new Error("This coupon is expired or not active")
+        }
+        if(subTotal<couponData.minPurchase){
+          throw new Error(`Minimum purchase is ₹${couponData.minPurchase}`)
+        }
+
+        if(couponData.discountType==="PERCENTAGE"){
+          discount=(subTotal*couponData.discountValue)/100
+
+          if(couponData.maxDiscount!==null&&couponData.maxDiscount!==undefined){
+            discount=Math.min(discount,couponData.maxDiscount)
+          }
+        }else if(couponData.discountType==="FIXED"){
+          discount=couponData.discountValue
+        }
+        discount=Math.min(discount,subTotal)
+
+        appliedCouponCode=couponData.code
+      }
+    const grandTotal = Math.max(subTotal + shipping + tax - discount,0)
 
     let wallet=null
 
@@ -223,6 +334,7 @@ if (variant.stock < item.quantity) {
       [{
         orderId: generateOrderId(),
         userId,
+        couponCode:appliedCouponCode,
         items: orderItems,
         address: {
           name: address.name,

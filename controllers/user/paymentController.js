@@ -7,13 +7,25 @@ export const loadPayment = async (req, res) => {
         const userId = req.session.user
 
         
-        const addressId = req.query.addressId || req.body.addressId
-           const { buyNow, productId, size, qty } = req.query;
+        const addressId = req.query.addressId || req.body.addressId;
+
+const {
+    buyNow,
+    productId,
+    size,
+    qty,
+    couponCode
+} = req.query;
         const buyNowItem = (buyNow === 'true' && productId && size)
             ? { productId, size, quantity: Math.max(1, parseInt(qty) || 1) }
             : null
  
-        const data = await paymentService.getPaymentPageData(userId, addressId,buyNowItem)
+        const data = await paymentService.getPaymentPageData(
+    userId,
+    addressId,
+    buyNowItem,
+    couponCode
+)
  
         return res.render("user/checkout/paymentPage", {
             ...data,
@@ -29,7 +41,7 @@ export const loadPayment = async (req, res) => {
 export const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        const { addressId, paymentMethod,buyNow,productId,size,qty } = req.body;
+        const { addressId, paymentMethod,buyNow,productId,size,qty,couponCode } = req.body;
  
         if (!addressId) {
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -44,12 +56,16 @@ export const placeOrder = async (req, res) => {
             });
         }
 
-         const buyNowItem = (buyNow === true || buyNow === 'true')
+        const isBuyNow =
+            buyNow === true ||
+            buyNow === "true";
+
+         const buyNowItem = isBuyNow&&productId&& size
             ? { productId, size, quantity: Math.max(1, parseInt(qty) || 1) }
             : null;
 
  
-        const result = await paymentService.placeOrder(userId, addressId, paymentMethod,buyNowItem)
+        const result = await paymentService.placeOrder(userId, addressId, paymentMethod,couponCode||null,buyNowItem)
 
       
         return res.json(result);
@@ -99,7 +115,8 @@ export const createRazorpayOrder=async(req,res)=>{
             buyNow,
             productId,
             size,
-            qty
+            qty,
+            couponCode
         }=req.body
 
         if(!addressId){
@@ -108,11 +125,17 @@ export const createRazorpayOrder=async(req,res)=>{
                 message:"Shipping address is required"
             })
         }
-        const buyNowItem=buyNow===true||buyNow==="true"?{
-            productId,size,quantity:Math.max(1,parseInt(qty)||1)
-        }:null
 
-        const data=await paymentService.getPaymentPageData(userId,addressId,buyNowItem)
+       const isBuyNow=buyNow===true||buyNow==="true"
+
+        const buyNowItem =
+            isBuyNow&&productId&&size?{
+                productId,
+                size,
+                qty:Math.max(1, parseInt(qty) || 1)
+            }:null
+
+        const data=await paymentService.getPaymentPageData(userId,addressId,buyNowItem,couponCode||null)
 
         if(!data||!data.total||data.total<=0){
             return res.status(HTTP_STATUS.BAD_REQUEST).json({
@@ -134,9 +157,9 @@ export const createRazorpayOrder=async(req,res)=>{
         })
     }catch(error){
          console.error("Razorpay create order error:", error)
-           return res.status(500).json({
+           return res.status(HTTP_STATUS.BAD_REQUEST).json({
             success: false,
-            message: "Unable to create Razorpay order."
+            message: error.message || "Unable to create Razorpay order."
         })
     }
 }
@@ -152,7 +175,8 @@ export const verifyRazorpayPayment=async(req,res)=>{
             buyNow,
             productId,
             size,
-            qty
+            qty,
+            couponCode
         }=req.body
 
         if(!razorpay_order_id||
@@ -175,11 +199,11 @@ export const verifyRazorpayPayment=async(req,res)=>{
                     message:"Payment verification failed"
                 })
             }
-            const buyNowItem=buyNow===true||buyNow==="true"?{
+            const buyNowItem=(buyNow===true||buyNow==="true")&&productId&&size?{
                 productId,size,quantity:Math.max(1,parseInt(qty)||1)
             }:null
 
-            const result=await paymentService.placeOrder(userId,addressId,"Razorpay",buyNowItem)
+            const result=await paymentService.placeOrder(userId,addressId,"Razorpay",couponCode||null,buyNowItem)
             return res.json({
                 success: true,
             message: "Payment successful",

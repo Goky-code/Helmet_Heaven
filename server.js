@@ -29,6 +29,7 @@ import offerRoutes from "./routes/offerRoute.js"
 import { setNavCounts } from "./middlewares/setNavCounts.js";
 import walletRoutes from "./routes/walletRoute.js"
 import couponRoute from "./routes/couponRoute.js"
+import salesReportRoute from "./routes/salesReportRoute.js"
 
 const app = express();
 
@@ -71,6 +72,7 @@ app.use("/admin",couponRoute)
 app.use("/admin", orderRoutes)
 app.use("/admin",InventoryRoute)
 app.use("/admin",offerRoutes)
+app.use("/admin",salesReportRoute)
 app.use("/", shopRoutes);
 app.use("/user", productDetailsRouter);
 app.use("/user", wishlistRoutes);
