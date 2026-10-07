@@ -244,13 +244,15 @@ export const recalculateOrderTotals=(order)=>{
   const activeItems=order.items.filter(item=>item.status!=="Cancelled"&&item.status!=="Returned")
   const subTotal=activeItems.reduce((sum,item)=>sum+Number(item.totalPrice||0),0)
   const tax=Number((subTotal*0.08).toFixed(2))
-  const shipping=Number(order.shipping||0)
-  const discount=Number(order.discount||0)
+  const shipping=activeItems.length>0?Number(order.shipping||0):0
+  const discount=activeItems.length>0?Number(order.discount||0):0
 
   const grandTotal=Number((subTotal+shipping+tax-discount).toFixed(2))
   order.subTotal=subTotal
   order.tax=tax
-  order.grandTotal=grandTotal
+  order.shipping=shipping
+  order.discount=discount
+  order.grandTotal=Math.max(grandTotal, 0)
 
   return order
 }

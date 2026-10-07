@@ -60,12 +60,6 @@ export const getCheckoutData = async (userId, buyNowItem = null) => {
         const validItems = [];
         for (const item of cart.items) {
             const product = item.productId;
-             console.log("========== CART ITEM DEBUG ==========");
-    console.log("item:", item);
-    console.log("product:", product);
-    console.log("item size:", item.size);
-    console.log("variants:", product?.variants);
-    console.log("====================================");
 
             if (!product || product.isDeleted || product.isBlocked) continue;
             const variant = product.variants.find(v => v.size === item.size);
@@ -330,13 +324,6 @@ export const validateCheckout = async (userId,buyNowItem=null) => {
 }
 
 export const validateCoupon=async(couponCode,subTotal)=>{
-
-
-    console.log("========== COUPON DEBUG ==========");
-    console.log("couponCode:", couponCode);
-    console.log("subTotal:", subTotal);
-    console.log("subTotal type:", typeof subTotal);
-    console.log("==================================");
 
   if(!couponCode||!couponCode.trim()){
     throw new Error("Please enter a coupon code")
