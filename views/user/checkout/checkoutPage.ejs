@@ -692,41 +692,50 @@
           <span class="summary-value" id="tax">₹ <%= tax.toLocaleString('en-IN') %></span>
         </div>
 
+         <div class="summary-row" id="discountRow" style="display: none;">
+  <span class="summary-label">Coupon Discount</span>
+  <span class="summary-value" id="discountAmount">- ₹0</span>
+</div>
+
         <div class="promo-row">
           <input type="text" class="promo-input" id="promoInput" placeholder="Coupon Code" aria-label="Promo code"/>
           <button class="promo-btn" id="promoBtn">Apply</button>
         </div>
         <div class="promo-feedback" id="promoFeedback" aria-live="polite"></div>
-        <a class="link-coupons" onclick="showToast('Showing all available coupons.')">Show all coupons</a>
+        <a href="#" class="link-coupons" id="showCouponsBtn">
+  Show all coupons
+</a>
 
+<div id="availableCoupons" style="display: none; margin-top: 12px;"></div>
         <div class="summary-row summary-total">
           <span class="summary-label">Total</span>
           <span class="summary-value" id="total">₹ <%= total.toLocaleString('en-IN') %></span>
         </div>
-<form action="/user/payment" method="GET" id="checkoutForm">
 
-   <input type="hidden" name="addressId" id="selectedAddressIdInput" value="<%= _selectedId || '' %>">
-<% if (typeof isBuyNow !== 'undefined' && isBuyNow) { %>
-   <input type="hidden" name="buyNow" value="true">
+<form action="/user/payment" method="GET" id="checkoutForm">
+  <input type="hidden" name="addressId" id="selectedAddressIdInput" value="<%= _selectedId || '' %>">
+  <input type="hidden" name="couponCode" id="couponCodeInput" value="">
+
+  <% if (typeof isBuyNow !== 'undefined' && isBuyNow) { %>
+    <input type="hidden" name="buyNow" value="true">
     <input type="hidden" name="productId" value="<%= buyNowItem.productId %>">
     <input type="hidden" name="size" value="<%= buyNowItem.size %>">
     <input type="hidden" name="qty" value="<%= buyNowItem.quantity %>">
   <% } %>
+  
     <button
         type="submit"
         class="checkout-btn"
         id="checkoutSubmitBtn"
-        <%= (!_addresses || _addresses.length === 0 || !cart || !cart.items || cart.items.length === 0) ? 'disabled' : '' %>
-    >
-        <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16 10a4 4 0 0 1-8 0"/>
-        </svg>
-
-        Checkout
-    </button>
-
+      <%= (!_addresses || _addresses.length === 0 || !cart || !cart.items || cart.items.length === 0) ? 'disabled' : '' %>
+  >
+    <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16 10a4 4 0 0 1-8 0"/>
+    </svg>
+    Checkout
+  </button>
 </form>
 
         <div class="secure-note">
@@ -1022,38 +1031,8 @@
   });
 
   /* ── Promo code ── */
-  const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
-  document.getElementById('promoBtn').addEventListener('click', () => {
-    const inp  = document.getElementById('promoInput');
-    const fb   = document.getElementById('promoFeedback');
-    const code = inp.value.trim().toUpperCase();
-    if (!code) {
-      inp.classList.add('error');
-      fb.textContent = 'Please enter a promo code.';
-      fb.className = 'promo-feedback err'; return;
-    }
-    inp.classList.remove('error');
-    if (PROMO_CODES[code]) {
-      fb.textContent = `Code applied! ${(PROMO_CODES[code] * 100).toFixed(0)}% off.`;
-      fb.className = 'promo-feedback ok';
-      inp.disabled = true;
-      document.getElementById('promoBtn').disabled = true;
-      showToast('Promo code applied!');
-      
-    } else {
-      inp.classList.add('error');
-      fb.textContent = 'Invalid or expired promo code.';
-      fb.className = 'promo-feedback err';
-    }
-  });
-  document.getElementById('promoInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('promoBtn').click();
-  });
-  document.getElementById('promoInput').addEventListener('input', () => {
-    document.getElementById('promoInput').classList.remove('error');
-    const fb = document.getElementById('promoFeedback');
-    if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'promo-feedback'; }
-  });
+ 
+ 
 
   /* ── Newsletter ── */
   document.getElementById('joinBtn').addEventListener('click', () => {
@@ -1088,6 +1067,187 @@
     ham.classList.toggle('open', open);
     ham.setAttribute('aria-expanded', open);
   });
+
+
+document.getElementById("promoBtn").addEventListener("click", async function () {
+    const couponCode = document.getElementById("promoInput").value.trim();
+    const feedback = document.getElementById("promoFeedback");
+    const button = this;
+
+    if (!couponCode) {
+        feedback.textContent = "Please enter a coupon code.";
+        feedback.style.color = "#ef4444";
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Applying...";
+    feedback.textContent = "";
+
+    try {
+       const form = document.getElementById("checkoutForm");
+       const formData = new FormData(form);
+
+       const response = await fetch("/user/apply-coupon", {
+       method: "POST",
+       headers: { "Content-Type": "application/json" },
+       body: JSON.stringify({
+        couponCode,
+        buyNow: formData.get("buyNow"),
+        productId: formData.get("productId"),
+        size: formData.get("size"),
+        qty: formData.get("qty")
+    })
+});
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || "Unable to apply coupon.");
+        }
+
+        const discount = Number(result.discount) || 0;
+
+        const subtotal = Number(
+            document.getElementById("subtotal").textContent
+                .replace(/[₹,\s]/g, "")
+        );
+
+        const shippingText =
+            document.getElementById("shipping").textContent.trim();
+
+        const shipping = shippingText.toLowerCase() === "free"
+            ? 0
+            : Number(shippingText.replace(/[₹,\s]/g, "")) || 0;
+ 
+        const tax = Number(
+            document.getElementById("tax").textContent
+                .replace(/[₹,\s]/g, "")
+        );
+
+        const total = subtotal + shipping + tax - discount;
+
+        document.getElementById("discountRow").style.display = "flex";
+
+        document.getElementById("discountAmount").textContent =
+            `- ₹${discount.toLocaleString("en-IN")}`;
+
+        document.getElementById("total").textContent =
+            `₹ ${total.toLocaleString("en-IN")}`;
+
+        feedback.textContent =
+            `${result.message || "Coupon applied successfully"} — Saved ₹${discount.toLocaleString("en-IN")}`;
+
+        feedback.style.color = "#22c55e";
+
+        window.appliedCouponCode = result.couponCode || couponCode;
+
+        document.getElementById("couponCodeInput").value =
+    result.couponCode || couponCode;
+
+    } catch (error) {
+        feedback.textContent = error.message;
+        feedback.style.color = "#ef4444";
+
+        window.appliedCouponCode = null;
+    } finally {
+        button.disabled = false;
+        button.textContent = "Apply";
+    }
+});
+
+    
+
+const showCouponsBtn = document.getElementById("showCouponsBtn");
+const availableCoupons = document.getElementById("availableCoupons");
+
+showCouponsBtn.addEventListener("click", async (event) => {
+  event.preventDefault();
+
+ 
+  if (availableCoupons.style.display === "block") {
+    availableCoupons.style.display = "none";
+    showCouponsBtn.textContent = "Show all coupons";
+    return;
+  }
+
+  availableCoupons.style.display = "block";
+  availableCoupons.innerHTML = "<p>Loading coupons...</p>";
+
+  try {
+    const response = await fetch("/user/available-coupons");
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Failed to load coupons");
+    }
+
+    if (!data.coupons || data.coupons.length === 0) {
+      availableCoupons.innerHTML = "<p>No coupons available right now.</p>";
+      return;
+    }
+
+    availableCoupons.innerHTML = data.coupons.map(coupon => `
+      <div style="
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 14px;
+        margin-bottom: 10px;
+      ">
+        <h4>${coupon.name}</h4>
+        <p>${coupon.description || "Special offer for you"}</p>
+        <p>
+          <strong>Code:</strong>
+          <span>${coupon.code}</span>
+        </p>
+        <p>
+          <strong>Discount:</strong>
+          ${
+            coupon.discountType === "PERCENTAGE"
+              ? `${coupon.discountValue}% off`
+              : `₹${coupon.discountValue} off`
+          }
+        </p>
+        ${
+          coupon.maxDiscount != null && coupon.discountType === "PERCENTAGE"
+            ? `<p>Maximum discount: ₹${coupon.maxDiscount}</p>`
+            : ""
+        }
+        <p>Minimum purchase: ₹${coupon.minPurchase || 0}</p>
+        <p>Expires: ${new Date(coupon.expiryDate).toLocaleDateString("en-IN")}</p>
+
+        <button
+          type="button"
+          class="useCouponBtn"
+          data-code="${coupon.code}"
+          style="padding: 8px 14px; cursor: pointer;"
+        >
+          Use Coupon
+        </button>
+      </div>
+    `).join("");
+
+    showCouponsBtn.textContent = "Hide coupons";
+
+    
+  availableCoupons.querySelectorAll(".useCouponBtn").forEach(button => {
+    button.addEventListener("click", () => {
+        const promoInput = document.getElementById("promoInput");
+
+        promoInput.value = button.dataset.code;
+
+        document.getElementById("promoBtn").click();
+    });
+});
+
+  } catch (error) {
+    console.error("Error loading coupons:", error);
+    availableCoupons.innerHTML =
+      "<p>Unable to load coupons. Please try again.</p>";
+  }
+});
+
+
 </script>
 </body>
 </html>

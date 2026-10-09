@@ -82,6 +82,11 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
 
+    couponCode: {
+    type: String,
+    default: null
+},
+
     items: [orderItemschema],
 
     address:{

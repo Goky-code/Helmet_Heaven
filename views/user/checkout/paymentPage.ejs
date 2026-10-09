@@ -460,6 +460,7 @@
                integration added before these options can actually complete an order. -->
 
           <label class="payment-option selected" data-value="Razorpay">
+
     <input
         type="radio"
         name="paymentMethod"
@@ -468,15 +469,19 @@
     />
 
     <div class="payment-option-text">
-        <div class="payment-option-title">Razorpay</div>
+        <div class="payment-option-title">
+            Razorpay
+        </div>
+
         <div class="payment-option-sub">
-            Cards, Netbanking, UPI &amp; Wallets
+            Pay securely using Razorpay
         </div>
     </div>
 
     <div class="payment-option-icons">
         <div class="icon-chip">
-            <svg fill="none" viewBox="0 0 24 24"
+            <svg fill="none"
+                 viewBox="0 0 24 24"
                  stroke-width="2"
                  stroke="currentColor">
                 <rect x="2" y="5" width="20" height="14" rx="2"/>
@@ -484,6 +489,7 @@
             </svg>
         </div>
     </div>
+
 </label>
 
 <label class="payment-option" data-value="Wallet">
@@ -633,6 +639,7 @@
 <% if (typeof isBuyNow !== 'undefined' && isBuyNow) { %>
   <input type="hidden" id="buyNowField" value="true">
   <input type="hidden" id="buyNowProductId" value="<%= buyNowItem.productId %>">
+  <input type="hidden" id="couponCodeField" value="<%= _coupon ? _coupon.code : '' %>">
   <input type="hidden" id="buyNowSize" value="<%= buyNowItem.size %>">
   <input type="hidden" id="buyNowQty" value="<%= buyNowItem.quantity %>">
 <% } %>
@@ -709,6 +716,7 @@
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
 
   /* =========================================
@@ -858,13 +866,14 @@
     /* -----------------------------------------
        PAYLOAD
     ----------------------------------------- */
-
+   const couponCode = document.getElementById('couponCodeField')?.value || '';
     const payload = {
 
       addressId,
 
       paymentMethod:
-        selectedPaymentMethod
+        selectedPaymentMethod,
+        couponCode
 
     };
 
@@ -914,6 +923,146 @@
 
 
     try {
+
+      /* -----------------------------------------
+   RAZORPAY
+----------------------------------------- */
+
+if (selectedPaymentMethod === 'Razorpay') {
+
+  try {
+
+    const razorpayResponse = await fetch(
+      '/user/razorpay/create-order',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    const razorpayData =
+      await razorpayResponse.json();
+
+    if (!razorpayData.success) {
+      throw new Error(
+        razorpayData.message ||
+        'Unable to start Razorpay payment.'
+      );
+    }
+
+    const options = {
+
+      key: razorpayData.key,
+
+      amount: razorpayData.amount,
+
+      currency: razorpayData.currency,
+
+      name: 'Helmet Haven',
+
+      description: 'Helmet Purchase',
+
+      order_id: razorpayData.razorpayOrderId,
+
+      handler: async function (paymentResponse) {
+
+        const verifyResponse = await fetch(
+          '/user/razorpay/verify',
+          {
+            method: 'POST',
+
+            headers: {
+              'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+              ...paymentResponse,
+
+              addressId: payload.addressId,
+               couponCode: payload.couponCode,
+
+              buyNow: payload.buyNow || false,
+
+              productId: payload.productId || '',
+
+              size: payload.size || '',
+
+              qty: payload.qty || ''
+            })
+          }
+        );
+
+        const verifyData =
+          await verifyResponse.json();
+
+        if (verifyData.success) {
+
+          showToast(
+            'Payment successful!'
+          );
+
+          window.location.href =
+            verifyData.redirectUrl ||
+            `/user/order-success?orderId=${verifyData.orderId}`;
+
+        } else {
+
+          showToast(
+            verifyData.message ||
+            'Payment verification failed.',
+            'error'
+          );
+
+          payBtn.disabled = false;
+          payBtn.textContent = originalText;
+        }
+      },
+
+      modal: {
+        ondismiss: function () {
+
+          showToast(
+            'Payment cancelled.',
+            'error'
+          );
+
+          payBtn.disabled = false;
+          payBtn.textContent = originalText;
+        }
+      },
+
+      theme: {
+        color: '#2d9cff'
+      }
+    };
+
+    const razorpay =
+      new Razorpay(options);
+
+    razorpay.open();
+
+  } catch (error) {
+
+    console.error(
+      'Razorpay error:',
+      error
+    );
+
+    showToast(
+      error.message ||
+      'Unable to start Razorpay payment.',
+      'error'
+    );
+
+    payBtn.disabled = false;
+    payBtn.textContent = originalText;
+  }
+
+  return;
+}
 
       /* -----------------------------------------
          SEND REQUEST
@@ -989,32 +1138,129 @@
 
 
         /* RAZORPAY */
-        if (
-          selectedPaymentMethod === 'Razorpay'
-        ) {
+// if (selectedPaymentMethod === 'Razorpay') {
 
-          /*
-             Your current backend does not have
-             Razorpay gateway logic here.
+//   try {
 
-             So if backend creates the order,
-             redirect to success.
-          */
+//     const razorpayResponse = await fetch(
+//       '/user/razorpay/create-order',
+//       {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify(payload)
+//       }
+//     );
 
-          showToast(
-            'Order placed successfully!'
-          );
+//     const razorpayData = await razorpayResponse.json();
 
-          setTimeout(() => {
+//     if (!razorpayData.success) {
+//       throw new Error(
+//         razorpayData.message || 'Unable to start payment.'
+//       );
+//     }
 
-            window.location.href =
-              data.redirectUrl ||
-              `/user/order-success?orderId=${data.orderId}`;
+//     const options = {
+//       key: razorpayData.key,
 
-          }, 1000);
+//       amount: razorpayData.amount,
 
-          return;
-        }
+//       currency: razorpayData.currency,
+
+//       name: 'Helmet Haven',
+
+//       description: 'Helmet Purchase',
+
+//       order_id: razorpayData.razorpayOrderId,
+
+//       handler: async function (paymentResponse) {
+
+//         const verifyResponse = await fetch(
+//           '/user/razorpay/verify',
+//           {
+//             method: 'POST',
+
+//             headers: {
+//               'Content-Type': 'application/json'
+//             },
+
+//             body: JSON.stringify({
+//               ...paymentResponse,
+//               addressId: payload.addressId,
+//               buyNow: payload.buyNow || false,
+//               productId: payload.productId || '',
+//               size: payload.size || '',
+//               qty: payload.qty || ''
+//             })
+//           }
+//         );
+
+//         const verifyData = await verifyResponse.json();
+
+//         if (verifyData.success) {
+
+//           showToast('Payment successful!');
+
+//           setTimeout(() => {
+//             window.location.href =
+//               verifyData.redirectUrl ||
+//               `/user/order-success?orderId=${verifyData.orderId}`;
+//           }, 1000);
+
+//         } else {
+
+//           showToast(
+//             verifyData.message ||
+//             'Payment verification failed.',
+//             'error'
+//           );
+
+//           payBtn.disabled = false;
+//           payBtn.textContent = originalText;
+//         }
+//       },
+
+//       modal: {
+//         ondismiss: function () {
+//           showToast(
+//             'Payment cancelled.',
+//             'error'
+//           );
+
+//           payBtn.disabled = false;
+//           payBtn.textContent = originalText;
+//         }
+//       },
+
+//       theme: {
+//         color: '#2d9cff'
+//       }
+//     };
+
+//     const razorpay = new Razorpay(options);
+
+//     razorpay.open();
+
+//   } catch (error) {
+
+//     console.error(
+//       'Razorpay error:',
+//       error
+//     );
+
+//     showToast(
+//       error.message ||
+//       'Unable to start Razorpay payment.',
+//       'error'
+//     );
+
+//     payBtn.disabled = false;
+//     payBtn.textContent = originalText;
+//   }
+
+//   return;
+// }
 
       }
 

@@ -25,8 +25,11 @@ import orderSuccessRoutes from "./routes/orderSuccessRoutes.js";
 import myOrdersRoute from "./routes/myOrdersRoute.js"
 import myOrderDetailsRoute from "./routes/myOrderDetailsRoute.js"
 import InventoryRoute from "./routes/InventoryRoute.js"
+import offerRoutes from "./routes/offerRoute.js"
 import { setNavCounts } from "./middlewares/setNavCounts.js";
 import walletRoutes from "./routes/walletRoute.js"
+import couponRoute from "./routes/couponRoute.js"
+import salesReportRoute from "./routes/salesReportRoute.js"
 
 const app = express();
 
@@ -65,18 +68,23 @@ app.use("/admin", adminRoutes);
 app.use("/admin", categoryRouter);
 app.use("/admin", brandRouter);
 app.use("/admin", productRouter);
+app.use("/admin",couponRoute)
+app.use("/admin", orderRoutes)
+app.use("/admin",InventoryRoute)
+app.use("/admin",offerRoutes)
+app.use("/admin",salesReportRoute)
 app.use("/", shopRoutes);
 app.use("/user", productDetailsRouter);
 app.use("/user", wishlistRoutes);
 app.use("/user", cartRoutes);
-app.use("/admin", orderRoutes)
 app.use("/user",checkoutRoute)
 app.use("/user" ,paymentRoute)
 app.use("/user", orderSuccessRoutes)
 app.use("/user", myOrdersRoute)
 app.use("/user",myOrderDetailsRoute)
 app.use("/user",walletRoutes)
-app.use("/admin",InventoryRoute)
+
+
 
 const startServer = async () => {
   try {

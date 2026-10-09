@@ -2,6 +2,7 @@ import Order from "../../models/orderModel.js";
 import Product from "../../models/productModel.js"
 import Cart from "../../models/cartModel.js";
 import Address from "../../models/addressModel.js";
+import Coupon from "../../models/couponModel.js"
 import mongoose, { mongo } from "mongoose";
 
 export const getCheckoutData = async (userId, buyNowItem = null) => {
@@ -43,15 +44,9 @@ export const getCheckoutData = async (userId, buyNowItem = null) => {
             };
         }
 
-        const cart = await Cart.findOne({ userId })
-            .populate({
-                path: "items.productId",
-                populate: [
-                    { path: "category", match: { isListed: true, isDeleted: false } },
-                    { path: "brand", match: { isListed: true, isDeleted: false } },
-                ],
-            })
-            .lean();
+       const cart = await Cart.findOne({ userId })
+    .populate("items.productId")
+    .lean();
 
         if (!cart) {
             return {
@@ -65,7 +60,8 @@ export const getCheckoutData = async (userId, buyNowItem = null) => {
         const validItems = [];
         for (const item of cart.items) {
             const product = item.productId;
-            if (!product || product.isDeleted || product.isBlocked || !product.category || !product.brand) continue;
+
+            if (!product || product.isDeleted || product.isBlocked) continue;
             const variant = product.variants.find(v => v.size === item.size);
             if (!variant || variant.stock <= 0) continue;
             subtotal += variant.price * item.quantity;
@@ -151,13 +147,23 @@ export const placeOrder = async (userId, addressId, paymentMethod, couponCode = 
             }
         }
 
-        const shipping = subtotal >= 500 ? 0 : 99;
-        const tax = Math.round(subtotal * 0.08);
-        const discount = 0;
-        const grandTotal = subtotal + shipping + tax - discount;
+       const shipping = subtotal >= 500 ? 0 : 99;
+       const tax = Math.round(subtotal * 0.08);
 
+       let discount = 0;
+       let appliedCouponCode = null;
+
+     if (couponCode) {
+      const couponResult = await validateCoupon(couponCode, subtotal);
+
+     discount = couponResult.discount;
+    appliedCouponCode = couponResult.couponCode;
+}
+
+const grandTotal = subtotal + shipping + tax - discount;
         const order = await Order.create([{
             userId, items: orderItems,address, paymentMethod,
+            couponCode:appliedCouponCode,
             subTotal:subtotal,shipping, tax, discount,
             grandTotal, orderStatus: "Pending",
             paymentStatus: paymentMethod === "COD" ? "Pending" : "Paid",
@@ -314,5 +320,48 @@ export const validateCheckout = async (userId,buyNowItem=null) => {
 
   return {
     success: true
+  }
+}
+
+export const validateCoupon=async(couponCode,subTotal)=>{
+
+  if(!couponCode||!couponCode.trim()){
+    throw new Error("Please enter a coupon code")
+  }
+  const code=couponCode.trim().toUpperCase()
+  const coupon=await Coupon.findOne({code})
+
+
+  if(!coupon){
+    throw new Error("Invalid coupon code")
+  }
+  if(coupon.isDisabled){
+    throw new Error("This coupon is disabled")
+  }
+  const now=new Date()
+  if(now>new Date(coupon.expiryDate)){
+    throw new Error("This coupon has Expired")
+  }
+  if(subTotal<coupon.minPurchase){
+    throw new Error(`minimum purchase is ₹${coupon.minPurchase} `)
+  }
+  let discount=0
+  if(coupon.discountType==="PERCENTAGE"){
+    discount=subTotal*coupon.discountValue/100
+
+    if(coupon.maxDiscount!==null&&coupon.maxDiscount!==undefined){
+      discount=Math.min(discount,coupon.maxDiscount)
+    }
+  }else if(coupon.discountType==="FIXED"){
+    discount=coupon.discountValue
+  }
+  discount=Math.min(discount,subTotal)
+  
+  return{
+    success:true,
+    message:"Coupon applied successfully",
+    couponCode:coupon.code,
+    discount,
+    finalSubtotal:subTotal-discount
   }
 }

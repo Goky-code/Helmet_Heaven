@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helmet Haven – Coupons</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --sidebar: #111318;
+      --card: #161a22;
+      --border: #252934;
+      --surface: #1e2330;
+      --accent: #3b6ef5;
+      --accent2: #5c87ff;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --green: #22c55e;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --font-head: "Syne", sans-serif;
+      --font-body: "DM Sans", sans-serif;
+      --sidebar-w: 240px;
+      --radius: 10px;
+    }
+
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.3s ease; }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid var(--border); }
+    .logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .logo-text { font-family: var(--font-head); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+    nav { flex: 1; padding: 14px 0; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; text-decoration: none; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--accent2); background: rgba(59,110,245,0.1); border-left-color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg, .nav-item:hover svg { opacity: 1; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* TOPBAR */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid var(--border); background: var(--sidebar); position: sticky; top: 0; z-index: 50; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .hamburger { display: none; background: none; border: none; color: var(--text); cursor: pointer; font-size: 20px; padding: 4px; }
+    .page-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+    .btn-primary { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    /* CONTENT */
+    .content { padding: 24px 28px; flex: 1; }
+
+    /* FILTER CARD */
+    .filter-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+    .search-box { flex: 1; min-width: 220px; position: relative; }
+    .search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+    .search-box input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px 10px 38px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; transition: border-color 0.2s; }
+    .search-box input::placeholder { color: var(--muted); }
+    .search-box input:focus { border-color: var(--accent); }
+
+    .status-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .status-pill { background: var(--surface); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; white-space: nowrap; text-decoration: none; display: inline-flex; }
+    .status-pill:hover { border-color: var(--accent); color: var(--text); }
+    .status-pill.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* TABLE */
+    .table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .table-scroll { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 780px; }
+    thead { background: var(--surface); }
+    th { padding: 13px 18px; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+    tbody tr { border-top: 1px solid var(--border); transition: background 0.15s; }
+    tbody tr:hover { background: rgba(255,255,255,0.025); }
+    td { padding: 15px 18px; font-size: 14px; vertical-align: middle; white-space: nowrap; }
+    .coupon-name { font-weight: 700; color: var(--text); display: block; margin-bottom: 3px; letter-spacing: 0.02em; }
+    .coupon-sub { font-size: 11px; color: var(--muted); font-weight: 400; white-space: normal; max-width: 180px; }
+    .discount-val { color: var(--accent2); font-weight: 700; font-size: 14px; }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 11px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    .badge-active { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.25); }
+    .badge-inactive, .badge-disabled { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+    .badge-expired { background: rgba(245,158,11,0.12); color: var(--orange); border: 1px solid rgba(245,158,11,0.25); }
+    .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    .actions { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; }
+    .btn-icon { width: 34px; height: 34px; border: 1px solid var(--border); background: var(--surface); border-radius: 7px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; transition: background 0.2s, border-color 0.2s; color: var(--muted); text-decoration: none; }
+    .btn-icon:hover { background: rgba(255,255,255,0.08); border-color: var(--muted); color: var(--text); }
+    .btn-icon.edit:hover { border-color: var(--accent); color: var(--accent2); }
+    .btn-icon.del:hover { border-color: var(--red); color: var(--red); }
+
+    /* EMPTY STATE */
+    .empty-row td { text-align: center; padding: 48px; color: var(--muted); font-size: 14px; white-space: normal; }
+
+    /* PAGINATION */
+    .table-footer { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 10px; }
+    .results-count { font-size: 13px; color: var(--muted); }
+    .pagination { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+    .pagination a { text-decoration: none; padding: 8px 14px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--surface); transition: .2s; font-size: 13px; }
+    .pagination a:hover { background: var(--accent); color: #fff; }
+    .pagination a.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .pagination a.disabled { opacity: .4; pointer-events: none; }
+
+    /* MODAL */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+    .overlay.open { display: flex; }
+    .modal { background: var(--card); border: 1px solid var(--border); border-radius: 14px; width: 100%; max-width: 380px; padding: 28px; position: relative; animation: fadeUp 0.25s ease; text-align: center; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .modal-title { font-family: var(--font-head); font-size: 18px; font-weight: 700; margin-bottom: 12px; }
+    .modal-close { position: absolute; top: 18px; right: 18px; background: none; border: none; color: var(--muted); font-size: 20px; cursor: pointer; }
+    .modal-close:hover { color: var(--text); }
+    .btn-cancel { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.06); }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 30px; right: 30px; background: var(--green); color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; z-index: 999; animation: slideUp 0.25s ease; }
+    #toast.error { background: var(--red); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      th:nth-child(4), td:nth-child(4) { display: none; } /* Min Purchase */
+    }
+    @media (max-width: 700px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(-240px); width: 240px; }
+      .sidebar.open { transform: translateX(0); }
+      .overlay-bg.open { display: block; }
+      .main { margin-left: 0; }
+      .hamburger { display: block; }
+      .content { padding: 16px; }
+      .filter-card { flex-direction: column; align-items: stretch; }
+      .status-pills { width: 100%; }
+      .status-pill { flex: 1; justify-content: center; }
+    }
+    @media (max-width: 480px) {
+      th:nth-child(6), td:nth-child(6) { display: none; } /* Expiry Date */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay-bg" id="sidebarBg" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🪖</div>
+      <span class="logo-text">Helmet Haven</span>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="/admin/adminDashboard">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="/admin/products">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </a>
+      <a class="nav-item" href="/admin/adminCustomer">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <a class="nav-item" href="/admin/orders">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Orders
+      </a>
+      <a class="nav-item active" href="/admin/coupons">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Coupons
+      </a>
+      <a class="nav-item" href="/admin/categories">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 20h16M4 4h16M9 4v16M15 4v16"/></svg>
+        Category
+      </a>
+      <a class="nav-item" href="/admin/brands">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Brands
+      </a>
+      <a class="nav-item" href="/admin/Inventory">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Inventory
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        Offers
+      </a>
+      <!-- <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="3 9 12 15 21 9"/></svg>
+        Banner
+      </a> -->
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Sales Report
+      </a>
+      <a class="nav-item" href="/admin/logout">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <h1 class="page-title">Coupons</h1>
+      </div>
+      <a href="/admin/add-coupon" class="btn-primary">+ Create New Coupon</a>
+    </header>
+
+    <div class="content">
+
+      <!-- Filter -->
+      <div class="filter-card">
+        <div class="search-box">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Search coupon name or code..." value="<%= typeof search !== 'undefined' ? search : '' %>"/>
+        </div>
+        <div class="status-pills">
+          <a href="?status=" class="status-pill <%= typeof selectedStatus === 'undefined' || selectedStatus === '' ? 'active' : '' %>">All Status</a>
+          <a href="?status=ACTIVE" class="status-pill <%= typeof selectedStatus !== 'undefined' && selectedStatus === 'ACTIVE' ? 'active' : '' %>">Active</a>
+          <a href="?status=EXPIRED" class="status-pill <%= typeof selectedStatus !== 'undefined' && selectedStatus === 'EXPIRED' ? 'active' : '' %>">Expired</a>
+          <a href="?status=DISABLED" class="status-pill <%= typeof selectedStatus !== 'undefined' && selectedStatus === 'DISABLED' ? 'active' : '' %>">Disabled</a>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Coupon Name</th>
+              <th>Type</th>
+              <th>Discount</th>
+               <th>Max Discount</th>
+              <th>Min Purchase</th>
+              <th>Start Date</th>
+              <th>Expiry Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (typeof coupons === 'undefined' || coupons.length === 0) { %>
+              <tr class="empty-row">
+                <td colspan="8">No coupons found.</td>
+              </tr>
+            <% } else { %>
+              <% coupons.forEach((c) => { %>
+                <%
+                  const isPercent = c.discountType === 'PERCENTAGE' || c.type === 'Percentage';
+                  const discountLabel = isPercent
+                    ? (c.discountValue + '% Off')
+                    : ('₹' + Number(c.discountValue).toLocaleString('en-IN') + ' Off');
+
+                  let status = c.status;
+                  if (!status) {
+                    if (c.isDisabled) status = 'DISABLED';
+                    else if (c.expiryDate && new Date(c.expiryDate) < new Date()) status = 'EXPIRED';
+                    else status = 'ACTIVE';
+                  }
+                  const badgeClass = status === 'ACTIVE' ? 'active' : (status === 'EXPIRED' ? 'expired' : 'disabled');
+
+                  const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-US', { month:'short', day:'2-digit', year:'numeric' }) : 'N/A';
+                %>
+                <tr>
+
+    <!-- Coupon Name -->
+    <td>
+        <span class="coupon-name">
+            <%= c.name || c.code || 'N/A' %>
+        </span>
+
+        <span class="coupon-sub">
+            <%= c.description || '' %>
+        </span>
+    </td>
+
+
+    <!-- Type -->
+    <td>
+        <%= isPercent ? 'Percentage' : 'Fixed Amount' %>
+    </td>
+
+
+    <!-- Discount -->
+    <td>
+        <span class="discount-val">
+            <%= discountLabel %>
+        </span>
+    </td>
+
+
+    <!-- Max Discount -->
+    <td>
+        <% if (
+            isPercent &&
+            c.maxDiscount !== null &&
+            c.maxDiscount !== undefined
+        ) { %>
+
+            ₹<%= Number(c.maxDiscount).toLocaleString('en-IN') %>.00
+
+        <% } else { %>
+
+            N/A
+
+        <% } %>
+    </td>
+
+
+    <!-- Min Purchase -->
+    <td>
+        ₹<%= Number(c.minPurchase || 0).toLocaleString('en-IN') %>.00
+    </td>
+
+
+    <!-- Start Date -->
+    <td>
+        <%= fmtDate(c.startDate) %>
+    </td>
+
+
+    <!-- Expiry Date -->
+    <td>
+        <%= fmtDate(c.expiryDate) %>
+    </td>
+
+
+    <!-- Status -->
+    <td>
+        <span class="badge badge-<%= badgeClass %>">
+            <%= status %>
+        </span>
+    </td>
+
+
+    <!-- Actions -->
+    <td>
+        <div class="actions">
+
+            <a
+                href="/admin/edit-coupon/<%= c._id %>"
+                class="btn-icon edit"
+                title="Edit">
+                ✏️
+            </a>
+
+            <button
+                class="btn-icon del"
+                title="Delete"
+                onclick="deleteCoupon('<%= c._id %>')">
+                🗑️
+            </button>
+
+        </div>
+    </td>
+
+</tr>
+              <% }) %>
+            <% } %>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="table-footer">
+          <span class="results-count">
+            Showing <%= typeof coupons !== 'undefined' ? coupons.length : 0 %> of <%= typeof totalCoupons !== 'undefined' ? totalCoupons : 0 %> total coupons
+          </span>
+
+          <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+          <div class="pagination">
+            <a href="?page=<%= currentPage - 1 %>&search=<%= search || '' %>&status=<%= selectedStatus || '' %>" class="<%= currentPage <= 1 ? 'disabled' : '' %>">Previous</a>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+              <a href="?page=<%= i %>&search=<%= search || '' %>&status=<%= selectedStatus || '' %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+            <a href="?page=<%= currentPage + 1 %>&search=<%= search || '' %>&status=<%= selectedStatus || '' %>" class="<%= currentPage >= totalPages ? 'disabled' : '' %>">Next</a>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRM MODAL -->
+  <div class="overlay" id="deleteModal">
+    <div class="modal">
+      <button class="modal-close" onclick="document.getElementById('deleteModal').classList.remove('open')">✕</button>
+      <div style="font-size:40px;margin-bottom:12px">🗑️</div>
+      <h2 class="modal-title">Delete Coupon?</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:22px">This action cannot be undone. The coupon will be permanently removed.</p>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn-cancel" onclick="document.getElementById('deleteModal').classList.remove('open')">Cancel</button>
+        <button class="btn-primary" style="background:var(--red)" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let deletingId = null;
+
+    /* ── Search — reloads page with query params ── */
+    function filterTable() {
+      const q = document.getElementById("searchInput").value.trim();
+      const params = new URLSearchParams(window.location.search);
+      if (q) params.set("search", q); else params.delete("search");
+      params.delete("page");
+      window.location.href = `/admin/coupons?${params.toString()}`;
+    }
+    let searchDebounce;
+    document.getElementById("searchInput").addEventListener("input", () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(filterTable, 400);
+    });
+
+    /* ── Delete coupon ── */
+    function deleteCoupon(id) {
+      deletingId = id;
+      document.getElementById("deleteModal").classList.add("open");
+    }
+
+    async function confirmDelete() {
+      if (!deletingId) return;
+      try {
+        const res  = await fetch(`/admin/delete-coupon/${deletingId}`, { method: "PATCH" });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("deleteModal").classList.remove("open");
+          showToast("Coupon deleted.");
+          setTimeout(() => location.reload(), 800);
+        } else {
+          showToast(data.message || "Failed to delete.", false);
+        }
+      } catch (e) { showToast("Server error.", false); }
+    }
+
+    /* ── Toast ── */
+    function showToast(msg, isOk = true) {
+      const t = document.getElementById("toast");
+      t.textContent   = msg;
+      t.className     = isOk ? "" : "error";
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 3000);
+    }
+
+    /* ── Sidebar ── */
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebarBg").classList.toggle("open");
+    }
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarBg").classList.remove("open");
+    }
+
+    /* ── Close modals on backdrop click ── */
+    document.querySelectorAll(".overlay").forEach(ov => {
+      ov.addEventListener("click", e => { if (e.target === ov) ov.classList.remove("open"); });
+    });
+  </script>
+</body>
+</html>

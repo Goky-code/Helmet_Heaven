@@ -455,6 +455,21 @@
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('sidebarOverlay').classList.remove('open');
   }
+  const response = await fetch("/user/wallet/verify-topup", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(paymentResponse),
+});
+
+const result = await response.json();
+
+if (response.ok && result.success) {
+  window.location.href = result.redirectUrl;
+} else {
+  alert(result.message || "Payment verification failed");
+}
 </script>
 </body>
 </html>

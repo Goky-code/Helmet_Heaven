@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helmet Haven – Create Coupon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f14;
+      --sidebar: #111318;
+      --card: #161a22;
+      --border: #252934;
+      --surface: #1e2330;
+      --accent: #3b6ef5;
+      --accent2: #5c87ff;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --green: #22c55e;
+      --red: #ef4444;
+      --orange: #f59e0b;
+      --font-head: "Syne", sans-serif;
+      --font-body: "DM Sans", sans-serif;
+      --sidebar-w: 240px;
+      --radius: 10px;
+    }
+
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+    /* SIDEBAR */
+    .sidebar { width: var(--sidebar-w); background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; transition: transform 0.3s ease; }
+    .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 22px 20px; border-bottom: 1px solid var(--border); }
+    .logo-icon { width: 34px; height: 34px; background: var(--accent); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .logo-text { font-family: var(--font-head); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+    nav { flex: 1; padding: 14px 0; overflow-y: auto; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); cursor: pointer; transition: all 0.2s; border-left: 3px solid transparent; text-decoration: none; }
+    .nav-item:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+    .nav-item.active { color: var(--accent2); background: rgba(59,110,245,0.1); border-left-color: var(--accent); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg, .nav-item:hover svg { opacity: 1; }
+
+    /* MAIN */
+    .main { margin-left: var(--sidebar-w); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* TOPBAR */
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid var(--border); background: var(--sidebar); position: sticky; top: 0; z-index: 50; }
+    .topbar-left { display: flex; align-items: center; gap: 14px; }
+    .hamburger { display: none; background: none; border: none; color: var(--text); cursor: pointer; font-size: 20px; padding: 4px; }
+    .page-title { font-family: var(--font-head); font-size: 20px; font-weight: 700; }
+    .btn-primary { background: var(--accent); color: #fff; border: none; border-radius: var(--radius); padding: 9px 20px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, transform 0.1s; white-space: nowrap; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary:hover { background: var(--accent2); }
+    .btn-primary:active { transform: scale(0.97); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-back { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 9px 18px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-back:hover { background: rgba(255,255,255,0.06); }
+
+    /* CONTENT */
+    .content { padding: 24px 28px; flex: 1; display: flex; justify-content: center; }
+    .form-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 780px; }
+    .form-card h2 { font-family: var(--font-head); font-size: 17px; font-weight: 700; margin-bottom: 22px; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 20px; }
+    .field-group { display: flex; flex-direction: column; gap: 6px; }
+    .field-group.full { grid-column: 1 / -1; }
+    .field-group label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+    .field-group .req { color: var(--red); }
+
+    .field-group input, .field-group select, .field-group textarea {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+      padding: 11px 14px; color: var(--text); font-family: var(--font-body); font-size: 14px;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s; width: 100%;
+    }
+    .field-group textarea { resize: vertical; min-height: 80px; }
+    .field-group input::placeholder, .field-group textarea::placeholder { color: var(--muted); }
+    .field-group input:focus, .field-group select:focus, .field-group textarea:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59,110,245,0.12);
+    }
+    .field-group select option { background: var(--surface); }
+    .field-hint { font-size: 11px; color: var(--muted); }
+    .field-error { font-size: 11px; color: var(--red); display: none; }
+    .field-group.error input,
+    .field-group.error select { border-color: var(--red); }
+    .field-group.error .field-error { display: block; }
+
+    /* Discount value with dynamic suffix (₹ / %) */
+    .value-with-suffix { position: relative; }
+    .value-with-suffix input { padding-right: 40px; }
+    .value-suffix {
+      position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+      font-size: 14px; font-weight: 700; color: var(--accent2); pointer-events: none;
+    }
+
+    /* Max discount field disables for FIXED type */
+    .field-group.disabled { opacity: 0.45; }
+    .field-group.disabled input { cursor: not-allowed; }
+
+    /* Status toggle */
+    .status-toggle { display: flex; align-items: center; gap: 12px; }
+    .switch { position: relative; display: inline-block; width: 46px; height: 26px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; inset: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; transition: 0.2s; }
+    .slider::before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; top: 50%; transform: translateY(-50%); background: var(--muted); border-radius: 50%; transition: 0.2s; }
+    .switch input:checked + .slider { background: rgba(34,197,94,0.15); border-color: var(--green); }
+    .switch input:checked + .slider::before { transform: translate(20px, -50%); background: var(--green); }
+    .status-label { font-size: 13px; font-weight: 700; }
+    .status-label.active-txt { color: var(--green); }
+    .status-label.inactive-txt { color: var(--red); }
+
+    .form-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 26px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .btn-cancel { background: var(--surface); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px 22px; font-family: var(--font-body); font-size: 13px; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-cancel:hover { background: rgba(255,255,255,0.06); }
+    .btn-submit { background: var(--accent); border: none; color: #fff; border-radius: 8px; padding: 10px 26px; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer; }
+    .btn-submit:hover { background: var(--accent2); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    /* TOAST */
+    #toast { position: fixed; bottom: 30px; right: 30px; background: var(--green); color: #fff; padding: 12px 22px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; z-index: 999; animation: slideUp 0.25s ease; }
+    #toast.error { background: var(--red); }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .overlay-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 90; }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      :root { --sidebar-w: 0px; }
+      .sidebar { transform: translateX(-240px); width: 240px; }
+      .sidebar.open { transform: translateX(0); }
+      .overlay-bg.open { display: block; }
+      .main { margin-left: 0; }
+      .hamburger { display: block; }
+      .content { padding: 16px; }
+      .form-card { padding: 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+      .form-footer { flex-direction: column-reverse; }
+      .form-footer a, .form-footer button { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="overlay-bg" id="sidebarBg" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">🪖</div>
+      <span class="logo-text">Helmet Haven</span>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="/admin/adminDashboard">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" href="/admin/products">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        Products
+      </a>
+      <a class="nav-item" href="/admin/adminCustomer">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Customers
+      </a>
+      <a class="nav-item" href="/admin/orders">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        Orders
+      </a>
+      <a class="nav-item active" href="/admin/coupons">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+        Coupons
+      </a>
+      <a class="nav-item" href="/admin/categories">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 20h16M4 4h16M9 4v16M15 4v16"/></svg>
+        Category
+      </a>
+      <a class="nav-item" href="/admin/brands">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+        Brands
+      </a>
+      <a class="nav-item" href="/admin/Inventory">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Inventory
+      </a>
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
+        Offers
+      </a>
+      <!-- <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="3 9 12 15 21 9"/></svg>
+        Banner
+      </a> -->
+      <a class="nav-item" href="#">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Sales Report
+      </a>
+      <a class="nav-item" href="/admin/logout">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <h1 class="page-title"><%= typeof coupon !== 'undefined' && coupon ? 'Edit Coupon' : 'Create Coupon' %></h1>
+      </div>
+      <a href="/admin/coupons" class="btn-back">← Back to Coupons</a>
+    </header>
+
+    <div class="content">
+      <form class="form-card" id="couponForm" novalidate>
+        <h2><%= typeof coupon !== 'undefined' && coupon ? 'Edit Coupon Details' : 'New Coupon Details' %></h2>
+
+        <div class="form-grid">
+
+          <div class="field-group full" id="fg-name">
+            <label>Coupon Code / Name <span class="req">*</span></label>
+            <input type="text" id="name" placeholder="e.g. SAVE10" value="<%= typeof coupon !== 'undefined' && coupon ? (coupon.name || coupon.code || '') : '' %>" maxlength="30"/>
+            <span class="field-error">Coupon code / name is required.</span>
+          </div>
+
+          <div class="field-group full" id="fg-description">
+            <label>Coupon Description</label>
+            <textarea id="description" placeholder="e.g. Flat discount for new season sale"><%= typeof coupon !== 'undefined' && coupon ? (coupon.description || '') : '' %></textarea>
+          </div>
+
+          <div class="field-group" id="fg-discountType">
+            <label>Discount Type <span class="req">*</span></label>
+            <select id="discountType" onchange="onDiscountTypeChange()">
+              <option value="">Select Type</option>
+              <option value="PERCENTAGE" <%= (typeof coupon !== 'undefined' && coupon && coupon.discountType === 'PERCENTAGE') ? 'selected' : '' %>>Percentage</option>
+              <option value="FIXED" <%= (typeof coupon !== 'undefined' && coupon && coupon.discountType === 'FIXED') ? 'selected' : '' %>>Fixed</option>
+            </select>
+            <span class="field-error">Please select a discount type.</span>
+          </div>
+
+          <div class="field-group" id="fg-discountValue">
+            <label>Discount Value <span class="req">*</span></label>
+            <div class="value-with-suffix">
+              <input type="number" id="discountValue" placeholder="e.g. 10" min="0" step="0.01" value="<%= typeof coupon !== 'undefined' && coupon ? (coupon.discountValue || '') : '' %>"/>
+              <span class="value-suffix" id="discountValueSuffix"></span>
+            </div>
+            <span class="field-hint" id="discountValueHint">Choose a discount type first.</span>
+            <span class="field-error">Enter a valid discount value.</span>
+          </div>
+
+          <div class="field-group" id="fg-maxDiscount">
+            <label>Maximum Discount</label>
+            <div class="value-with-suffix">
+              <input type="number" id="maxDiscount" placeholder="e.g. 100" min="0" step="0.01" value="<%= typeof coupon !== 'undefined' && coupon ? (coupon.maxDiscount || '') : '' %>"/>
+              <span class="value-suffix">₹</span>
+            </div>
+            <span class="field-hint" id="maxDiscountHint">Applies only to percentage discounts.</span>
+            <span class="field-error">Enter a valid amount.</span>
+          </div>
+
+          <div class="field-group" id="fg-minPurchase">
+            <label>Minimum Purchase </label>
+            <div class="value-with-suffix">
+              <input type="number" id="minPurchase" placeholder="e.g. 1000" min="0" step="0.01" value="<%= typeof coupon !== 'undefined' && coupon ? (coupon.minPurchase || '') : '' %>"/>
+              <span class="value-suffix">₹</span>
+            </div>
+            <span class="field-error">Enter a valid minimum purchase amount.</span>
+          </div>
+
+          <div class="field-group" id="fg-startDate">
+            <label>Start Date <span class="req">*</span></label>
+            <input type="date" id="startDate" value="<%= typeof coupon !== 'undefined' && coupon && coupon.startDate ? new Date(coupon.startDate).toISOString().slice(0,10) : '' %>"/>
+            <span class="field-error">Start date is required.</span>
+          </div>
+
+          <div class="field-group" id="fg-expiryDate">
+            <label>Expiry Date <span class="req">*</span></label>
+            <input type="date" id="expiryDate" value="<%= typeof coupon !== 'undefined' && coupon && coupon.expiryDate ? new Date(coupon.expiryDate).toISOString().slice(0,10) : '' %>"/>
+            <span class="field-error">Expiry date must be after the start date.</span>
+          </div>
+
+          <div class="field-group full" id="fg-status">
+            <label>Status</label>
+            <div class="status-toggle">
+              <label class="switch">
+                <input type="checkbox" id="statusToggle" <%= (typeof coupon === 'undefined' || !coupon || !coupon.isDisabled) ? 'checked' : '' %> onchange="onStatusToggle()"/>
+                <span class="slider"></span>
+              </label>
+              <span class="status-label" id="statusLabel"></span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-footer">
+          <a href="/admin/coupons" class="btn-cancel">Cancel</a>
+          <button type="button" class="btn-submit" id="submitBtn" onclick="submitCoupon()">
+            <%= typeof coupon !== 'undefined' && coupon ? 'Update Coupon' : 'Create Coupon' %>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    const isEdit   = <%= typeof coupon !== 'undefined' && coupon ? 'true' : 'false' %>;
+    const couponId = <%= typeof coupon !== 'undefined' && coupon ? ("'" + coupon._id + "'") : 'null' %>;
+
+    /* ── Discount type → dynamic suffix + max discount enable/disable ── */
+    function onDiscountTypeChange() {
+      const type       = document.getElementById("discountType").value;
+      const suffixEl    = document.getElementById("discountValueSuffix");
+      const hintEl      = document.getElementById("discountValueHint");
+      const maxGroup    = document.getElementById("fg-maxDiscount");
+      const maxInput    = document.getElementById("maxDiscount");
+      const maxHint     = document.getElementById("maxDiscountHint");
+      const valueInput  = document.getElementById("discountValue");
+
+      if (type === "PERCENTAGE") {
+        suffixEl.textContent = "%";
+        hintEl.textContent   = "Percentage off the order total (e.g. 10 = 10%).";
+        valueInput.max       = 100;
+        maxGroup.classList.remove("disabled");
+        maxInput.disabled    = false;
+        maxHint.textContent  = "Cap on the discount amount for this % coupon.";
+      } else if (type === "FIXED") {
+        suffixEl.textContent = "₹";
+        hintEl.textContent   = "Flat amount deducted from the order total.";
+        valueInput.removeAttribute("max");
+        maxGroup.classList.add("disabled");
+        maxInput.disabled    = true;
+        maxInput.value       = "";
+        maxHint.textContent  = "Not applicable for fixed-amount coupons.";
+      } else {
+        suffixEl.textContent = "";
+        hintEl.textContent   = "Choose a discount type first.";
+        valueInput.removeAttribute("max");
+        maxGroup.classList.remove("disabled");
+        maxInput.disabled    = false;
+        maxHint.textContent  = "Applies only to percentage discounts.";
+      }
+    }
+
+    /* ── Status toggle label ── */
+    function onStatusToggle() {
+      const checked = document.getElementById("statusToggle").checked;
+      const label   = document.getElementById("statusLabel");
+      label.textContent = checked ? "Active" : "Inactive";
+      label.className   = "status-label " + (checked ? "active-txt" : "inactive-txt");
+    }
+
+    /* ── Field error helpers ── */
+    function setError(fieldId, show) {
+      document.getElementById(fieldId).classList.toggle("error", show);
+    }
+    function clearAllErrors() {
+      document.querySelectorAll(".field-group").forEach(el => el.classList.remove("error"));
+    }
+
+    /* ── Validate + submit ── */
+    async function submitCoupon() {
+      clearAllErrors();
+
+      const name          = document.getElementById("name").value.trim();
+      const description   = document.getElementById("description").value.trim();
+      const discountType  = document.getElementById("discountType").value;
+      const discountValue = parseFloat(document.getElementById("discountValue").value);
+      const maxDiscount   = document.getElementById("maxDiscount").value;
+      const minPurchase   = parseFloat(document.getElementById("minPurchase").value);
+      const startDate     = document.getElementById("startDate").value;
+      const expiryDate    = document.getElementById("expiryDate").value;
+      const isActive      = document.getElementById("statusToggle").checked;
+
+      let valid = true;
+
+      if (!name) { setError("fg-name", true); valid = false; }
+      if (!discountType) { setError("fg-discountType", true); valid = false; }
+      if (isNaN(discountValue) || discountValue <= 0 || (discountType === "PERCENTAGE" && discountValue > 100)) {
+        setError("fg-discountValue", true); valid = false;
+      }
+      if (discountType === "PERCENTAGE" && maxDiscount !== "" && (isNaN(maxDiscount) || Number(maxDiscount) < 0)) {
+        setError("fg-maxDiscount", true); valid = false;
+      }
+      if (isNaN(minPurchase) || minPurchase < 0) { setError("fg-minPurchase", true); valid = false; }
+      if (!startDate) { setError("fg-startDate", true); valid = false; }
+      if (!expiryDate || (startDate && new Date(expiryDate) <= new Date(startDate))) {
+        setError("fg-expiryDate", true); valid = false;
+      }
+
+      if (!valid) { showToast("Please fix the highlighted fields", false); return; }
+
+      const payload = {
+        name,
+        description,
+        discountType,
+        discountValue,
+        maxDiscount: discountType === "PERCENTAGE" && maxDiscount !== "" ? Number(maxDiscount) : null,
+        minPurchase,
+        startDate,
+        expiryDate,
+        isDisabled: !isActive,
+      };
+
+      const btn = document.getElementById("submitBtn");
+      btn.disabled = true;
+      btn.textContent = isEdit ? "Updating..." : "Creating...";
+
+      try {
+        const url    = isEdit ? `/admin/edit-coupon/${couponId}` : "/admin/add-coupon";
+        const method = isEdit ? "PUT" : "POST";
+        const res    = await fetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showToast(isEdit ? "Coupon updated successfully" : "Coupon created successfully");
+          setTimeout(() => { window.location.href = "/admin/coupons"; }, 900);
+        } else {
+          showToast(data.message || "Something went wrong", false);
+        }
+      } catch (e) {
+        showToast("Server error", false);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = isEdit ? "Update Coupon" : "Create Coupon";
+      }
+    }
+
+    /* ── Toast ── */
+    function showToast(msg, isOk = true) {
+      const t = document.getElementById("toast");
+      t.textContent   = msg;
+      t.className     = isOk ? "" : "error";
+      t.style.display = "block";
+      setTimeout(() => { t.style.display = "none"; }, 3000);
+    }
+
+    /* ── Sidebar ── */
+    function toggleSidebar() {
+      document.getElementById("sidebar").classList.toggle("open");
+      document.getElementById("sidebarBg").classList.toggle("open");
+    }
+    function closeSidebar() {
+      document.getElementById("sidebar").classList.remove("open");
+      document.getElementById("sidebarBg").classList.remove("open");
+    }
+
+    /* ── Init on load (handles pre-filled edit-mode values) ── */
+    onDiscountTypeChange();
+    onStatusToggle();
+  </script>
+</body>
+</html>

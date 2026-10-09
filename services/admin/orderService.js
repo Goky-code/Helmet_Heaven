@@ -244,36 +244,39 @@ export const recalculateOrderTotals=(order)=>{
   const activeItems=order.items.filter(item=>item.status!=="Cancelled"&&item.status!=="Returned")
   const subTotal=activeItems.reduce((sum,item)=>sum+Number(item.totalPrice||0),0)
   const tax=Number((subTotal*0.08).toFixed(2))
-  const shipping=Number(order.shipping||0)
-  const discount=Number(order.discount||0)
+  const shipping=activeItems.length>0?Number(order.shipping||0):0
+  const discount=activeItems.length>0?Number(order.discount||0):0
 
   const grandTotal=Number((subTotal+shipping+tax-discount).toFixed(2))
   order.subTotal=subTotal
   order.tax=tax
-  order.grandTotal=grandTotal
+  order.shipping=shipping
+  order.discount=discount
+  order.grandTotal=Math.max(grandTotal, 0)
 
   return order
 }
 
-const calculateItemRefundAmount=(order,item)=>{
+export const calculateItemRefundAmount=(order,item)=>{
   const activeItems=order.items.filter(existingItem=>existingItem.status!=="Cancelled"&&existingItem.status!=="Returned")
   const activeSubtotal=activeItems.reduce((sum,existingItem)=>sum+Number(existingItem.totalPrice||0),0)
   const orderTax=Number(order.tax||0)
+  const orderDiscount=Number(order.discount||0)
   const itemPrice = Number(item.totalPrice || 0)
 
   if (activeSubtotal <= 0) {
     return Number(itemPrice.toFixed(2));
   }
-
+ const ratio = itemPrice / activeSubtotal
   const itemTax = Number(
     (
       (itemPrice / activeSubtotal) *
       orderTax
     ).toFixed(2)
   )
-
+const itemDiscount = Number((ratio * orderDiscount).toFixed(2))
   const refundAmount = Number(
-    (itemPrice + itemTax).toFixed(2)
+    Math.max(itemPrice + itemTax - itemDiscount, 0).toFixed(2)
   )
 
   return refundAmount
@@ -315,9 +318,12 @@ export const updateOrderStatus=async(orderId,status)=>{
       if(item.status==="Returned"){
         continue
       }
-      if(order.paymentMethod === "Wallet" &&
-        order.paymentStatus === "Paid"){
-
+     
+      if (
+    (order.paymentMethod === "Wallet" ||
+     order.paymentMethod === "Razorpay") &&
+    order.paymentStatus === "Paid"
+) {
           const refundAmount= calculateItemRefundAmount(order, item)
 
           if(!refundAmount||refundAmount<=0){
@@ -472,7 +478,11 @@ export const changeOrderItemStatus = async (orderId, itemId, status) => {
         }
     )
 
-    if(order.paymentMethod==="Wallet"&& order.paymentStatus==="Paid"){
+  if (
+    (order.paymentMethod === "Wallet" ||
+     order.paymentMethod === "Razorpay") &&
+    order.paymentStatus === "Paid"
+) {
       const refundAmount= calculateItemRefundAmount(order, item)
         
       if(!refundAmount||refundAmount<=0){

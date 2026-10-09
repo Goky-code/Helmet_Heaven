@@ -1,6 +1,6 @@
 import Order from "../../models/orderModel.js"
 import Product from "../../models/productModel.js"
-import { calculateOrderStatus, recalculateOrderTotals } from "../admin/orderService.js"
+import { calculateOrderStatus, recalculateOrderTotals,calculateItemRefundAmount } from "../admin/orderService.js"
 import * as walletService from "./walletService.js"
 
 export const getOrderDetails=async(userId,orderId)=>{
@@ -52,6 +52,9 @@ export const getOrderDetails=async(userId,orderId)=>{
                 : `₹${order.shipping}`,
 
         tax: `₹${order.tax}`,
+        discount: order.discount > 0 ? `₹${order.discount}` : null,
+        couponCode: order.couponCode || null,
+
 
         total: `₹${order.grandTotal}`,
 
@@ -164,14 +167,18 @@ export const cancelOrderItems=async(userId,orderId,selectedItems,body)=>{
         const reason = body[`reason_${itemId}`] || ""
         const comment = body[`comment_${itemId}`] || ""
 
-        if(order.paymentMethod==="Wallet"&&order.paymentStatus==="Paid"){
-            const refundAmount=Number(item.totalPrice)
+        if (
+    (order.paymentMethod === "Wallet" ||
+     order.paymentMethod === "Razorpay") &&
+    order.paymentStatus === "Paid"
+) {
+            const refundAmount = calculateItemRefundAmount(order, item)
 
             if(!refundAmount||refundAmount<=0){
                 throw new Error(`Invalid refund amount for ${item.productName}`)
             }
 
-            const refundResult=await walletService.refundToWallet({
+            await walletService.refundToWallet({
                 userId:order.userId,
                 amount:refundAmount,
                 orderId:order._id.toString(),

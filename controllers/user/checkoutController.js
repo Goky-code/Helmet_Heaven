@@ -1,4 +1,5 @@
 import * as checkoutService from "../../services/user/checkoutService.js";
+import Coupon from "../../models/couponModel.js"
 import Address from "../../models/addressModel.js";
 import HTTP_STATUS from "../../utils/httpStatus.js"
 
@@ -150,5 +151,73 @@ export const validateCheckout = async (req, res) => {
             success: false,
             message: "Unable to validate product availability."
         })
+    }
+}
+
+export const applyCoupon=async(req,res)=>{
+    try{
+        const userId=req.session.user
+        const{couponCode,buyNow,productId,size,qty}=req.body
+
+        const buyNowItem=buyNow===true||buyNow==="true"?{
+            productId,size,quantity:Math.max(1,parseInt(qty)||1)
+        }:null
+        const checkoutData=await checkoutService.getCheckoutData(userId,
+            buyNowItem
+        )
+      console.log("========== COUPON DEBUG ==========");
+console.log("Coupon:", couponCode);
+console.log("Checkout subtotal:", checkoutData.subtotal);
+console.log("==================================");
+
+        const result=await checkoutService.validateCoupon(couponCode,
+            checkoutData.subtotal
+        )
+        console.log("========== COUPON RESULT ==========");
+console.log(result);
+console.log("discount:", result.discount);
+console.log("==================================");
+        return res.json({
+            ...result,
+          subtotal: checkoutData.subtotal,
+            shipping: checkoutData.shipping,
+            tax: checkoutData.tax,
+            total: checkoutData.total - result.discount
+        })
+    }catch(error){
+         console.log("========== APPLY COUPON ERROR ==========");
+    console.log(error);
+    console.log("========================================");
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+            success:false,
+            message:error.message||"unable to apply coupon"
+        })
+    }
+}
+
+export const getAvailableCoupons=async(req,res)=>{
+    try{
+        const now=new Date()
+
+        const coupons=await Coupon.find({
+            isDisabled:false,
+            startDate:{$lte:now},
+            expiryDate:{$gte:now}
+        })
+        .select("name code description discountType discountValue maxDiscount minPurchase expiryDate")
+        .sort({createdAt:-1})
+        .lean()
+
+        return res.json({
+            success:true,
+            coupons
+        })
+    }catch(error){
+         console.error("Get available coupons error:", error)
+
+         return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+            success:false,
+            message:"Unable to load avaliable coupons"
+         })
     }
 }
