@@ -1,3 +1,4 @@
+import mongoose from "mongoose"
 import Wallet from "../../models/walletModel.js"
 import WalletTransaction from "../../models/walletTransaction.js"
 import crypto from "crypto"
@@ -87,5 +88,70 @@ export const refundToWallet=async({
     alreadyRefunded:false,
     wallet,
     transaction,
+  }
+}
+
+export const createTopUpTransaction=async({
+  userId,amount,razorpayOrderId,
+})=>{
+  const wallet=await Wallet.findOneAndUpdate(
+    {userId},{$setOnInsert:{balance:0}},
+    {upsert:true, returnDocument: "after",setDefaultsOnInsert:true,}
+  )
+
+  const transaction=await WalletTransaction.create({
+    walletId:wallet._id,
+    userId,
+    transactionId: `TXN_${crypto.randomUUID()}`,
+    type: "CREDIT",
+    amount,
+    description: "Wallet Top-up",
+    subDescription: "Money added through Razorpay",
+    status: "PENDING",
+    referenceId: razorpayOrderId,
+  })
+  return transaction
+}
+
+export const completeTopUp=async({
+  userId,razorpayOrderId
+})=>{
+  const session=await mongoose.startSession()
+
+  try{
+    session.startTransaction()
+
+    const transaction=await WalletTransaction.findOne({
+     userId,
+    referenceId: razorpayOrderId,
+      type: "CREDIT",
+      description: "Wallet Top-up",
+      status: "PENDING",
+    }).session(session)
+
+    if(!transaction){
+      throw new Error("Pending transaction not found or payment already processed")
+    }
+    const wallet = await Wallet.findOneAndUpdate(
+      { _id: transaction.walletId, userId },
+      { $inc: { balance: transaction.amount } },
+      { new: true, session })
+
+      if(!wallet){
+        throw new Error("Wallet not found")
+      }
+      transaction.status="COMPLETED"
+      await transaction.save({session})
+      await session.commitTransaction()
+
+      return{
+        balance:wallet.balance,
+        transaction,
+      }
+  }catch(error){
+    await session.abortTransaction()
+    throw error
+  }finally{
+    await session.endSession()
   }
 }

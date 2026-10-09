@@ -167,14 +167,18 @@ export const cancelOrderItems=async(userId,orderId,selectedItems,body)=>{
         const reason = body[`reason_${itemId}`] || ""
         const comment = body[`comment_${itemId}`] || ""
 
-        if(order.paymentMethod==="Wallet"&&order.paymentStatus==="Paid"){
+        if (
+    (order.paymentMethod === "Wallet" ||
+     order.paymentMethod === "Razorpay") &&
+    order.paymentStatus === "Paid"
+) {
             const refundAmount = calculateItemRefundAmount(order, item)
 
             if(!refundAmount||refundAmount<=0){
                 throw new Error(`Invalid refund amount for ${item.productName}`)
             }
 
-            const refundResult=await walletService.refundToWallet({
+            await walletService.refundToWallet({
                 userId:order.userId,
                 amount:refundAmount,
                 orderId:order._id.toString(),
