@@ -1,4 +1,7 @@
 import * as shopService from "../../services/user/shopService.js";
+import {
+  calculateProductOffer
+} from "../../services/admin/offerService.js";
 
 export const loadShop = async (req, res) => {
 
@@ -9,18 +12,40 @@ export const loadShop = async (req, res) => {
         req.query,
         req.session.user
       );
-console.log(req.query);
-    res.render(
-      "user/product/productCategory",
-      data
-    );
 
-  } catch (error) {
+ const productsWithOffers=await Promise.all(data.
+  products.map(async product=>{
+    const item=typeof product.toObject==="function"
+    ?product.toObject():product
 
-    console.log(error);
+    const activeVariant=item._activeVariant
+    let offerPricing = null
+     
+        if (
+          activeVariant &&
+          activeVariant.status === "ACTIVE" &&
+          activeVariant.stock > 0
+        ) {
+          offerPricing = await calculateProductOffer(
+            item,
+            activeVariant.price
+          );
+        }
 
-    res.redirect("/pageNotFound");
+    return{
+      ...item,offerPricing
+    }
 
+  })
+)
+console.log(req.query)
+
+res.render("user/product/productCategory",{
+  ...data,
+  products:productsWithOffers
+})
+  }catch(error){
+    console.log(error)
+    res.redirect("/pageNotFound")
   }
-
 }

@@ -1,5 +1,9 @@
 import Wishlist from "../../models/wishlistModel.js";
 import Cart from "../../models/cartModel.js";
+import {
+  calculateProductOffer
+} from "../../services/admin/offerService.js";
+
 
  const isItemUnavailable=(product,size)=>{
     if(!product)
@@ -112,16 +116,44 @@ export const getWishlist = async (userId,page=1,limit=5) => {
 
 
  
-  wishlistData.products = paginatedProducts;
+  wishlistData.products = await Promise.all(
+    paginatedProducts.map(async(item)=>{
+      const plainItem=typeof item.toObject==="function"
+      ?item.toObject():item
 
+      const product=plainItem.productId
+
+      if(!product){
+        return{
+          ...plainItem,
+          offerPricing:null,
+        }
+      }
+
+      const selectedVariant=product.variants?.find((variant)=>
+        variant.size===plainItem.size&&variant.status==="ACTIVE")
+
+      if(!selectedVariant){
+        return{
+          ...plainItem,
+          offerPricing:null,
+        }
+      }
+
+      const offerPricing=await calculateProductOffer(product,selectedVariant.price)
+
+      return{
+        ...plainItem,
+        offerPricing,
+      }
+    })
+  )
 
   return {
 
     wishlist: wishlistData,
-
     cartCount,
     wishlistCount,
-
     totalItems,
     totalPages,
     currentPage: safePage,

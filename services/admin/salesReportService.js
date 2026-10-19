@@ -1,4 +1,5 @@
 import Order from "../../models/orderModel.js"
+import Product from "../../models/productModel.js"
 
 export const getDateRange=({type,startDate,endDate})=>{
     const now=new Date()
@@ -24,25 +25,26 @@ export const getDateRange=({type,startDate,endDate})=>{
         
     }else if(type==="monthly"){
         start=new Date(now.getFullYear(),now.getMonth(),1)
-        start.setHours(0,0,0,0)
         end=new Date(now.getFullYear(),now.getMonth()+1,0)
         end.setHours(23,59,59,999)
 
     }else if(type==="yearly"){
         start=new Date(now.getFullYear(),0,1)
-        start.setHours(0,0,0,0)
-
         end=new Date(now.getFullYear(),11,31)
         end.setHours(23,59,59,999)
     }else if(type==="custom"){
         if(!startDate||!endDate){
             throw new Error("Start date and end date are required")
         }
-        start=new Date(startDate)
-        start.setHours(0,0,0,0)
+         start = new Date(`${startDate}T00:00:00`);
+        end = new Date(`${endDate}T23:59:59.999`);
+       
 
-        end=new Date(endDate)
-        end.setHours(23,59,59,999)
+        if (Number.isNaN(start.getTime())||Number.isNaN(end.getTime()) ||
+            start > end
+        ) {
+            throw new Error("Invalid date range");
+        }
     }else{
         throw new Error("Invalid report type")
     }
@@ -50,7 +52,10 @@ export const getDateRange=({type,startDate,endDate})=>{
 }
 
 export const getSalesReport=async({
-    type,startDate,endDate
+    type="daily",
+    startDate="",
+    endDate="",
+    search=""
 })=>{
 
     const {start,end}=getDateRange({
@@ -64,79 +69,113 @@ export const getSalesReport=async({
             $gte:start,
             $lte:end
         }
-    }).sort({createdAt:-1}).lean()
+    }).sort({createdAt:-1})
+    .populate("items.productId","productName")
+    .lean()
 
-    let totalOrders=0
+  
     let totalItemsSold=0
     let grossSales = 0
     let productDiscount = 0
     let couponDiscount = 0
-    let totalDiscount = 0
     let netSales = 0
 
-    const reportOrders=orders.map(order=>{
-        totalOrders++
+     const allSales = []
 
-        let orderGrossSales=0
+    for(const order of orders){
+        let orderGross=0
         let orderProductDiscount=0
-        let orderItems=0
+        let orderQuantity=0
 
-        for(const item of order.items){
-            const quantity=Number(item.quantity||0)
-            const regularPrice=Number(item.regularPrice||0)
-            const salePrice=Number(item.salePrice||regularPrice)
-              orderItems += quantity
-            orderGrossSales += regularPrice * quantity
-                orderProductDiscount += (regularPrice - salePrice) * quantity     
-        }
-         const orderCouponDiscount =
-            Number(order.discount || 0);
+        const items=order.items||[]
+            for(const item of items){
+                const quantity=Number(item.quantity)||0
+                const regularPrice=Number(item.regularPrice)||0
+                const salePrice=item.salePrice==null?regularPrice:Number(item.salePrice)
+                const safeSalePrice=Number.isFinite(salePrice)?salePrice:regularPrice
+                const lineGross=regularPrice*quantity
+                const lineDiscount=Math.max(0,regularPrice-safeSalePrice)*quantity
+                const productName=item.productName||item.productId?.productName||"Unknown Product"
 
+                orderGross+=lineGross
+                orderProductDiscount+=lineDiscount
+                orderQuantity+=quantity
 
-        const orderTotalDiscount =
-            orderProductDiscount +
-            orderCouponDiscount;
-
-
-        const orderAmount =
-            Number(order.grandTotal || 0);
-
-
-        totalItemsSold += orderItems;
-
-        grossSales += orderGrossSales;
-
+                allSales.push({
+                    orderId:order.orderId,
+                    productName,
+                    quantity,
+                     price: lineGross,
+                discount: lineDiscount,
+                paymentMethod: order.paymentMethod || "N/A",
+                date: order.createdAt
+                })
+            }
+           const orderCouponDiscount =Number(order.discount) || 0
+         totalItemsSold += orderQuantity
+        grossSales += orderGross
         productDiscount += orderProductDiscount
-
         couponDiscount += orderCouponDiscount
 
-        totalDiscount += orderTotalDiscount
-
-        netSales += orderAmount
-
-        return{
-            orderId:order.orderId,
-            date:order.createdAt,
-            items:orderItems,
-            grossSales:orderGrossSales,
-            productDiscount:orderProductDiscount,
-            couponDiscount:orderCouponDiscount,
-            totalDiscount:orderTotalDiscount,
-            orderAmount
+        netSales += Number(order.grandTotal) || 0
         }
+         const totalDiscount = productDiscount + couponDiscount
 
-    })
+         const filteredSales = search.trim()
+        ? allSales.filter((sale) => {
+            const query = search.trim().toLowerCase();
+
+            return (
+                String(sale.orderId || "").toLowerCase().includes(query) ||
+                sale.productName.toLowerCase().includes(query)
+            );
+        })
+        : allSales
+
+    //     const orderTotalDiscount =
+    //         orderProductDiscount +
+    //         orderCouponDiscount;
+
+
+    //     const orderAmount =
+    //         Number(order.grandTotal || 0);
+
+
+    //     totalItemsSold += orderItems;
+
+    //     grossSales += orderGrossSales;
+
+    //     productDiscount += orderProductDiscount
+
+    //     couponDiscount += orderCouponDiscount
+
+    //     totalDiscount += orderTotalDiscount
+
+    //     netSales += orderAmount
+
+    //     return{
+    //         orderId:order.orderId,
+    //         date:order.createdAt,
+    //         items:orderItems,
+    //         grossSales:orderGrossSales,
+    //         productDiscount:orderProductDiscount,
+    //         couponDiscount:orderCouponDiscount,
+    //         totalDiscount:orderTotalDiscount,
+    //         orderAmount
+    //     }
+
+    // })
 
     return{
         start,
         end,
-        totalOrders,
+        totalOrders:orders.length,
         totalItemsSold,
         grossSales,
         productDiscount,
         couponDiscount,
         totalDiscount,
         netSales,
-        orders:reportOrders
+        orders:filteredSales
     }
 }

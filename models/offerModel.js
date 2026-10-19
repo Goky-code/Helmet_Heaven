@@ -41,7 +41,7 @@ const offerSchema = new mongoose.Schema(
     discountValue: {
       type: Number,
       required: true,
-      min: 0,
+      min: 0.01,
     },
 
     startDate: {

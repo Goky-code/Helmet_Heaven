@@ -132,7 +132,7 @@ export const createRazorpayOrder=async(req,res)=>{
             isBuyNow&&productId&&size?{
                 productId,
                 size,
-                qty:Math.max(1, parseInt(qty) || 1)
+                quantity:Math.max(1, parseInt(qty) || 1)
             }:null
 
         const data=await paymentService.getPaymentPageData(userId,addressId,buyNowItem,couponCode||null)

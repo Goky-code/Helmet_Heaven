@@ -9,14 +9,16 @@ export const loadSalesReport=async(req,res)=>{
         const {
             type="daily",
             startDate="",
-            endDate=""
+            endDate="",
+            search = ""
         }=req.query
     
 
     const report=await salesReportService.getSalesReport({
         type,
         startDate,
-        endDate
+        endDate,
+        search
     })
 
     res.render('admin/salesReport',{
@@ -25,12 +27,13 @@ export const loadSalesReport=async(req,res)=>{
        startDate:report.start,
        endDate:report.end,
        totalRevenue:report.netSales,
-       totalOrders:report.totalDiscount,
+       totalOrders:report.totalOrders,
+       totalDiscount:report.totalDiscount,
        currentPage:1,
        totalPage:1,
        totalRecords:report.orders.length,
        limit:report.orders.length||10,
-       search:""
+       search
 
     })
 
@@ -53,10 +56,11 @@ export const downloadSalesReportPDF = async (req, res) => {
         } = req.query;
 
 
-        const report = await getSalesReport({
-            type,
-            startDate,
-            endDate
+        const report = await salesReportService. getSalesReport({
+            type: req.query.type || "daily",
+            startDate: req.query.startDate || "",
+            endDate: req.query.endDate || "",
+            search: req.query.search || ""
         });
 
 
@@ -199,7 +203,7 @@ export const downloadSalesReportExcel = async (req, res) => {
         } = req.query;
 
 
-        const report = await getSalesReport({
+        const report = await salesReportService.getSalesReport({
             type,
             startDate,
             endDate

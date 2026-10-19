@@ -289,7 +289,7 @@
                   <td><%= fmtDate(o.expiryDate || o.endDate) %></td>
 
                   <!-- Offer For -->
-                  <td><span class="offer-for"><%= offerFor %></span></td>
+                  <td><span class="offer-for"><%= o.offerFor || o.categoryId?.name || o.productId?.productName || "N/A" %></span></td>
 
                   <!-- Discount -->
                   <td><span class="discount-val"><%= discountLabel %></span></td>

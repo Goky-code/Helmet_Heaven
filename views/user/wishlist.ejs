@@ -424,6 +424,58 @@
   cursor: not-allowed;
 }
 
+.wishlist-price-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.wishlist-sale-price {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.wishlist-price-details {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.wishlist-original-price {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.wishlist-offer-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: rgba(56, 161, 105, 0.14);
+  border: 1px solid rgba(56, 161, 105, 0.35);
+  color: #48bb78;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.wishlist-savings {
+  color: #48bb78;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.price-unavailable {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
     .footer-bottom a { color: var(--muted); text-decoration: none; }
     .footer-bottom a:hover { color: var(--accent); }
     .footer-bottom-links { display: flex; gap: 1.25rem; }
@@ -586,28 +638,43 @@
   <!-- GRID -->
   <div class="wishlist-grid" id="wishlistGrid">
 
-    <% if (wishlist.products && wishlist.products.length > 0) { %>
-     <% wishlist.products.forEach((item, i) => { %>
-  <%
-   
+ <% wishlist.products.forEach((item, i) => { %>
+<%
   const p = item.productId;
   if (!p) return;
 
-  const isUnavailable =  p.isBlocked || p.isDeleted ||
-    !p.category || !p.category.isListed || p.category.isDeleted ||
-    !p.brand || !p.brand.isListed || p.brand.isDeleted;
-
+  const isUnavailable =
+    p.isBlocked ||
+    p.isDeleted ||
+    !p.category ||
+    !p.category.isListed ||
+    p.category.isDeleted ||
+    !p.brand ||
+    !p.brand.isListed ||
+    p.brand.isDeleted;
 
   const matchVariant = p.variants
-    ? p.variants.find(v => v.size === item.size && v.status === 'ACTIVE')
+    ? p.variants.find(v => v.size === item.size && v.status === "ACTIVE")
     : null;
 
-  const displayPrice = matchVariant
+  const isOutOfStock = !matchVariant || matchVariant.stock <= 0;
+
+  const regularPrice = matchVariant
     ? matchVariant.price
     : (p.variants && p.variants[0] ? p.variants[0].price : 0);
 
-  const isOutOfStock = !matchVariant || matchVariant.stock <= 0;
+  const offerPricing = item.offerPricing;
+
+  const hasOffer = Boolean(
+    !isUnavailable &&
+    !isOutOfStock &&
+    offerPricing &&
+    Number(offerPricing.discountAmount) > 0
+  );
+
+  const displayPrice = hasOffer ? offerPricing.salePrice : regularPrice;
 %>
+
 
 <div class="product-card" data-product-id="<%= p._id %>" data-size="<%= item.size || '' %>" style="animation-delay:<%= i * 0.06 %>s">
   <div class="card-img-wrap">
@@ -626,9 +693,37 @@
 
   <div class="card-body">
     <div class="card-name"><%= p.productName %></div>
-    <div class="card-price" style="<%= (isUnavailable || isOutOfStock) ? 'color:var(--muted);text-decoration:line-through;' : '' %>">
-      ₹ <%= displayPrice ? displayPrice.toLocaleString() : '—' %>
+   <div class="wishlist-price-block">
+
+  <% if (hasOffer) { %>
+
+    <div class="wishlist-sale-price">
+      ₹<%= Number(offerPricing.salePrice).toLocaleString("en-IN") %>
     </div>
+
+    <div class="wishlist-price-details">
+      <span class="wishlist-original-price">
+        ₹<%= Number(offerPricing.originalPrice).toLocaleString("en-IN") %>
+      </span>
+
+      <span class="wishlist-offer-badge">
+        <%= offerPricing.discountPercentage %>% OFF
+      </span>
+    </div>
+
+    <div class="wishlist-savings">
+      You save ₹<%= Number(offerPricing.discountAmount).toLocaleString("en-IN") %>
+    </div>
+
+  <% } else { %>
+
+    <div class="card-price <%= (isUnavailable || isOutOfStock) ? 'price-unavailable' : '' %>">
+      ₹<%= regularPrice != null ? Number(regularPrice).toLocaleString("en-IN") : '—' %>
+    </div>
+
+  <% } %>
+
+</div>
 
     <% if (item.size) { %>
       <div class="item-size-tag">Size: <strong><%= item.size %></strong></div>
@@ -653,7 +748,7 @@
   </div>
 </div>
 <% }) %>
-    <% } %>
+  
 
   </div>
 

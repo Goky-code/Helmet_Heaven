@@ -479,6 +479,27 @@
       document.getElementById("sidebar").classList.remove("open");
       document.getElementById("sidebarBg").classList.remove("open");
     }
+
+    const qs = (extra = {}) => {
+    const p = new URLSearchParams();
+
+    p.set("type", _period);
+
+    if (_search) {
+        p.set("search", _search);
+    }
+
+    if (_period === "custom") {
+        if (_from) p.set("startDate", isoDate(_from));
+        if (_to) p.set("endDate", isoDate(_to));
+    }
+
+    Object.entries(extra).forEach(([key, value]) => {
+        p.set(key, value);
+    });
+
+    return p.toString();
+};
   </script>
 </body>
 </html>
