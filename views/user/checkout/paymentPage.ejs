@@ -1034,11 +1034,11 @@ if (selectedPaymentMethod === 'Razorpay') {
 
         } else {
 
-          showToast(
-            verifyData.message ||
-            'Payment verification failed.',
-            'error'
-          );
+        window.location.href =
+        "/user/checkout/order-failure?message=" +
+        encodeURIComponent(
+            verifyData.message || "Payment verification failed."
+        );
 
           payBtn.disabled = false;
           payBtn.textContent = originalText;
@@ -1063,10 +1063,22 @@ if (selectedPaymentMethod === 'Razorpay') {
       }
     };
 
-    const razorpay =
-      new Razorpay(options);
+   
+const razorpay = new Razorpay(options);
 
-    razorpay.open();
+
+razorpay.on("payment.failed", function (response) {
+    const message =
+        response.error?.description ||
+        "Your payment was unsuccessful. Please try again.";
+
+    window.location.href =
+        "/user/checkout/order-failure?message=" +
+        encodeURIComponent(message);
+});
+
+razorpay.open();
+
 
   } catch (error) {
 

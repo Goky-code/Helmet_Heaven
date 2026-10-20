@@ -734,8 +734,8 @@ const displayPrice = hasOffer
           <span class="summary-value" id="total">₹ <%= total.toLocaleString() %></span>
         </div>
 
-        <!-- Promo code
-        <div class="promo-row">
+        <!-- Promo code -->
+        <!-- <div class="promo-row">
           <input type="text" class="promo-input" id="promoInput" placeholder="Promo code" aria-label="Promo code"/>
           <button class="promo-btn" id="promoBtn">Apply</button>
         </div>
@@ -937,85 +937,85 @@ document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
 });
 
 /* ── Promo code ── */
-const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
-document.getElementById('promoBtn').addEventListener('click', () => {
-  const inp  = document.getElementById('promoInput');
-  const fb   = document.getElementById('promoFeedback');
-  const code = inp.value.trim().toUpperCase();
-  if (!code) {
-    inp.classList.add('error');
-    fb.textContent = 'Please enter a promo code.';
-    fb.className = 'promo-feedback err'; return;
-  }
-  inp.classList.remove('error');
-  if (PROMO_CODES[code]) {
-    fb.textContent = `Code applied! ${(PROMO_CODES[code] * 100).toFixed(0)}% off.`;
-    fb.className = 'promo-feedback ok';
-    inp.disabled = true;
-    document.getElementById('promoBtn').disabled = true;
-    showToast('Promo code applied!');
-  } else {
-    inp.classList.add('error');
-    fb.textContent = 'Invalid or expired promo code.';
-    fb.className = 'promo-feedback err';
-  }
-});
-document.getElementById('promoInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('promoBtn').click();
-});
-document.getElementById('promoInput').addEventListener('input', () => {
-  document.getElementById('promoInput').classList.remove('error');
-  const fb = document.getElementById('promoFeedback');
-  if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'promo-feedback'; }
-});
+// const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
+// document.getElementById('promoBtn').addEventListener('click',async () => {
+//   const inp  = document.getElementById('promoInput');
+//   const fb   = document.getElementById('promoFeedback');
+//   const code = inp.value.trim().toUpperCase();
+//   if (!code) {
+//     inp.classList.add('error');
+//     fb.textContent = 'Please enter a promo code.';
+//     fb.className = 'promo-feedback err'; return;
+//   }
+//   inp.classList.remove('error');
+//   if (PROMO_CODES[code]) {
+//     fb.textContent = `Code applied! ${(PROMO_CODES[code] * 100).toFixed(0)}% off.`;
+//     fb.className = 'promo-feedback ok';
+//     inp.disabled = true;
+//     document.getElementById('promoBtn').disabled = true;
+//     showToast('Promo code applied!');
+//   } else {
+//     inp.classList.add('error');
+//     fb.textContent = 'Invalid or expired promo code.';
+//     fb.className = 'promo-feedback err';
+//   }
+// });
+// document.getElementById('promoInput').addEventListener('keydown', e => {
+//   if (e.key === 'Enter') document.getElementById('promoBtn').click();
+// });
+// document.getElementById('promoInput').addEventListener('input', () => {
+//   document.getElementById('promoInput').classList.remove('error');
+//   const fb = document.getElementById('promoFeedback');
+//   if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'promo-feedback'; }
+// });
+
+
 
 /* ── Checkout ── */
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
-  const checkoutBtn = document.getElementById('checkoutBtn');
+    const checkoutBtn = document.getElementById('checkoutBtn');
 
-  checkoutBtn.disabled = true;
+    if (checkoutBtn.disabled) return;
+    checkoutBtn.disabled = true;
 
-  try {
-    const response = await fetch('/user/validate-checkout', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    try {
+        const response = await fetch('/user/validate-checkout', {
+            method: 'GET',
+            headers: { Accept: 'application/json' }
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (!data.success) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Product Unavailable',
-        text: data.message,
-        background: '#161b24',
-        color: '#fff',
-        confirmButtonColor: '#2d9cff'
-      });
+        if (!response.ok || !data.success) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Cannot Proceed to Checkout',
+                text: data.message || 'Please check your cart and try again.',
+                background: '#161b24',
+                color: '#fff',
+                confirmButtonColor: '#2d9cff'
+            });
+            return;
+        }
 
-      return;
+        window.location.href = '/user/checkout';
+
+    } catch (error) {
+        console.error('Checkout validation error:', error);
+        await Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong',
+            text: 'Unable to validate your cart. Please try again.',
+            background: '#161b24',
+            color: '#fff',
+            confirmButtonColor: '#2d9cff'
+        });
+    } finally {
+        checkoutBtn.disabled = false;
     }
-
-    window.location.href = '/user/checkout';
-
-  } catch (error) {
-    console.log(error);
-
-    Swal.fire({
-      icon: 'error',
-      title: 'Something went wrong',
-      text: 'Unable to validate your cart. Please try again.',
-      background: '#161b24',
-      color: '#fff',
-      confirmButtonColor: '#2d9cff'
-    });
-
-  } finally {
-    checkoutBtn.disabled = false;
-  }
 });
+
+
 /* ── Newsletter ── */
 document.getElementById('joinBtn').addEventListener('click', () => {
   const inp     = document.getElementById('newsletterEmail');

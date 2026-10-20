@@ -220,3 +220,17 @@ export const verifyRazorpayPayment=async(req,res)=>{
         })
     }
 }
+
+
+export const loadPaymentFailure = (req, res) => {
+    res.set({
+        "Cache-Control": "no-store, no-cache, must-revalidate, private",
+        "Pragma": "no-cache",
+        "Expires": "0"
+    });
+
+    return res.render("user/checkout/order-failure", {
+        message: req.query.message || "Your payment could not be completed.",
+        retryUrl: "/user/checkout"
+    });
+};

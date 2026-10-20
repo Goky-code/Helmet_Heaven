@@ -82,55 +82,81 @@ export const getSalesReport=async({
 
      const allSales = []
 
-    for(const order of orders){
-        let orderGross=0
-        let orderProductDiscount=0
-        let orderQuantity=0
+   
+for (const order of orders) {
+    let orderGross = 0;
+    let orderProductDiscount = 0;
+    let orderQuantity = 0;
 
-        const items=order.items||[]
-            for(const item of items){
-                const quantity=Number(item.quantity)||0
-                const regularPrice=Number(item.regularPrice)||0
-                const salePrice=item.salePrice==null?regularPrice:Number(item.salePrice)
-                const safeSalePrice=Number.isFinite(salePrice)?salePrice:regularPrice
-                const lineGross=regularPrice*quantity
-                const lineDiscount=Math.max(0,regularPrice-safeSalePrice)*quantity
-                const productName=item.productName||item.productId?.productName||"Unknown Product"
+    const items = order.items || [];
 
-                orderGross+=lineGross
-                orderProductDiscount+=lineDiscount
-                orderQuantity+=quantity
+    for (const item of items) {
+        const quantity = Number(item.quantity) || 0;
+        const regularPrice = Number(item.regularPrice) || 0;
 
-                allSales.push({
-                    orderId:order.orderId,
-                    productName,
-                    quantity,
-                     price: lineGross,
-                discount: lineDiscount,
-                paymentMethod: order.paymentMethod || "N/A",
-                date: order.createdAt
-                })
-            }
-           const orderCouponDiscount =Number(order.discount) || 0
-         totalItemsSold += orderQuantity
-        grossSales += orderGross
-        productDiscount += orderProductDiscount
-        couponDiscount += orderCouponDiscount
+        const salePrice =
+            item.salePrice == null
+                ? regularPrice
+                : Number(item.salePrice);
 
-        netSales += Number(order.grandTotal) || 0
-        }
-         const totalDiscount = productDiscount + couponDiscount
+      
+        const lineGross = regularPrice * quantity;
 
-         const filteredSales = search.trim()
-        ? allSales.filter((sale) => {
-            const query = search.trim().toLowerCase();
+       
+        const lineOfferDiscount = Math.max(
+            0,
+            regularPrice - salePrice
+        ) * quantity;
 
-            return (
-                String(sale.orderId || "").toLowerCase().includes(query) ||
-                sale.productName.toLowerCase().includes(query)
-            );
-        })
-        : allSales
+        const productName =
+            item.productName ||
+            item.productId?.productName ||
+            "Unknown Product";
+
+        orderGross += lineGross;
+        orderProductDiscount += lineOfferDiscount;
+        orderQuantity += quantity;
+
+        allSales.push({
+            orderId: order.orderId,
+            productName,
+            quantity,
+            price: lineGross,
+            discount: lineOfferDiscount,
+            paymentMethod: order.paymentMethod || "N/A",
+            date: order.createdAt
+        });
+    }
+
+   
+    const orderCouponDiscount = Number(order.discount) || 0;
+
+    totalItemsSold += orderQuantity;
+    grossSales += orderGross;
+    productDiscount += orderProductDiscount;
+    couponDiscount += orderCouponDiscount;
+
+    netSales += Number(order.grandTotal) || 0;
+}
+
+const totalDiscount = productDiscount + couponDiscount;
+
+
+const filteredSales = search.trim()
+    ? allSales.filter((sale) => {
+        const query = search.trim().toLowerCase();
+
+        return (
+            String(sale.orderId || "")
+                .toLowerCase()
+                .includes(query) ||
+            String(sale.productName || "")
+                .toLowerCase()
+                .includes(query)
+        );
+    })
+    : allSales;
+
 
     //     const orderTotalDiscount =
     //         orderProductDiscount +
