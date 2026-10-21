@@ -23,12 +23,23 @@ export const login = async (req, res) => {
  }
 }
   
-export const getDashboard = (req, res) => {
+export const getDashboard = async(req, res) => {
   console.log("Session:", req.session.admin);
   if (!req.session.admin) {
     return res.redirect("/admin/adminLogin");
   }
-  res.render("admin/adminDashboard");
+  try{
+    const dashboardData=
+    await adminService.getDashboardData()
+
+    res.render("admin/adminDashboard",{
+      ...dashboardData
+    })
+  }catch(error){
+    console.error("Dashboard error:", error)
+
+    res.status(500).send("Unable to load dashboard")
+  }
 }
 
 export const listCustomers=async(req,res)=>{
