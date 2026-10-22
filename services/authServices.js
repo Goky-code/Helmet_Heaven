@@ -2,6 +2,8 @@ import User from "../models/userModels.js";
 import bcrypt from "bcryptjs";
 import generateOTP from "../utils/generateOtp.js";
 import sendEmail from "../utils/sendEmail.js";
+import generateReferralCode from "../utils/generateReferralCode.js";
+import { rewardReferral } from "./user/referralService.js";
 
 export const loginUser = async (email, password) => {
 
@@ -62,7 +64,7 @@ export const createSignupSession = async (
     );
   }
 
-  const emailRegex = /^\S+@\S+\.\S+$/;
+ const emailRegex = /^\S+@\S+\.\S+$/;
 
   if (!emailRegex.test(email)) {
     throw new Error(
@@ -79,6 +81,21 @@ export const createSignupSession = async (
     );
   }
 
+    const enteredCode = referalcode?.trim().toUpperCase();
+
+    if (enteredCode) {
+        const referrer = await User.findOne({
+            referralCode: enteredCode,
+            isBlocked: false,
+            isVerified: true
+        });
+
+        if (!referrer) {
+            throw new Error("Invalid referral code");
+        }
+    }
+
+
   const otp = generateOTP();
 
   await sendEmail(
@@ -92,7 +109,7 @@ export const createSignupSession = async (
     lastname,
     email,
     password,
-    referalcode,
+    referalcode:enteredCode || "",
     otp,
     otpExpiry:
       Date.now() + 60 * 1000,
@@ -114,25 +131,57 @@ export const registerUser = async (
     );
   }
 
+    
+  const enteredCode = userData.referalcode?.trim().toUpperCase();
+
+  console.log(
+  "Referral code during registration:",
+  userData.referalcode
+);
+
+console.log("Normalized referral code:", enteredCode);
+  let referrer=null
+
+  if (enteredCode) {
+    referrer = await User.findOne({
+      referralCode: enteredCode,
+      isBlocked: false,
+      isVerified: true,
+    })
+
+      if (!referrer) {
+      return {
+        success: false,
+        message: "Invalid referral code",
+      };
+    }
+  }
+    
+   const referralCode=await generateReferralCode()
+
   const hashedPassword =
     await bcrypt.hash(
       userData.password,
       10
-    );
+    )
 
   const user = new User({
     firstName: userData.firstname,
     lastName: userData.lastname,
     email: userData.email,
     password: hashedPassword,
-    referralCode:
-      userData.referalcode,
+    referralCode,
+      referredBy: referrer ? referrer._id : null,
+      referralRewardProcessed: false,
     isVerified: true,
   });
 
   await user.save();
 
-  return user;
+  return {
+    user,
+    referrerId:referrer ? referrer._id : null
+  }
 
 }
 
@@ -156,7 +205,19 @@ export const verifySignupOtp = async (signupData, otp) => {
     email: signupData.email,
     password: signupData.password,
     referalcode: signupData.referalcode,
-  });
+  })
+
+  console.log("Referral ID:", user.referrerId);
+
+  if (user.referrerId) {
+   const rewardResult = await rewardReferral(
+    user.user._id,
+    user.referrerId
+  )
+  console.log("Reward result:", rewardResult);
+}else {
+    console.log("No referral code used. No referral reward.");
+  }
 
   return user;
 }

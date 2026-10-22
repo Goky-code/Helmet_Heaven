@@ -55,7 +55,25 @@ profileImage: {
 
     otpExpiry: {
       type: Date,
-    }
+    },
+    referralCode: {
+    type: String,
+    unique: true,
+    sparse: true,
+    uppercase: true,
+    trim: true
+},
+
+referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    default: null
+},
+
+referralRewardProcessed: {
+    type: Boolean,
+    default: false
+}
 
 }, { timestamps: true });
 
