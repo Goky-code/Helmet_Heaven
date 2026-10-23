@@ -24,12 +24,10 @@ export const rewardReferral = async (newUserId, referrerId) => {
         if (
             !newUser.referredBy ||
             newUser.referredBy.toString() !== referrerId.toString()
-        ) {
-            throw new Error("Referral relationship is invalid");
+        ) {      throw new Error("Referral relationship is invalid");
         }
 
-        if (newUser.referralRewardProcessed) {
-            await session.abortTransaction();
+        if (newUser.referralRewardProcessed) {                         await session.abortTransaction();
             return { success: true, alreadyProcessed: true };
         }
 
@@ -37,7 +35,7 @@ export const rewardReferral = async (newUserId, referrerId) => {
             throw new Error("Self-referral is not allowed");
         }
 
-        const referrer = await User.findById(referrerId).session(session);
+      const referrer = await User.findById(referrerId).session(session);
 
         if (!referrer || referrer.isBlocked) {
             throw new Error("Referrer is unavailable");
@@ -45,7 +43,7 @@ export const rewardReferral = async (newUserId, referrerId) => {
 
         
         const referrerTransactionId = `REF-${newUserId}-REFERRER`;
-        const newUserTransactionId = `REF-${newUserId}-NEWUSER`;
+     const newUserTransactionId = `REF-${newUserId}-NEWUSER`;
 
         const existingTransactions = await WalletTransaction.find({
             transactionId: {
@@ -91,20 +89,20 @@ export const rewardReferral = async (newUserId, referrerId) => {
     {
       walletId: referrerWallet._id,
       userId: referrerId,
-      transactionId: referrerTransactionId,
+        transactionId: referrerTransactionId,
       type: "CREDIT",
-      amount: 100,
+       amount: 100,
       description: "Referral reward",
-      subDescription: `Referral signup reward for ${newUser.email}`,
+       subDescription: `Referral signup reward for ${newUser.email}`,
       status: "COMPLETED",
       referenceId: newUserId.toString(),
     },
     {
       walletId: newUserWallet._id,
-      userId: newUserId,
+        userId: newUserId,
       transactionId: newUserTransactionId,
       type: "CREDIT",
-      amount: 50,
+         amount: 50,
       description: "Referral signup bonus",
       subDescription: "Welcome reward for using a referral code",
       status: "COMPLETED",

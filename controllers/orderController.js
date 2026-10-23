@@ -6,9 +6,11 @@ export const loadOrders=async(req,res)=>{
         const{search,status,sort}=req.query
         const page=parseInt(req.query.page)||1
         const limit=5
-        const data=await orderService.getOrders(page,limit,{search,status,sort})
+        const data=await orderService.getOrders(page,limit,{search,status,sort}) 
 
-        res.render("admin/adminOrders/admin-orders",data)
+        res.render("admin/adminOrders/admin-orders",
+            data  
+        )
     }catch(error){
         console.log(error)
         res.redirect("/admin/pageerror")
