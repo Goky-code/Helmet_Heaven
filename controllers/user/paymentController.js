@@ -227,10 +227,27 @@ export const loadPaymentFailure = (req, res) => {
         "Cache-Control": "no-store, no-cache, must-revalidate, private",
         "Pragma": "no-cache",
         "Expires": "0"
-    });
+    })
+
+    const {
+        message,
+        addressId,
+        couponCode,
+        buyNow,
+        productId,
+        size,
+        qty
+    } = req.query
 
     return res.render("user/checkout/order-failure", {
-        message: req.query.message || "Your payment could not be completed.",
-        retryUrl: "/user/checkout"
-    });
-};
+        message: message || "Your payment could not be completed.",
+        retryData: {
+            addressId: addressId || "",
+            couponCode: couponCode || "",
+            buyNow: buyNow === "true",
+            productId: productId || "",
+            size: size || "",
+            qty: qty || "1"
+        }
+    })
+}

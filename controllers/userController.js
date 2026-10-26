@@ -428,4 +428,13 @@ export const changePassword = async (req, res) => {
 
   }
 
-};
+}
+
+export const loadAboutUs = (req, res) => {
+    res.render("user/aboutUs");
+}
+
+export const loadContactUs = (req, res) => {
+    res.render("user/contactUs");
+}
+

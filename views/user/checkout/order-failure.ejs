@@ -186,6 +186,18 @@
     .footer-links a { color: var(--muted); text-decoration: none; transition: color .2s; }
     .footer-links a:hover { color: var(--accent); }
 
+    button.action-btn {
+    width: 100%;
+    font: inherit;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+button.action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
     /* ── TOAST ── */
     .toast {
       position: fixed; bottom: 24px; right: 24px; z-index: 9999;
@@ -369,12 +381,22 @@
   </div>
 
   <div class="actions-row">
-    <a href="<%= _retryUrl %>" class="action-btn primary">
-      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v6h6M20 20v-6h-6M20 9A8 8 0 0 0 6.3 6.3L4 10m16 4l-2.3 3.7A8 8 0 0 1 4 15"/>
-      </svg>
-      Retry Payment
-    </a>
+    <button type="button" id="retryPaymentBtn" class="action-btn primary">
+    <svg
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+    >
+        <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 4v6h6M20 20v-6h-6M20 9A8 8 0 0 0 6.3 6.3L4 10m16 4l-2.3 3.7A8 8 0 0 1 4 15"
+        />
+    </svg>
+
+    <span id="retryButtonText">Retry Payment</span>
+</button>
     <a href="/user/cart" class="action-btn secondary">
       <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -442,6 +464,155 @@
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    const retryData = <%- JSON.stringify(retryData) %>;
+
+    const retryButton = document.getElementById("retryPaymentBtn");
+    const retryButtonText = document.getElementById("retryButtonText");
+
+    retryButton.addEventListener("click", async () => {
+        if (!retryData.addressId) {
+            showToast(
+                "Payment details are missing. Please return to checkout.",
+                "error"
+            );
+            return;
+        }
+
+        if (typeof Razorpay === "undefined") {
+            showToast("Unable to load Razorpay. Please try again.", "error");
+            return;
+        }
+
+        retryButton.disabled = true;
+        retryButtonText.textContent = "Opening Razorpay...";
+
+        try {
+            // Step 1: Create a new Razorpay order on the server.
+            const createResponse = await fetch("/user/razorpay/create-order", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "same-origin",
+                body: JSON.stringify(retryData)
+            });
+
+            const orderData = await createResponse.json();
+
+            if (!createResponse.ok || !orderData.success) {
+                throw new Error(
+                    orderData.message || "Unable to create payment order."
+                );
+            }
+
+            // Step 2: Open Razorpay Checkout directly.
+            const options = {
+                key: orderData.key,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Helmet Haven",
+                description: "Retry Payment",
+                order_id: orderData.razorpayOrderId,
+
+                handler: async function (response) {
+                    try {
+                        // Step 3: Verify the payment on the server.
+                        const verifyResponse = await fetch(
+                            "/user/razorpay/verify",
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                credentials: "same-origin",
+                                body: JSON.stringify({
+                                    ...retryData,
+                                    ...response
+                                })
+                            }
+                        );
+
+                        const result = await verifyResponse.json();
+
+                        if (!verifyResponse.ok || !result.success) {
+                            throw new Error(
+                                result.message ||
+                                "Payment verification failed."
+                            );
+                        }
+
+                        // Step 4: Redirect only after successful verification.
+                        window.location.href =
+                            result.redirectUrl ||
+                            (
+                                "/user/order-success?orderId=" +
+                                encodeURIComponent(result.orderId)
+                            );
+
+                    } catch (error) {
+                        showToast(
+                            error.message ||
+                            "Unable to verify payment.",
+                            "error"
+                        );
+
+                        retryButton.disabled = false;
+                        retryButtonText.textContent = "Retry Payment";
+                    }
+                },
+
+                modal: {
+                    ondismiss: function () {
+                        retryButton.disabled = false;
+                        retryButtonText.textContent = "Retry Payment";
+                    }
+                },
+
+                theme: {
+                    color: "#2d9cff"
+                }
+            };
+
+            const razorpay = new Razorpay(options);
+
+            razorpay.on("payment.failed", function (response) {
+                const errorMessage =
+                    response.error?.description ||
+                    "Your payment could not be completed.";
+
+                const params = new URLSearchParams({
+                    message: errorMessage,
+                    addressId: retryData.addressId,
+                    couponCode: retryData.couponCode || "",
+                    buyNow: retryData.buyNow ? "true" : "false",
+                    productId: retryData.productId || "",
+                    size: retryData.size || "",
+                    qty: retryData.qty || "1"
+                });
+
+                window.location.href =
+                    "/user/checkout/order-failure?" + params.toString();
+            });
+
+            razorpay.open();
+
+            retryButtonText.textContent = "Razorpay Opened";
+
+        } catch (error) {
+            showToast(
+                error.message || "Unable to retry payment.",
+                "error"
+            );
+
+            retryButton.disabled = false;
+            retryButtonText.textContent = "Retry Payment";
+        }
+    });
+</script>
 
 <script>
   function showToast(msg, type = 'success') {

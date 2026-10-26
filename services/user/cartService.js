@@ -476,3 +476,18 @@ export const validateCheckout = async (userId) => {
   }
 }
 
+export const getstock=async()=>{
+  const cart=await Cart.findOne({userId})
+  .populate("items.productId").lean()
+
+  const cartItems=cart.items.map(item=>{
+    const product=item.productId
+
+    const variant=product.variants.find(v=>v.size===item.size)
+  })
+  return{
+    ...items,
+    p
+  }
+}
+

@@ -56,7 +56,7 @@ export const getCustomers=async(page,limit,search,status,sort)=>{
         currentPage:page,
         totalPages,
         totalUsers,
-        status,
+         status,
         search,
         sort,
     }

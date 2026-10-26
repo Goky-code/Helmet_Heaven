@@ -1,1807 +1,619 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
-  <meta charset="UTF-8"/>
-
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  <title>Helmet Haven — Admin Dashboard</title>
-
-
+  <title>Helmet Haven – Customers</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 
   <style>
-
-    :root {
-
-      --bg:        #0b0f18;
-
-      --bg2:       #101520;
-
-      --bg3:       #141b27;
-
-      --bg-card:   #131924;
-
-      --bg-input:  #1a2232;
-
-      --accent:    #1d7fea;
-
-      --accent-h:  #1568c9;
-
-      --border:    #1c2840;
-
-      --muted:     #3d5268;
-
-      --body:      #7a93a8;
-
-      --white:     #eef2f7;
-
-      --sidebar-w: 228px;
-
-      --nav-h:     54px;
-
-      --success:   #00d278;
-
-      --warning:   #f5a623;
-
-      --danger:    #e74c3c;
-
-    }
-
-
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    :root {
+      --bg-base:        #0f1117;
+      --bg-sidebar:     #13151e;
+      --bg-card:        #1a1d2b;
+      --bg-input:       #1e2130;
+      --border:         #2a2d3e;
+      --text-primary:   #e8eaf2;
+      --text-muted:     #6b7094;
+      --text-label:     #9395a5;
+      --accent-blue:    #4a9eff;
+      --btn-block-bg:   rgba(255,80,80,.12);
+      --btn-block-clr:  #dc3545;
+      --btn-unblock-bg: rgba(0,200,160,.12);
+      --btn-unblock-clr:#00c8a0;
+      --sidebar-w:      240px;
+    }
 
+    html, body { height: 100%; }
 
     body {
-
-      background: var(--bg);
-
-      font-family: 'Space Grotesk', sans-serif;
-
-      color: var(--body);
-
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
       min-height: 100vh;
-
-      display: flex;
-
-      flex-direction: column;
-
     }
 
-
-
-    /* ══════════════════════════
-
-       LAYOUT SHELL
-
-    ══════════════════════════ */
-
-    .shell {
-
-      display: flex;
-
-      flex: 1;
-
-      height: 100vh;
-
-      overflow: hidden;
-
-    }
-
-
-
-    /* ══════════════════════════
-
-       SIDEBAR
-
-    ══════════════════════════ */
-
+    /* ─── SIDEBAR ─────────────────────────────────── */
     .sidebar {
-
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
       width: var(--sidebar-w);
-
-      flex-shrink: 0;
-
-      background: var(--bg2);
-
+      background: var(--bg-sidebar);
       border-right: 1px solid var(--border);
-
       display: flex;
-
       flex-direction: column;
-
+      z-index: 300;
+      transition: transform .28s ease;
       overflow-y: auto;
-
-      transition: transform 0.3s ease, width 0.3s ease;
-
-      z-index: 1000;
-
     }
-
-
 
     .sidebar-brand {
-
       display: flex;
-
       align-items: center;
-
-      gap: 0.6rem;
-
-      padding: 1rem 1.2rem;
-
+      gap: 10px;
+      padding: 22px 20px 18px;
       border-bottom: 1px solid var(--border);
-
-      text-decoration: none;
-
-      min-height: var(--nav-h);
-
+      flex-shrink: 0;
     }
-
-    .sidebar-brand-name {
-
-      font-size: 0.95rem;
-
-      font-weight: 700;
-
-      color: var(--white);
-
-      letter-spacing: 0.1em;
-
-      text-transform: uppercase;
-
+    .brand-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg,#4a9eff,#006bdb);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #fff;
+      flex-shrink: 0;
     }
-
-
-
-    .s-nav { list-style: none; padding: 0.6rem 0; margin: 0; flex: 1; }
-
-    .s-nav li a {
-
-      display: flex;
-
-      align-items: center;
-
-      gap: 0.75rem;
-
-      padding: 0.68rem 1.2rem;
-
-      font-size: 0.78rem;
-
-      font-weight: 600;
-
-      letter-spacing: 0.08em;
-
-      text-transform: uppercase;
-
-      color: var(--body);
-
-      text-decoration: none;
-
-      border-left: 3px solid transparent;
-
-      transition: background .15s, color .15s;
-
+    .brand-name {
+      font-size: 13px; font-weight: 700;
+      letter-spacing: 1.8px; text-transform: uppercase;
+      color: var(--text-primary);
       white-space: nowrap;
-
     }
 
-    .s-nav li a:hover { background: rgba(255,255,255,.04); color: var(--white); }
+    .sidebar-nav { padding: 14px 10px; flex: 1; }
 
-    .s-nav li a.active {
-
-      background: rgba(29,127,234,.13);
-
-      color: var(--accent);
-
-      border-left-color: var(--accent);
-
+    .nav-item-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: 7px;
+      color: var(--text-muted);
+      font-size: 12.5px; font-weight: 500;
+      letter-spacing: .6px; text-decoration: none;
+      text-transform: uppercase;
+      transition: background .15s, color .15s;
+      margin-bottom: 2px;
+      white-space: nowrap;
     }
+    .nav-item-link i { font-size: 15px; flex-shrink: 0; }
+    .nav-item-link:hover { background: rgba(255,255,255,.05); color: var(--text-primary); }
+    .nav-item-link.active { background: rgba(74,158,255,.13); color: var(--accent-blue); }
 
-    .s-nav li a i { font-size: 1rem; width: 18px; text-align: center; flex-shrink: 0; }
-
-    .s-nav .s-logout a { color: #c0392b; }
-
-    .s-nav .s-logout a:hover { background: rgba(192,57,43,.08); color: #e74c3c; }
-
-
-
-    /* Sidebar overlay for mobile */
-
+    /* ─── OVERLAY ─────────────────────────────────── */
     .sidebar-overlay {
-
       display: none;
-
-      position: fixed;
-
-      inset: 0;
-
-      background: rgba(0,0,0,0.6);
-
-      z-index: 999;
-
-      backdrop-filter: blur(2px);
-
+      position: fixed; inset: 0; z-index: 290;
+      background: rgba(0,0,0,.55);
     }
+    .sidebar-overlay.show { display: block; }
 
-    .sidebar-overlay.active { display: block; }
-
-
-
-    /* ══════════════════════════
-
-       RIGHT PANEL
-
-    ══════════════════════════ */
-
-    .right-panel {
-
-      flex: 1;
-
+    /* ─── MAIN WRAP ───────────────────────────────── */
+    .main-wrap {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
       display: flex;
-
       flex-direction: column;
-
-      overflow: hidden;
-
-      min-width: 0;
-
     }
 
-
-
-    /* ── TOP BAR ── */
-
-    .top-bar {
-
-      height: var(--nav-h);
-
-      background: var(--bg2);
-
+    /* ─── TOPBAR ──────────────────────────────────── */
+    .topbar {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 18px 28px;
       border-bottom: 1px solid var(--border);
-
-      display: flex;
-
-      align-items: center;
-
-      padding: 0 1.4rem;
-
-      gap: 0.8rem;
-
-      flex-shrink: 0;
-
+      background: var(--bg-sidebar);
+      position: sticky; top: 0; z-index: 100;
+      gap: 12px;
     }
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
+    .topbar h1 { font-size: 20px; font-weight: 700; white-space: nowrap; }
 
-
-
-    .hamburger-btn {
-
+    .menu-toggle {
       display: none;
-
-      width: 36px; height: 36px;
-
-      background: var(--bg3);
-
-      border: 1px solid var(--border);
-
-      border-radius: 8px;
-
-      align-items: center; justify-content: center;
-
-      color: var(--body);
-
-      font-size: 1.1rem;
-
-      cursor: pointer;
-
-      flex-shrink: 0;
-
-      transition: color .2s;
-
+      background: transparent; border: none;
+      color: var(--text-muted); font-size: 22px;
+      cursor: pointer; padding: 2px; line-height: 1;
     }
-
-    .hamburger-btn:hover { color: var(--white); }
-
-
-
-    .top-bar-title { flex: 1; min-width: 0; }
-
-    .top-bar-title strong { font-size: 0.95rem; font-weight: 700; color: var(--white); white-space: nowrap; }
-
-    .top-bar-title span { font-size: 0.82rem; color: var(--muted); margin-left: 0.4rem; white-space: nowrap; }
-
-
-
-    .top-search {
-
-      position: relative;
-
-      width: 220px;
-
-      flex-shrink: 0;
-
-    }
-
-    .top-search i {
-
-      position: absolute;
-
-      left: 0.75rem;
-
-      top: 50%;
-
-      transform: translateY(-50%);
-
-      color: var(--muted);
-
-      font-size: 0.85rem;
-
-    }
-
-    .top-search input {
-
-      width: 100%;
-
-      background: var(--bg3);
-
-      border: 1px solid var(--border);
-
-      border-radius: 8px;
-
-      color: var(--white);
-
-      font-family: 'Space Grotesk', sans-serif;
-
-      font-size: 0.82rem;
-
-      padding: 0.4rem 0.8rem 0.4rem 2rem;
-
-      outline: none;
-
-      transition: border-color .2s;
-
-    }
-
-    .top-search input::placeholder { color: var(--muted); }
-
-    .top-search input:focus { border-color: var(--accent); }
-
-
 
     .bell-btn {
-
-      width: 36px; height: 36px;
-
-      background: var(--bg3);
-
-      border: 1px solid var(--border);
-
-      border-radius: 8px;
-
-      display: flex; align-items: center; justify-content: center;
-
-      color: var(--body);
-
-      font-size: 1rem;
-
-      cursor: pointer;
-
-      position: relative;
-
+      background: transparent; border: none;
+      color: var(--text-muted); font-size: 20px;
+      position: relative; cursor: pointer; padding: 4px;
       flex-shrink: 0;
-
-      transition: color .2s;
-
     }
-
-    .bell-btn:hover { color: var(--white); }
-
-    .bell-dot {
-
-      position: absolute;
-
-      top: 5px; right: 5px;
-
-      width: 8px; height: 8px;
-
-      background: var(--danger);
-
+    .badge-dot {
+      width: 7px; height: 7px; background: #ff5f5f;
       border-radius: 50%;
-
-      border: 1.5px solid var(--bg2);
-
+      position: absolute; top: 4px; right: 3px;
+      border: 1.5px solid var(--bg-sidebar);
     }
 
+    /* ─── CONTENT ─────────────────────────────────── */
+    .content-area { padding: 22px 28px 32px; flex: 1; }
 
-
-    /* ── MAIN SCROLL ── */
-
-    .main-scroll {
-
+    /* ─── FILTER BAR ──────────────────────────────── */
+    .filter-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .search-wrap {
       flex: 1;
-
-      overflow-y: auto;
-
-      padding: 1.4rem 1.4rem 2rem;
-
+      min-width: 160px;
+      position: relative;
     }
-
-
-
-    /* ══════════════════════════
-
-       STAT CARDS
-
-    ══════════════════════════ */
-
-    .stat-cards {
-
-      display: grid;
-
-      grid-template-columns: repeat(3, 1fr);
-
-      gap: 1rem;
-
-      margin-bottom: 1.2rem;
-
+    .search-wrap i {
+      position: absolute; left: 11px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted); font-size: 13px;
+      pointer-events: none;
     }
-
-
-
-    .stat-card {
-
-      background: var(--bg-card);
-
+    .search-input {
+      width: 100%;
+      background: var(--bg-input);
       border: 1px solid var(--border);
-
-      border-radius: 12px;
-
-      padding: 1.3rem 1.4rem 1.2rem;
-
-      transition: border-color .2s, transform .2s;
-
-    }
-
-    .stat-card:hover {
-
-      border-color: var(--accent);
-
-      transform: translateY(-2px);
-
-    }
-
-    .stat-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.9rem; }
-
-    .stat-icon {
-
-      width: 42px; height: 42px;
-
-      border-radius: 10px;
-
-      display: flex; align-items: center; justify-content: center;
-
-      font-size: 1.2rem;
-
-      flex-shrink: 0;
-
-    }
-
-    .stat-icon.green  { background: rgba(0,210,120,.12); color: #00d278; }
-
-    .stat-icon.blue   { background: rgba(29,127,234,.12); color: var(--accent); }
-
-    .stat-icon.purple { background: rgba(150,80,240,.12); color: #9650f0; }
-
-    .stat-badge {
-
-      font-size: 0.72rem;
-
-      font-weight: 700;
-
-      padding: 0.2rem 0.5rem;
-
-      border-radius: 20px;
-
-    }
-
-    .stat-badge.green  { background: rgba(0,210,120,.12); color: #00d278; }
-
-    .stat-badge.blue   { background: rgba(29,127,234,.12); color: var(--accent); }
-
-    .stat-badge.purple { background: rgba(150,80,240,.12); color: #9650f0; }
-
-    .stat-label {
-
-      font-size: 0.68rem;
-
-      font-weight: 700;
-
-      letter-spacing: 0.1em;
-
-      text-transform: uppercase;
-
-      color: var(--muted);
-
-      margin-bottom: 0.35rem;
-
-    }
-
-    .stat-value {
-
-      font-size: 1.5rem;
-
-      font-weight: 700;
-
-      color: var(--white);
-
-      line-height: 1;
-
-      font-family: 'DM Mono', monospace;
-
-    }
-
-
-
-    /* ══════════════════════════
-
-       CHART CARD
-
-    ══════════════════════════ */
-
-    .chart-card {
-
-      background: var(--bg-card);
-
-      border: 1px solid var(--border);
-
-      border-radius: 12px;
-
-      padding: 1.3rem 1.5rem 1.2rem;
-
-      margin-bottom: 1.2rem;
-
-    }
-
-    .chart-header {
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: space-between;
-
-      margin-bottom: 1rem;
-
-      flex-wrap: wrap;
-
-      gap: 0.5rem;
-
-    }
-
-    .chart-title {
-
-      font-size: 0.95rem;
-
-      font-weight: 700;
-
-      color: var(--white);
-
-    }
-
-    .tab-group { display: flex; gap: 0.3rem; }
-
-    .tab-btn {
-
-      background: transparent;
-
-      border: 1px solid var(--border);
-
       border-radius: 7px;
+      color: var(--text-primary);
+      font-size: 13px;
+      padding: 8px 11px 8px 32px;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus { border-color: var(--accent-blue); }
 
-      color: var(--body);
-
-      font-family: 'Space Grotesk', sans-serif;
-
-      font-size: 0.78rem;
-
-      font-weight: 500;
-
-      padding: 0.3rem 0.75rem;
-
+    .status-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-primary);
+      font-size: 13px;
+      padding: 8px 28px 8px 11px;
+      outline: none; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7094' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 9px center;
       cursor: pointer;
-
-      transition: background .2s, color .2s, border-color .2s;
-
+      min-width: 120px;
     }
 
-    .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .filter-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-primary);
+      font-size: 13px; font-weight: 500;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: border-color .15s;
+      white-space: nowrap;
+    }
+    .filter-btn:hover { border-color: var(--accent-blue); }
 
-    .tab-btn:hover:not(.active) { border-color: var(--body); color: var(--white); }
-
-    .chart-wrap { height: 240px; }
-
-
-
-    /* ══════════════════════════
-
-       RECENT ORDERS TABLE
-
-    ══════════════════════════ */
-
-    .orders-card {
-
+    /* ─── TABLE CARD ──────────────────────────────── */
+    .table-card {
       background: var(--bg-card);
-
       border: 1px solid var(--border);
-
-      border-radius: 12px;
-
-      overflow: hidden;
-
-    }
-
-    .orders-header {
-
-      display: flex;
-
-      align-items: center;
-
-      justify-content: space-between;
-
-      padding: 1.1rem 1.5rem;
-
-      flex-wrap: wrap;
-
-      gap: 0.5rem;
-
-    }
-
-    .orders-title { font-size: 0.95rem; font-weight: 700; color: var(--white); }
-
-    .view-all-link {
-
-      font-size: 0.78rem;
-
-      font-weight: 700;
-
-      letter-spacing: 0.06em;
-
-      text-transform: uppercase;
-
-      color: var(--accent);
-
-      text-decoration: none;
-
-    }
-
-    .view-all-link:hover { text-decoration: underline; }
-
-
-
-    /* Table wrapper for horizontal scroll on small screens */
-
-    .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-
-
-    table { width: 100%; border-collapse: collapse; min-width: 560px; }
-
-    thead tr { background: var(--bg3); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-
-    thead th {
-
-      font-size: 0.68rem;
-
-      font-weight: 700;
-
-      letter-spacing: 0.1em;
-
-      text-transform: uppercase;
-
-      color: var(--muted);
-
-      padding: 0.75rem 1.2rem;
-
-      text-align: left;
-
-      white-space: nowrap;
-
-    }
-
-    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
-
-    tbody tr:last-child { border-bottom: none; }
-
-    tbody tr:hover { background: rgba(255,255,255,.02); }
-
-    tbody td {
-
-      font-size: 0.85rem;
-
-      color: var(--white);
-
-      padding: 0.85rem 1.2rem;
-
-      white-space: nowrap;
-
-    }
-
-    .order-id { font-weight: 700; color: var(--white); font-family: 'DM Mono', monospace; }
-
-
-
-    .badge-status {
-
-      display: inline-block;
-
-      font-size: 0.65rem;
-
-      font-weight: 700;
-
-      letter-spacing: 0.08em;
-
-      text-transform: uppercase;
-
-      padding: 0.25rem 0.6rem;
-
-      border-radius: 20px;
-
-    }
-
-    .badge-shipped    { background: rgba(29,127,234,.15); color: #1d7fea; }
-
-    .badge-processing { background: rgba(100,140,255,.15); color: #7baeff; }
-
-    .badge-pending    { background: rgba(255,180,0,.15);   color: #f5a623; }
-
-    .badge-delivered  { background: rgba(0,200,120,.15);   color: #00c878; }
-
-
-
-    /* ══════════════════════════
-
-       SEARCH VALIDATION
-
-    ══════════════════════════ */
-
-    .search-error {
-
-      position: absolute;
-
-      top: calc(100% + 4px);
-
-      left: 0;
-
-      right: 0;
-
-      background: rgba(231,76,60,.15);
-
-      border: 1px solid rgba(231,76,60,.4);
-
-      color: #e74c3c;
-
-      font-size: 0.7rem;
-
-      font-weight: 500;
-
-      padding: 0.3rem 0.6rem;
-
-      border-radius: 6px;
-
-      display: none;
-
-      z-index: 10;
-
-    }
-
-    .top-search.error input { border-color: var(--danger); }
-
-    .top-search.error .search-error { display: block; }
-
-
-
-    /* ══════════════════════════
-
-       TOAST NOTIFICATION
-
-    ══════════════════════════ */
-
-    .toast-container {
-
-      position: fixed;
-
-      bottom: 1.5rem;
-
-      right: 1.5rem;
-
-      display: flex;
-
-      flex-direction: column;
-
-      gap: 0.5rem;
-
-      z-index: 9999;
-
-    }
-
-    .toast-msg {
-
-      background: var(--bg2);
-
-      border: 1px solid var(--border);
-
       border-radius: 10px;
-
-      padding: 0.75rem 1rem;
-
-      display: flex;
-
-      align-items: center;
-
-      gap: 0.6rem;
-
-      font-size: 0.82rem;
-
-      color: var(--white);
-
-      min-width: 240px;
-
-      max-width: 320px;
-
-      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-
-      animation: toastIn .3s ease forwards;
-
-      border-left: 3px solid var(--accent);
-
+      overflow: hidden;
     }
 
-    .toast-msg.success { border-left-color: var(--success); }
-
-    .toast-msg.warning { border-left-color: var(--warning); }
-
-    .toast-msg.error   { border-left-color: var(--danger); }
-
-    .toast-msg i { font-size: 1rem; flex-shrink: 0; }
-
-    .toast-msg.success i { color: var(--success); }
-
-    .toast-msg.warning i { color: var(--warning); }
-
-    .toast-msg.error   i { color: var(--danger); }
-
-
-
-    @keyframes toastIn {
-
-      from { opacity: 0; transform: translateY(10px); }
-
-      to   { opacity: 1; transform: translateY(0); }
-
+    /* Desktop table */
+    .desktop-table { width: 100%; border-collapse: collapse; }
+    .desktop-table th {
+      font-size: 11px; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 12px 20px; text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.015);
+      white-space: nowrap;
     }
+    .desktop-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .desktop-table tr:last-child td { border-bottom: none; }
+    .desktop-table tbody tr:hover { background: rgba(255,255,255,.025); }
 
+    .cust-id {
+      font-size: 12px; font-weight: 500;
+      color: var(--text-muted); letter-spacing: .2px;
+      white-space: nowrap;
+    }
+    .cust-name-wrap { display: flex; align-items: center; gap: 10px; }
+    .avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+      color: #fff;
+    }
+    .av-a { background: linear-gradient(135deg,#4a9eff,#2060c0); }
+    .av-b { background: linear-gradient(135deg,#f5a623,#d4780f); }
+    .av-c { background: linear-gradient(135deg,#50e3c2,#1aa380); }
+    .av-d { background: linear-gradient(135deg,#c77dff,#7b2fbe); }
+    .av-e { background: linear-gradient(135deg,#ff6b6b,#c0392b); }
 
+    .cust-name { font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+    .cust-email { font-size: 13px; color: var(--text-label); }
+    .cust-phone { font-size: 13px; color: var(--text-label); white-space: nowrap; }
+    .cust-addr  { font-size: 13px; color: var(--text-label); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-    /* ══════════════════════════
+    .btn-block-c, .btn-unblock-c {
+      font-size: 11px; font-weight: 600; letter-spacing: .5px;
+      padding: 5px 13px; border-radius: 5px;
+      cursor: pointer; text-transform: uppercase;
+      transition: opacity .15s; white-space: nowrap;
+    }
+    .btn-block-c   { border: 1px solid var(--btn-block-clr);   background: var(--btn-block-bg);   color: var(--btn-block-clr); }
+    .btn-unblock-c { border: 1px solid var(--btn-unblock-clr); background: var(--btn-unblock-bg); color: var(--btn-unblock-clr); }
+    .btn-block-c:hover, .btn-unblock-c:hover { opacity: .8; }
 
-       FOOTER
+    /* ─── MOBILE CARDS ────────────────────────────── */
+    .mobile-cards { display: none; }
 
-    ══════════════════════════ */
+    .m-card {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .m-card:last-child { border-bottom: none; }
 
-    .admin-footer {
-
-      border-top: 1px solid var(--border);
-
-      padding: 0.8rem 1.4rem;
-
-      display: flex;
-
-      align-items: center;
-
+    .m-card-head {
+      display: flex; align-items: center;
       justify-content: space-between;
+      gap: 10px; margin-bottom: 10px;
+    }
+    .m-card-identity { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .m-card-identity .cust-name { overflow: hidden; text-overflow: ellipsis; }
 
-      background: var(--bg2);
-
-      flex-shrink: 0;
-
-      flex-wrap: wrap;
-
-      gap: 0.5rem;
-
+    .m-card-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      font-size: 12px; color: var(--text-label);
+    }
+    .m-card-body span { display: flex; align-items: center; gap: 5px; overflow: hidden; }
+    .m-card-body span i { font-size: 12px; flex-shrink: 0; }
+    .m-card-body .full-col { grid-column: 1 / -1; }
+    .m-id-badge {
+      font-size: 10.5px; font-weight: 600;
+      color: var(--text-muted); letter-spacing: .3px;
+      margin-bottom: 2px;
     }
 
-    .admin-footer .copy {
-
-      font-size: 0.68rem;
-
-      font-weight: 500;
-
-      letter-spacing: 0.06em;
-
-      text-transform: uppercase;
-
-      color: var(--muted);
-
+    /* ─── PAGINATION ──────────────────────────────── */
+    .table-footer {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 10px;
     }
-
-    .admin-footer .foot-links { display: flex; gap: 1.2rem; flex-wrap: wrap; }
-
-    .admin-footer .foot-links a {
-
-      font-size: 0.68rem;
-
-      font-weight: 500;
-
-      letter-spacing: 0.06em;
-
-      text-transform: uppercase;
-
-      color: var(--muted);
-
+    .showing-text { font-size: 12px; color: var(--text-muted); }
+    .pagination-wrap { display: flex; gap: 5px; align-items: center; flex-wrap: wrap; }
+    .page-btn {
+      min-width: 32px; height: 32px;
+      border-radius: 6px; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted);
       text-decoration: none;
-
-      transition: color .2s;
-
+      font-size: 12.5px; font-weight: 500;
+      cursor: pointer; padding: 0 10px;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color .12s, color .12s, background .12s;
+      white-space: nowrap;
     }
+    .page-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+    .page-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); color: #fff; }
 
-    .admin-footer .foot-links a:hover { color: var(--body); }
-
-
-
-    /* ══════════════════════════
-
-       RESPONSIVE BREAKPOINTS
-
-    ══════════════════════════ */
-
-
-
-    /* ── Large tablets: hide sidebar text, show icons only ── */
-
-    @media (max-width: 992px) {
-
-      :root { --sidebar-w: 60px; }
-
-      .sidebar-brand-name { display: none; }
-
-      .s-nav li a span { display: none; }
-
-      .s-nav li a { justify-content: center; padding: 0.68rem; }
-
-      .s-nav li a i { width: auto; font-size: 1.15rem; }
-
-      .top-bar-title span { display: none; }
-
-      .top-search { width: 180px; }
-
+    /* ─── FOOTER ──────────────────────────────────── */
+    .site-footer {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 14px 28px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap; gap: 8px;
     }
+    .site-footer span, .site-footer a {
+      font-size: 11px; color: var(--text-muted);
+      letter-spacing: .4px; text-decoration: none;
+    }
+    .site-footer a:hover { color: var(--text-primary); }
+    .footer-links { display: flex; gap: 16px; align-items: center; }
 
+    /* ─── RESPONSIVE BREAKPOINTS ──────────────────── */
 
-
-    /* ── Mobile: sidebar off-canvas ── */
-
-    @media (max-width: 768px) {
-
-      :root { --sidebar-w: 220px; }
-
-      .sidebar {
-
-        position: fixed;
-
-        left: 0; top: 0; bottom: 0;
-
-        transform: translateX(-100%);
-
-        z-index: 1000;
-
-      }
-
+    /* Tablet: hide sidebar, show hamburger */
+    @media (max-width: 960px) {
+      .sidebar { transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
-
-      .sidebar-brand-name { display: block; }
-
-      .s-nav li a { justify-content: flex-start; padding: 0.68rem 1.2rem; }
-
-      .s-nav li a span { display: inline; }
-
-      .s-nav li a i { width: 18px; font-size: 1rem; }
-
-
-
-      .hamburger-btn { display: flex; }
-
-
-
-      .top-bar-title strong { font-size: 0.88rem; }
-
-      .top-search { width: 140px; }
-
-
-
-      .stat-cards { grid-template-columns: 1fr 1fr; }
-
-      .stat-value { font-size: 1.3rem; }
-
-
-
-      .chart-wrap { height: 200px; }
-
-
-
-      .admin-footer { flex-direction: column; align-items: flex-start; gap: 0.4rem; }
-
+      .main-wrap { margin-left: 0; }
+      .menu-toggle { display: block; }
+      .content-area { padding: 18px 16px 28px; }
+      .topbar { padding: 14px 16px; }
+      .site-footer { padding: 14px 16px; }
     }
 
+    /* Switch to card layout below 768px */
+    @media (max-width: 768px) {
+      .desktop-table { display: none; }
+      .mobile-cards  { display: block; }
+      .filter-bar    { gap: 8px; }
+      .status-select { min-width: 100px; }
+    }
 
-
+    /* Very small screens */
     @media (max-width: 480px) {
-
-      .top-search { display: none; }
-
-      .top-bar-title span { display: none; }
-
-      .top-bar { padding: 0 1rem; gap: 0.6rem; }
-
-      .main-scroll { padding: 1rem 1rem 2rem; }
-
-
-
-      .stat-cards { grid-template-columns: 1fr; gap: 0.8rem; }
-
-
-
-      .chart-card, .orders-card { border-radius: 10px; }
-
-      .chart-wrap { height: 180px; }
-
-
-
-      thead th, tbody td { padding: 0.65rem 0.9rem; }
-
+      .topbar h1 { font-size: 17px; }
+      .filter-bar { flex-direction: column; align-items: stretch; }
+      .filter-bar .search-wrap,
+      .filter-bar .status-select,
+      .filter-bar .filter-btn { width: 100%; }
+      .filter-btn { justify-content: center; }
+      .m-card-body { grid-template-columns: 1fr; }
+      .m-card-body .full-col { grid-column: 1; }
+      .table-footer { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .site-footer { flex-direction: column; align-items: flex-start; }
     }
-
-
-
-    @media (max-width: 360px) {
-
-      .stat-value { font-size: 1.2rem; }
-
-      .top-bar-title strong { font-size: 0.82rem; }
-
-    }
-
-
-
-    /* Scrollbar styling */
-
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
-
-    ::-webkit-scrollbar-track { background: transparent; }
-
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
   </style>
-
 </head>
-
 <body>
 
+<!-- Overlay -->
+<div class="sidebar-overlay" id="overlay"></div>
 
+<!-- ─── SIDEBAR ──────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="bi bi-shield-fill"></i></div>
+    <span class="brand-name">Helmet Haven</span>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/admin/adminDashboard " class="nav-item-link"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+    <a href="/admin/products" class="nav-item-link"><i class="bi bi-box-seam"></i> Products</a>
+    <a href="#" class="nav-item-link active"><i class="bi bi-people"></i> Customers</a>
+    <a href="/admin/orders" class="nav-item-link"><i class="bi bi-cart3"></i> Orders</a>
+    <a href="/admin/coupons" class="nav-item-link"><i class="bi bi-tag"></i> Coupons</a>
+    <a href="/admin/categories" class="nav-item-link"><i class="bi bi-diagram-3"></i> Category</a>
+    <a href="/admin/brands" class="nav-item-link"><i class="bi bi-award"></i> Brands</a>
+    <a href="/admin/Inventory" class="nav-item-link"><i class="bi bi-arrow-return-left"></i> Inventory</a>
+    <a href="/admin/Offers" class="nav-item-link"><i class="bi bi-percent"></i> Offers</a>
+    <!-- <a href="#" class="nav-item-link"><i class="bi bi-image"></i> Banner</a> -->
+    <a href="/admin/salesReport" class="nav-item-link"><i class="bi bi-bar-chart-line"></i> Sales Report</a>
+    <a href="/admin/logout" class="nav-item-link"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  </nav>
+</aside>
 
-  <head>
+<!-- ─── MAIN ─────────────────────────────────────────────── -->
+<div class="main-wrap">
 
-  <!-- add these lines -->
-
-  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, private">
-
-  <meta http-equiv="Pragma" content="no-cache">
-
-  <meta http-equiv="Expires" content="0">
-
-  <!-- rest of your head content -->
-
-</head>
-
-
-
-<!-- Toast Container -->
-
-<div class="toast-container" id="toastContainer"></div>
-
-
-
-<!-- Sidebar Overlay -->
-
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-
-
-<div class="shell">
-
-
-
-  <!-- ══ SIDEBAR ══ -->
-
-  <aside class="sidebar" id="sidebar">
-
-    <a href="#" class="sidebar-brand">
-
-      <svg width="30" height="30" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-
-        <circle cx="22" cy="22" r="20" stroke="#1d7fea" stroke-width="2" fill="none"/>
-
-        <path d="M13 26 C13 18 16 13 22 13 C28 13 31 18 31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
-
-        <path d="M13 26 L13 28 C13 29.1 13.9 30 15 30 L29 30 C30.1 30 31 29.1 31 28 L31 26" stroke="#1d7fea" stroke-width="2" stroke-linecap="round" fill="none"/>
-
-        <path d="M16 23 C17 20 20 18 22 18 C24 18 27 20 28 23" stroke="#1d7fea" stroke-width="1.5" stroke-linecap="round" fill="none"/>
-
-        <circle cx="19" cy="28" r="0.8" fill="#1d7fea"/>
-
-        <circle cx="22" cy="28" r="0.8" fill="#1d7fea"/>
-
-        <circle cx="25" cy="28" r="0.8" fill="#1d7fea"/>
-
-      </svg>
-
-      <span class="sidebar-brand-name">Helmet Haven</span>
-
-    </a>
-
-
-
-    <ul class="s-nav">
-
-      <li><a href="#" class="active"><i class="bi bi-grid-1x2-fill"></i><span> Dashboard</span></a></li>
-
-      <li><a href="/admin/products" onclick="navClick(event,'Products')"><i class="bi bi-box-seam"></i><span> Products</span></a></li>
-
-      <li><a href="/admin/adminCustomer" onclick="navClick(event,'Customers')"><i class="bi bi-people"></i><span> Customers</span></a></li>
-
-      <li><a href="/admin/orders" onclick="navClick(event,'Orders')"><i class="bi bi-cart3"></i><span> Orders</span></a></li>
-
-      <li><a href="/admin/coupons" onclick="navClick(event,'Coupons')"><i class="bi bi-scissors"></i><span> Coupons</span></a></li>
-
-      <li><a href="/admin/categories" onclick="navClick(event,'Category')"><i class="bi bi-grid"></i><span> Category</span></a></li>
-
-      <li><a href="/admin/brands" onclick="navClick(event,'Brands')"><i class="bi bi-award"></i><span> Brands</span></a></li>
-
-      <li><a href="/admin/Inventory" onclick="navClick(event,'Return Requests')"><i class="bi bi-arrow-return-left"></i><span>Inventory</span></a></li>
-
-      <li><a href="/admin/Offers" onclick="navClick(event,'Offers')"><i class="bi bi-tag"></i><span> Offers</span></a></li>
-
-      <!-- <li><a href="#" onclick="navClick(event,'Banner')"><i class="bi bi-image"></i><span> Banner</span></a></li> -->
-
-      <li><a href="/admin/salesReport" onclick="navClick(event,'Sales Report')"><i class="bi bi-bar-chart-line"></i><span> Sales Report</span></a></li>
-
-      <li class="s-logout"><a href="/admin/logout" onclick="return confirmLogout()"><i class="bi bi-box-arrow-left"></i><span> Logout</span></a></li>
-
-    </ul>
-
-  </aside>
-
-
-
-  <!-- ══ RIGHT PANEL ══ -->
-
-  <div class="right-panel">
-
-
-
-    <!-- TOP BAR -->
-
-    <div class="top-bar">
-
-      <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu">
-
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
         <i class="bi bi-list"></i>
-
       </button>
+      <h1>Customers</h1>
+    </div>
+    <button class="bell-btn" aria-label="Notifications">
+      <i class="bi bi-bell"></i>
+      <span class="badge-dot"></span>
+    </button>
+  </div>
 
-      <div class="top-bar-title">
+  <div class="content-area">
 
-        <strong>Welcome, Admin</strong>
+    <!-- Filter bar -->
+    <div class="filter-bar">
 
-        <span>— Here's what's happening today.</span>
-
-      </div>
-
-      <div class="top-search" id="topSearch">
-
-        <i class="bi bi-search"></i>
-
-        <input type="text" id="searchInput" placeholder="Search data..." maxlength="100" autocomplete="off"/>
-
-        <div class="search-error" id="searchError">Please enter at least 2 characters</div>
-
-      </div>
-
-      <div class="bell-btn" id="bellBtn" role="button" aria-label="Notifications" tabindex="0">
-
-        <i class="bi bi-bell"></i>
-
-        <span class="bell-dot"></span>
-
-      </div>
-
+  <!-- Search Form -->
+  <form method="GET" action="/admin/adminCustomer" id="searchForm" style="flex:1; min-width:160px;">
+    <div class="search-wrap">
+      <i class="bi bi-search"></i>
+      <input
+        class="search-input"
+        type="text"
+        name="search"
+        placeholder="Search customers..."
+        value="<%= search %>"
+      />
+      <input type="hidden" name="status" value="<%= status %>" />
+    </div>
+  </form>
+      <form method="GET" action="/admin/adminCustomer">
+  <select class="status-select" name="status" onchange="this.form.submit()">
+    <option value=""       <%= status === ''        ? 'selected' : '' %>>Status: All</option>
+      <option value="active"  <%= status === 'active'  ? 'selected' : '' %>>Active</option>
+      <option value="blocked" <%= status === 'blocked' ? 'selected' : '' %>>Blocked</option>
+  </select>
+  <input type="hidden" name="search" value="<%= search %>" />
+</form>
+      <!-- <button class="filter-btn">
+        <i class="bi bi-funnel"></i> Filter
+      </button> -->
     </div>
 
+    <!-- Table Card -->
+    <div class="table-card">
 
+      <!-- ── DESKTOP TABLE ── -->
+      <table class="desktop-table">
+        <thead>
+          <tr>
+            <th>Customer ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Address</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        
+        <tbody>
+  <% users.forEach(user => { %>
+    <tr>
+      <!-- USER ID -->
+      <td>
+        <span class="cust-id"><%= user._id %></span>
+      </td>
 
-    <!-- MAIN SCROLL -->
-
-    <div class="main-scroll">
-
-
-
-      <!-- STAT CARDS -->
-
-      <div class="stat-cards">
-
-
-
-        <div class="stat-card">
-
-          <div class="stat-top">
-
-            <div class="stat-icon green"><i class="bi bi-cash-stack"></i></div>
-
-            <span class="stat-badge green">+12.5%</span>
-
-          </div>
-
-          <div class="stat-label">Total Sales</div>
-
-          <div class="stat-value">₹<%= Number(totalSales || 0).toLocaleString("en-IN") %></div>
-
+      <!-- NAME -->
+      <td>
+        <div class="cust-name-wrap">
+          <% if (user.firstName) { %>
+  <div class="avatar av-a">
+    <%= user.firstName[0] %>
+  </div>
+  <span class="cust-name">
+    <%= user.firstName %> <%= user.lastName %>
+  </span>
+  <% } else { %>
+  <div class="avatar av-a">?</div>
+  <span class="cust-name">Unknown User</span>
+<% } %>
         </div>
+      </td>
 
+      <!-- EMAIL -->
+      <td>
+        <span class="cust-email"><%= user.email %></span>
+      </td>
 
+      <!-- PHONE -->
+      <td>
+        <span class="cust-phone">
+          <%= user.phone || "N/A" %>
+        </span>
+      </td>
 
-        <div class="stat-card">
+      <!-- ADDRESS (optional placeholder) -->
+      <td>
+        <span class="cust-addr">—</span>
+      </td>
 
-          <div class="stat-top">
+      <!-- ACTION BUTTON -->
+      <td>
+        <form action="/admin/blockCustomer/<%= user._id %>" method="POST"  onsubmit="return confirmCustomerStatus(event, <%= user.isBlocked %>)">  
 
-            <div class="stat-icon blue"><i class="bi bi-basket3"></i></div>
+          <% if(user.isBlocked) { %>
+            <button class="btn-unblock-c" type="submit">
+              Unblock
+            </button>
+          <% } else { %>
+            <button class="btn-block-c" type="submit">
+              Block
+            </button>
+          <% } %>
+        </form>
+      </td>
+    </tr>
+  <% }) %>
+</tbody>
 
-            <span class="stat-badge blue"><%= Number(totalOrders || 0).toLocaleString("en-IN") %> total</span>
+         
+    
+      <!-- Pagination -->
+      <div class="table-footer">
+        <span class="showing-text">Showing 1 to 4 of 2,450 customers</span>
+        <div class="pagination-wrap">
+          <% if (currentPage > 1) { %>
+    <a class="page-btn" href="?page=<%= currentPage - 1 %>&status=<%= status %>&search=<%= search %>">← Previous</a>
+  <% } else { %>
+    <button class="page-btn" disabled>← Previous</button>
+  <% } %>
 
-          </div>
+  <!-- Current page indicator -->
+  <span class="page-btn active">Page <%= currentPage %> of <%= totalPages %></span>
 
-          <div class="stat-label">Total Orders</div>
-
-          <div class="stat-value"><%= Number(totalOrders || 0).toLocaleString("en-IN") %></div>
-
+  <!-- Next -->
+  <% if (currentPage < totalPages) { %>
+    <a class="page-btn" href="?page=<%= currentPage + 1 %>&status=<%= status %>&search=<%= search %>">Next →</a>
+  <% } else { %>
+    <button class="page-btn" disabled>Next →</button>
+  <% } %>
         </div>
-
-
-
-        <div class="stat-card">
-
-          <div class="stat-top">
-
-            <div class="stat-icon purple"><i class="bi bi-person-plus"></i></div>
-
-            <span class="stat-badge purple"><%= Number(totalCustomers || 0).toLocaleString("en-IN") %> registered</span>
-
-          </div>
-
-          <div class="stat-label">Customers</div>
-
-          <div class="stat-value"><%= Number(totalCustomers || 0).toLocaleString("en-IN") %></div>
-
-        </div>
-
-
-
+        
       </div>
 
+    </div><!-- /table-card -->
+  </div><!-- /content-area -->
 
+  <!-- <footer class="site-footer">
+    <span>© 2024 HELMET HAVEN HQ — ADMINISTRATIVE PANEL</span>
+    <div class="footer-links">
+      <a href="#">System Status</a>
+      <a href="#">Security Policy</a>
+      <span>V4.2.0-ADMIN</span>
+    </div>
+  </footer> -->
 
-      <!-- CHART -->
-
-      <div class="chart-card">
-
-        <div class="chart-header">
-
-          <span class="chart-title">Sales Overview</span>
-
-          <div class="tab-group">
-
-  
-            <span class="tab-btn active">Last 6 Months</span>
-
-          </div>
-
-        </div>
-
-        <div class="chart-wrap">
-
-          <canvas id="salesChart"></canvas>
-
-        </div>
-
-      </div>
-
-
-
-      <!-- RECENT ORDERS -->
-
-      <div class="orders-card">
-
-        <div class="orders-header">
-
-          <span class="orders-title">Recent Orders</span>
-
-          <a href="/admin/orders" class="view-all-link">View All</a>
-
-        </div>
-
-        <div class="table-wrapper">
-
-          <table>
-
-            <thead>
-
-              <tr>
-
-                <th>Order ID</th>
-
-                <th>Items</th>
-
-                <th>Customer</th>
-
-                <th>Status</th>
-
-                <th>Total Amount</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-              <% if (!recentOrders || recentOrders.length === 0) { %>
-                <tr>
-                  <td colspan="5" style="text-align:center; color:var(--body);">
-                    No orders found.
-                  </td>
-                </tr>
-              <% } else { %>
-                <% recentOrders.forEach(order => {
-                  const customerName = order.userId
-                    ? `${order.userId.firstName || ""} ${order.userId.lastName || ""}`.trim()
-                    : (order.address?.name || "Unknown customer");
-                  const itemNames = (order.items || [])
-                    .map(item => item.productName || "Product")
-                    .filter(Boolean);
-                  const displayItems = itemNames.length
-                    ? [...new Set(itemNames)].join(", ")
-                    : "No items";
-                  const statusClass = String(order.orderStatus || "Pending")
-                    .toLowerCase()
-                    .replace(/\s+/g, "-");
-                %>
-                  <tr>
-                    <td class="order-id">#<%= order.orderId || String(order._id).slice(-8) %></td>
-                    <td title="<%= displayItems %>">
-                      <%= displayItems.length > 36 ? displayItems.slice(0, 33) + "..." : displayItems %>
-                    </td>
-                    <td><%= customerName || "Unknown customer" %></td>
-                    <td>
-                      <span class="badge-status badge-<%= statusClass %>">
-                        <%= order.orderStatus || "Pending" %>
-                      </span>
-                    </td>
-                    <td>
-                      <strong>₹<%= Number(order.grandTotal || 0).toLocaleString("en-IN", {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                      }) %></strong>
-                    </td>
-                  </tr>
-                <% }); %>
-              <% } %>
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </div>
-
-
-
-    </div><!-- /main-scroll -->
-
-
-
-    <!-- FOOTER -->
-
-    <footer class="admin-footer">
-
-      <span class="copy">© 2024 Helmet Haven HQ — Administrative Panel</span>
-
-      <div class="foot-links">
-
-        <a href="#">System Status</a>
-
-        <a href="#">Security Policy</a>
-
-        <a href="#">V4.2.0-Admin</a>
-
-      </div>
-
-    </footer>
-
-
-
-  </div><!-- /right-panel -->
-
-</div><!-- /shell -->
-
+</div><!-- /main-wrap -->
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-
-  /* ══════════════════════════
-
-     TOAST SYSTEM
-
-  ══════════════════════════ */
-
-  function showToast(message, type = 'info', duration = 3000) {
-
-    const icons = {
-
-      success: 'bi-check-circle-fill',
-
-      warning: 'bi-exclamation-triangle-fill',
-
-      error:   'bi-x-circle-fill',
-
-      info:    'bi-info-circle-fill'
-
-    };
-
-    const container = document.getElementById('toastContainer');
-
-    const toast = document.createElement('div');
-
-    toast.className = `toast-msg ${type}`;
-
-    toast.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i><span>${message}</span>`;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-
-      toast.style.animation = 'toastIn .3s ease reverse forwards';
-
-      setTimeout(() => toast.remove(), 300);
-
-    }, duration);
-
-  }
-
-
-
-  /* ══════════════════════════
-
-     HAMBURGER / SIDEBAR
-
-  ══════════════════════════ */
-
   const sidebar  = document.getElementById('sidebar');
+  const overlay  = document.getElementById('overlay');
+  const menuToggle = document.getElementById('menuToggle');
 
-  const overlay  = document.getElementById('sidebarOverlay');
-
-  const hamburger = document.getElementById('hamburgerBtn');
-
-
-
-  hamburger.addEventListener('click', toggleSidebar);
-
-  overlay.addEventListener('click', closeSidebar);
-
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
-
-
-
-  function toggleSidebar() {
-
-    const isOpen = sidebar.classList.toggle('open');
-
-    overlay.classList.toggle('active', isOpen);
-
-    hamburger.querySelector('i').className = isOpen ? 'bi bi-x-lg' : 'bi bi-list';
-
-  }
-
-  function closeSidebar() {
-
+  menuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+  overlay.addEventListener('click', () => {
     sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
 
-    overlay.classList.remove('active');
+async function confirmCustomerStatus(event, isBlocked) {
+  event.preventDefault();
 
-    hamburger.querySelector('i').className = 'bi bi-list';
+  const action = isBlocked ? "Unblock" : "Block";
 
+  const result = await Swal.fire({
+    title: `${action} Customer?`,
+    text: isBlocked
+      ? "This customer will be able to log in again."
+      : "This customer will no longer be able to log in.",
+    icon: "warning",
+    background: "#161b24",
+          color: "#ffffff",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: `Yes, ${action}`,
+    cancelButtonText: "Cancel"
+  });
+
+  if (result.isConfirmed) {
+    event.target.submit();
   }
 
-
-
-  /* ══════════════════════════
-
-     NAV CLICK VALIDATION
-
-  ══════════════════════════ */
-
-  function navClick(e, name) {
-
-    if (e.currentTarget.getAttribute('href') === '#') {
-
-      e.preventDefault();
-
-      showToast(`Navigating to ${name}…`, 'info');
-
-    }
-
-    closeSidebar();
-
-  }
-
-
-
-  /* ══════════════════════════
-
-     LOGOUT CONFIRMATION
-
-  ══════════════════════════ */
-
-  function confirmLogout() {
-
-    return confirm('Are you sure you want to logout from the admin panel?');
-
-  }
-
-
-
-  /* ══════════════════════════
-
-     BELL NOTIFICATION
-
-  ══════════════════════════ */
-
-  document.getElementById('bellBtn').addEventListener('click', function () {
-
-    this.querySelector('.bell-dot')?.remove();
-
-    showToast('No new notifications at this time.', 'info');
-
-  });
-
-
-
-  /* ══════════════════════════
-
-     SEARCH VALIDATION
-
-  ══════════════════════════ */
-
-  const searchInput = document.getElementById('searchInput');
-
-  const topSearch   = document.getElementById('topSearch');
-
-  let searchTimer;
-
-
-
-  searchInput.addEventListener('input', function () {
-
-    clearTimeout(searchTimer);
-
-    const val = this.value.trim();
-
-
-
-    topSearch.classList.remove('error');
-
-
-
-    if (val.length === 0) return;
-
-
-
-    searchTimer = setTimeout(() => {
-
-      if (val.length < 2) {
-
-        topSearch.classList.add('error');
-
-        document.getElementById('searchError').textContent = 'Please enter at least 2 characters';
-
-      } else if (!/^[a-zA-Z0-9\s\\-#]+$/.test(val)) {
-
-        topSearch.classList.add('error');
-
-        document.getElementById('searchError').textContent = 'Only letters, numbers, # and - allowed';
-
-      } else {
-
-        topSearch.classList.remove('error');
-
-        // Simulate search feedback
-
-        showToast(`Searching for "${val}"…`, 'info', 1800);
-
-      }
-
-    }, 400);
-
-  });
-
-
-
-  searchInput.addEventListener('blur', function () {
-
-    const val = this.value.trim();
-
-    if (val.length > 0 && val.length < 2) {
-
-      topSearch.classList.add('error');
-
-    }
-
-  });
-
-
-
-  searchInput.addEventListener('focus', function () {
-
-    topSearch.classList.remove('error');
-
-  });
-
-
-
-  /* ══════════════════════════
-
-     CHART
-
-  ══════════════════════════ */
-
-  const monthData = {
-    labels: <%- JSON.stringify(monthLabels || []) %>,
-    values: <%- JSON.stringify(monthValues || []) %>
-  };
-
-  const accentBlue = '#1d7fea';
-
-  const barBg      = '#1a2a40';
-
-
-
-  const ctx = document.getElementById('salesChart').getContext('2d');
-
-  const salesChart = new Chart(ctx, {
-
-    type: 'bar',
-
-    data: {
-
-      labels: monthData.labels,
-
-      datasets: [{
-
-        data: monthData.values,
-
-        backgroundColor: monthData.values.map((v, i) => i === 4 ? accentBlue : barBg),
-
-        borderRadius: 6,
-
-        borderSkipped: false,
-
-        barPercentage: 0.55,
-
-        categoryPercentage: 0.7
-
-      }]
-
-    },
-
-    options: {
-
-      responsive: true,
-
-      maintainAspectRatio: false,
-
-      plugins: {
-
-        legend: { display: false },
-
-        tooltip: {
-
-          backgroundColor: '#1a2232',
-
-          titleColor: '#eef2f7',
-
-          bodyColor: '#7a93a8',
-
-          borderColor: '#1c2840',
-
-          borderWidth: 1,
-
-          callbacks: { label: ctx => ' ₹' + ctx.parsed.y.toLocaleString() }
-
-        }
-
-      },
-
-      scales: {
-
-        x: {
-
-          grid: { display: false },
-
-          ticks: { color: '#3d5268', font: { size: 11, weight: '600' } },
-
-          border: { display: false }
-
-        },
-
-        y: { display: false, grid: { display: false } }
-
-      }
-
-    }
-
-  });
-
-
-
-
-
-
-
-  /* ══════════════════════════
-
-     ORDER ROW CLICK
-
-  ══════════════════════════ */
-
-  document.querySelectorAll('tbody tr').forEach(row => {
-
-    row.style.cursor = 'pointer';
-
-    row.addEventListener('click', function () {
-
-      const id = this.querySelector('.order-id')?.textContent;
-
-      if (id) showToast(`Opening order ${id}`, 'info');
-
-    });
-
-  });
+  return false;
+}
 
 </script>
-
 </body>
-
 </html>

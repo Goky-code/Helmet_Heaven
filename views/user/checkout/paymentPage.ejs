@@ -1072,10 +1072,19 @@ razorpay.on("payment.failed", function (response) {
         response.error?.description ||
         "Your payment was unsuccessful. Please try again.";
 
+    const params = new URLSearchParams({
+        message,
+        addressId: payload.addressId || "",
+        couponCode: payload.couponCode || "",
+        buyNow: payload.buyNow ? "true" : "false",
+        productId: payload.productId || "",
+        size: payload.size || "",
+        qty: payload.qty || ""
+    });
+
     window.location.href =
-        "/user/checkout/order-failure?message=" +
-        encodeURIComponent(message);
-});
+        `/user/checkout/order-failure?${params.toString()}`;
+})
 
 razorpay.open();
 

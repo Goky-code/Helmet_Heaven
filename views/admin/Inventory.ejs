@@ -348,10 +348,7 @@
         let statusKey = "";
         let actionLabel = "";
 
-        /*
-         * Product blocked OR variant inactive
-         * => INACTIVE
-         */
+      
         if (p.isBlocked || v.status === "INACTIVE") {
 
             badgeClass = "badge-inactive";
@@ -361,10 +358,7 @@
 
         }
 
-        /*
-         * Product and variant active
-         * => check stock
-         */
+       
         else if (v.stock === 0) {
 
             badgeClass = "badge-out";
