@@ -187,7 +187,7 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
         Inventory
       </a>
-      <a class="nav-item active" href="/admin/offers">
+      <a class="nav-item active" href="/admin/Offers">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
         Offers
       </a>
@@ -195,7 +195,7 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><polyline points="3 9 12 15 21 9"/></svg>
         Banner
       </a> -->
-      <a class="nav-item" href="#">
+      <a class="nav-item" href="/admin/salesReport">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         Sales Report
       </a>
@@ -290,7 +290,6 @@
             <option value="" disabled selected>Select</option>
             <option value="PRODUCT">Products</option>
             <option value="CATEGORY">Category</option>
-            <option value="BRAND">Brand</option>
           </select>
           <span class="form-error" id="err-offerType">Please select an offer type.</span>
         </div>
@@ -322,13 +321,7 @@
     name="categoryId"
     id="categoryId"
   >
-
-  <!-- Selected Brand ID -->
-  <input
-    type="hidden"
-    name="brandId"
-    id="brandId"
-  >
+ 
 
   <!-- Visible dropdown -->
   <select
@@ -389,18 +382,20 @@
 
   const OFFER_FOR_DATA = {
 
-    PRODUCT: <%- JSON.stringify(products.map(p => ({
-      id: p._id,
-      name: p.productName
-    }))) %>,
+   PRODUCT: <%- JSON.stringify(
+      products.map(p => ({
+        id: String(p._id),
+        name: p.productName
+      }))
+    ) %>,
 
-    CATEGORY: <%- JSON.stringify(categories.map(c => ({
-      id: c._id,
-      name: c.name
-    }))) %>
-   
-
-  };
+    CATEGORY: <%- JSON.stringify(
+      categories.map(c => ({
+        id: String(c._id),
+        name: c.name
+      }))
+    ) %>
+  }
 
 
   console.log("OFFER_FOR_DATA:", OFFER_FOR_DATA);
@@ -471,137 +466,71 @@
   // OFFER FOR OPTIONS
   // =========================================================
 
- function updateOfferForOptions() {
+ 
+function updateOfferForOptions() {
+  const offerType = document.getElementById("offerType");
+  const offerFor = document.getElementById("offerFor");
+  const offerForValue = document.getElementById("offerForValue");
+  const productId = document.getElementById("productId");
+  const categoryId = document.getElementById("categoryId");
 
-    const type = document.getElementById("offerType").value;
+  const type = offerType.value;
 
-    const offerForSelect = document.getElementById("offerFor");
-    const offerForValue = document.getElementById("offerForValue");
+  // Reset dropdown and hidden fields
+  offerFor.innerHTML = '<option value="">Select an option</option>';
+  offerForValue.value = "";
+  productId.value = "";
+  categoryId.value = "";
 
-    const productId = document.getElementById("productId");
-    const categoryId = document.getElementById("categoryId");
-    const brandId = document.getElementById("brandId");
+  // Product offer
+  if (type === "PRODUCT") {
+    const products = OFFER_FOR_DATA.PRODUCT || [];
 
-    // Clear old values
-    offerForSelect.innerHTML = "";
+    // All Products option
+    const allOption = document.createElement("option");
+    allOption.value = "ALL_PRODUCTS";
+    allOption.textContent = "All Products";
+    offerFor.appendChild(allOption);
 
-    offerForValue.value = "";
-    productId.value = "";
-    categoryId.value = "";
-    brandId.value = "";
+    // Individual products
+    products.forEach(product => {
+      const option = document.createElement("option");
+      option.value = product.id;
+      option.textContent = product.name;
+      offerFor.appendChild(option);
+    });
+  }
 
+  // Category offer
+  else if (type === "CATEGORY") {
+    const categories = OFFER_FOR_DATA.CATEGORY || [];
 
-    // =========================
-    // PRODUCT
-    // =========================
+    categories.forEach(category => {
+      const option = document.createElement("option");
+      option.value = category.id;
+      option.textContent = category.name;
+      offerFor.appendChild(option);
+    });
+  }
 
-    if (type === "PRODUCT") {
+  // Update hidden fields when Offer For changes
+  offerFor.onchange = function () {
+    const selectedValue = this.value;
+    const selectedOption = this.options[this.selectedIndex];
 
-        // All Products
-        const allOption = document.createElement("option");
+    offerForValue.value =
+      selectedValue === "ALL_PRODUCTS"
+        ? "All Products"
+        : selectedOption?.textContent || "";
 
-        allOption.value = "ALL_PRODUCTS";
-        allOption.textContent = "All Products";
+    productId.value =
+      type === "PRODUCT" && selectedValue !== "ALL_PRODUCTS"
+        ? selectedValue
+        : "";
 
-        offerForSelect.appendChild(allOption);
-
-
-        // Product list
-        const products = OFFER_FOR_DATA.PRODUCT || [];
-
-        products.forEach(product => {
-
-            const option = document.createElement("option");
-
-            option.value = product.id;
-            option.textContent = product.name;
-
-            offerForSelect.appendChild(option);
-
-        });
-
-
-        // Default = All Products
-        offerForValue.value = "All Products";
-
-
-        // When product is selected
-        offerForSelect.onchange = function () {
-
-            if (this.value === "ALL_PRODUCTS") {
-
-                offerForValue.value = "All Products";
-
-                productId.value = "";
-
-            } else {
-
-                const selectedProduct =
-                    products.find(product => product.id === this.value);
-
-                if (selectedProduct) {
-
-                    offerForValue.value = selectedProduct.name;
-
-                    productId.value = selectedProduct.id;
-
-                }
-
-            }
-
-        };
-
-        return;
-    }
-
-
-    // =========================
-    // CATEGORY
-    // =========================
-
-    if (type === "CATEGORY") {
-
-        const placeholder = document.createElement("option");
-
-        placeholder.value = "";
-        placeholder.textContent = "Select Category";
-        placeholder.disabled = true;
-        placeholder.selected = true;
-
-        offerForSelect.appendChild(placeholder);
-
-
-        const categories = OFFER_FOR_DATA.CATEGORY || [];
-
-        categories.forEach(category => {
-
-            const option = document.createElement("option");
-
-            option.value = category.id;
-            option.textContent = category.name;
-
-            offerForSelect.appendChild(option);
-
-        });
-
-
-        offerForSelect.onchange = function () {
-
-            const selectedCategory =
-                categories.find(category => category.id === this.value);
-
-            if (selectedCategory) {
-
-                offerForValue.value = selectedCategory.name;
-
-                categoryId.value = selectedCategory.id;
-
-            }
-
-        };
-
-        return;
-    }
+    categoryId.value =
+      type === "CATEGORY" ? selectedValue : "";
+  };
 }
 
 

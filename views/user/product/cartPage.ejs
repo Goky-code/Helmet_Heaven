@@ -503,10 +503,26 @@
     !p.category || !p.category.isListed || p.category.isDeleted ||
     !p.brand || !p.brand.isListed || p.brand.isDeleted;
 
-  const variant = p?.variants?.find(v => v.size === item.size);
-  const price   = variant?.price || 0;
-  const stock   = variant?.stock ?? 0;
-  const displayQty = (stock === 0 || isUnavailable) ? 0 : item.quantity;
+ 
+const variant = p?.variants?.find(v => v.size === item.size);
+const price = variant?.price ?? 0;
+const stock = variant?.stock ?? 0;
+const displayQty = (stock === 0 || isUnavailable) ? 0 : item.quantity;
+
+const offerPricing = item.offerPricing;
+
+const hasOffer = Boolean(
+  offerPricing &&
+  offerPricing.offer &&
+  Number(offerPricing.discountAmount) > 0 &&
+  stock > 0 &&
+  !isUnavailable
+);
+
+const displayPrice = hasOffer
+  ? Number(offerPricing.salePrice)
+  : price;
+
 %>
 <article class="cart-item" data-id="<%= p._id %>" data-size="<%= item.size %>" data-base-price="<%= price %>" data-stock="<%= isUnavailable ? 0 : stock %>" style="animation-delay:<%= index * 0.07 %>s">
   <% if (p?.productImage?.[0]) { %>
@@ -531,7 +547,33 @@
   </div>
 
   <div class="item-right">
-    <div class="item-price" style="<%= (stock === 0 || isUnavailable) ? 'color:var(--muted);text-decoration:line-through;' : '' %>">₹ <%= price.toLocaleString() %></div>
+   
+<div class="item-price">
+  <% if (hasOffer) { %>
+    <div>
+      ₹<%= displayPrice.toLocaleString("en-IN") %>
+    </div>
+
+    <div style="font-size:.85rem; color:var(--muted);">
+      <span style="text-decoration:line-through;">
+        ₹<%= Number(offerPricing.originalPrice).toLocaleString("en-IN") %>
+      </span>
+
+      <span style="color:var(--success); margin-left:6px;">
+        <%= offerPricing.discountPercentage %>% OFF
+      </span>
+    </div>
+
+    <div style="font-size:.75rem; color:var(--success);">
+      You save ₹<%= Number(offerPricing.discountAmount).toLocaleString("en-IN") %>
+    </div>
+  <% } else { %>
+    <div style="<%= (stock === 0 || isUnavailable) ? 'color:var(--muted);text-decoration:line-through;' : '' %>">
+      ₹<%= Number(price).toLocaleString("en-IN") %>
+    </div>
+  <% } %>
+</div>
+
     <div class="qty-controls" role="group" aria-label="Quantity">
       <button class="qty-btn dec-btn" data-id="<%= p._id %>" data-size="<%= item.size %>" <%= (stock === 0 || isUnavailable) ? 'disabled' : '' %>>−</button>
       <div class="qty-value" id="qty-<%= p._id %>-<%= item.size %>"><%= displayQty %></div>
@@ -619,23 +661,59 @@
     <aside aria-label="Order summary">
       <div class="order-summary">
         <div class="summary-title">Order Summary</div>
+
 <%
   let subtotal = 0;
+  let totalOfferSavings = 0;
+
   if (cart && cart.items && cart.items.length > 0) {
     cart.items.forEach(item => {
       const p = item.productId;
+
       if (!p || p.isBlocked || p.isDeleted) return;
-      const variant = p.variants?.find(v => v.size === item.size && v.status === "ACTIVE");
-      const price = variant?.price || 0;
+
+      const variant = p.variants?.find(
+        v => v.size === item.size && v.status === "ACTIVE"
+      );
+
       const stock = variant?.stock ?? 0;
-      if (stock > 0) subtotal += price * item.quantity;
+
+      if (!variant || stock <= 0) return;
+
+      const offerPricing = item.offerPricing;
+
+      const hasOffer = Boolean(
+        offerPricing &&
+        offerPricing.offer &&
+        Number(offerPricing.discountAmount) > 0
+      );
+
+      const unitPrice = hasOffer
+        ? Number(offerPricing.salePrice)
+        : Number(variant.price);
+
+      subtotal += unitPrice * item.quantity;
+
+      if (hasOffer) {
+        totalOfferSavings +=
+          Number(offerPricing.discountAmount) * item.quantity;
+      }
     });
   }
 
   const shipping = subtotal > 500 ? 0 : 99;
-  const tax      = Math.round(subtotal * 0.08);
-  const total    = subtotal + shipping + tax;
+  const tax = Math.round(subtotal * 0.08);
+  const total = subtotal + shipping + tax;
 %>
+
+<% if (totalOfferSavings > 0) { %>
+  <div class="summary-row">
+    <span class="summary-label">Offer Savings</span>
+    <span class="summary-value" style="color:var(--success)">
+      −₹<%= totalOfferSavings.toLocaleString("en-IN") %>
+    </span>
+  </div>
+<% } %>
 
         <div class="summary-row">
           <span class="summary-label">Subtotal</span>
@@ -657,11 +735,11 @@
         </div>
 
         <!-- Promo code -->
-        <div class="promo-row">
+        <!-- <div class="promo-row">
           <input type="text" class="promo-input" id="promoInput" placeholder="Promo code" aria-label="Promo code"/>
           <button class="promo-btn" id="promoBtn">Apply</button>
         </div>
-        <div class="promo-feedback" id="promoFeedback" aria-live="polite"></div>
+        <div class="promo-feedback" id="promoFeedback" aria-live="polite"></div> -->
 
         <!-- Checkout -->
       <button type="button" id="checkoutBtn" class="checkout-btn">
@@ -859,85 +937,85 @@ document.querySelectorAll('.inc-btn, .dec-btn').forEach(btn => {
 });
 
 /* ── Promo code ── */
-const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
-document.getElementById('promoBtn').addEventListener('click', () => {
-  const inp  = document.getElementById('promoInput');
-  const fb   = document.getElementById('promoFeedback');
-  const code = inp.value.trim().toUpperCase();
-  if (!code) {
-    inp.classList.add('error');
-    fb.textContent = 'Please enter a promo code.';
-    fb.className = 'promo-feedback err'; return;
-  }
-  inp.classList.remove('error');
-  if (PROMO_CODES[code]) {
-    fb.textContent = `Code applied! ${(PROMO_CODES[code] * 100).toFixed(0)}% off.`;
-    fb.className = 'promo-feedback ok';
-    inp.disabled = true;
-    document.getElementById('promoBtn').disabled = true;
-    showToast('Promo code applied!');
-  } else {
-    inp.classList.add('error');
-    fb.textContent = 'Invalid or expired promo code.';
-    fb.className = 'promo-feedback err';
-  }
-});
-document.getElementById('promoInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('promoBtn').click();
-});
-document.getElementById('promoInput').addEventListener('input', () => {
-  document.getElementById('promoInput').classList.remove('error');
-  const fb = document.getElementById('promoFeedback');
-  if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'promo-feedback'; }
-});
+// const PROMO_CODES = { SAVE10: 0.10, HELMET20: 0.20, HAVEN15: 0.15 };
+// document.getElementById('promoBtn').addEventListener('click',async () => {
+//   const inp  = document.getElementById('promoInput');
+//   const fb   = document.getElementById('promoFeedback');
+//   const code = inp.value.trim().toUpperCase();
+//   if (!code) {
+//     inp.classList.add('error');
+//     fb.textContent = 'Please enter a promo code.';
+//     fb.className = 'promo-feedback err'; return;
+//   }
+//   inp.classList.remove('error');
+//   if (PROMO_CODES[code]) {
+//     fb.textContent = `Code applied! ${(PROMO_CODES[code] * 100).toFixed(0)}% off.`;
+//     fb.className = 'promo-feedback ok';
+//     inp.disabled = true;
+//     document.getElementById('promoBtn').disabled = true;
+//     showToast('Promo code applied!');
+//   } else {
+//     inp.classList.add('error');
+//     fb.textContent = 'Invalid or expired promo code.';
+//     fb.className = 'promo-feedback err';
+//   }
+// });
+// document.getElementById('promoInput').addEventListener('keydown', e => {
+//   if (e.key === 'Enter') document.getElementById('promoBtn').click();
+// });
+// document.getElementById('promoInput').addEventListener('input', () => {
+//   document.getElementById('promoInput').classList.remove('error');
+//   const fb = document.getElementById('promoFeedback');
+//   if (fb.classList.contains('err')) { fb.textContent = ''; fb.className = 'promo-feedback'; }
+// });
+
+
 
 /* ── Checkout ── */
 document.getElementById('checkoutBtn').addEventListener('click', async () => {
-  const checkoutBtn = document.getElementById('checkoutBtn');
+    const checkoutBtn = document.getElementById('checkoutBtn');
 
-  checkoutBtn.disabled = true;
+    if (checkoutBtn.disabled) return;
+    checkoutBtn.disabled = true;
 
-  try {
-    const response = await fetch('/user/validate-checkout', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
+    try {
+        const response = await fetch('/user/validate-checkout', {
+            method: 'GET',
+            headers: { Accept: 'application/json' }
+        });
 
-    const data = await response.json();
+        const data = await response.json();
 
-    if (!data.success) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Product Unavailable',
-        text: data.message,
-        background: '#161b24',
-        color: '#fff',
-        confirmButtonColor: '#2d9cff'
-      });
+        if (!response.ok || !data.success) {
+            await Swal.fire({
+                icon: 'warning',
+                title: 'Cannot Proceed to Checkout',
+                text: data.message || 'Please check your cart and try again.',
+                background: '#161b24',
+                color: '#fff',
+                confirmButtonColor: '#2d9cff'
+            });
+            return;
+        }
 
-      return;
+        window.location.href = '/user/checkout';
+
+    } catch (error) {
+        console.error('Checkout validation error:', error);
+        await Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong',
+            text: 'Unable to validate your cart. Please try again.',
+            background: '#161b24',
+            color: '#fff',
+            confirmButtonColor: '#2d9cff'
+        });
+    } finally {
+        checkoutBtn.disabled = false;
     }
-
-    window.location.href = '/user/checkout';
-
-  } catch (error) {
-    console.log(error);
-
-    Swal.fire({
-      icon: 'error',
-      title: 'Something went wrong',
-      text: 'Unable to validate your cart. Please try again.',
-      background: '#161b24',
-      color: '#fff',
-      confirmButtonColor: '#2d9cff'
-    });
-
-  } finally {
-    checkoutBtn.disabled = false;
-  }
 });
+
+
 /* ── Newsletter ── */
 document.getElementById('joinBtn').addEventListener('click', () => {
   const inp     = document.getElementById('newsletterEmail');

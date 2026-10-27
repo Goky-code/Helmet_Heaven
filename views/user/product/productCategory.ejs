@@ -272,6 +272,49 @@
     .page-btn:hover { border-color: var(--blue); color: var(--blue); }
     .page-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
 
+    /* Offer badge */
+.offer-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Product pricing */
+.price-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.price-original {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.price-main .sale-price {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.price-main .regular-price {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.price-discount {
+  color: #4caf50;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
     /* ── FOOTER ── */
     footer { background: var(--bg2); border-top: 1px solid var(--border); margin-top: 60px; padding: 48px 28px 28px; }
     .footer-grid { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.6fr; gap: 40px; }
@@ -722,9 +765,43 @@
             <div class="card-name"><%= product.productName %></div>
             <div class="card-desc"><%= product.description %></div>
             <div class="card-footer">
-              <div class="price-main">₹ <%= activeVariant.price.toLocaleString() %></div>
-            </div>
-          </div>
+  <div class="price-wrap">
+
+    <% if (
+      product.offerPricing &&
+      product.offerPricing.discountAmount > 0
+    ) { %>
+
+      <span class="offer-badge">
+        <%= product.offerPricing.discountPercentage %>% OFF
+      </span>
+
+      <div class="price-original">
+        ₹<%= product.offerPricing.originalPrice.toLocaleString("en-IN") %>
+      </div>
+
+      <div class="price-main">
+        <span class="sale-price">
+          ₹<%= product.offerPricing.salePrice.toLocaleString("en-IN") %>
+        </span>
+      </div>
+
+      <div class="price-discount">
+        You save ₹<%= product.offerPricing.discountAmount.toLocaleString("en-IN") %>
+      </div>
+
+    <% } else { %>
+
+      <div class="price-main">
+        <span class="regular-price">
+          ₹<%= activeVariant.price.toLocaleString("en-IN") %>
+        </span>
+      </div>
+
+    <% } %>
+
+  </div>
+</div>
         </article>
       </a>
     <% } %>

@@ -132,7 +132,7 @@ export const createRazorpayOrder=async(req,res)=>{
             isBuyNow&&productId&&size?{
                 productId,
                 size,
-                qty:Math.max(1, parseInt(qty) || 1)
+                quantity:Math.max(1, parseInt(qty) || 1)
             }:null
 
         const data=await paymentService.getPaymentPageData(userId,addressId,buyNowItem,couponCode||null)
@@ -219,4 +219,35 @@ export const verifyRazorpayPayment=async(req,res)=>{
                 "Payment verification failed."
         })
     }
+}
+
+
+export const loadPaymentFailure = (req, res) => {
+    res.set({
+        "Cache-Control": "no-store, no-cache, must-revalidate, private",
+        "Pragma": "no-cache",
+        "Expires": "0"
+    })
+
+    const {
+        message,
+        addressId,
+        couponCode,
+        buyNow,
+        productId,
+        size,
+        qty
+    } = req.query
+
+    return res.render("user/checkout/order-failure", {
+        message: message || "Your payment could not be completed.",
+        retryData: {
+            addressId: addressId || "",
+            couponCode: couponCode || "",
+            buyNow: buyNow === "true",
+            productId: productId || "",
+            size: size || "",
+            qty: qty || "1"
+        }
+    })
 }

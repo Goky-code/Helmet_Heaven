@@ -8,6 +8,7 @@ import session from "express-session"
 import passport from "./config/passport.js";
 import path from 'path';
 import { fileURLToPath } from "url"
+import { noCache,isAdminAuth} from "./middlewares/adminAuth.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
@@ -61,9 +62,10 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(setNavCounts);
 
-// ── Routes ──
+
 app.use("/user", userRoutes);
 app.use("/auth", authRoutes);
+app.use("/admin", noCache);
 app.use("/admin", adminRoutes);
 app.use("/admin", categoryRouter);
 app.use("/admin", brandRouter);

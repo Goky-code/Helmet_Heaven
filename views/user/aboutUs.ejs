@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | Helmet Haven</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-dark: #070b11;
+            --card-bg: #111821;
+            --accent-blue: #007bff;
+            --text-gray: #8b949e;
+            --border-color: #21262d;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* ── NAVBAR ── */
+        .navbar {
+            background-color: var(--bg-dark);
+            padding: 14px 5%;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .navbar-brand { font-weight: 800; font-size: 1rem; white-space: nowrap; }
+        .nav-link { color: var(--text-gray) !important; font-size: 0.9rem; padding: 6px 10px !important; }
+        .nav-link:hover { color: white !important; }
+        .nav-link.active { color: var(--accent-blue) !important; font-weight: 600; }
+
+        .search-bar {
+            background: #1c2128;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: white;
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            width: 100%;
+            max-width: 260px;
+            outline: none;
+        }
+        .search-bar::placeholder { color: var(--text-gray); }
+        .search-bar:focus { border-color: var(--accent-blue); }
+
+        .nav-icons { display: flex; align-items: center; gap: 18px; font-size: 1.1rem; flex-shrink: 0; }
+        .nav-icons a, .nav-icons i { color: var(--text-gray); text-decoration: none; cursor: pointer; }
+        .nav-icons a:hover, .nav-icons i:hover { color: white; }
+
+        .navbar-toggler {
+            border: 1px solid var(--border-color);
+            color: var(--text-gray);
+            padding: 6px 10px;
+            background: #1c2128;
+            border-radius: 8px;
+        }
+        .navbar-toggler:focus { box-shadow: none; }
+        .navbar-toggler-icon { filter: invert(1); }
+
+        .mobile-search-wrapper { padding: 10px 0 4px; display: none; }
+        .mobile-search-wrapper .search-bar { max-width: 100%; }
+
+        .nav-badge {
+            position: absolute; top: -8px; right: -12px;
+            background: rgb(0, 140, 255); color: white; min-width: 18px; height: 18px;
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; font-size: 10px; font-weight: bold;
+        }
+
+        /* ── ABOUT HERO ── */
+        .about-hero {
+            position: relative;
+            min-height: clamp(340px, 55vw, 600px);
+            display: flex; align-items: center; justify-content: center;
+            text-align: center;
+            padding: 60px 5%;
+            background:
+                linear-gradient(to bottom, rgba(7,11,17,0.15) 0%, rgba(7,11,17,0.35) 55%, var(--bg-dark) 100%),
+                linear-gradient(180deg, #d9a766 0%, #8a5a2b 55%, #1c1308 100%);
+            background-size: cover; background-position: center top;
+        }
+        .about-hero.has-img {
+            background:
+                linear-gradient(to bottom, rgba(7,11,17,0.1) 0%, rgba(7,11,17,0.35) 55%, var(--bg-dark) 100%),
+                var(--hero-img) center top / cover no-repeat;
+        }
+        .about-hero h1 {
+            font-size: clamp(2rem, 7vw, 4.6rem);
+            font-weight: 800; line-height: 1.08; margin-bottom: 18px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            text-shadow: 0 4px 24px rgba(0,0,0,0.45);
+        }
+        .about-hero p {
+            font-size: clamp(0.95rem, 2.2vw, 1.4rem);
+            max-width: 620px; margin: 0 auto; line-height: 1.5;
+            text-shadow: 0 2px 14px rgba(0,0,0,0.6);
+        }
+
+        /* ── LEGACY ── */
+        .section-wrap { padding: clamp(40px, 6vw, 80px) 5%; }
+        .legacy-tag {
+            display: inline-block; background: rgba(0,123,255,0.12); color: var(--accent-blue);
+            font-weight: 700; font-size: 0.68rem; letter-spacing: 2px; text-transform: uppercase;
+            padding: 7px 14px; border-radius: 4px; margin-bottom: 22px;
+        }
+        .legacy-title { font-size: clamp(1.7rem, 4vw, 2.6rem); font-weight: 300; line-height: 1.25; margin-bottom: 26px; }
+        .legacy-text { color: var(--text-gray); font-weight: 300; line-height: 1.75; font-size: clamp(0.9rem, 1.6vw, 1.02rem); margin-bottom: 22px; }
+        .stat-row { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 30px; }
+        .stat-item { border-left: 2px solid var(--accent-blue); padding-left: 16px; }
+        .stat-num { font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+        .stat-label { font-size: 0.88rem; color: var(--text-gray); }
+
+        .legacy-img-box {
+            position: relative; border-radius: 14px; overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 60px rgba(0,123,255,0.18);
+            aspect-ratio: 1 / 1; background: #0d1219;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .legacy-img-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .legacy-img-box .img-fallback { font-size: 5rem; color: var(--text-gray); opacity: 0.35; }
+        .legacy-img-box::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(7,11,17,0.75) 0%, transparent 35%);
+            pointer-events: none;
+        }
+        .img-caption {
+            position: absolute; left: 24px; bottom: 18px; z-index: 2;
+            font-size: 0.82rem; color: #c9d1d9; font-weight: 300;
+        }
+
+        /* ── VALUES ── */
+        .values-title { text-align: center; font-weight: 800; font-size: clamp(1.6rem, 3.5vw, 2.2rem); margin-bottom: 14px; }
+        .title-underline { width: 80px; height: 3px; background: var(--accent-blue); margin: 0 auto clamp(30px, 5vw, 56px); border-radius: 2px; }
+        .value-card {
+            background: var(--card-bg); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: clamp(24px, 3vw, 34px) clamp(20px, 2.5vw, 28px);
+            text-align: center; height: 100%; transition: border-color 0.2s, transform 0.25s;
+        }
+        .value-card:hover { border-color: var(--accent-blue); transform: translateY(-4px); }
+        .value-icon {
+            width: 64px; height: 64px; background: rgba(0,123,255,0.12);
+            border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            color: var(--accent-blue); font-size: 1.5rem; margin: 0 auto 22px;
+        }
+        .value-card h5 { font-weight: 700; font-size: 1.1rem; margin-bottom: 12px; }
+        .value-card p { color: var(--text-gray); font-size: 0.9rem; line-height: 1.7; margin: 0; }
+
+        /* ── FOOTER ── */
+        footer {
+            border-top: 1px solid var(--border-color);
+            padding: clamp(40px, 6vw, 60px) 5% 28px; margin-top: 40px;
+        }
+        .footer-link-list { list-style: none; padding: 0; color: var(--text-gray); font-size: 0.84rem; }
+        .footer-link-list li { margin-bottom: 10px; cursor: pointer; transition: color 0.15s; }
+        .footer-link-list li:hover { color: white; }
+        .footer-newsletter-input {
+            background: #1c2128; border: 1px solid var(--border-color);
+            color: white; font-size: 0.82rem; padding: 9px 14px;
+        }
+        .footer-newsletter-input:focus { border-color: var(--accent-blue); outline: none; box-shadow: none; background: #1c2128; color: white; }
+        .footer-newsletter-input::placeholder { color: var(--text-gray); }
+        .footer-bottom { font-size: 0.72rem; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 991px) {
+            .mobile-search-wrapper { display: block; }
+            .desktop-search { display: none !important; }
+        }
+        @media (max-width: 575px) {
+            .navbar { padding: 12px 16px; }
+            .section-wrap { padding: 32px 16px; }
+            footer { padding: 36px 16px 24px; }
+            .about-hero { padding: 40px 16px; }
+            .stat-row { gap: 20px; }
+        }
+        @media (max-width: 360px) {
+            .navbar-brand { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <%
+      /* Counts injected by setNavCounts middleware via res.locals */
+      const _cartCount     = typeof cartCount     !== 'undefined' ? cartCount     : 0;
+      const _wishlistCount = typeof wishlistCount !== 'undefined' ? wishlistCount : 0;
+
+      /* Optional: pass `about` from your controller to override any of this content */
+      const _about = (typeof about !== 'undefined' && about) ? about : {};
+
+      const hero = Object.assign({
+          title: 'Our Passion for Safety',
+          subtitle: 'Defining the next generation of protection through relentless innovation and a love for the open road.',
+          image: '/user/about-hero.jpg'
+      }, _about.hero || {});
+
+      const legacy = Object.assign({
+          tag: 'Our Legacy',
+          title: 'Crafting Excellence Since Day One',
+          paragraphs: [
+              'Founded by racing enthusiasts and materials scientists, Helmet Haven began with a singular goal: to eliminate compromise. We believe that a rider should never have to choose between extreme safety and aerodynamic comfort.',
+              'Every shell we produce is the result of thousands of hours of computational fluid dynamics and real-world testing. Our artisans hand-inspect every finish, ensuring that the technology inside is protected by a work of art on the outside.'
+          ],
+          stats: [
+              { value: '15+',  label: 'Patented Tech' },
+              { value: '100%', label: 'Hand-Finished' }
+          ],
+          image: '/user/about-helmet.png',
+          imageAlt: 'Internal impact absorption matrix',
+          caption: 'Internal Impact Absorption Matrix - 2024 Series'
+      }, _about.legacy || {});
+
+      const values = _about.values || [
+          { icon: 'bi-shield-fill-check', title: 'Safety First',
+            text: 'We exceed global safety standards, setting our own benchmarks for impact dissipation and structural integrity.' },
+          { icon: 'bi-rulers', title: 'Precision Engineering',
+            text: "Aerodynamics isn't just a buzzword; it's a science. We craft silhouettes that cut through air with surgical precision." },
+          { icon: 'bi-people-fill', title: 'Rider Community',
+            text: "We don't just sell products; we support a lifestyle. We listen to our riders to innovate for the journeys ahead." }
+      ];
+    %>
+
+    <!-- ── NAVBAR ── -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid px-0">
+
+            <a class="navbar-brand text-white" href="/user/homepage">
+                <i class="bi bi-shield-shaded text-primary me-2"></i>HELMET HAVEN
+            </a>
+
+            <!-- Mobile icons -->
+            <div class="nav-icons ms-auto me-3 d-lg-none">
+                <a href="/user/cart" class="position-relative d-inline-block">
+                    <i class="bi bi-cart3"></i>
+                    <% if (_cartCount > 0) { %><span class="nav-badge"><%= _cartCount %></span><% } %>
+                </a>
+                <a href="/user/wishlist" class="position-relative d-inline-block">
+                    <i class="bi bi-heart"></i>
+                    <% if (_wishlistCount > 0) { %><span class="nav-badge"><%= _wishlistCount %></span><% } %>
+                </a>
+                <a href="/user/profileinformation"><i class="bi bi-person"></i></a>
+            </div>
+
+            <!-- Hamburger toggle -->
+            <button class="navbar-toggler d-lg-none me-0" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#navMenu"
+                    aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Nav links + mobile search -->
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item"><a class="nav-link" href="/user/homepage">Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="/user/about">About Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/user/contactUs">Contact Us</a></li>
+                </ul>
+                <div class="mobile-search-wrapper d-lg-none">
+                    <input type="text" class="search-bar" placeholder="Search premium helmets...">
+                </div>
+            </div>
+
+            <!-- Desktop: search + icons -->
+            <div class="desktop-search d-none d-lg-flex align-items-center gap-3 ms-3">
+                <input type="text" class="search-bar" placeholder="Search premium helmets...">
+                <div class="nav-icons">
+                    <a href="/user/cart" class="position-relative d-inline-block">
+                        <i class="bi bi-cart3 fs-5"></i>
+                        <% if (_cartCount > 0) { %>
+                            <span class="nav-badge" id="cartBadge"><%= _cartCount %></span>
+                        <% } else { %>
+                            <span class="nav-badge" id="cartBadge" style="display:none">0</span>
+                        <% } %>
+                    </a>
+                    <a href="/user/profileinformation"><i class="bi bi-person"></i></a>
+                    <a href="/user/wishlist" class="position-relative d-inline-block">
+                        <i class="bi bi-heart fs-5"></i>
+                        <% if (_wishlistCount > 0) { %>
+                            <span class="nav-badge" id="wishlistBadge"><%= _wishlistCount %></span>
+                        <% } else { %>
+                            <span class="nav-badge" id="wishlistBadge" style="display:none">0</span>
+                        <% } %>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </nav>
+    <!-- ── END NAVBAR ── -->
+
+
+    <!-- ── ABOUT HERO ── -->
+    <section class="about-hero <%= hero.image ? 'has-img' : '' %>"
+             <% if (hero.image) { %>style="--hero-img: url('<%= hero.image %>');"<% } %>>
+        <div>
+            <h1><%= hero.title %></h1>
+            <p><%= hero.subtitle %></p>
+        </div>
+    </section>
+
+    <!-- ── OUR LEGACY ── -->
+    <section class="section-wrap">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 order-2 order-lg-1">
+                <span class="legacy-tag"><%= legacy.tag %></span>
+                <h2 class="legacy-title"><%= legacy.title %></h2>
+
+                <% legacy.paragraphs.forEach(function (p) { %>
+                    <p class="legacy-text"><%= p %></p>
+                <% }); %>
+
+                <div class="stat-row">
+                    <% legacy.stats.forEach(function (s) { %>
+                        <div class="stat-item">
+                            <div class="stat-num"><%= s.value %></div>
+                            <div class="stat-label"><%= s.label %></div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+          <div class="col-lg-6 order-1 order-lg-2">
+                <div class="legacy-img-box">
+                    <img src="/user/Container.png" alt="Premium Helmet"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <i class="bi bi-shield-shaded img-fallback" style="display:none;"></i>
+                    <span class="img-caption"><%= legacy.caption %></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── OUR VALUES ── -->
+    <section class="section-wrap">
+        <h2 class="values-title">Our Values</h2>
+        <div class="title-underline"></div>
+
+        <div class="row g-3 g-md-4">
+            <% values.forEach(function (v) { %>
+                <div class="col-12 col-md-4">
+                    <div class="value-card">
+                        <div class="value-icon"><i class="bi <%= v.icon %>"></i></div>
+                        <h5><%= v.title %></h5>
+                        <p><%= v.text %></p>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+        <div class="row g-4">
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="fw-bold mb-3" style="font-size:0.95rem;">
+                    <i class="bi bi-shield-shaded text-primary me-2"></i>HELMET HAVEN
+                </div>
+                <p class="text-secondary" style="font-size:0.83rem; line-height:1.7; max-width:240px;">Designing the future of rider safety with uncompromising style and technology since 2012.</p>
+            </div>
+            <div class="col-6 col-sm-3 col-lg-2">
+                <h6 class="fw-bold mb-3" style="font-size:0.82rem;">Shop</h6>
+                <ul class="footer-link-list">
+                    <li>Street Helmets</li>
+                    <li>Racing Series</li>
+                    <li>Accessories</li>
+                </ul>
+            </div>
+            <div class="col-6 col-sm-3 col-lg-2">
+                <h6 class="fw-bold mb-3" style="font-size:0.82rem;">Company</h6>
+                <ul class="footer-link-list">
+                    <li><a href="/user/about" class="text-decoration-none" style="color:inherit;">About Us</a></li>
+                    <li>Technology</li>
+                    <li>Safety Standards</li>
+                </ul>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <h6 class="fw-bold mb-3" style="font-size:0.82rem;">Newsletter</h6>
+                <p class="text-secondary mb-3" style="font-size:0.83rem;">Join for updates and early access.</p>
+                <div class="input-group" style="max-width:300px;">
+                    <input type="text" class="form-control footer-newsletter-input" placeholder="Email address">
+                    <button class="btn btn-primary px-3"><i class="bi bi-send"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top border-secondary footer-bottom flex-wrap gap-3">
+            <p class="text-secondary mb-0">&copy; 2026 Helmet Haven. All rights reserved.</p>
+            <div class="d-flex gap-3 text-secondary fs-5">
+                <i class="bi bi-globe" style="cursor:pointer;" title="Web"></i>
+                <i class="bi bi-instagram" style="cursor:pointer;" title="Instagram"></i>
+                <i class="bi bi-twitter-x" style="cursor:pointer;" title="Twitter/X"></i>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

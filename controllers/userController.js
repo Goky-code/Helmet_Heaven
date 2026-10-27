@@ -337,26 +337,34 @@ export const verifyEmailOTP = async (req, res) => {
 
   try {
 
-    await emailService.verifyOTPForEmailChange(
+  if (!req.session.user || !req.session.newEmail) {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired. Please try again."
+      })
+    }
+
+     await emailService.verifyOTPForEmailChange(
       req.session.user._id,
       req.session.newEmail,
       req.body.otp
-    );
+    )
+    
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully!",
+      redirectUrl: "/user/login"
+    })
 
-    req.session.destroy();
+    } catch (error) {
+    console.error("Email OTP verification error:", error)
 
-    res.redirect("/user/login");
-
-  } catch (error) {
-
-    res.render("user/editEmailotp", {
-      message: error.message,
-      newEmail: req.session.newEmail,
-    });
-
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    })
   }
-
-};
+}
 
 export const resendEmailOTP = async (req, res) => {
 
@@ -428,4 +436,13 @@ export const changePassword = async (req, res) => {
 
   }
 
-};
+}
+
+export const loadAboutUs = (req, res) => {
+    res.render("user/aboutUs");
+}
+
+export const loadContactUs = (req, res) => {
+    res.render("user/contactUs");
+}
+

@@ -7,7 +7,8 @@ import Address from "../../models/addressModel.js";
 import Wallet from "../../models/walletModel.js";
 import WalletTransaction from "../../models/walletTransaction.js";
 import crypto from "crypto";
- 
+ import { getUnitPricing, forOfferCalc } from "../user/checkoutService.js";
+
 const SHIPPING_THRESHOLD = 500;
 const SHIPPING_FEE = 99;
 const TAX_RATE = 0.08;
@@ -37,9 +38,17 @@ export const getPaymentPageData = async (userId, addressId,buyNowItem=null, coup
       const variant = product.variants.find((v) => v.size === buyNowItem.size);
       if (variant && variant.stock > 0) {
         const quantity = Math.min(Number(buyNowItem.quantity) || 1, variant.stock, 5);
-        validItems = [{ productId: product, size: buyNowItem.size, quantity }];
+       const pricing = await getUnitPricing(forOfferCalc(product), variant);
+validItems = [{
+  productId: product,
+  size: buyNowItem.size,
+  quantity,
+  originalPrice: pricing.regularPrice,
+  unitPrice: pricing.unitPrice,
+  offerPricing: pricing.offerPricing,
+}]
       }
-    }
+  }
   } else {
     const cart = await Cart.findOne({ userId })
       .populate({
@@ -59,15 +68,24 @@ export const getPaymentPageData = async (userId, addressId,buyNowItem=null, coup
       const variant = product.variants.find((v) => v.size === item.size);
       if (!variant || variant.stock <= 0) continue;
 
-      validItems.push({ ...item, productId: product });
+      const pricing = await getUnitPricing(forOfferCalc(product), variant);
+validItems.push({
+  ...item,
+  productId: product,
+  originalPrice: pricing.regularPrice,
+  unitPrice: pricing.unitPrice,
+  offerPricing: pricing.offerPricing,
+})
     }
   }
 
-  let subtotal = 0;
-  for (const item of validItems) {
-    const variant = item.productId.variants.find((v) => v.size === item.size);
-    if (variant) subtotal += variant.price * item.quantity;
-  }
+ let subtotal = 0;
+let originalSubtotal = 0;
+for (const item of validItems) {
+  subtotal         += item.unitPrice * item.quantity;
+  originalSubtotal += item.originalPrice * item.quantity;
+}
+const offerSavings = originalSubtotal - subtotal
 
   const shipping =
     subtotal >= SHIPPING_THRESHOLD
@@ -158,10 +176,12 @@ const total = Math.max(
     shippingAddress,
     addressId: shippingAddress?._id || null,
     coupon,
-    subtotal,
-    shipping,
-    tax,
-    total,
+   originalSubtotal,
+  offerSavings,
+  subtotal,
+  shipping,
+  tax,
+  total,
   };
 };
 
@@ -187,7 +207,7 @@ export const placeOrder = async (userId, addressId, paymentMethod,couponCode=nul
         throw new Error("This product is no longer available.");
       }
 
-      const variant = product.variants.find((v) => v.size === buyNowItem.size);
+      const variant = product.variants.find((v) => v.size === buyNowItem.size && v.status === "ACTIVE")
       if(!variant){
           throw new Error(
     `${product.productName} (${buyNowItem.size}) is no longer available.`)  
@@ -206,21 +226,22 @@ if (variant.stock < buyNowItem.quantity) {
     `${product.productName} has only ${variant.stock} stock left.`)
 }
 
-      const totalPrice = variant.price * buyNowItem.quantity;
-      subTotal += totalPrice;
+     const pricing = await getUnitPricing(product, variant);
+const totalPrice = pricing.unitPrice * buyNowItem.quantity;
+subTotal += totalPrice;
 
-      orderItems.push({
-        productId: product._id,
-        productName: product.productName,
-        size: buyNowItem.size,
-        variantName: variant.variantName || variant.size,
-        productImage: product.productImage?.[0] || "",
-        quantity: buyNowItem.quantity,
-        regularPrice: variant.regularPrice ?? variant.price,
-        salePrice: variant.price,
-        totalPrice,
-        status: "Pending",
-      });
+orderItems.push({
+  productId: product._id,
+  productName: product.productName,
+  size: buyNowItem.size,
+  variantName: variant.variantName || variant.size,
+  productImage: product.productImage?.[0] || "",
+  quantity: buyNowItem.quantity,
+  regularPrice: pricing.regularPrice,
+  salePrice: pricing.unitPrice,
+  totalPrice,
+  status: "Pending",
+})
 
       orderedItems.push({ productId: product, size: buyNowItem.size, quantity: buyNowItem.quantity });
     } else {
@@ -231,7 +252,7 @@ if (variant.stock < buyNowItem.quantity) {
         const product = item.productId;
         if (!product || product.isDeleted || product.isBlocked) continue;
 
-        const variant = product.variants.find((v) => v.size === item.size)
+        const variant = product.variants.find((v) => v.size === item.size && v.status === "ACTIVE")
         if(!variant){
           throw new Error(
     `${product.productName} (${item.size}) is no longer available.`)  
@@ -249,22 +270,23 @@ if (variant.stock < item.quantity) {
   throw new Error(
     `${product.productName} has only ${variant.stock} stock left.`)
 }
-        const totalPrice = variant.price * item.quantity;
-        subTotal += totalPrice;
-        orderedItems.push(item);
+      const pricing = await getUnitPricing(product, variant);
+const totalPrice = pricing.unitPrice * item.quantity;
+subTotal += totalPrice;
+orderedItems.push(item);
 
-        orderItems.push({
-          productId: product._id,
-          productName: product.productName,
-          size: item.size,
-          variantName: variant.variantName || variant.size,
-          productImage: product.productImage?.[0] || "",
-          quantity: item.quantity,
-          regularPrice: variant.regularPrice ?? variant.price,
-          salePrice: variant.price,
-          totalPrice,
-          status: "Pending",
-        });
+orderItems.push({
+  productId: product._id,
+  productName: product.productName,
+  size: item.size,
+  variantName: variant.variantName || variant.size,
+  productImage: product.productImage?.[0] || "",
+  quantity: item.quantity,
+  regularPrice: pricing.regularPrice,
+  salePrice: pricing.unitPrice,
+  totalPrice,
+  status: "Pending",
+})
       }
 
       if (orderItems.length === 0) {

@@ -369,6 +369,23 @@
     .footer-links a { color: var(--muted); text-decoration: none; transition: color .2s; }
     .footer-links a:hover { color: var(--accent); }
 
+    .summary-price-line { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.summary-original-price { font-size: .78rem; color: var(--muted); text-decoration: line-through; }
+.summary-offer-badge {
+  font-size: .65rem; font-weight: 700; padding: 2px 6px; border-radius: 5px;
+  color: #48bb78; background: rgba(72,187,120,.14); border: 1px solid rgba(72,187,120,.35);
+}
+.summary-row .summary-value.savings { color: var(--success); font-weight: 600; }
+
+.coupon-remove-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; margin-left: 8px; padding: 0;
+  background: transparent; border: 1px solid var(--border); border-radius: 50%;
+  color: var(--muted); font-size: .9rem; line-height: 1; cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+.coupon-remove-btn:hover { border-color: var(--danger); color: var(--danger); }
+
     /* ── TOAST ── */
     .toast {
       position: fixed; bottom: 24px; right: 24px; z-index: 9999;
@@ -633,70 +650,84 @@
       <div class="order-summary">
         <div class="summary-title">Order Summary</div>
 
-        <%
-          let subtotal = 0;
-        %>
+<%
+  const _subtotal   = typeof subtotal        !== 'undefined' ? Number(subtotal)        : 0;
+  const _savings    = typeof offerSavings    !== 'undefined' ? Number(offerSavings)    : 0;
+  const _shipping   = typeof shipping        !== 'undefined' ? Number(shipping)        : 0;
+  const _tax        = typeof tax             !== 'undefined' ? Number(tax)             : 0;
+  const _total      = typeof total           !== 'undefined' ? Number(total)           : 0;
+%>
 
-        <div class="summary-product-list">
-          <% if (cart && cart.items && cart.items.length > 0) { %>
-            <% cart.items.forEach((item) => { %>
-              <%
-                const p = item.productId;
-                if (!p) return;
-                const variant = p.variants?.find(v => v.size === item.size);
-                const price = variant?.price || 0;
-                const stock = variant?.stock ?? 0;
-                if (stock > 0 && !p.isBlocked && !p.isDeleted) subtotal += price * item.quantity;
-              %>
-              <div class="summary-product">
-                <% if (p?.productImage?.[0]) { %>
-                  <img src="<%= p.productImage[0] %>" alt="<%= p.productName %>"/>
-                <% } else { %>
-                  <div class="img-ph">
-                    <svg width="24" height="24" fill="none" stroke="#3a4a63" stroke-width="1.2" viewBox="0 0 64 64">
-                      <ellipse cx="32" cy="28" rx="20" ry="18" stroke-linecap="round"/>
-                      <path d="M14 32c0 8.8 8.1 16 18 16s18-7.2 18-16" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                <% } %>
-                <div>
-                  <div class="summary-product-name"><%= p?.productName %> <span style="color:var(--muted); font-weight:400;">×<%= item.quantity %></span></div>
-                  <div class="summary-product-variant">Size: <%= item.size %></div>
-                  <div class="summary-product-price">₹ <%= price.toLocaleString('en-IN') %></div>
-                </div>
-              </div>
-            <% }) %>
-          <% } else { %>
-            <div style="color: var(--muted); font-size: .85rem; text-align: center; padding: 12px 0;">Your cart is empty.</div>
-          <% } %>
+<div class="summary-product-list">
+  <% if (cart && cart.items && cart.items.length > 0) { %>
+    <% cart.items.forEach((item) => { %>
+      <%
+        const p = item.productId;
+        if (!p) return;
+        const unitPrice     = Number(item.unitPrice || 0);
+        const originalPrice = Number(item.originalPrice || unitPrice);
+        const offer         = item.offerPricing;
+        const itemHasOffer  = Boolean(offer && Number(offer.discountAmount) > 0);
+      %>
+      <div class="summary-product">
+        <% if (p?.productImage?.[0]) { %>
+          <img src="<%= p.productImage[0] %>" alt="<%= p.productName %>"/>
+        <% } else { %>
+          <div class="img-ph">
+            <svg width="24" height="24" fill="none" stroke="#3a4a63" stroke-width="1.2" viewBox="0 0 64 64">
+              <ellipse cx="32" cy="28" rx="20" ry="18" stroke-linecap="round"/>
+              <path d="M14 32c0 8.8 8.1 16 18 16s18-7.2 18-16" stroke-linecap="round"/>
+            </svg>
+          </div>
+        <% } %>
+        <div>
+          <div class="summary-product-name"><%= p?.productName %> <span style="color:var(--muted); font-weight:400;">×<%= item.quantity %></span></div>
+          <div class="summary-product-variant">Size: <%= item.size %></div>
+          <div class="summary-price-line">
+            <span class="summary-product-price">₹ <%= unitPrice.toLocaleString('en-IN') %></span>
+            <% if (itemHasOffer) { %>
+              <span class="summary-original-price">₹ <%= originalPrice.toLocaleString('en-IN') %></span>
+              <span class="summary-offer-badge"><%= offer.discountPercentage %>% OFF</span>
+            <% } %>
+          </div>
         </div>
-
-        <%
-          const shipping = subtotal > 500 ? 0 : 99;
-          const tax      = Math.round(subtotal * 0.08);
-          const total    = subtotal + shipping + tax;
-        %>
-
-        <div class="summary-row">
-          <span class="summary-label">Subtotal</span>
-          <span class="summary-value" id="subtotal">₹ <%= subtotal.toLocaleString('en-IN') %></span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">Shipping</span>
-          <span class="summary-value <%= shipping === 0 ? 'free' : '' %>" id="shipping">
-            <%= shipping === 0 ? 'Free' : '₹ ' + shipping %>
-          </span>
-        </div>
-        <div class="summary-row">
-          <span class="summary-label">Estimated Tax</span>
-          <span class="summary-value" id="tax">₹ <%= tax.toLocaleString('en-IN') %></span>
-        </div>
-
-         <div class="summary-row" id="discountRow" style="display: none;">
-  <span class="summary-label">Coupon Discount</span>
-  <span class="summary-value" id="discountAmount">- ₹0</span>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <div style="color: var(--muted); font-size: .85rem; text-align: center; padding: 12px 0;">Your cart is empty.</div>
+  <% } %>
 </div>
 
+<% if (_savings > 0) { %>
+  <div class="summary-row">
+    <span class="summary-label">Offer Savings</span>
+    <span class="summary-value savings">-₹<%= _savings.toLocaleString('en-IN') %></span>
+  </div>
+<% } %>
+
+<div class="summary-row">
+  <span class="summary-label">Subtotal</span>
+  <span class="summary-value" id="subtotal">₹ <%= _subtotal.toLocaleString('en-IN') %></span>
+</div>
+<div class="summary-row">
+  <span class="summary-label">Shipping</span>
+  <span class="summary-value <%= _shipping === 0 ? 'free' : '' %>" id="shipping">
+    <%= _shipping === 0 ? 'Free' : '₹ ' + _shipping %>
+  </span>
+</div>
+<div class="summary-row">
+  <span class="summary-label">Estimated Tax</span>
+  <span class="summary-value" id="tax">₹ <%= _tax.toLocaleString('en-IN') %></span>
+</div>
+
+<div class="summary-row" id="discountRow" style="display: none;">
+  <span class="summary-label">
+    Coupon <span id="appliedCouponLabel"></span>
+    <button type="button" class="coupon-remove-btn" id="removeCouponBtn"
+            aria-label="Remove coupon" title="Remove coupon">&times;</button>
+  </span>
+  <span class="summary-value" id="discountAmount">- ₹0</span>
+</div>
         <div class="promo-row">
           <input type="text" class="promo-input" id="promoInput" placeholder="Coupon Code" aria-label="Promo code"/>
           <button class="promo-btn" id="promoBtn">Apply</button>
@@ -708,9 +739,9 @@
 
 <div id="availableCoupons" style="display: none; margin-top: 12px;"></div>
         <div class="summary-row summary-total">
-          <span class="summary-label">Total</span>
-          <span class="summary-value" id="total">₹ <%= total.toLocaleString('en-IN') %></span>
-        </div>
+  <span class="summary-label">Total</span>
+  <span class="summary-value" id="total">₹ <%= _total.toLocaleString('en-IN') %></span>
+</div>
 
 <form action="/user/payment" method="GET" id="checkoutForm">
   <input type="hidden" name="addressId" id="selectedAddressIdInput" value="<%= _selectedId || '' %>">
@@ -1069,6 +1100,27 @@
   });
 
 
+/* Total before any coupon (rendered by the server, already includes product offers) */
+const BASE_TOTAL = <%- JSON.stringify(_total) %>;
+
+function clearCoupon(showMessage = true) {
+  document.getElementById('discountRow').style.display = 'none';
+  document.getElementById('discountAmount').textContent = '- ₹0';
+  document.getElementById('appliedCouponLabel').textContent = '';
+  document.getElementById('total').textContent = `₹ ${BASE_TOTAL.toLocaleString('en-IN')}`;
+
+  /* stop the removed coupon from being sent to the payment page */
+  document.getElementById('couponCodeInput').value = '';
+  window.appliedCouponCode = null;
+
+  document.getElementById('promoInput').value = '';
+  document.getElementById('promoFeedback').textContent = '';
+
+  if (showMessage) showToast('Coupon removed.');
+}
+
+document.getElementById('removeCouponBtn').addEventListener('click', () => clearCoupon());
+
 document.getElementById("promoBtn").addEventListener("click", async function () {
     const couponCode = document.getElementById("promoInput").value.trim();
     const feedback = document.getElementById("promoFeedback");
@@ -1128,6 +1180,8 @@ document.getElementById("promoBtn").addEventListener("click", async function () 
         const total = subtotal + shipping + tax - discount;
 
         document.getElementById("discountRow").style.display = "flex";
+        document.getElementById("appliedCouponLabel").textContent =
+  `(${result.couponCode || couponCode})`;
 
         document.getElementById("discountAmount").textContent =
             `- ₹${discount.toLocaleString("en-IN")}`;
@@ -1246,6 +1300,7 @@ showCouponsBtn.addEventListener("click", async (event) => {
       "<p>Unable to load coupons. Please try again.</p>";
   }
 });
+
 
 
 </script>

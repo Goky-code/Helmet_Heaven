@@ -451,39 +451,109 @@
     });
 
     /* ── Form submit validation ── */
-    otpForm.addEventListener('submit', e => {
-       console.log("FORM SUBMIT TRIGGERED");
-      const code = getCode();
+   
+otpForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-      // Guard: all 6 filled
-      if (code.length < 6 || !isFull()) {
-        e.preventDefault();
-        boxes.forEach(b => { if (!b.value) b.classList.add('otp-error'); });
-        setMsg('Please fill in all 6 digits', 'error', 'exclamation-circle-fill');
-        // Focus first empty box
-        const first = boxes.find(b => !b.value);
-        if (first) first.focus();
-        return;
-      }
+  const code = getCode();
 
-      // Guard: digits only (redundant but safe)
-      if (!/^\d{6}$/.test(code)) {
-        e.preventDefault();
-        boxes.forEach(b => b.classList.add('otp-error'));
-        setMsg('Only numbers are allowed', 'error', 'exclamation-circle-fill');
-        return;
-      }
-
-      // All good — set hidden input and submit
-      document.getElementById("finalOtp").value = code;
-      // Loading state
-     setTimeout(() => {
-  btnVerify.disabled = true;
-  btnVerify.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Verifying…';
-}, 50);
-      boxes.forEach(b => { b.classList.remove('otp-error'); b.classList.add('otp-success'); });
-      setMsg('Verifying your code…', 'success', 'check-circle-fill');
+  // Validate that all six digits are entered
+  if (!/^\d{6}$/.test(code)) {
+    boxes.forEach(box => {
+      box.classList.toggle('otp-error', !box.value);
     });
+
+    setMsg(
+      'Please enter the complete 6-digit OTP.',
+      'error',
+      'exclamation-circle-fill'
+    );
+
+    const firstEmpty = boxes.find(box => !box.value);
+    if (firstEmpty) firstEmpty.focus();
+
+    return;
+  }
+
+  // Show loading state
+  btnVerify.disabled = true;
+  btnVerify.innerHTML =
+    '<span class="spinner-border spinner-border-sm me-2"></span>Verifying...';
+
+  setMsg(
+    'Verifying your code...',
+    'info',
+    'arrow-repeat'
+  );
+
+  try {
+    const response = await fetch('/user/editEmailotp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams({
+        otp: code
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Correct OTP
+      boxes.forEach(box => {
+        box.classList.remove('otp-error');
+        box.classList.add('otp-success');
+      });
+
+      setMsg(
+        data.message || 'Email verified successfully!',
+        'success',
+        'check-circle-fill'
+      );
+
+      btnVerify.innerHTML =
+        '<i class="bi bi-check-circle-fill"></i> Verified!';
+
+      // Redirect after displaying the success message
+      setTimeout(() => {
+        window.location.href =
+          data.redirectUrl || '/user/login';
+      }, 1200);
+
+    } else {
+      // Incorrect OTP, expired OTP, or server validation error
+      boxes.forEach(box => {
+        box.classList.remove('otp-success');
+        box.classList.add('otp-error');
+      });
+
+      setMsg(
+        data.message || 'OTP verification failed.',
+        'error',
+        'exclamation-circle-fill'
+      );
+
+      btnVerify.disabled = false;
+      btnVerify.innerHTML =
+        'Verify Code <i class="bi bi-arrow-right"></i>';
+    }
+
+  } catch (error) {
+    console.error('OTP verification error:', error);
+
+    setMsg(
+      'Something went wrong. Please try again.',
+      'error',
+      'exclamation-circle-fill'
+    );
+
+    btnVerify.disabled = false;
+    btnVerify.innerHTML =
+      'Verify Code <i class="bi bi-arrow-right"></i>';
+  }
+});
+
 
     /* ── Countdown timer ── */
     let total = 60;

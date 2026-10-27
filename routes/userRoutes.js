@@ -9,6 +9,8 @@ import {
   getCartCount
 } from "../controllers/user/cartController.js";
 
+import { loadAboutUs,loadContactUs } from "../controllers/userController.js";
+
 import {
   getWishlistCount
 } from "../controllers/user/wishlistController.js";
@@ -69,5 +71,7 @@ router.post("/remove-cart-item", isUserAuth, removeCartItem);
 
 router.get("/cart/count", isUserAuth, getCartCount);
 router.get("/wishlist/count", isUserAuth, getWishlistCount);
+router.get("/aboutUs", loadAboutUs)
+router.get("/contactUs",loadContactUs)
 
 export default router

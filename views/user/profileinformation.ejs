@@ -567,10 +567,21 @@
             </div>
             <p class="avatar-hint">JPG, PNG or GIF. Max size 2MB.</p>
             <button type="button" class="btn-change-photo" onclick="document.getElementById('fileInput').click()">Change Photo</button>
-            <div class="referral-row">
-              <span class="referral-code">X9-WANGER-HEAVEN</span>
-              <button class="btn-copy" type="button" id="copyBtn" onclick="copyReferral()">COPY</button>
-            </div>
+           
+<div class="referral-row">
+    <span class="referral-code" id="referralCode"><%= user.referralCode || 'Not generated' %></span>
+
+    <button
+        class="btn-copy"
+        type="button"
+        id="copyBtn"
+        onclick="copyReferral()"
+        <%= user.referralCode ? '' : 'disabled' %>
+    >
+        COPY
+    </button>
+</div>
+
           </div>
         </div>
 
@@ -702,14 +713,43 @@
   });
 
   /* ── Referral Copy ── */
-  function copyReferral() {
-    navigator.clipboard.writeText('X9-WANGER-HEAVEN').then(() => {
-      const btn = document.getElementById('copyBtn');
-      btn.textContent = 'COPIED!';
-      btn.style.background = 'var(--success-color)';
-      setTimeout(() => { btn.textContent = 'COPY'; btn.style.background = ''; }, 2000);
-    });
-  }
+ 
+async function copyReferral() {
+    const codeElement = document.getElementById("referralCode");
+    const btn = document.getElementById("copyBtn");
+    const code = codeElement.textContent.trim();
+
+    if (!code || code === "Not generated") {
+        alert("Referral code is not available.");
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(code);
+
+        btn.textContent = "COPIED!";
+        btn.style.background = "var(--success-color)";
+
+        setTimeout(() => {
+            btn.textContent = "COPY";
+            btn.style.background = "";
+        }, 2000);
+
+    } catch (error) {
+     
+        const range = document.createRange();
+        range.selectNodeContents(codeElement);
+
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        alert("Please copy the selected referral code manually.");
+
+        selection.removeAllRanges();
+    }
+}
+
 
   /* ── Email Dropdown ── */
   function toggleEmailDropdown() {
