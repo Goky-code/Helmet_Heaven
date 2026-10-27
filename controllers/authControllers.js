@@ -1,198 +1,196 @@
-import User from '../models/userModels.js';
-import authServices from '../services/authServices.js'
-import generateOTP from '../utils/generateOtp.js';
-import sendEmail from "../utils/sendEmail.js"
-import bcrypt from 'bcryptjs';
 
- export const login=async(req,res)=>{
-    try{
-        const{email,password}=req.body;
-        const result=await authServices.loginUser(email,password)
-        if(result.success){
-            req.session.user=result.user
-            res.redirect('/user/homepage');
-            console.log(result);
-        }else{
-            res.render('user/login',{error:"Invalid email or password"})
-            
-        }
-    }catch(error){
-        res.send(500).send("server error")
+import * as authServices from "../services/authServices.js";
+import HTTP_STATUS from "../utils/httpStatus.js";
+
+export const login = async (req,res) => {
+
+  try {
+
+    const {
+      email,
+      password,
+    } = req.body;
+
+    const user =
+      await authServices.loginUser(
+        email,
+        password
+      );
+
+    req.session.user = user;
+
+    res.json({
+      success: true,
+    });
+
+  } catch (error) {
+
+    res.status(HTTP_STATUS.BAD_REQUEST).json({
+      success: false,
+      error: error.message,
+    });
+
+  }
+
+};
+
+export const signup = async (req, res) => {
+    try {
+        const signupData = await authServices.createSignupSession(
+            req.body
+        )
+
+        req.session.signupData = signupData;
+
+        return res.redirect("/user/verifyOtp");
+    } catch (error) {
+        return res.status(400).render("user/signup", {
+            message: error.message,
+            firstname: req.body.firstname || "",
+            lastname: req.body.lastname || "",
+            email: req.body.email || ""
+        });
     }
 }
 
-export const signup=async(req,res)=>{
-    try{
-        const {firstname,lastname,email,password,confirmpassword,referalcode}=req.body
-        
-        
-    if (!firstname || !lastname || !email || !password || !confirmpassword) {
-      return res.render("user/signup", { message: "All fields are required" });
-    }
+export const verifyOtp = async (req, res) => {
+    try {
+        const result = await authServices.verifySignupOtp(
+            req.session.signupData,
+            req.body.otp
+        );
 
-    
-    if (password.length < 8) {
-      return res.render("user/signup", { message: "Password must be at least 8 characters" });
-    }
+        req.session.signupData = null;
 
-        if(password!==confirmpassword){
-            return res.render('user/signup',{message:"password does not match"})
+        return res.redirect("/user/login");
+
+    } catch (error) {
+        if (req.session.signupData) {
+            return res.status(400).render("user/verifyOtp", {
+                otpError: error.message,
+                newEmail: req.session.signupData.email,
+                otpExpiry: req.session.signupData.otpExpiry
+            });
         }
 
-         const emailRegex = /^\S+@\S+\.\S+$/;
-         
-    if (!emailRegex.test(email)) {
-      return res.render("user/signup", { message: "Invalid email format" });
-    }
-
-        const result=await authServices.registerUser({
-            firstname,lastname,email,password,referalcode
-        })
-
-        if(result.success){
-
-             const user = await User.findOne({ email });
-
-           if (!user) {
-        return res.render("user/signup", { message: "User creation failed" });
-      }   
-
-      const otp = generateOTP();
-
-      user.otp = otp;
-      user.otpExpiry = Date.now() + 2 * 60 * 1000;
-      await user.save();
-
-      console.log("OTP:", otp); 
-      await sendEmail(email, "Your OTP", `Your OTP is ${otp}`);
-
-            req.session.email=email
-            console.log("error")
-            res.redirect("/user/verifyOtp");
-        }
-        else{
-            res.render("user/signup",{message:result.message})
-        }
-    }catch(error){
-        res.status(500).send("server error")
+        return res.redirect("/user/signup");
     }
 }
 
-export const verifyOtp=async(req,res)=>{
-    try{
-       let otp = req.body.otp;
+export const resendOtp = async (req, res) => {
 
-    otp = Array.isArray(otp) ? otp.join("") : otp;
+  try {
 
-        const email=req.session.email
-        const user=await User.findOne({email})
+    req.session.signupData =
+      await authServices.resendSignupOtp(
+        req.session.signupData
+      );
 
-        if(!user){
-            return res.redirect('/user/signup')
-        }
-        if(user.otp!==otp){
-            return res.render('user/verifyOtp',{message:"invalid otp"})
-        }
-        if(user.otpExpiry < Date.now()){
-            return res.render('user/verifyOtp',{message:"otp expired"})
-        }
-        user.isVerified=true
-        user.otp=null
-        user.otpExpiry=null
+    res.redirect("/user/verifyOtp");
 
-        await user.save()
-        res.redirect('/user/login')
-    }catch(error){
-        res.status(500).send("server error")
-    }
+  } catch (error) {
+    console.log(error);
+    res.redirect("/user/signup");
+  }
 }
 
-export const resendOtp=async(req,res)=>{
-    try{
-        const email=req.session.email
 
-        if(!email){
-            return res.redirect('/user/signup')
-        }
-        const user=await User.findOne({email})
+export const forgotPassword = async (req, res) => {
 
-        if(!user){
-            return res.redirect('/user/signup')
-        }
-        const otp=generateOTP()
+  try {
 
-        user.otp=otp
-        user.otpExpiry=Date.now()+2*60*1000
+    const email =
+      await authServices.forgotPassword(
+        req.body.email
+      );
 
-        await user.save()
-        await sendEmail(email,otp)
-        console.log("Resent OTP:", otp); 
-        res.redirect('/user/verifyOtp')
-    }catch(error){
-        res.status(500).send("server error")
-    }
+    req.session.resetEmail = email;
+
+    res.redirect("/auth/verifyForgotpassOtp");
+
+  } catch (error) {
+
+    res.render(
+      "user/forgotPassword",
+      {
+        error: error.message,
+      }
+    )
+  }
 }
 
-export const forgotPassword=async(req,res)=>{
-    try{
-        const{email}=req.body
-        const user=await User.findOne({email})
+export const verifyForgotOtp = async (req,res) => {
 
-        if(!user){
-            return res.render("user/forgotPassword",{message:'user not found'})
-        }
-        const otp=generateOTP()
+  try {
 
-        user.otp=otp
-        user.otpExpiry=Date.now()+2*60*1000
+    await authServices.verifyForgotPasswordOtp(
+      req.session.resetEmail,
+      req.body.otp
+    );
 
-        await user.save()
-        await sendEmail(email,otp)
+    req.session.isOtpVerified = true;
 
-        req.session.resetEmail=email
-        res.redirect('/user/verifyForgotpassOtp')
-    }catch(error){
-        res.status(500).send('server error')
-    }
+    res.redirect("/user/resetPassword");
+
+  } catch (error) {
+
+    res.render(
+      "user/verifyForgotpassOtp",
+      {
+        otpError: error.message,
+      }
+    );
+
+  }
+
 }
 
-export const verifyForgotOtp=async (req,res)=>{
-    try{
-        const{otp}=req.body
-        const email=req.session.resetEmail
+export const resendOtpforgot =async(req,res) => {
 
-        const user=await User.findOne({email})
+  try {
 
-        if(!user||user.otp!==otp){
-            return res.render('user/verifyForgotpassOtp')
-        }
-        if(user.otpExpiry<Date.now()){
-            return res.render('user/verifyForgotpassOtp')
-        }
-        res.redirect('/user/resetPassword')
-    }catch(error){
-        res.status(500).send('server error')
-    }
+    await authServices.resendForgotPasswordOtp(
+      req.session.resetEmail
+    );
+
+    res.render(
+      "user/verifyForgotpassOtp",
+      {
+        message:
+          "OTP resent successfully!",
+      }
+    );
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.redirect(
+      "/auth/forgotPassword"
+    );
+
+  }
 }
 
-export const resetPassword=async (req,res)=>{
-    try{
-        const{password,confirmpassword}=req.body
-        const email=req.session.resetEmail
+export const resetPassword = async (req, res) => {
 
-        if(password!==confirmpassword){
-            return res.render('user/resetPassword',{message:'passwords do not match'})
-        }
-        const user=await User.findOne({email})
-        const hashedPassword=await bcrypt.hash(password,10)
+  try {
 
-        user.password=hashedPassword
-        user.otp=null
+    await authServices.resetUserPassword(
+      req.session.resetEmail, req.session.isOtpVerified,
+      req.body.password,req.body.confirmpassword
+    )
 
-        await user.save()
+    req.session.resetEmail = null
+    req.session.isOtpVerified = null
 
-        res.redirect('/user/login')
-    }catch(error){
-        res.status(500).send('server error')
-    }
+    res.redirect("/user/login")
+
+  } catch (error) {
+    console.log(error)
+    res.render("user/resetPassword", {
+      message: error.message,
+    })
+  }
 }
+

@@ -1,0 +1,472 @@
+import mongoose from "mongoose";
+import Order from "../../models/orderModel.js";
+import Product from "../../models/productModel.js";
+import Coupon from "../../models/couponModel.js";
+import Cart from "../../models/cartModel.js";
+import Address from "../../models/addressModel.js";
+import Wallet from "../../models/walletModel.js";
+import WalletTransaction from "../../models/walletTransaction.js";
+import crypto from "crypto";
+ import { getUnitPricing, forOfferCalc } from "../user/checkoutService.js";
+
+const SHIPPING_THRESHOLD = 500;
+const SHIPPING_FEE = 99;
+const TAX_RATE = 0.08;
+ 
+
+const generateOrderId = () => {
+  const stamp = Date.now().toString().slice(-8);
+  const rand = Math.floor(1000 + Math.random() * 9000);
+  return `ORD${stamp}${rand}`;
+};
+ 
+
+export const getPaymentPageData = async (userId, addressId,buyNowItem=null, couponCode=null) => {
+
+  const addresses=await Address.find({userId}).lean()
+  let validItems=[]
+
+  if (buyNowItem) {
+    const product = await Product.findOne({ _id: buyNowItem.productId })
+      .populate([
+        { path: "category", match: { isListed: true, isDeleted: false } },
+        { path: "brand", match: { isListed: true, isDeleted: false } },
+      ])
+      .lean();
+
+  if (product && !product.isDeleted && !product.isBlocked && product.category && product.brand) {
+      const variant = product.variants.find((v) => v.size === buyNowItem.size);
+      if (variant && variant.stock > 0) {
+        const quantity = Math.min(Number(buyNowItem.quantity) || 1, variant.stock, 5);
+       const pricing = await getUnitPricing(forOfferCalc(product), variant);
+validItems = [{
+  productId: product,
+  size: buyNowItem.size,
+  quantity,
+  originalPrice: pricing.regularPrice,
+  unitPrice: pricing.unitPrice,
+  offerPricing: pricing.offerPricing,
+}]
+      }
+  }
+  } else {
+    const cart = await Cart.findOne({ userId })
+      .populate({
+        path: "items.productId",
+        populate: [
+          { path: "category", match: { isListed: true, isDeleted: false } },
+          { path: "brand", match: { isListed: true, isDeleted: false } },
+        ],
+      })
+      .lean();
+
+    for (const item of (cart?.items || [])) {
+      const product = item.productId;
+      if (!product || product.isDeleted || product.isBlocked) continue;
+      if (!product.category || !product.brand) continue;
+
+      const variant = product.variants.find((v) => v.size === item.size);
+      if (!variant || variant.stock <= 0) continue;
+
+      const pricing = await getUnitPricing(forOfferCalc(product), variant);
+validItems.push({
+  ...item,
+  productId: product,
+  originalPrice: pricing.regularPrice,
+  unitPrice: pricing.unitPrice,
+  offerPricing: pricing.offerPricing,
+})
+    }
+  }
+
+ let subtotal = 0;
+let originalSubtotal = 0;
+for (const item of validItems) {
+  subtotal         += item.unitPrice * item.quantity;
+  originalSubtotal += item.originalPrice * item.quantity;
+}
+const offerSavings = originalSubtotal - subtotal
+
+  const shipping =
+    subtotal >= SHIPPING_THRESHOLD
+        ? 0
+        : SHIPPING_FEE;
+
+const tax =
+    Math.round(subtotal * TAX_RATE);
+
+let discount = 0;
+let coupon = null;
+
+if (couponCode) {
+
+    const code = couponCode.trim().toUpperCase();
+
+    const couponData = await Coupon.findOne({
+        code
+    }).lean();
+
+    if (!couponData) {
+        throw new Error("Invalid coupon code");
+    }
+
+    if (couponData.isDisabled) {
+        throw new Error("This coupon is disabled");
+    }
+
+    const now = new Date();
+
+    if (
+        now < new Date(couponData.startDate) ||
+        now > new Date(couponData.expiryDate)
+    ) {
+        throw new Error("This coupon is expired or not active");
+    }
+
+    if (subtotal < couponData.minPurchase) {
+        throw new Error(
+            `Minimum purchase is ₹${couponData.minPurchase}`
+        );
+    }
+
+    if (couponData.discountType === "PERCENTAGE") {
+
+        discount =
+            subtotal *
+            couponData.discountValue /
+            100;
+
+        if (
+            couponData.maxDiscount !== null &&
+            couponData.maxDiscount !== undefined
+        ) {
+            discount = Math.min(
+                discount,
+                couponData.maxDiscount
+            );
+        }
+
+    } else if (couponData.discountType === "FIXED") {
+
+        discount = couponData.discountValue;
+    }
+
+    discount = Math.min(discount, subtotal);
+
+    coupon = {
+        code: couponData.code,
+        discount
+    };
+}
+
+const total = Math.max(
+    subtotal + shipping + tax - discount,
+    0
+);
+
+  const shippingAddress =
+    addresses.find((a) => String(a._id) === String(addressId)) ||
+    addresses.find((a) => a.isDefault) ||
+    addresses[0] ||
+    null;
+
+  return {
+    cart: { items: validItems },
+    addresses,
+    shippingAddress,
+    addressId: shippingAddress?._id || null,
+    coupon,
+   originalSubtotal,
+  offerSavings,
+  subtotal,
+  shipping,
+  tax,
+  total,
+  };
+};
+
+ 
+export const placeOrder = async (userId, addressId, paymentMethod,couponCode=null,buyNowItem=null) => {
+  
+ 
+  const session = await mongoose.startSession();
+  session.startTransaction();
+ 
+  try {
+     const address = await Address.findOne({ _id: addressId, userId }).session(session);
+    if (!address) throw new Error("Invalid address");
+
+    let subTotal = 0;
+    const orderItems = [];
+    const orderedItems = [];
+    let cart = null;
+
+    if (buyNowItem) {
+      const product = await Product.findById(buyNowItem.productId).session(session);
+      if (!product || product.isDeleted || product.isBlocked) {
+        throw new Error("This product is no longer available.");
+      }
+
+      const variant = product.variants.find((v) => v.size === buyNowItem.size && v.status === "ACTIVE")
+      if(!variant){
+          throw new Error(
+    `${product.productName} (${buyNowItem.size}) is no longer available.`)  
+        }
+        if(variant.status!=="ACTIVE"){
+           throw new Error(
+    `${product.productName} (${buyNowItem.size}) is no longer available.`)
+        }
+        if (variant.stock <= 0) {
+  throw new Error(
+    `${product.productName} is out of stock.`)
+}
+
+if (variant.stock < buyNowItem.quantity) {
+  throw new Error(
+    `${product.productName} has only ${variant.stock} stock left.`)
+}
+
+     const pricing = await getUnitPricing(product, variant);
+const totalPrice = pricing.unitPrice * buyNowItem.quantity;
+subTotal += totalPrice;
+
+orderItems.push({
+  productId: product._id,
+  productName: product.productName,
+  size: buyNowItem.size,
+  variantName: variant.variantName || variant.size,
+  productImage: product.productImage?.[0] || "",
+  quantity: buyNowItem.quantity,
+  regularPrice: pricing.regularPrice,
+  salePrice: pricing.unitPrice,
+  totalPrice,
+  status: "Pending",
+})
+
+      orderedItems.push({ productId: product, size: buyNowItem.size, quantity: buyNowItem.quantity });
+    } else {
+      cart = await Cart.findOne({ userId }).populate("items.productId").session(session);
+      if (!cart || cart.items.length === 0) throw new Error("Cart is empty");
+
+      for (const item of cart.items) {
+        const product = item.productId;
+        if (!product || product.isDeleted || product.isBlocked) continue;
+
+        const variant = product.variants.find((v) => v.size === item.size && v.status === "ACTIVE")
+        if(!variant){
+          throw new Error(
+    `${product.productName} (${item.size}) is no longer available.`)  
+        }
+        if(variant.status!=="ACTIVE"){
+           throw new Error(
+    `${product.productName} (${item.size}) is no longer available.`)
+        }
+        if (variant.stock <= 0) {
+  throw new Error(
+    `${product.productName} is out of stock.`)
+}
+
+if (variant.stock < item.quantity) {
+  throw new Error(
+    `${product.productName} has only ${variant.stock} stock left.`)
+}
+      const pricing = await getUnitPricing(product, variant);
+const totalPrice = pricing.unitPrice * item.quantity;
+subTotal += totalPrice;
+orderedItems.push(item);
+
+orderItems.push({
+  productId: product._id,
+  productName: product.productName,
+  size: item.size,
+  variantName: variant.variantName || variant.size,
+  productImage: product.productImage?.[0] || "",
+  quantity: item.quantity,
+  regularPrice: pricing.regularPrice,
+  salePrice: pricing.unitPrice,
+  totalPrice,
+  status: "Pending",
+})
+      }
+
+      if (orderItems.length === 0) {
+        throw new Error("None of the items in your cart are currently available.");
+      }
+    }
+
+    const shipping = subTotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+    const tax = Math.round(subTotal * TAX_RATE);
+    let discount = 0;
+    let appliedCouponCode=null
+       
+      if(couponCode){
+        const code=couponCode.trim().toUpperCase()
+
+        const couponData=await Coupon.findOne({
+          code
+        }).session(session).lean()
+
+        if(!couponData){
+          throw new Error("Invalid coupon code")
+        }
+        if(couponData.isDisabled){
+          throw new Error("This coupon is disabled")
+        }
+        const now =new Date()
+
+        if(now<new Date(couponData.startDate)||now>new Date(couponData.expiryDate)){
+          throw new Error("This coupon is expired or not active")
+        }
+        if(subTotal<couponData.minPurchase){
+          throw new Error(`Minimum purchase is ₹${couponData.minPurchase}`)
+        }
+
+        if(couponData.discountType==="PERCENTAGE"){
+          discount=(subTotal*couponData.discountValue)/100
+
+          if(couponData.maxDiscount!==null&&couponData.maxDiscount!==undefined){
+            discount=Math.min(discount,couponData.maxDiscount)
+          }
+        }else if(couponData.discountType==="FIXED"){
+          discount=couponData.discountValue
+        }
+        discount=Math.min(discount,subTotal)
+
+        appliedCouponCode=couponData.code
+      }
+    const grandTotal = Math.max(subTotal + shipping + tax - discount,0)
+
+    let wallet=null
+
+    if(paymentMethod==="Wallet"){
+      wallet=await Wallet.findOne({userId}).session(session)
+
+      if(!wallet){
+        wallet = new Wallet({userId,balance:0})
+
+        await wallet.save({session})
+      }
+      
+      if(wallet.balance<grandTotal){
+        throw new Error( `Insufficient wallet balance. Available balance: ₹${wallet.balance}`)      
+      }
+    }
+
+    const [order] = await Order.create(
+      [{
+        orderId: generateOrderId(),
+        userId,
+        couponCode:appliedCouponCode,
+        items: orderItems,
+        address: {
+          name: address.name,
+          houseName: address.apartment,
+          street: address.street,
+          city: address.city,
+          state: address.state,
+          phone: address.phone,
+          pincode: address.zip,
+        },
+        paymentMethod,
+        paymentStatus: paymentMethod === "Wallet" || paymentMethod==="Razorpay" ? "Paid" : "Pending",
+        orderStatus: "Pending",
+        subTotal,
+        shipping,
+        tax,
+        discount,
+        grandTotal,
+      }],
+      { session }
+    )
+       let debitedAmount=0
+       let availableBalance=0
+    if(paymentMethod==="Wallet"){
+      debitedAmount=grandTotal
+      wallet.balance-=debitedAmount
+
+      await wallet.save({session})
+      availableBalance=wallet.balance
+
+      await WalletTransaction.create([{
+        walletId:wallet._id,
+        userId,
+        transactionId: `TXN_${crypto.randomUUID()}`,
+        type:"DEBIT",
+        amount:grandTotal,
+        description:"Order Payment",
+        subDescription: `Payment for order ${order.orderId}`,
+        status:"COMPLETED",
+        referenceId:order.orderId,
+      }],{session})
+    }
+
+    for (const item of orderedItems) {
+      await Product.updateOne(
+        { _id: item.productId._id, "variants.size": item.size },
+        { $inc: { "variants.$.stock": -item.quantity } },
+        { session }
+      );
+    }
+
+
+    if (!buyNowItem && cart) {
+      cart.items = [];
+      await cart.save({ session })
+    }
+
+    await session.commitTransaction();
+
+    return {
+      success: true,
+      orderId: order.orderId,
+      redirectUrl: `/user/checkout/order-success?orderId=${order.orderId}`,
+      message: "Order placed successfully",
+      paymentMethod,
+      debitedAmount,
+      availableBalance
+    }
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+}
+ 
+
+export const getOrderSuccessData = async (userId, orderId) => {
+ 
+  const query = mongoose.Types.ObjectId.isValid(orderId)
+    ? { $or: [{ orderId }, { _id: orderId }], userId }
+    : { orderId, userId };
+ 
+  const order = await Order.findOne(query).lean();
+  if (!order) return null;
+ 
+  return {
+    _id: order._id,
+    orderNumber: order.orderId,
+ items: order.items.map((item) => ({
+  productName: item.productName,
+  size: item.size,
+  price: item.salePrice,
+  productImage: item.productImage ? [item.productImage] : [],
+})),
+ 
+    deliveryAddress: {
+      street: order.address?.street,
+      apartment: order.address?.houseName,
+      city: order.address?.city,
+      zip: order.address?.pincode,
+      state: order.address?.state,
+    },
+ 
+    subtotal: order.subTotal,
+    shipping: order.shipping,
+    tax: order.tax,
+    couponDiscount: order.discount,
+    total: order.grandTotal,
+  };
+};
+ 
+ 
