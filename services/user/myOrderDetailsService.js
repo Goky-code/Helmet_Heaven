@@ -92,35 +92,6 @@ export const getOrderDetails=async(userId,orderId)=>{
         },
          items
 
-        //: order.items.map(item => ({
-
-        //     productId: item.productId,
-
-        //     image: item.productImage,
-
-        //     name: item.productName,
-
-        //     description: item.variantName,
-
-        //     size: item.size,
-
-        //     qty: item.quantity,
-
-        //     price: `₹${item.totalPrice}`,
-
-        //     status: item.status,
-           
-        //     cancelReason: item.cancelReason,
-        //     cancelComment: item.cancelComment,
-
-        //     returnReason: item.returnReason,
-        //     returnComment: item.returnComment,
-
-        //     cancelledAt: item.cancelledAt,
-        //     returnedAt: item.returnedAt
-
-        // }))
-
     }
 
 }

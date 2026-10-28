@@ -159,7 +159,10 @@ export const downloadInvoice = async (req, res) => {
 
         doc.moveDown();
 
-        // Tax Invoice
+        // ==========================================
+        // TAX INVOICE
+        // ==========================================
+
         doc
             .fontSize(18)
             .fillColor("#111827")
@@ -185,9 +188,8 @@ export const downloadInvoice = async (req, res) => {
             `Invoice Date : ${new Date(order.createdAt).toLocaleDateString("en-IN")}`
         );
 
-        doc.text(
-            `Order Status : ${order.orderStatus}`
-        );
+        // Global order status removed.
+        // Each product's status will appear in the table.
 
         doc.moveDown();
 
@@ -259,9 +261,9 @@ export const downloadInvoice = async (req, res) => {
 
         doc.moveDown(0.5);
 
-        // ------------------------------------------
+        // ==========================================
         // TABLE SETTINGS
-        // ------------------------------------------
+        // ==========================================
 
         const tableX = 50;
         const tableWidth = 495;
@@ -272,14 +274,17 @@ export const downloadInvoice = async (req, res) => {
         const headerY = doc.y;
 
         // Column positions
-        const productX = 60;
-        const sizeX = 315;
-        const qtyX = 375;
-        const amountX = 445;
+        // Order: Product | Size | Qty | Status | Amount
 
-        // ------------------------------------------
-        // TABLE HEADER
-        // ------------------------------------------
+        const productX = 60;
+        const sizeX = 250;
+        const qtyX = 305;
+        const statusX = 350;
+        const amountX = 455;
+
+        // ==========================================
+        // TABLE HEADER BACKGROUND
+        // ==========================================
 
         doc
             .rect(
@@ -290,17 +295,26 @@ export const downloadInvoice = async (req, res) => {
             )
             .fill("#1E40AF");
 
-        // Header text
+        // ==========================================
+        // TABLE HEADER TEXT
+        // ==========================================
+
         doc
-            .fontSize(11)
+            .fontSize(10)
             .fillColor("white");
 
+        // Product
         doc.text(
             "Product",
             productX,
-            headerY + 7
+            headerY + 7,
+            {
+                width: 180,
+                ellipsis: true
+            }
         );
 
+        // Size
         doc.text(
             "Size",
             sizeX,
@@ -311,16 +325,29 @@ export const downloadInvoice = async (req, res) => {
             }
         );
 
+        // Quantity
         doc.text(
             "Qty",
             qtyX,
             headerY + 7,
             {
-                width: 40,
+                width: 35,
                 align: "center"
             }
         );
 
+        // Status - before Amount
+        doc.text(
+            "Status",
+            statusX,
+            headerY + 7,
+            {
+                width: 90,
+                align: "center"
+            }
+        );
+
+        // Amount
         doc.text(
             "Amount",
             amountX,
@@ -331,44 +358,49 @@ export const downloadInvoice = async (req, res) => {
             }
         );
 
-        // ------------------------------------------
-        // FILTER CANCELLED PRODUCTS
-        // ------------------------------------------
+        // ==========================================
+        // FILTER CANCELLED / RETURNED PRODUCTS
+        // ==========================================
 
         const invoiceItems = order.items.filter(
-    item =>
-        item.status !== "Cancelled" &&
-        item.status !== "Returned"
-)
+            item =>
+                item.status !== "Cancelled" &&
+                item.status !== "Returned"
+        );
 
         // Start first row
         let rowY = headerY + headerHeight;
 
-        // ------------------------------------------
+        // ==========================================
         // TABLE ROWS
-        // ------------------------------------------
+        // ==========================================
 
         invoiceItems.forEach((item) => {
 
-            // Same Y position for every column
             const currentY = rowY + 8;
 
             doc
-                .fontSize(11)
+                .fontSize(9)
                 .fillColor("black");
 
-            // Product
+            // --------------------------------------
+            // PRODUCT NAME
+            // --------------------------------------
+
             doc.text(
                 item.productName,
                 productX,
                 currentY,
                 {
-                    width: 230,
+                    width: 180,
                     ellipsis: true
                 }
             );
 
-            // Size
+            // --------------------------------------
+            // SIZE
+            // --------------------------------------
+
             doc.text(
                 item.size || "-",
                 sizeX,
@@ -379,18 +411,39 @@ export const downloadInvoice = async (req, res) => {
                 }
             );
 
-            // Quantity
+            // --------------------------------------
+            // QUANTITY
+            // --------------------------------------
+
             doc.text(
                 String(item.quantity),
                 qtyX,
                 currentY,
                 {
-                    width: 40,
+                    width: 35,
                     align: "center"
                 }
             );
 
-            // Amount
+            // --------------------------------------
+            // PRODUCT STATUS
+            // --------------------------------------
+
+            doc.text(
+                item.status || "-",
+                statusX,
+                currentY,
+                {
+                    width: 90,
+                    align: "center",
+                    ellipsis: true
+                }
+            );
+
+            // --------------------------------------
+            // AMOUNT
+            // --------------------------------------
+
             doc.text(
                 `₹${item.totalPrice}`,
                 amountX,
@@ -401,7 +454,10 @@ export const downloadInvoice = async (req, res) => {
                 }
             );
 
-            // Row bottom line
+            // --------------------------------------
+            // ROW BOTTOM LINE
+            // --------------------------------------
+
             doc
                 .moveTo(
                     tableX,
@@ -417,9 +473,9 @@ export const downloadInvoice = async (req, res) => {
             rowY += rowHeight;
         });
 
-        // ------------------------------------------
+        // ==========================================
         // MOVE BELOW TABLE
-        // ------------------------------------------
+        // ==========================================
 
         doc.y = rowY + 10;
 
@@ -544,8 +600,12 @@ export const downloadInvoice = async (req, res) => {
 
     } catch (error) {
 
-        console.log(error);
+        console.log("DOWNLOAD INVOICE ERROR:", error);
 
-        res.redirect("/pageNotFound");
+        if (!res.headersSent) {
+            res.redirect("/pageNotFound");
+        } else {
+            res.end();
+        }
     }
 };
