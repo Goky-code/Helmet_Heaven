@@ -2,7 +2,7 @@ import express from 'express'
 import {
   addToWishlist,
   removeWishlist,
-  loadWishlist,
+  loadWishlist,clearWishlist
 } from "../controllers/user/wishlistController.js"
 import { isUserAuth } from "../middlewares/userAuth.js"
 
@@ -21,5 +21,7 @@ router.delete(
   isUserAuth,
   removeWishlist
 );
+
+router.delete("/clear-wishlist", isUserAuth, clearWishlist);
 
 export default router

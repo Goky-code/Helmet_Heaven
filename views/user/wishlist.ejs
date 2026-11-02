@@ -608,7 +608,9 @@
   <div class="wishlist-heading">
     <h1>My Wishlist</h1>
     <%
-      const itemCount = wishlist.products ? wishlist.products.length : 0;
+      const itemCount = typeof totalItems !== 'undefined'
+    ? totalItems
+    : (wishlist.products ? wishlist.products.length : 0);
     %>
     <p id="wishlistSubtitle">
       <% if (itemCount === 0) { %>
@@ -898,17 +900,27 @@
     setTimeout(() => t.remove(), 3400);
   }
 
-  
-  function updateSubtitle() {
-    const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
-    const el = document.getElementById('wishlistSubtitle');
-    if (el) {
-      el.textContent = remaining === 0
-        ? 'Your wishlist is empty.'
-        : `You have ${remaining} item${remaining !== 1 ? 's' : ''} saved in your wishlist.`;
-    }
-  }
+ let totalItems = <%= totalItems %>;
 
+function updateSubtitle() {
+  const el = document.getElementById('wishlistSubtitle');
+  if (!el) return;
+  el.textContent = totalItems === 0
+    ? 'Your wishlist is empty.'
+    : `You have ${totalItems} item${totalItems !== 1 ? 's' : ''} saved in your wishlist.`;
+}
+
+
+
+function checkEmpty() {
+  const remaining = document.querySelectorAll('.product-card[data-product-id]').length;
+  if (totalItems === 0) {
+    document.getElementById('emptyState').classList.add('visible');
+  } else if (remaining === 0) {
+    
+    window.location.href = '/user/wishlist';
+  }
+}
   
   function updateWishlistBadge(count) {
     const badge = document.getElementById('wishlistBadge');
@@ -947,7 +959,7 @@
       });
       const data = await res.json();
       if (data.success) {
-        const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+        const card = document.querySelector(`.product-card[data-product-id="${productId}"][data-size="${size}"]`)
         if (card) {
           card.style.transition = 'opacity .3s, transform .3s';
           card.style.opacity = '0';
@@ -1086,28 +1098,28 @@
 
   
   document.getElementById('clearAllBtn').addEventListener('click', async () => {
-    const cards = document.querySelectorAll('.product-card[data-product-id]');
-    if (cards.length === 0) return;
-    if (!confirm('Remove all items from your wishlist?')) return;
-    const promises = [...cards].map(card =>
-      fetch(`/user/remove-wishlist/${card.dataset.productId}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ size: card.dataset.size })
-      })
-    );
-    try {
-      await Promise.all(promises);
-      cards.forEach(card => card.remove());
+  if (totalItems === 0) return;
+  if (!confirm('Remove all items from your wishlist?')) return;
+
+  try {
+    const res = await fetch('/user/clear-wishlist', { method: 'DELETE' });
+    const data = await res.json();
+
+    if (data.success) {
+      document.querySelectorAll('.product-card[data-product-id]').forEach(c => c.remove());
+      totalItems = 0;
       updateSubtitle();
       updateWishlistBadge(0);
       checkEmpty();
       showToast('Wishlist cleared.', 'remove');
-    } catch (err) {
-      console.log(err);
-      showToast('Something went wrong', 'remove');
+    } else {
+      showToast(data.message || 'Failed to clear wishlist', 'remove');
     }
-  });
+  } catch (err) {
+    console.log(err);
+    showToast('Something went wrong', 'remove');
+  }
+});
 
   
   async function fetchAndUpdateCounts() {

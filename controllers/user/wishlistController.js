@@ -122,3 +122,22 @@ export const getWishlistCount = async (
   }
 
 }
+
+export const clearWishlist = async (req, res) => {
+  try {
+    const wishlistCount = await wishlistService.clearWishlist(req.session.user);
+
+    res.json({
+      success: true,
+      message: "Wishlist cleared",
+      wishlistCount,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

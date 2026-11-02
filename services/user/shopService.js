@@ -180,27 +180,18 @@ export const getShopProducts = async (query, userId) => {
         isDeleted: false,
       }),
     ]);
+let wishlistedVariants = [];
 
-  let wishlistedProductIds = [];
+if (userId) {
+  const wishlist = await Wishlist.findOne({ userId }).lean()
 
-  if (userId) {
-
-    const wishlist =
-      await Wishlist.findOne({ userId }).lean();
-
-    if (wishlist?.products?.length) {
-
-      wishlistedProductIds = [
-        ...new Set(
-          wishlist.products.map(
-            item => item.productId.toString()
-          )
-        ),
-      ];
-
-    }
-
+  if (wishlist?.products?.length) {
+    wishlistedVariants = wishlist.products.map(item => ({
+      productId: item.productId.toString(),
+      size: item.size
+    }))
   }
+}
   
 
   return {
@@ -216,7 +207,7 @@ export const getShopProducts = async (query, userId) => {
     minPrice,
     maxPrice,
     sort,
-    wishlistedProductIds,
-  };
+    wishlistedVariants,
+  }
 
 }

@@ -315,6 +315,127 @@
   font-weight: 600;
 }
 
+
+/* Wishlist button */
+.wishlist-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+  border-radius: 50%;
+
+  background: rgba(13, 17, 23, 0.9);
+  color: #ffffff;
+
+  font-size: 18px;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.wishlist-btn:hover {
+  color: #ff4757;
+  transform: scale(1.08);
+}
+
+.wishlist-btn.active {
+  background: #ff4757;
+  border-color: #ff4757;
+  color: #ffffff;
+}
+
+.wishlist-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Out-of-stock overlay */
+.stock-overlay {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+}
+
+.stock-overlay span {
+  background: var(--red);
+  color: #ffffff;
+
+  padding: 5px 14px;
+  border-radius: 6px;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.wishlist-size-select {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+
+  max-width: 110px;
+  padding: 8px;
+
+  color: #fff;
+  background: #202731;
+  border: 1px solid #444;
+  border-radius: 8px;
+
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #202731;
+    color: #ffffff;
+
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.wishlist-btn.active {
+    background: #202731;
+    color: #ff4757;
+    border: 1px solid #ff4757;
+}
+.wishlist-btn.active i {
+    color: #ff4757;
+}
+
+
     /* ── FOOTER ── */
     footer { background: var(--bg2); border-top: 1px solid var(--border); margin-top: 60px; padding: 48px 28px 28px; }
     .footer-grid { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.6fr; gap: 40px; }
@@ -748,18 +869,47 @@
         <article class="product-card">
           <div class="card-img-wrap">
             <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>"/>
-            <% if (activeVariant.stock <= 0) { %>
-              <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center;">
-                <span style="background: var(--red); color: #fff; padding: 5px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;">Out of Stock</span>
-              </div>
-            <% } %>
-            <% if (wishlistedProductIds.includes(product._id.toString())) { %>
-              <div class="card-wish-badge" aria-label="In your wishlist">
-                <svg width="14" height="14" viewBox="0 0 24 24">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-              </div>
-            <% } %>
+          
+<% if (activeVariant.stock <= 0) { %>
+  <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center;">
+    <span style="background: var(--red); color: #fff; padding: 5px 14px; border-radius: 6px;">
+      Out of Stock
+    </span>
+  </div>
+<% } %>
+
+<select
+  class="wishlist-size-select"
+  aria-label="Select size for wishlist"
+  onclick="event.preventDefault(); event.stopPropagation();"
+  onchange="event.stopPropagation(); checkWishlistSize(this)"
+>
+  <option value="">Select Size</option>
+
+  <% if (product.variants && product.variants.length > 0) { %>
+    <% product.variants.forEach(variant => { %>
+      <% if (variant.status === "ACTIVE" && variant.stock > 0) { %>
+        <option value="<%= variant.size %>"><%= variant.size %></option>
+      <% } %>
+    <% }) %>
+  <% } %>
+</select>
+
+
+<button
+  type="button"
+  class="wishlist-btn"
+  data-product-id="<%= product._id %>"
+  data-wishlisted-sizes='<%- JSON.stringify(
+    wishlistedVariants
+      .filter(item => item.productId === String(product._id))
+      .map(item => item.size)
+  ) %>'
+  onclick="toggleWishlist(event, this)"
+>
+  <i class="fa-regular fa-heart"></i>
+</button>
+
           </div>
           <div class="card-body">
             <div class="card-name"><%= product.productName %></div>
@@ -802,6 +952,7 @@
 
   </div>
 </div>
+          </div>
         </article>
       </a>
     <% } %>
@@ -1014,6 +1165,129 @@
   window.location.href = '/shop?' + params.toString();
 }
 
+async function toggleWishlist(event, button) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const productId = button.dataset.productId;
+const sizeSelect = button
+  .closest(".card-img-wrap")
+  ?.querySelector(".wishlist-size-select");
+
+const size = sizeSelect?.value;
+
+console.log("Wishlist productId:", productId);
+console.log("Wishlist size:", size);
+
+
+  if (!size) {
+    alert("Please select a size first");
+    return;
+  }
+
+  let wishlistedSizes = [];
+
+  try {
+    const rawSizes = button.dataset.wishlistedSizes;
+    wishlistedSizes = rawSizes ? JSON.parse(rawSizes) : [];
+
+    if (!Array.isArray(wishlistedSizes)) {
+      wishlistedSizes = [];
+    }
+  } catch (error) {
+    console.error("Invalid wishlist data:", error);
+    wishlistedSizes = [];
+  }
+
+  const isWishlisted = wishlistedSizes.includes(size);
+
+  try {
+    const response = await fetch(
+      isWishlisted
+        ? `/user/remove-wishlist/${productId}`
+        : `/user/add-to-wishlist/${productId}`,
+      {
+        method: isWishlisted ? "DELETE" : "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ size })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(
+        data.message || "Unable to update wishlist"
+      );
+    }
+
+    if (isWishlisted) {
+      wishlistedSizes = wishlistedSizes.filter(
+        item => item !== size
+      );
+
+      alert("Product removed from wishlist");
+    } else {
+      wishlistedSizes.push(size);
+
+      alert("Product added to wishlist");
+    }
+
+    button.dataset.wishlistedSizes =
+      JSON.stringify(wishlistedSizes);
+
+    checkWishlistSize(sizeSelect);
+
+    // Update navbar wishlist count if this function exists.
+    if (typeof updateWishlistCount === "function") {
+      updateWishlistCount();
+    }
+
+  } catch (error) {
+    console.error("Wishlist error:", error);
+    alert(error.message || "Something went wrong");
+  }
+}
+
+
+function checkWishlistSize(selectElement) {
+  const card = selectElement.closest(".card-img-wrap");
+  if (!card) return;
+
+  const button = card.querySelector(".wishlist-btn");
+  if (!button) return;
+
+  const selectedSize = selectElement.value;
+
+  let wishlistedSizes = [];
+
+  try {
+    const rawSizes = button.dataset.wishlistedSizes;
+    wishlistedSizes = rawSizes ? JSON.parse(rawSizes) : [];
+
+    if (!Array.isArray(wishlistedSizes)) {
+      wishlistedSizes = [];
+    }
+  } catch (error) {
+    console.error("Invalid wishlist sizes:", error);
+    wishlistedSizes = [];
+  }
+
+  const isWishlisted =
+    selectedSize !== "" &&
+    wishlistedSizes.includes(selectedSize);
+
+  button.classList.toggle("active", isWishlisted);
+
+  const icon = button.querySelector("i");
+
+  if (icon) {
+    icon.classList.toggle("fa-solid", isWishlisted);
+    icon.classList.toggle("fa-regular", !isWishlisted);
+  }
+}
 
 </script>
 </body>

@@ -41,6 +41,8 @@ export const getWishlist = async (userId,page=1,limit=5) => {
 
     const before = wishlist.products.length;
 
+    console.log(wishlist.products.map(i => ({ id: i.productId?._id, size: i.size })));
+
     wishlist.products = wishlist.products.filter(item =>!!item.productId)
     
     if (before !== wishlist.products.length) {
@@ -101,14 +103,9 @@ export const getWishlist = async (userId,page=1,limit=5) => {
     (safePage - 1) * perPage;
 
 
-  const paginatedProducts = wishlist
-    ? wishlist.products.slice(
-        skip,
-        skip + perPage
-      )
-    : [];
-
-
+ const paginatedProducts = wishlist
+  ? [...wishlist.products].reverse().slice(skip, skip + perPage)
+  : [];
   
   const wishlistData = wishlist
     ? wishlist.toObject()
@@ -192,14 +189,22 @@ export const addWishlistItem = async (
 
     await wishlist.save();
 
+    console.log(
+  "Saved wishlist:",
+  wishlist.products.map((item) => ({
+    productId: item.productId.toString(),
+    size: item.size,
+  }))
+)
+
     return wishlist.products.length;
   }
 
   const exists = wishlist.products.find(
-    item =>
-      item.productId.toString() === productId &&
-      item.size === size
-  );
+  item =>
+    item.productId.toString() === String(productId) &&
+    item.size === String(size)
+)
 
   if (exists) {
     throw new Error(
@@ -283,4 +288,9 @@ export const getWishlistItemCount = async (
     : 0;
 
   return count;
+}
+
+export const clearWishlist = async (userId) => {
+  await Wishlist.updateOne({ userId }, { $set: { products: [] } });
+  return 0;
 }
