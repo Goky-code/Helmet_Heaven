@@ -472,17 +472,62 @@
     .footer-bottom-links a:hover { color: var(--text); }
 
     /* ── TOAST ── */
-    #toast {
-      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
-      background: var(--blue); color: #fff;
-      padding: 11px 20px; border-radius: 10px;
-      font-size: 0.88rem; font-weight: 500;
-      box-shadow: 0 6px 24px rgba(41,121,255,.4);
-      opacity: 0; transform: translateY(14px);
-      transition: opacity 0.3s, transform 0.3s;
-      pointer-events: none;
-    }
-    #toast.show { opacity: 1; transform: translateY(0); }
+   /* ── TOAST NOTIFICATION ── */
+
+#toast {
+    position: fixed;
+    top: 85px;
+    right: 25px;
+    z-index: 9999;
+
+    min-width: 280px;
+    max-width: 350px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 15px 20px;
+
+    background: #1e293b;
+    color: #fff;
+
+    border-radius: 10px;
+    border-left: 4px solid #22c55e;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateX(120%);
+
+    transition: all 0.3s ease;
+
+    pointer-events: none;
+}
+
+#toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+#toast.success {
+    border-left-color: #22c55e;
+}
+
+#toast.error {
+    border-left-color: #ef4444;
+}
+
+#toast-icon {
+    font-size: 18px;
+    font-weight: bold;
+}
 
     /* ── MOBILE ── */
     .mobile-filters-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.6); }
@@ -1066,7 +1111,10 @@
   </div>
 </footer>
 
-<div id="toast"></div>
+<div id="toast">
+    <span id="toast-icon"></span>
+    <span id="toast-message"></span>
+</div>
 
 <div id="shopToast" style="
   position: fixed; bottom: 28px; right: 28px; z-index: 9999;
@@ -1082,14 +1130,42 @@
 
 <script>
   /* ── TOAST ── */
-  let toastTimer;
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+ /* ── TOAST NOTIFICATION ── */
+
+let toastTimer;
+
+function showToast(message, type = "success") {
+
+    const toast = document.getElementById("toast");
+    const icon = document.getElementById("toast-icon");
+    const msg = document.getElementById("toast-message");
+
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-  }
+
+    msg.textContent = message;
+
+    toast.classList.remove("success", "error");
+
+    if (type === "success") {
+
+        toast.classList.add("success");
+        icon.innerHTML = "✓";
+
+    } else {
+
+        toast.classList.add("error");
+        icon.innerHTML = "✕";
+
+    }
+
+    toast.classList.add("show");
+
+    toastTimer = setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 3000);
+}
 
   /* ── PRICE SLIDER ── */
   function updatePrice(val) {
@@ -1160,97 +1236,120 @@
 
   params.delete(type);
   values.forEach(v => params.append(type, v));
-  params.delete('page'); // reset pagination when filters change
+  params.delete('page'); 
 
   window.location.href = '/shop?' + params.toString();
 }
 
 async function toggleWishlist(event, button) {
-  event.preventDefault();
-  event.stopPropagation();
 
-  const productId = button.dataset.productId;
-const sizeSelect = button
-  .closest(".card-img-wrap")
-  ?.querySelector(".wishlist-size-select");
+    event.preventDefault();
+    event.stopPropagation();
 
-const size = sizeSelect?.value;
+    const productId = button.dataset.productId;
 
-console.log("Wishlist productId:", productId);
-console.log("Wishlist size:", size);
+    const sizeSelect = button
+        .closest(".card-img-wrap")
+        ?.querySelector(".wishlist-size-select");
 
+    const size = sizeSelect?.value;
 
-  if (!size) {
-    alert("Please select a size first");
-    return;
-  }
-
-  let wishlistedSizes = [];
-
-  try {
-    const rawSizes = button.dataset.wishlistedSizes;
-    wishlistedSizes = rawSizes ? JSON.parse(rawSizes) : [];
-
-    if (!Array.isArray(wishlistedSizes)) {
-      wishlistedSizes = [];
-    }
-  } catch (error) {
-    console.error("Invalid wishlist data:", error);
-    wishlistedSizes = [];
-  }
-
-  const isWishlisted = wishlistedSizes.includes(size);
-
-  try {
-    const response = await fetch(
-      isWishlisted
-        ? `/user/remove-wishlist/${productId}`
-        : `/user/add-to-wishlist/${productId}`,
-      {
-        method: isWishlisted ? "DELETE" : "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ size })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(
-        data.message || "Unable to update wishlist"
-      );
+   
+    if (!size) {
+        showToast("Please select a size first", "error");
+        return;
     }
 
-    if (isWishlisted) {
-      wishlistedSizes = wishlistedSizes.filter(
-        item => item !== size
-      );
+    let wishlistedSizes = [];
 
-      alert("Product removed from wishlist");
-    } else {
-      wishlistedSizes.push(size);
+    try {
 
-      alert("Product added to wishlist");
+        const rawSizes = button.dataset.wishlistedSizes;
+
+        wishlistedSizes = rawSizes
+            ? JSON.parse(rawSizes)
+            : [];
+
+        if (!Array.isArray(wishlistedSizes)) {
+            wishlistedSizes = [];
+        }
+
+    } catch (error) {
+
+        console.error("Invalid wishlist data:", error);
+
+        wishlistedSizes = [];
     }
 
-    button.dataset.wishlistedSizes =
-      JSON.stringify(wishlistedSizes);
+    const isWishlisted = wishlistedSizes.includes(size);
 
-    checkWishlistSize(sizeSelect);
+    try {
 
-    // Update navbar wishlist count if this function exists.
-    if (typeof updateWishlistCount === "function") {
-      updateWishlistCount();
+        const response = await fetch(
+            isWishlisted
+                ? `/user/remove-wishlist/${productId}`
+                : `/user/add-to-wishlist/${productId}`,
+            {
+                method: isWishlisted ? "DELETE" : "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({ size })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+
+            showToast(
+                data.message || "Unable to update wishlist",
+                "error"
+            );
+
+            return;
+        }
+
+       
+        if (isWishlisted) {
+
+            wishlistedSizes = wishlistedSizes.filter(
+                item => item !== size
+            );
+
+            showToast("Product removed from wishlist", "success");
+
+        } else {
+
+            wishlistedSizes.push(size);
+
+            showToast("Product added to wishlist", "success");
+        }
+
+        
+        button.dataset.wishlistedSizes =
+            JSON.stringify(wishlistedSizes);
+
+       
+        checkWishlistSize(sizeSelect);
+
+        
+        if (typeof updateWishlistCount === "function") {
+            updateWishlistCount();
+        }
+
+    } catch (error) {
+
+        console.error("Wishlist error:", error);
+
+        showToast(
+            error.message || "Something went wrong",
+            "error"
+        );
     }
-
-  } catch (error) {
-    console.error("Wishlist error:", error);
-    alert(error.message || "Something went wrong");
-  }
 }
-
 
 function checkWishlistSize(selectElement) {
   const card = selectElement.closest(".card-img-wrap");
