@@ -73,5 +73,6 @@ router.get("/cart/count", isUserAuth, getCartCount);
 router.get("/wishlist/count", isUserAuth, getWishlistCount);
 router.get("/aboutUs", loadAboutUs)
 router.get("/contactUs",loadContactUs)
+router.get("/landing", userController.getLandingPage)
 
 export default router

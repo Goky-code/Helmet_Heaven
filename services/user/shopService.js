@@ -24,12 +24,46 @@ export const getShopProducts = async (query, userId) => {
     isDeleted: false,
   };
 
-  if (search) {
-    dbFilter.productName = {
-      $regex: search,
-      $options: "i",
-    };
-  }
+  if (search.trim()) {
+
+  const searchRegex = new RegExp(
+    search.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+    "i"
+  );
+
+  const [matchedCategories, matchedBrands] = await Promise.all([
+
+    Category.find({
+      name: searchRegex,
+      isListed: true,
+      isDeleted: false
+    }).select("_id").lean(),
+
+    Brand.find({
+      name: searchRegex,
+      isListed: true,
+      isDeleted: false
+    }).select("_id").lean()
+
+  ]);
+
+  dbFilter.$or = [
+    {
+      productName: searchRegex
+    },
+    {
+      category: {
+        $in: matchedCategories.map(cat => cat._id)
+      }
+    },
+    {
+      brand: {
+        $in: matchedBrands.map(brand => brand._id)
+      }
+    }
+  ];
+
+}
 
   if (selectedCategories.length) {
     dbFilter.category = {$in:selectedCategories}
@@ -76,7 +110,7 @@ export const getShopProducts = async (query, userId) => {
           return false;
         }
 
-       if(selectedSizes.length&!selectedSizes.includes(variant.size)){
+       if(selectedSizes.length&&!selectedSizes.includes(variant.size)){
                  return false;
         }
 

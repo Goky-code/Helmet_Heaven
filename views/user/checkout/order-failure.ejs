@@ -251,6 +251,7 @@ button.action-btn:disabled {
 
     <ul class="nav-links" role="list">
       <li><a href="/user/homepage">Home</a></li>
+       <li><a href="/shop">Shop</a></li>
       <li><a href="#">About Us</a></li>
       <li><a href="#">Contact Us</a></li>
     </ul>
@@ -318,8 +319,9 @@ button.action-btn:disabled {
     </div>
     <h1 class="status-title">Payment Failed</h1>
     <p class="status-sub">
-      We couldn't process your payment, so your order has not been placed.
-      Don't worry — you haven't been charged for this attempt.
+     We couldn't complete your payment. Your order has not been confirmed.
+If money was deducted, please check your bank statement.
+Any eligible refund will be processed according to your bank's payment settlement process.
     </p>
   </div>
 
@@ -579,24 +581,26 @@ button.action-btn:disabled {
 
             const razorpay = new Razorpay(options);
 
-            razorpay.on("payment.failed", function (response) {
-                const errorMessage =
-                    response.error?.description ||
-                    "Your payment could not be completed.";
+        razorpay.on("payment.failed", function (response) {
 
-                const params = new URLSearchParams({
-                    message: errorMessage,
-                    addressId: retryData.addressId,
-                    couponCode: retryData.couponCode || "",
-                    buyNow: retryData.buyNow ? "true" : "false",
-                    productId: retryData.productId || "",
-                    size: retryData.size || "",
-                    qty: retryData.qty || "1"
-                });
+    const errorCode = response.error?.code || "";
+    const errorMessage =
+        response.error?.description || "";
 
-                window.location.href =
-                    "/user/checkout/order-failure?" + params.toString();
-            });
+    const params = new URLSearchParams({
+        code: errorCode,
+        message: errorMessage,
+        addressId: retryData.addressId,
+        couponCode: retryData.couponCode || "",
+        buyNow: retryData.buyNow ? "true" : "false",
+        productId: retryData.productId || "",
+        size: retryData.size || "",
+        qty: retryData.qty || "1"
+    });
+
+    window.location.href =
+        "/user/checkout/order-failure?" + params.toString();
+});
 
             razorpay.open();
 
@@ -650,6 +654,81 @@ button.action-btn:disabled {
     ham.classList.toggle('open', open);
     ham.setAttribute('aria-expanded', open);
   });
+
+  function getPaymentFailureReason(error) {
+    const reason = (error?.reason || "").toLowerCase();
+    const description = (error?.description || "").toLowerCase();
+    const code = (error?.code || "").toLowerCase();
+
+    if (
+        reason.includes("insufficient") ||
+        description.includes("insufficient")
+    ) {
+        return "Your account has insufficient funds to complete this payment.";
+    }
+
+    if (
+        reason.includes("declined") ||
+        description.includes("declined")
+    ) {
+        return "Your bank has declined this transaction. Please contact your bank or try another payment method.";
+    }
+
+    if (
+        reason.includes("incorrect") ||
+        description.includes("incorrect") ||
+        description.includes("invalid card")
+    ) {
+        return "The card details entered are incorrect. Please check your details and try again.";
+    }
+
+    if (
+        reason.includes("expired") ||
+        description.includes("expired")
+    ) {
+        return "Your card has expired. Please use another card.";
+    }
+
+    if (
+        reason.includes("authentication") ||
+        description.includes("otp")
+    ) {
+        return "Payment authentication failed. Please try again and complete the OTP verification.";
+    }
+
+    if (
+        reason.includes("cancel") ||
+        description.includes("cancel")
+    ) {
+        return "You cancelled the payment before completing the transaction.";
+    }
+
+    if (
+        reason.includes("timeout") ||
+        description.includes("timeout")
+    ) {
+        return "The payment request timed out. Please try again.";
+    }
+
+    if (
+        reason.includes("network") ||
+        description.includes("network")
+    ) {
+        return "A network issue interrupted your payment. Please check your connection and try again.";
+    }
+
+    if (
+        reason.includes("server") ||
+        description.includes("server") ||
+        code.includes("server")
+    ) {
+        return "The payment service is temporarily unavailable. Please try again later.";
+    }
+
+    
+    return error?.description ||
+        "Your payment could not be completed. Please try again.";
+}
 </script>
 </body>
 </html>

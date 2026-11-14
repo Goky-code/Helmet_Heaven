@@ -329,6 +329,44 @@
     }
     .secure-note svg { width: 13px; height: 13px; stroke: var(--muted); }
 
+
+.mobile-search-form {
+  display: none;
+  gap: 8px;
+  width: 100%;
+}
+
+.mobile-search-form input {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--text);
+  outline: none;
+}
+
+.mobile-search-form button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  .search-wrap {
+    display: none;
+  }
+
+  .mobile-search-form {
+    display: flex;
+  }
+}
+
+
     /* ── FOOTER ── */
     footer { margin-top: 64px; background: var(--bg2); border-top: 1px solid var(--border); padding: 48px 20px 28px; }
     .footer-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 32px; }
@@ -409,12 +447,26 @@
       <li><a href="#">Contact Us</a></li>
     </ul>
 
-    <div class="search-wrap" role="search">
-      <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
-      </svg>
-      <input type="search" placeholder="Search premium helmets…" aria-label="Search helmets" autocomplete="off" />
-    </div>
+    
+<form action="/shop" method="GET" class="search-wrap" role="search">
+
+  <svg fill="none" viewBox="0 0 24 24"
+    stroke-width="2" stroke="currentColor" aria-hidden="true">
+
+    <path stroke-linecap="round" stroke-linejoin="round"
+      d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+  </svg>
+
+  <input
+    type="search"
+    name="search"
+    value="<%= typeof search !== 'undefined' ? search : '' %>"
+    placeholder="Search products, brands, categories..."
+    aria-label="Search helmets"
+    autocomplete="off"
+  />
+
+</form>
 
 
     <div class="nav-icons">
@@ -460,6 +512,7 @@
 
   <div class="mobile-menu" id="mobileMenu" role="menu">
     <a href="/user/homepage" role="menuitem">Home</a>
+     <a href="/shop">Shop</a>
     <a href="#" role="menuitem">About Us</a>
     <a href="#" role="menuitem">Contact Us</a>
     <a href="/user/cart" role="menuitem">Cart (<%= _cartCount %>)</a>
@@ -701,7 +754,9 @@ const displayPrice = hasOffer
     });
   }
 
-  const shipping = subtotal > 500 ? 0 : 99;
+  const shipping = subtotal > 0
+  ? (subtotal > 500 ? 0 : 99)
+  : 0;
   const tax = Math.round(subtotal * 0.08);
   const total = subtotal + shipping + tax;
 %>
@@ -780,14 +835,20 @@ const displayPrice = hasOffer
       <p class="footer-desc">The world's premier destination for high-end safety and performance headgear. Trusted by professionals, loved by enthusiasts.</p>
     </div>
     <div class="footer-col">
-      <h4>Shop</h4>
-      <ul>
-        <li><a href="#">Full Face</a></li>
-        <li><a href="#">Off-Road</a></li>
-        <li><a href="#">Modular</a></li>
-        <li><a href="#">Accessories</a></li>
-      </ul>
-    </div>
+  <h4>Shop</h4>
+  <ul>
+    <li><a href="/shop">All Products</a></li>
+
+    <% categories.forEach(category => { %>
+      <li>
+        <a href="/shop?category=<%= category._id %>">
+          <%= category.name %>
+        </a>
+      </li>
+    <% }) %>
+
+  </ul>
+</div>
     <div class="footer-col">
       <h4>Support</h4>
       <ul>
@@ -842,7 +903,9 @@ function updateSummary() {
     const qty       = Number(qtyEl?.textContent) || 0;
     subtotal += basePrice * qty;
   });
-  const shipping = subtotal > 500 ? 0 : 99;
+  const shipping = subtotal > 0
+  ? (subtotal > 500 ? 0 : 99)
+  : 0;
   const tax      = Math.round(subtotal * 0.08);
   const total    = subtotal + shipping + tax;
   document.getElementById('subtotal').textContent = '₹ ' + subtotal.toLocaleString('en-IN');

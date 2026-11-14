@@ -37,6 +37,27 @@
     .search-input::placeholder { color: var(--text-muted); }
     .navbar-right { display: flex; align-items: center; gap: 8px; }
 
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-wrapper .bi-search {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 12px 10px 36px;
+}
+
+
     /* ── NAV ICON BUTTON ── */
     .icon-btn { background: #161b22; border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 8px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; font-size: 17px; position: relative; cursor: pointer; text-decoration: none; flex-shrink: 0; transition: border-color .2s, color .2s; }
     .icon-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
@@ -148,15 +169,26 @@
     </a>
     <div class="navbar-links d-lg-flex">
       <a href="/user/homepage" class="nav-link-custom">Home</a>
+      <a href="/shop" class="nav-link-custom">Shop</a>
       <a href="#" class="nav-link-custom">About Us</a>
       <a href="#" class="nav-link-custom">Contact Us</a>
     </div>
   </div>
 
-  <div class="search-wrapper">
-    <i class="bi bi-search"></i>
-    <input type="text" class="search-input" placeholder="Search premium helmets..."/>
-  </div>
+  
+<form action="/shop" method="GET" class="search-wrapper">
+
+  <i class="bi bi-search"></i>
+
+  <input
+    type="search"
+    name="search"
+    class="search-input"
+    placeholder="Search premium helmets..."
+    value="<%= typeof search !== 'undefined' ? search : '' %>"
+  />
+
+</form>
 
   <div class="navbar-right">
 
@@ -197,7 +229,7 @@
     <a href="/user/myOrders" class="sidebar-item"><i class="bi bi-bag"></i> My Orders</a>
     <a href="/user/address/addressPage" class="sidebar-item active"><i class="bi bi-geo-alt-fill"></i> Address</a>
     <a href="/user/wallet" class="sidebar-item"><i class="bi bi-wallet2"></i> Wallet</a>
-    <a href="#" class="sidebar-item"><i class="bi bi-scissors"></i> Coupon</a>
+    <!-- <a href="#" class="sidebar-item"><i class="bi bi-scissors"></i> Coupon</a> -->
     <a href="/user/passwordChange" class="sidebar-item"><i class="bi bi-shield-lock"></i> Password Change</a>
     <div class="sidebar-divider"></div>
     <a href="/user/logout" class="sidebar-item logout"><i class="bi bi-box-arrow-right"></i> Logout</a>

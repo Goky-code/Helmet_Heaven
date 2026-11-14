@@ -2,8 +2,16 @@ import User from "../models/userModels.js"
 
 export const isUserAuth = async (req, res, next) => {
   if (!req.session.user) {
-    if (req.xhr || req.headers["content-type"] === "application/json") {
-      return res.status(401).json({ success: false, message: "Please login to continue" });
+    if (
+        req.xhr ||
+        req.headers["content-type"]?.includes("application/json") ||
+        req.headers.accept?.includes("application/json")
+    ) {
+        return res.status(401).json({
+            success: false,
+            message: "Please login to continue",
+            loginRequired: true
+        });
     }
     return res.redirect("/user/login");
   }

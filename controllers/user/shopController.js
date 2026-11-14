@@ -2,6 +2,7 @@ import * as shopService from "../../services/user/shopService.js";
 import {
   calculateProductOffer
 } from "../../services/admin/offerService.js";
+import Wishlist from "../../models/wishlistModel.js";
 
 export const loadShop = async (req, res) => {
 
@@ -11,7 +12,7 @@ export const loadShop = async (req, res) => {
       await shopService.getShopProducts(
         req.query,
         req.session.user
-      );
+      )
 
  const productsWithOffers=await Promise.all(data.
   products.map(async product=>{
@@ -38,14 +39,28 @@ export const loadShop = async (req, res) => {
 
   })
 )
-console.log(req.query)
+ let wishlistedVariants = [];
 
-res.render("user/product/productCategory",{
-  ...data,
-  products:productsWithOffers
-})
-  }catch(error){
-    console.log(error)
-    res.redirect("/pageNotFound")
+    if (req.session.user) {
+
+      const wishlist = await Wishlist.findOne({
+        userId: req.session.user._id
+      }).lean();
+
+      wishlistedVariants = wishlist?.products?.map(item => ({
+        productId: item.productId.toString(),
+        size: item.size
+      })) || [];
+    }
+
+    res.render("user/product/productCategory", {
+      ...data,
+      products: productsWithOffers,
+      wishlistedVariants
+    });
+
+  } catch (error) {
+    console.log(error);
+    res.redirect("/pageNotFound");
   }
 }

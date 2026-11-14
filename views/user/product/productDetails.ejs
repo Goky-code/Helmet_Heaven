@@ -615,16 +615,30 @@ footer {
 
     <ul class="nav-links">
       <li><a href="/user/homepage">Home</a></li>
+       <li><a href="/shop">Shop</a></li>
       <li><a href="#">About Us</a></li>
       <li><a href="#">Contact Us</a></li>
     </ul>
 
-    <div class="nav-search">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-      </svg>
-      <input type="text" placeholder="Search premium helmets…" aria-label="Search helmets"/>
-    </div>
+    
+<form action="/shop" method="GET" class="nav-search">
+
+  <svg width="16" height="16" fill="none"
+    stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="m21 21-4.35-4.35"/>
+  </svg>
+
+  <input
+    type="search"
+    name="search"
+    placeholder="Search premium helmets…"
+    aria-label="Search helmets"
+    value="<%= typeof search !== 'undefined' ? search : '' %>"
+  />
+
+</form>
+
 
     <a href="/user/cart" class="icon-btn" aria-label="Cart" title="Cart">
       <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -1438,52 +1452,62 @@ if (discountAmount > 0) {
 }
 
   /* ── WISHLIST TOGGLE ── */
-  async function toggleWish(productId) {
-    if (!selectedSize) {
-      const err = document.getElementById('sizeError');
-      err.style.display = 'block';
-      err.textContent = '⚠ Please select a size before adding to wishlist.';
-      err.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      return;
-    }
-
-    const alreadyWishlisted = wishlistedSizes.includes(selectedSize);
+ 
+async function toggleWish(productId) {
 
     try {
-      const response = await fetch(
-        alreadyWishlisted
-          ? `/user/remove-wishlist/${productId}`
-          : `/user/add-to-wishlist/${productId}`,
-        {
-          method: alreadyWishlisted ? 'DELETE' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ size: selectedSize })
+        const alreadyWishlisted = wishlistedSizes.includes(selectedSize);
+
+        const response = await fetch(
+            alreadyWishlisted
+                ? `/user/remove-wishlist/${productId}`
+                : `/user/add-to-wishlist/${productId}`,
+            {
+                method: alreadyWishlisted ? "DELETE" : "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    size: selectedSize
+                })
+            }
+        );
+
+        // Guest user
+        if (response.status === 401) {
+            window.location.href = "/user/login";
+            return;
         }
-      );
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (data.success) {
-        if (alreadyWishlisted) {
-          wishlistedSizes.splice(wishlistedSizes.indexOf(selectedSize), 1);
-         await updateHeaderCounts(); 
-          showToast('Removed from wishlist', '#607d8b');
+        if (data.success) {
+
+            if (alreadyWishlisted) {
+                wishlistedSizes.splice(
+                    wishlistedSizes.indexOf(selectedSize), 1
+                );
+
+                showToast("Removed from wishlist", "#607d8b");
+
+            } else {
+                wishlistedSizes.push(selectedSize);
+
+                showToast("Added to wishlist!", "#e91e63");
+            }
+
+            await updateHeaderCounts();
+            updateWishBtn();
+
         } else {
-          wishlistedSizes.push(selectedSize);
-          await updateHeaderCounts(); 
-          showToast('❤ Added to wishlist!', '#e91e63');
+            showToast(data.message, "var(--danger)");
         }
-        updateWishBtn();
-      } else {
-        showToast(data.message, '#607d8b');
-      }
-    } catch (error) {
-      console.log(error);
-      showToast('Something went wrong', '#607d8b');
-    }
-  }
 
-  
+    } catch (error) {
+        console.log(error);
+        showToast("Something went wrong", "var(--danger)");
+    }
+}
 
   /* ── QUANTITY ── */
   function changeQty(change) {
@@ -1556,16 +1580,17 @@ if (discountAmount > 0) {
 }
 
 function buyNow() {
-  if (!validateBeforeAction()) return;
 
-  const params = new URLSearchParams({
-    buyNow: 'true',
-    productId: '<%= product._id %>',
-    size: selectedSize,
-    qty: qty
-  });
+    if (!validateBeforeAction()) return;
 
-  window.location.href = `/user/checkout?${params.toString()}`;
+    const params = new URLSearchParams({
+        buyNow: "true",
+        productId: "<%= product._id %>",
+        size: selectedSize,
+        qty: qty
+    });
+
+    window.location.href = `/user/checkout?${params.toString()}`;
 }
 
   /* ── NEWSLETTER ── */
