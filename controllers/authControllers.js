@@ -34,63 +34,47 @@ export const login = async (req,res) => {
 
 };
 
-export const signup = async (req,res) => {
+export const signup = async (req, res) => {
+    try {
+        const signupData = await authServices.createSignupSession(
+            req.body
+        )
 
-  try {
+        req.session.signupData = signupData;
 
-    const signupData =
-      await authServices.createSignupSession(
-        req.body
-      );
-
-    req.session.signupData =
-      signupData;
-
-    res.redirect(
-      "/user/verifyOtp"
-    );
-
-  } catch (error) {
-
-    res.render(
-      "user/signup",
-      {
-        message:
-          error.message,
-      }
-    );
-
-  }
-
-};
-export const verifyOtp = async (req, res) => {
-
-  try {
-
-    await authServices.verifySignupOtp(
-      req.session.signupData,
-      req.body.otp
-    );
-
-    req.session.signupData = null;
-
-    res.redirect("/user/login");
-
-  } catch (error) {
-
-    if (req.session.signupData) {
-
-      return res.render("user/verifyOtp", {
-        otpError: error.message,
-        newEmail: req.session.signupData.email,
-        otpExpiry: req.session.signupData.otpExpiry,
-      });
-
+        return res.redirect("/user/verifyOtp");
+    } catch (error) {
+        return res.status(400).render("user/signup", {
+            message: error.message,
+            firstname: req.body.firstname || "",
+            lastname: req.body.lastname || "",
+            email: req.body.email || ""
+        });
     }
-    res.render("user/signup", {
-      message: error.message,
-    });
-  }
+}
+
+export const verifyOtp = async (req, res) => {
+    try {
+        const result = await authServices.verifySignupOtp(
+            req.session.signupData,
+            req.body.otp
+        );
+
+        req.session.signupData = null;
+
+        return res.redirect("/user/login");
+
+    } catch (error) {
+        if (req.session.signupData) {
+            return res.status(400).render("user/verifyOtp", {
+                otpError: error.message,
+                newEmail: req.session.signupData.email,
+                otpExpiry: req.session.signupData.otpExpiry
+            });
+        }
+
+        return res.redirect("/user/signup");
+    }
 }
 
 export const resendOtp = async (req, res) => {

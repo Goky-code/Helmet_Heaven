@@ -5,36 +5,36 @@ import HTTP_STATUS from "../utils/httpStatus.js"
 export const loadOffers=async(req,res)=>{
     try{
         const offers=await offerService.getOffers()
-        res.render("admin/adminOffers/offers",{offers:offers
-
-        })
+       return res.render("admin/adminOffers/offers",{offers
+  })
     }catch (error){
         console.error("load offers error",error)
-        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+          .send("Failed to load offers")
     }
 }
 
 export const loadCreateOffer=async(req,res)=>{
     try{
         const data=await offerService.getCreateOfferData()
-        res.render("admin/adminOffers/addoffer",{
+       return res.render("admin/adminOffers/addoffer",{
             products:data.products,
-            categories:data.categories
-            
+            categories:data.categories      
         })
     }catch(error){
         console.error("load create offer error",error)
-        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+       return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+       .send("Failed to load create offer page")
     }
 }
 
 export const createNewOffer=async(req,res)=>{
     try{
         await offerService.createOffer(req.body)
-        res.redirect("/admin/offers")
+       return res.redirect("/admin/offers")
     }catch(error){
         console.error("create offer error",error)
-        res.status(HTTP_STATUS.BAD_REQUEST).send(error.message)
+       return res.status(HTTP_STATUS.BAD_REQUEST).send(error.message)
     }
 }
 
@@ -45,7 +45,7 @@ export const loadEditOffer=async(req,res)=>{
             offerService.getOfferById(id),
             offerService.getCreateOfferData(),
         ])
-        res.render("admin/adminOffers/editOffer",{
+            return res.render("admin/adminOffers/editOffer",{
             offer,
             products:data.products,
             categories:data.categories,
@@ -60,21 +60,48 @@ export const loadEditOffer=async(req,res)=>{
 export const updateExistingOffer=async(req,res)=>{
     try{
         const {id}=req.params
+        console.log("========== UPDATE OFFER DEBUG ==========");
+    console.log("Offer ID:", id);
+    console.log("Offer type:", req.body.offerType);
+    console.log("Category ID:", req.body.categoryId);
+    console.log("Product ID:", req.body.productId);
+    console.log("Offer for:", req.body.offerFor);
+    console.log("Full body:", req.body);
+    console.log("========================================");
+
         await offerService.updateOffer(id,req.body)
-        res.redirect("/admin/offers")
+        return res.redirect("/admin/offers")
     }catch(error){
         console.error("update offer error",error)
-        res.status(HTTP_STATUS.BAD_REQUEST).send(error.message)
+         return res.status(HTTP_STATUS.BAD_REQUEST).send(error.message)
     }
 }
 
 export const toggleStatus=async(req,res)=>{
     try{
        const{id}=req.params 
-       await offerService.toggleOfferStatus(id)
-       res.redirect("/admin/offers")
+       const offer=await offerService.toggleOfferStatus(id)
+        return res.redirect("/admin/offers")
     }catch(error){
         console.error("Toggle offer status error",error)
-        res.status(HTTP_STATUS.BAD_REQUEST).send(error.message)
+        return res.status(HTTP_STATUS.BAD_REQUEST).send(error.message)
+    }
+}
+
+export const removeOffer=async(req,res)=>{
+    try{
+        const{id}=req.params
+        await offerService.deleteOffer(id)
+        return res.status(HTTP_STATUS.OK).json({
+            success:true,
+            message:"Offer deleted successfully"
+        })
+    }catch(error){
+        console.error("Delete offer error:", error)
+
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+            success: false,
+            message: error.message || "Failed to delete offer"
+        })
     }
 }

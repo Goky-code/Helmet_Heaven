@@ -1,6 +1,10 @@
 import Product from "../../models/productModel.js";
 import Wishlist from "../../models/wishlistModel.js";
 import Cart from "../../models/cartModel.js";
+import {
+  calculateProductOffer
+} from "../../services/admin/offerService.js";
+
 
 export const getProductDetails = async (productId, userId) => {
 
@@ -20,7 +24,23 @@ export const getProductDetails = async (productId, userId) => {
     category: product.category._id,
     isBlocked: false,
     isDeleted: false,
-  }).limit(4);
+  })
+   .populate("brand")
+    .populate("category")
+    .limit(4)
+
+     const variantPricing = {};
+
+  for (const variant of product.variants) {
+    if (variant.status !== "ACTIVE") {
+      continue;
+    }
+
+    variantPricing[variant.size] = await calculateProductOffer(
+      product,
+      variant.price
+    );
+  }
 
   let wishlistedSizes = [];
 
@@ -47,6 +67,7 @@ export const getProductDetails = async (productId, userId) => {
     relatedProducts,
     wishlistedSizes,
     isUnavailable,
+    variantPricing,
   }
 
 }

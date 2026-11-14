@@ -39,20 +39,26 @@ export const verifyOTPForEmailChange = async (
     throw new Error("User not found");
   }
 
-  if (user.otpExpiry < Date.now()) {
-    throw new Error("OTP expired");
-  }
+ 
+if (!user.otp || !user.otpExpiry) {
+  throw new Error("OTP not found. Please request a new OTP.");
+}
 
-  if (user.otp.toString() !== otp.toString()) {
-    throw new Error("Invalid OTP");
-  }
+if (Number(user.otpExpiry) < Date.now()) {
+  throw new Error("OTP expired. Please request a new OTP.");
+}
+
+if (user.otp.toString() !== String(otp)) {
+  throw new Error("Invalid OTP. Please try again.");
+}
+
 
   user.email = newEmail;
   user.otp = null;
   user.otpExpiry = null;
 
   await user.save();
-};
+}
 
 export const resendOTPForEmailChange = async (
   userId,

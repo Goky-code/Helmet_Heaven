@@ -5,7 +5,7 @@ import * as walletService from "./walletService.js"
 
 export const getOrderDetails=async(userId,orderId)=>{
 
-    const CANCELLABLE_ITEM_STATUSES = ["Pending", "Processing", "Confirmed", "Shipped", "Out For Delivery"]
+    const CANCELLABLE_ITEM_STATUSES = ["Pending", "Processing", "Confirmed"]
 
     const order=await Order.findOne({
         userId,orderId
@@ -37,7 +37,10 @@ export const getOrderDetails=async(userId,orderId)=>{
 
     const canCancel = items.some(i => i.canCancel)
     const canReturn = items.some(i => i.canReturn)
-    const CanDownloadInvoice = order.orderStatus === "Delivered"
+    const CanDownloadInvoice = ![
+    "Cancelled",
+    "Return Requested"
+      ].includes(order.orderStatus)
 
     return{
         orderId:order.orderId,
@@ -89,35 +92,6 @@ export const getOrderDetails=async(userId,orderId)=>{
         },
          items
 
-        //: order.items.map(item => ({
-
-        //     productId: item.productId,
-
-        //     image: item.productImage,
-
-        //     name: item.productName,
-
-        //     description: item.variantName,
-
-        //     size: item.size,
-
-        //     qty: item.quantity,
-
-        //     price: `₹${item.totalPrice}`,
-
-        //     status: item.status,
-           
-        //     cancelReason: item.cancelReason,
-        //     cancelComment: item.cancelComment,
-
-        //     returnReason: item.returnReason,
-        //     returnComment: item.returnComment,
-
-        //     cancelledAt: item.cancelledAt,
-        //     returnedAt: item.returnedAt
-
-        // }))
-
     }
 
 }
@@ -141,9 +115,7 @@ export const cancelOrderItems=async(userId,orderId,selectedItems,body)=>{
       const cancellableStatuses = [
             "Pending",
             "Processing",
-            "Confirmed",
-            "Shipped",
-            "Out For Delivery"
+            "Confirmed"  
         ]
 
     for (const itemId of selectedItems) {
@@ -238,7 +210,19 @@ export const getInvoiceData=async(userId,orderId)=>{
         userId,orderId
     }).lean()
 
-    if(!order) return null
+    if(!order){
+       return null
+    }
+
+   
+    const restrictedStatuses = [
+        "Cancelled",
+        "Return Requested"
+    ]
+
+    if (restrictedStatuses.includes(order.orderStatus)) {
+        throw new Error("Invoice is not available for this order status")
+    }
 
     return order
 }

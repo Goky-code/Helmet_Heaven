@@ -3,32 +3,66 @@ import * as adminService from "../services/admin/adminService.js"
 import HTTP_STATUS from "../utils/httpStatus.js";
 
 export const getLogin = (req, res) => {
-  res.render("admin/adminLogin",{error:null});
-};
+    if (req.session?.admin) {
+    return res.redirect("/admin/adminDashboard");
+  }
 
+  return res.render("admin/adminLogin", {
+    error: null
+  })
+}
 export const login = async (req, res) => {
  try{
+const { email, password } = req.body;
 
-  await adminService.loginAdmin(
-    req.body.email,
-    req.body.password
-  )
-  req.session.admin=true
-   res.redirect("/admin/adminDashboard")
+    const admin = await adminService.loginAdmin(
+      email,
+      password)
 
- }catch(error){
-  res.render("admin/adminLogin",{
-    error:error.message,
-  })
- }
+       req.session.regenerate((err) => {
+      if (err) {
+        return res.status(500).render("admin/adminLogin", {
+          error: "Unable to create admin session"
+        });
+      }
+
+       req.session.admin = admin;
+
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          return res.status(500).render("admin/adminLogin", {
+            error: "Unable to save admin session"
+          });
+        }
+
+        return res.redirect("/admin/adminDashboard");
+      })
+    })
+
+ } catch (error) {
+    return res.status(401).render("admin/adminLogin", {
+      error: error.message
+    });
+  }
 }
   
-export const getDashboard = (req, res) => {
+export const getDashboard = async(req, res) => {
   console.log("Session:", req.session.admin);
   if (!req.session.admin) {
     return res.redirect("/admin/adminLogin");
   }
-  res.render("admin/adminDashboard");
+  try{
+    const dashboardData=
+    await adminService.getDashboardData()
+
+    res.render("admin/adminDashboard",{
+      ...dashboardData
+    })
+  }catch(error){
+    console.error("Dashboard error:", error)
+
+    res.status(500).send("Unable to load dashboard")
+  }
 }
 
 export const listCustomers=async(req,res)=>{
@@ -55,11 +89,12 @@ export const listCustomers=async(req,res)=>{
 
 export const logout = (req, res) => {
   req.session.destroy((err)=>{
-    if(err){
-      console.error('logout error',err)
-      return res.redirect('/admin/adminDashboard')
+ if (err) {
+      return next(err);
     }
-    res.clearCookie('connect.sid')
+    res.clearCookie('connect.sid',{
+      path:"/"
+    })
  
   res.redirect("/admin/adminLogin");
    })

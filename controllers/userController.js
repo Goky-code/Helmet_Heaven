@@ -4,6 +4,8 @@ import * as profileService from "../services/user/profileService.js";
 import * as addressService from "../services/user/addressService.js";
 import * as emailService from "../services/user/EmailService.js";
 import * as passwordService from "../services/user/passwordService.js";
+import Category from "../models/categoryModel.js";
+import Product from "../models/productModel.js"
 import HTTP_STATUS from "../utils/httpStatus.js";
 
 export const getLogin = (req, res) => {
@@ -43,18 +45,56 @@ export const getOtp = (req, res) => {
   });
 }
 
+
 export const getHome = async (req, res) => {
   try {
-
     if (!req.session.user) {
       return res.redirect('/user/login');
     }
-    res.render('user/homepage');
+
+    const allProducts = await Product.find({
+      isDeleted: false,
+      isBlocked: { $ne: true }
+    })
+      .populate({
+        path: "category",
+        match: { isListed: true, isDeleted: false }
+      })
+      .populate({
+        path: "brand",
+        match: { isListed: true, isDeleted: false }
+      })
+      .sort({ createdAt: -1 });
+
+    const products = allProducts
+      .filter(product =>
+        product.category &&
+        product.brand &&
+        product.productImage?.length > 0 &&
+        product.variants?.some(variant =>
+          variant.status === "ACTIVE" && variant.stock > 0
+        )
+      )
+      .slice(0, 4)
+
+      const categories = await Category.find({
+            isListed: true,
+            isDeleted: false
+        })
+        .sort({ name: 1 })
+        .limit(4)
+        .lean()
+
+    res.render('user/homepage', {
+      products,categories
+    });
+
   } catch (err) {
-    console.error(err);
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).send(err.message);
+    console.error("Homepage error:", err);
+    res.redirect("/user/landing");
   }
-};
+}
+
 
 export const getforgotPassword=(req,res)=>{
      res.render('user/forgotPassword', { message: null })
@@ -84,11 +124,18 @@ export const getProfile = async (req, res) => {
     const user =
       await profileService.getUserProfile(
         req.session.user._id
-      );
+      )
+
+       const categories = await Category.find({
+      isListed: true,
+      isDeleted: false
+    })
+      .sort({ name: 1 })
+      .limit(4)
 
     res.render(
       "user/profileinformation",
-      { user }
+      { user,categories }
     );
 
   } catch (error) {
@@ -337,26 +384,34 @@ export const verifyEmailOTP = async (req, res) => {
 
   try {
 
-    await emailService.verifyOTPForEmailChange(
+  if (!req.session.user || !req.session.newEmail) {
+      return res.status(401).json({
+        success: false,
+        message: "Session expired. Please try again."
+      })
+    }
+
+     await emailService.verifyOTPForEmailChange(
       req.session.user._id,
       req.session.newEmail,
       req.body.otp
-    );
+    )
+    
+    return res.status(200).json({
+      success: true,
+      message: "Email verified successfully!",
+      redirectUrl: "/user/login"
+    })
 
-    req.session.destroy();
+    } catch (error) {
+    console.error("Email OTP verification error:", error)
 
-    res.redirect("/user/login");
-
-  } catch (error) {
-
-    res.render("user/editEmailotp", {
-      message: error.message,
-      newEmail: req.session.newEmail,
-    });
-
+    return res.status(400).json({
+      success: false,
+      message: error.message
+    })
   }
-
-};
+}
 
 export const resendEmailOTP = async (req, res) => {
 
@@ -428,4 +483,63 @@ export const changePassword = async (req, res) => {
 
   }
 
-};
+}
+
+export const loadAboutUs = (req, res) => {
+    res.render("user/aboutUs");
+}
+
+export const loadContactUs = (req, res) => {
+    res.render("user/contactUs");
+}
+
+export const getLandingPage = async (req, res) => {
+    try {
+        if (req.session.user) {
+            return res.redirect("/user/homepage");
+        }
+
+        const allProducts = await Product.find({
+            isDeleted: false,
+            isBlocked: { $ne: true }
+        })
+        .populate({
+            path: "category",
+            match: { isListed: true, isDeleted: false }
+        })
+        .populate({
+            path: "brand",
+            match: { isListed: true, isDeleted: false }
+        })
+        .sort({ createdAt: -1 });
+
+        const products = allProducts
+            .filter(product =>
+                product.category &&
+                product.brand &&
+                product.productImage?.length > 0 &&
+                product.variants?.some(
+                    variant =>
+                        variant.status === "ACTIVE" &&
+                        variant.stock > 0
+                )
+            )
+            .slice(0, 4);
+
+            const categories = await Category.find({
+                isListed: true,
+                isDeleted: false
+              })
+                .sort({ name: 1 })
+                .limit(4)
+                 .lean();
+
+        return res.render("user/landingPage", {
+            products,categories
+        })
+
+    } catch (error) {
+        console.log("Landing page error:", error);
+        return res.status(500).send("Something went wrong");
+    }
+}

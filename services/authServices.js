@@ -2,10 +2,18 @@ import User from "../models/userModels.js";
 import bcrypt from "bcryptjs";
 import generateOTP from "../utils/generateOtp.js";
 import sendEmail from "../utils/sendEmail.js";
+import generateReferralCode from "../utils/generateReferralCode.js";
+import { rewardReferral } from "./user/referralService.js";
+import {normalizeEmail,validateName,validateEmail,validatePassword,validateConfirmPassword,validateOtp} from "../utils/validation.js";
 
 export const loginUser = async (email, password) => {
+   const normalizedEmail = validateEmail(email)
 
-  const user = await User.findOne({ email });
+    if (typeof password !== "string" || !password) {
+        throw new Error("Password is required.");
+    }
+
+  const user = await User.findOne({ email:normalizedEmail });
 
   if (!user) {
     throw new Error("User not found");
@@ -14,6 +22,12 @@ export const loginUser = async (email, password) => {
   if (user.isBlocked) {
     throw new Error("User is blocked");
   }
+
+    if (!user.password) {
+        throw new Error(
+            "This account cannot use password login. Please use Google login."
+        )
+    }
 
   const isMatch = await bcrypt.compare(
     password,
@@ -27,9 +41,11 @@ export const loginUser = async (email, password) => {
   return user;
 };
 
-export const createSignupSession = async (
-  signupData
-) => {
+export const createSignupSession = async ( signupData) => {
+
+   if (!signupData || typeof signupData !== "object") {
+        throw new Error("Invalid signup request.");
+    }
 
   const {
     firstname,
@@ -38,127 +54,229 @@ export const createSignupSession = async (
     password,
     confirmpassword,
     referalcode,
-  } = signupData;
+  } = signupData
 
-  if (
-    !firstname ||
-    !lastname ||
-    !email ||
-    !password ||
-    !confirmpassword
-  ) {
-    throw new Error("All fields are required");
-  }
+    const firstName = validateName(firstname, "First name");
+    const lastName = validateName(lastname, "Last name");
+    const normalizedEmail = validateEmail(email);
+       
+        validatePassword(password);
 
-  if (password.length < 8) {
-    throw new Error(
-      "Password must be at least 8 characters"
-    );
-  }
+    validateConfirmPassword(
+        password,
+        confirmpassword )
 
-  if (password !== confirmpassword) {
-    throw new Error(
-      "Passwords do not match"
-    );
-  }
+        if (
+        referalcode !== undefined &&
+        typeof referalcode !== "string"
+    ) {
+        throw new Error("Invalid referral code.")
+    }
 
-  const emailRegex = /^\S+@\S+\.\S+$/;
+   const enteredCode = referalcode
+        ? referalcode.trim().toUpperCase()
+        : "";
 
-  if (!emailRegex.test(email)) {
-    throw new Error(
-      "Invalid email format"
-    );
-  }
+    const existingUser = await User.findOne({
+        email: normalizedEmail
+    });
 
-  const existingUser =
-    await User.findOne({ email });
+    if (existingUser) {
+        throw new Error("An account with this email already exists.");
+    }
 
-  if (existingUser) {
-    throw new Error(
-      "Email already exists"
-    );
-  }
+   if (enteredCode) {
+        const referrer = await User.findOne({
+            referralCode: enteredCode,
+            isBlocked: false,
+            isVerified: true
+        })
 
-  const otp = generateOTP();
+
+        if (!referrer) {
+            throw new Error("Invalid referral code");
+        }
+    }
+
+
+  const otp = generateOTP()
+
+   const normalizedSignupData = {
+        firstname: firstName,
+        lastname: lastName,
+        email: normalizedEmail,
+        password,confirmpassword,
+        referalcode: enteredCode,
+        otp,
+        otpExpiry: Date.now() + 60 * 1000
+    }
 
   await sendEmail(
     email,
     "Your OTP",
-    `Your OTP is ${otp}`
-  );
+    `Your OTP is ${otp}`)
 
-  return {
-    firstname,
-    lastname,
-    email,
-    password,
-    referalcode,
-    otp,
-    otpExpiry:
-      Date.now() + 60 * 1000,
-  };
-};
+    return normalizedSignupData
+}
 
 export const registerUser = async (
   userData
 ) => {
 
-  const existingUser =
-    await User.findOne({
-      email: userData.email,
+   if (!userData || typeof userData !== "object") {
+        throw new Error("Invalid registration data.");
+    }
+
+     const firstName = validateName(
+        userData.firstname,
+        "First name"
+    )
+
+   const lastName = validateName(
+        userData.lastname,
+        "Last name"
+    );
+
+    
+    const email = validateEmail(userData.email);
+
+    
+    validatePassword(userData.password);
+
+   
+    if (userData.password !== userData.confirmpassword) {
+        throw new Error("Passwords do not match.");
+    }
+
+   
+    const enteredCode =
+        typeof userData.referalcode === "string"
+            ? userData.referalcode.trim().toUpperCase()
+            : "";
+
+    
+    const existingUser = await User.findOne({ email });
+
+    if (existingUser) {
+        throw new Error("Email already exists.");
+    }
+
+   
+    let referrer = null;
+
+    if (enteredCode) {
+
+        referrer = await User.findOne({
+            referralCode: enteredCode,
+            isBlocked: false,
+            isVerified: true
+        });
+
+        if (!referrer) {
+            throw new Error("Invalid referral code.");
+        }
+    }
+
+    let referralCode;
+    let referralCodeExists = true;
+
+    while (referralCodeExists) {
+
+        referralCode = await generateReferralCode();
+
+        const existingReferralCode = await User.findOne({
+            referralCode
+        });
+
+        referralCodeExists = Boolean(existingReferralCode);
+    }
+
+   
+    const hashedPassword = await bcrypt.hash(
+        userData.password,
+        10
+    )
+
+    const newUser = new User({
+
+        firstName,
+        lastName,
+        email,
+
+        password: hashedPassword,
+
+        referralCode,
+
+       
+        referredBy: referrer ? referrer._id : null,
+
+      
+        referralRewardProcessed: false,
+
+        isVerified: true
     });
 
-  if (existingUser) {
-    throw new Error(
-      "Email already exists"
-    );
-  }
+   
+    await newUser.save();
 
-  const hashedPassword =
-    await bcrypt.hash(
-      userData.password,
-      10
-    );
-
-  const user = new User({
-    firstName: userData.firstname,
-    lastName: userData.lastname,
-    email: userData.email,
-    password: hashedPassword,
-    referralCode:
-      userData.referalcode,
-    isVerified: true,
-  });
-
-  await user.save();
-
-  return user;
-
+   
+    return {
+        user: newUser,
+        referrerId: referrer ? referrer._id : null
+    }
 }
 
 export const verifySignupOtp = async (signupData, otp) => {
 
-  if (!signupData) {
-    throw new Error("Session expired, please sign up again");
-  }
+    
+    if (!signupData) {
+        throw new Error("Session expired, please sign up again.");
+    }
 
-  if (Date.now() > signupData.otpExpiry) {
-    throw new Error("OTP has expired");
-  }
+    
+    otp = validateOtp(otp);
 
-  if (String(signupData.otp) !== String(otp)) {
-    throw new Error("Invalid OTP");
-  }
+    
+    if (
+        !signupData.otpExpiry ||
+        Date.now() > new Date(signupData.otpExpiry).getTime()
+    ) {
+        throw new Error("OTP has expired.");
+    }
 
-  const user = await registerUser({
-    firstname: signupData.firstname,
-    lastname: signupData.lastname,
-    email: signupData.email,
-    password: signupData.password,
-    referalcode: signupData.referalcode,
-  });
+   
+    if (String(signupData.otp) !== otp) {
+        throw new Error("Invalid OTP.");
+    }
 
-  return user;
+   
+    const result = await registerUser({
+        firstname: signupData.firstname,
+        lastname: signupData.lastname,
+        email: signupData.email,
+        password: signupData.password,
+        confirmpassword: signupData.confirmpassword,
+        referalcode: signupData.referalcode,
+    });
+
+    console.log("Referral ID:", result.referrerId);
+
+    
+    if (result.referrerId) {
+
+        const rewardResult = await rewardReferral(
+            result.referrerId,
+            result.user._id
+        );
+
+        console.log("Reward result:", rewardResult);
+
+    } else {
+        console.log("No referral code used. No referral reward.");
+    }
+
+    
+    return result;
 }
 
 export const resendSignupOtp = async (signupData) => {
@@ -205,31 +323,36 @@ export const forgotPassword = async (email) => {
   return user.email;
 };
 
-export const verifyForgotPasswordOtp =async(email,otp) => {
+export const verifyForgotPasswordOtp = async (email, otp) => {
+    if (!email) {
+        throw new Error("Session expired. Please try again.");
+    }
 
-  if (!email) {
-    throw new Error("Session expired");
-  }
+    otp = validateOtp(otp);
 
-  const user = await User.findOne({ email });
+    const user = await User.findOne({
+        email: normalizeEmail(email)
+    });
 
-  if (!user) {
-    throw new Error("User not found");
-  }
+    if (!user) {
+        throw new Error("User not found.");
+    }
 
-  if (
-    String(user.otp) !== String(otp) ||
-    user.otpExpiry < Date.now()
-  ) {
-    throw new Error("Invalid or Expired OTP");
-  }
+    if (
+        !user.otp ||
+        !user.otpExpiry ||
+        Date.now() > user.otpExpiry ||
+        String(user.otp) !== otp
+    ) {
+        throw new Error("Invalid or expired OTP.");
+    }
 
-  user.otp = null;
-  user.otpExpiry = null;
+    user.otp = null;
+    user.otpExpiry = null;
 
-  await user.save();
+    await user.save();
 
-  return true;
+    return true;
 }
 
 export const resendForgotPasswordOtp =async(email) => {
@@ -261,44 +384,35 @@ export const resendForgotPasswordOtp =async(email) => {
 }
 
 export const resetUserPassword = async (
-  email,
-  isOtpVerified,
-  password,
-  confirmpassword
-) => {
-
-  if (!email || !isOtpVerified) {
-    throw new Error("Unauthorized request");
-  }
-
-  if (!password || !confirmpassword) {
-    throw new Error("All fields are required");
-  }
-
-  if (password !== confirmpassword) {
-    throw new Error("Passwords do not match");
-  }
-
-  if (password.length < 8) {
-    throw new Error("Password must be at least 8 characters");
-  }
-
-  const user = await User.findOne({ email });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const hashedPassword = await bcrypt.hash(
+    email,
+    isOtpVerified,
     password,
-    10
-  );
+    confirmpassword
+) => {
+    if (!email || isOtpVerified !== true) {
+        throw new Error("Unauthorized request.");
+    }
 
-  user.password = hashedPassword;
-  user.otp = null;
-  user.otpExpiry = null;
+    validatePassword(password);
 
-  await user.save();
+    validateConfirmPassword(
+        password,
+        confirmpassword
+    );
 
-  return true;
+    const user = await User.findOne({
+        email: normalizeEmail(email)
+    });
+
+    if (!user) {
+        throw new Error("User not found.");
+    }
+
+    user.password = await bcrypt.hash(password, 10);
+    user.otp = null;
+    user.otpExpiry = null;
+
+    await user.save();
+
+    return true;
 }

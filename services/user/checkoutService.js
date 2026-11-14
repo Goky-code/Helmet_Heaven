@@ -3,85 +3,114 @@ import Product from "../../models/productModel.js"
 import Cart from "../../models/cartModel.js";
 import Address from "../../models/addressModel.js";
 import Coupon from "../../models/couponModel.js"
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
+import { calculateProductOffer } from "../../services/admin/offerService.js";
+
+export const forOfferCalc = (product) => ({
+  ...product,
+  category: product.category?._id ?? product.category,
+  brand: product.brand?._id ?? product.brand,
+});
+
+
+export const getUnitPricing = async (product, variant) => {
+  const regularPrice = Number(variant.price);
+  const offerPricing = await calculateProductOffer(product, regularPrice);
+
+  const hasOffer = Boolean(
+    offerPricing?.offer && Number(offerPricing.discountAmount) > 0
+  );
+
+  return {
+    regularPrice,
+    hasOffer,
+    offerPricing: hasOffer ? offerPricing : null,
+    unitPrice: hasOffer ? Number(offerPricing.salePrice) : regularPrice,
+  };
+};
 
 export const getCheckoutData = async (userId, buyNowItem = null) => {
-    try {
-        const addresses = await Address.find({ userId }).lean();
+  try {
+    const addresses = await Address.find({ userId }).lean();
+    const selectedAddress = addresses.find(a => a.isDefault) || addresses[0] || null;
 
-        if (buyNowItem) {
-            const product = await Product.findById(buyNowItem.productId)
-                .populate([
-                    { path: "category", match: { isListed: true, isDeleted: false } },
-                    { path: "brand", match: { isListed: true, isDeleted: false } },
-                ])
-                .lean();
+    let items = [];
 
-            let items = [];
-            if (product && !product.isDeleted && !product.isBlocked && product.category && product.brand) {
-                const variant = product.variants.find(v => v.size === buyNowItem.size);
-                if (variant && variant.stock > 0) {
-                    const quantity = Math.min(Number(buyNowItem.quantity) || 1, variant.stock, 5);
-                    items = [{ productId: product, size: buyNowItem.size, quantity }];
-                }
-            }
+    if (buyNowItem) {
+      const product = await Product.findById(buyNowItem.productId)
+        .populate([
+          { path: "category", match: { isListed: true, isDeleted: false } },
+          { path: "brand", match: { isListed: true, isDeleted: false } },
+        ])
+        .lean();
 
-            const subtotal = items.reduce((sum, item) => {
-                const variant = item.productId.variants.find(v => v.size === item.size);
-                return sum + (variant ? variant.price * item.quantity : 0);
-            }, 0);
+      if (product && !product.isDeleted && !product.isBlocked && product.category && product.brand) {
+        const variant = product.variants.find(
+          v => v.size === buyNowItem.size && v.status === "ACTIVE"
+        );
 
-            const shipping = subtotal >= 500 ? 0 : 99;
-            const tax = Math.round(subtotal * 0.08);
-            const total = subtotal + shipping + tax;
-            const selectedAddress = addresses.find(a => a.isDefault) || addresses[0] || null;
+        if (variant && variant.stock > 0) {
+          const quantity = Math.min(Number(buyNowItem.quantity) || 1, variant.stock, 5);
+          const pricing = await getUnitPricing(forOfferCalc(product), variant);
 
-            return {
-                cart: { items },
-                addresses,
-                selectedAddressId: selectedAddress?._id || null,
-                subtotal, shipping, tax, total,
-            };
+          items = [{
+            productId: product,
+            size: buyNowItem.size,
+            quantity,
+            originalPrice: pricing.regularPrice,
+            unitPrice: pricing.unitPrice,
+            offerPricing: pricing.offerPricing,
+          }];
         }
+      }
+    } else {
+      const cart = await Cart.findOne({ userId })
+        .populate("items.productId")
+        .lean();
 
-       const cart = await Cart.findOne({ userId })
-    .populate("items.productId")
-    .lean();
+      for (const item of (cart?.items || [])) {
+        const product = item.productId;
+        if (!product || product.isDeleted || product.isBlocked) continue;
 
-        if (!cart) {
-            return {
-                cart: { items: [] }, addresses,
-                selectedAddressId: addresses.length ? addresses[0]._id : null,
-                subtotal: 0, shipping: 0, tax: 0, total: 0,
-            };
-        }
+        const variant = product.variants.find(
+          v => v.size === item.size && v.status === "ACTIVE"
+        );
+        if (!variant || variant.stock <= 0) continue;
 
-        let subtotal = 0;
-        const validItems = [];
-        for (const item of cart.items) {
-            const product = item.productId;
+        const pricing = await getUnitPricing(product, variant);
 
-            if (!product || product.isDeleted || product.isBlocked) continue;
-            const variant = product.variants.find(v => v.size === item.size);
-            if (!variant || variant.stock <= 0) continue;
-            subtotal += variant.price * item.quantity;
-            validItems.push({ ...item, productId: product });
-        }
-        cart.items = validItems;
-
-        const shipping = subtotal >= 500 ? 0 : 99;
-        const tax = Math.round(subtotal * 0.08);
-        const total = subtotal + shipping + tax;
-        const selectedAddress = addresses.find(a => a.isDefault) || addresses[0] || null;
-
-        return {
-            cart, addresses,
-            selectedAddressId: selectedAddress?._id || null,
-            subtotal, shipping, tax, total,
-        }
-    } catch (error) {
-        throw error;
+        items.push({
+          ...item,
+          productId: product,
+          originalPrice: pricing.regularPrice,
+          unitPrice: pricing.unitPrice,
+          offerPricing: pricing.offerPricing,
+        });
+      }
     }
+
+    const originalSubtotal = items.reduce((s, i) => s + i.originalPrice * i.quantity, 0);
+    const subtotal         = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+    const offerSavings     = originalSubtotal - subtotal;
+
+    const shipping = subtotal === 0 ? 0 : (subtotal >= 500 ? 0 : 99);
+    const tax      = Math.round(subtotal * 0.08);
+    const total    = subtotal + shipping + tax;
+
+    return {
+      cart: { items },
+      addresses,
+      selectedAddressId: selectedAddress?._id || null,
+      originalSubtotal,
+      offerSavings,
+      subtotal,
+      shipping,
+      tax,
+      total,
+    };
+  } catch (error) {
+    throw error;
+  }
 }
 
 export const placeOrder = async (userId, addressId, paymentMethod, couponCode = null, buyNowItem = null) => {
@@ -108,16 +137,35 @@ export const placeOrder = async (userId, addressId, paymentMethod, couponCode = 
                 throw new Error(`${product.productName} has only ${variant.stock} stock left`);
             }
 
-            subtotal = variant.price * buyNowItem.quantity;
-            orderItems.push({
-                product: product._id,
-                productName: product.productName,
-                size: buyNowItem.size,
-                quantity: buyNowItem.quantity,
-               regularPrice: variant.price,
-                salePrice: variant.price,
-               totalPrice: variant.price * buyNowItem.quantity,
-            });
+            const offerPricing = await calculateProductOffer(
+            product,
+          variant.price
+             );
+
+const hasOffer =
+    offerPricing?.offer &&
+    Number(offerPricing.discountAmount) > 0;
+
+const regularPrice = variant.price;
+
+const salePrice = hasOffer
+    ? Number(offerPricing.salePrice)
+    : regularPrice;
+
+const totalPrice = salePrice * buyNowItem.quantity;
+
+subtotal += totalPrice;
+
+orderItems.push({
+    product: product._id,
+    productName: product.productName,
+    size: buyNowItem.size,
+    quantity: buyNowItem.quantity,
+    regularPrice,
+    salePrice,
+    totalPrice,
+});
+
         } else {
             cart = await Cart.findOne({ userId }).populate("items.productId").session(session);
             if (!cart || cart.items.length === 0) throw new Error("Cart is empty");
@@ -134,16 +182,34 @@ export const placeOrder = async (userId, addressId, paymentMethod, couponCode = 
                     throw new Error(`${product.productName} has only ${variant.stock} stock left`);
                 }
 
-                subtotal += variant.price * item.quantity;
-                orderItems.push({
-                    product: product._id,
-                    productName: product.productName,
-                    size: item.size,
-                    quantity: item.quantity,
-                   regularPrice: variant.price,
-                    salePrice: variant.price,
-                   totalPrice: variant.price * item.quantity,
-                });
+                const offerPricing = await calculateProductOffer(
+    product,
+    variant.price
+);
+
+const hasOffer =
+    offerPricing?.offer &&
+    Number(offerPricing.discountAmount) > 0;
+
+const regularPrice = variant.price;
+
+const salePrice = hasOffer
+    ? Number(offerPricing.salePrice)
+    : regularPrice;
+
+const totalPrice = salePrice * item.quantity;
+
+subtotal += totalPrice;
+
+orderItems.push({
+    product: product._id,
+    productName: product.productName,
+    size: item.size,
+    quantity: item.quantity,
+    regularPrice,
+    salePrice,
+    totalPrice,
+})
             }
         }
 

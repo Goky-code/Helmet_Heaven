@@ -12,6 +12,15 @@ router.get("/checkout/order-success", isUserAuth, paymentController.loadOrderSuc
 router.post("/razorpay/create-order",isUserAuth,paymentController.createRazorpayOrder)
 
 router.post("/razorpay/verify",isUserAuth, paymentController.verifyRazorpayPayment)
+
+
+router.get(
+    "/checkout/order-failure",
+    isUserAuth,
+    nocache,
+    paymentController.loadPaymentFailure
+);
+
  
 
 export default router

@@ -173,7 +173,9 @@
     const _search        = (typeof search !== 'undefined' && search) ? search : '';
     const _period        = (typeof period !== 'undefined' && period) ? period : 'daily';
     const _page          = (typeof currentPage !== 'undefined') ? Number(currentPage) : 1;
-    const _totalPages    = (typeof totalPages !== 'undefined') ? Number(totalPages) : 1;
+    /* accepts either totalPages or totalPage (controller currently sends totalPage) */
+    const _totalPages    = (typeof totalPages !== 'undefined') ? Number(totalPages)
+                         : (typeof totalPage !== 'undefined') ? Number(totalPage) : 1;
     const _totalRecords  = (typeof totalRecords !== 'undefined') ? Number(totalRecords) : _sales.length;
     const _limit         = (typeof limit !== 'undefined') ? Number(limit) : (_sales.length || 10);
     const _revenue       = (typeof totalRevenue !== 'undefined') ? Number(totalRevenue) : 0;
@@ -187,14 +189,25 @@
 
     const money = (n) => '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const fmtDate = (d) => d ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
-    const isoDate = (d) => { if (!d) return ''; const x = new Date(d); return isNaN(x) ? String(d) : x.toISOString().slice(0, 10); };
 
-    /* Query string builder (keeps filters while paging / downloading) */
+    /* Uses LOCAL date parts (toISOString converts to UTC and shifts the day in IST) */
+    const isoDate = (d) => {
+      if (!d) return '';
+      const x = new Date(d);
+      if (isNaN(x)) return String(d);
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`;
+    };
+
+    /* Query string builder – parameter names MUST match the controller: type, startDate, endDate, search */
     const qs = (extra = {}) => {
       const p = new URLSearchParams();
-      p.set('period', _period);
+      p.set('type', _period);
       if (_search) p.set('search', _search);
-      if (_period === 'custom') { if (_from) p.set('from', isoDate(_from)); if (_to) p.set('to', isoDate(_to)); }
+      if (_period === 'custom') {
+        if (_from) p.set('startDate', isoDate(_from));
+        if (_to)   p.set('endDate',   isoDate(_to));
+      }
       Object.entries(extra).forEach(([k, v]) => p.set(k, v));
       return p.toString();
     };
@@ -242,7 +255,7 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
         Inventory
       </a>
-      <a class="nav-item" href="#">
+      <a class="nav-item" href="/admin/Offers">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/></svg>
         Offers
       </a>
@@ -289,24 +302,24 @@
             <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
           </button>
           <div class="dropdown-menu">
-           
-        <a class="dropdown-item <%= _period === 'daily' ? 'active' : '' %>"
-         href="/admin/salesReport?type=daily">Daily</a>
 
-           <a class="dropdown-item <%= _period === 'weekly' ? 'active' : '' %>"
-            href="/admin/salesReport?type=weekly">Weekly</a>
+            <a class="dropdown-item <%= _period === 'daily' ? 'active' : '' %>"
+               href="/admin/salesReport?type=daily">Daily</a>
 
-          <a class="dropdown-item <%= _period === 'monthly' ? 'active' : '' %>"
-         href="/admin/salesReport?type=monthly">Monthly</a>
+            <a class="dropdown-item <%= _period === 'weekly' ? 'active' : '' %>"
+               href="/admin/salesReport?type=weekly">Weekly</a>
 
-          <a class="dropdown-item <%= _period === 'yearly' ? 'active' : '' %>"
-          href="/admin/salesReport?type=yearly">Yearly</a>
+            <a class="dropdown-item <%= _period === 'monthly' ? 'active' : '' %>"
+               href="/admin/salesReport?type=monthly">Monthly</a>
 
-<div class="dropdown-divider"></div>
+            <a class="dropdown-item <%= _period === 'yearly' ? 'active' : '' %>"
+               href="/admin/salesReport?type=yearly">Yearly</a>
 
-<button type="button" class="dropdown-item" id="customOption">
-    Custom Date Range
-</button>
+            <div class="dropdown-divider"></div>
+
+            <button type="button" class="dropdown-item" id="customOption">
+              Custom Date Range
+            </button>
 
           </div>
         </div>
@@ -314,18 +327,18 @@
 
       <!-- Custom date range -->
       <form class="filter-card range-card <%= _period === 'custom' ? 'show' : '' %>"
-      id="rangeCard"
-      method="GET"
-      action="/admin/salesReport">
+            id="rangeCard"
+            method="GET"
+            action="/admin/salesReport">
 
-    <input type="hidden" name="type" value="custom"/>
+        <input type="hidden" name="type" value="custom"/>
         <div class="range-field">
           <label for="fromDate">From Date</label>
-         <input type="date" id="fromDate" name="startDate" required>
+          <input type="date" id="fromDate" name="startDate" value="<%= isoDate(_from) %>" required>
         </div>
         <div class="range-field">
           <label for="toDate">To Date</label>
-        <input type="date" id="toDate" name="endDate" required>
+          <input type="date" id="toDate" name="endDate" value="<%= isoDate(_to) %>" required>
         </div>
         <button type="submit" class="btn-primary">Apply Date Range</button>
       </form>
@@ -422,7 +435,7 @@
       const params = new URLSearchParams(window.location.search);
       if (q) params.set("search", q); else params.delete("search");
       params.delete("page");
-     window.location.href = `/admin/salesReport?${params.toString()}`;
+      window.location.href = `/admin/salesReport?${params.toString()}`;
     }
     let searchDebounce;
     document.getElementById("searchInput").addEventListener("input", () => {

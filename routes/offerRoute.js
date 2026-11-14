@@ -8,5 +8,6 @@ router.post("/offers/create",offerController.createNewOffer)
 router.get("/offers/edit/:id",offerController.loadEditOffer)
 router.post("/offers/edit/:id",offerController.updateExistingOffer)
 router.post("/offer/toggle-status/:id",offerController.toggleStatus)
+router.patch("/delete-offer/:id",offerController.removeOffer)
 
 export default router

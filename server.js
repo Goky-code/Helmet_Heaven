@@ -2,12 +2,14 @@ import dns from "node:dns"
 dns.setDefaultResultOrder("ipv4first");
 import dotenv from "dotenv"
 dotenv.config()
+import Category from "./models/categoryModel.js";
 import express from "express";
 import connectDB from "./config/db.js"
 import session from "express-session"
 import passport from "./config/passport.js";
 import path from 'path';
 import { fileURLToPath } from "url"
+import { noCache,isAdminAuth} from "./middlewares/adminAuth.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js"
 import authRoutes from "./routes/authRoutes.js"
@@ -61,9 +63,31 @@ app.set("views", path.join(__dirname, "views"));
 
 app.use(setNavCounts);
 
-// ── Routes ──
+
+app.use(async (req, res, next) => {
+  try {
+    res.locals.footerCategories = await Category.find({
+      isListed: true,
+      isDeleted: false
+    })
+      .sort({ createdAt: 1 })
+      .limit(4)
+      .lean();
+
+    next();
+
+  } catch (error) {
+    console.error("Footer categories error:", error);
+
+    res.locals.footerCategories = [];
+    next();
+  }
+});
+
+
 app.use("/user", userRoutes);
 app.use("/auth", authRoutes);
+app.use("/admin", noCache);
 app.use("/admin", adminRoutes);
 app.use("/admin", categoryRouter);
 app.use("/admin", brandRouter);
@@ -73,6 +97,16 @@ app.use("/admin", orderRoutes)
 app.use("/admin",InventoryRoute)
 app.use("/admin",offerRoutes)
 app.use("/admin",salesReportRoute)
+
+app.get("/", (req, res) => {
+    if (req.session.user) {
+        return res.redirect("/user/homepage");
+    }
+
+    return res.redirect("/user/landing");
+})
+
+
 app.use("/", shopRoutes);
 app.use("/user", productDetailsRouter);
 app.use("/user", wishlistRoutes);

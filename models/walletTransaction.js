@@ -50,6 +50,11 @@ const walletTransactionSchema = new mongoose.Schema(
     referenceId: {
       type: String,
     },
+    transactionId: {
+  type: String,
+  required: true,
+  unique: true,
+},
   },
   {
     timestamps: true,

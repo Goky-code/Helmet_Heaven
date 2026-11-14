@@ -1,6 +1,10 @@
 import Cart from "../../models/cartModel.js";
 import Product from "../../models/productModel.js";
 import Wishlist from "../../models/wishlistModel.js";
+import {
+  calculateProductOffer
+} from "../../services/admin/offerService.js";
+
 
 const isItemUnavailable=(product,size)=>{
   if(!product)
@@ -89,10 +93,47 @@ const totalItems = cart
 
     const cartData = cart
         ? cart.toObject()
-        : { items: [] };
+        : { items: [] }
 
-    cartData.items = paginatedItems;
+    cartData.items =  await Promise.all(
+  paginatedItems.map(async (item) => {
+    const product = item.productId
+      if (!product) {
+      return {
+        ...item.toObject(),
+        offerPricing: null,
+      };
+    }
 
+    const plainItem =
+      typeof item.toObject === "function"
+        ? item.toObject()
+        : item;
+
+    const variant = product.variants?.find(
+      (v) =>
+        v.size === plainItem.size &&
+        v.status === "ACTIVE"
+    );
+
+    if (!variant) {
+      return {
+        ...plainItem,
+        offerPricing: null,
+      };
+    }
+
+    const offerPricing = await calculateProductOffer(
+      product,
+      variant.price
+    );
+
+    return {
+      ...plainItem,
+      offerPricing,
+    }
+  })
+)
 
     return {
         cart: cartData,
@@ -434,3 +475,19 @@ export const validateCheckout = async (userId) => {
     message: "Cart is ready for checkout"
   }
 }
+
+export const getstock=async()=>{
+  const cart=await Cart.findOne({userId})
+  .populate("items.productId").lean()
+
+  const cartItems=cart.items.map(item=>{
+    const product=item.productId
+
+    const variant=product.variants.find(v=>v.size===item.size)
+  })
+  return{
+    ...items,
+    p
+  }
+}
+

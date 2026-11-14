@@ -1,4 +1,5 @@
 import * as cartService from "../../services/user/cartService.js";
+import Category from "../../models/categoryModel.js"; 
 import HTTP_STATUS from "../../utils/httpStatus.js";
 
 export const loadCart = async (req, res) => {
@@ -9,7 +10,14 @@ export const loadCart = async (req, res) => {
     const limit=4
     const data=await cartService.getCart(req.session.user,page,limit)
 
-    res.render("user/product/cartPage",data)
+    const categories = await Category.find({
+      isListed: true,
+      isDeleted: false
+    })
+      .sort({ name: 1 })
+      .limit(4);
+
+    res.render("user/product/cartPage",{...data,categories})
     
   } catch (error) {
     console.log(error);

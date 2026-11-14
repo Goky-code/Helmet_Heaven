@@ -220,6 +220,19 @@
     }
     .filter-tag i { font-size: 0.65rem; }
 
+    .product-category {
+    display: inline-block;
+    width: fit-content;
+    margin-top: 4px;
+    padding: 4px 10px;
+    background: rgba(41, 121, 255, 0.15);
+    border: 1px solid rgba(41, 121, 255, 0.3);
+    color: var(--blue);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
     /* ── PRODUCT GRID ── */
     .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
     .product-card {
@@ -272,6 +285,170 @@
     .page-btn:hover { border-color: var(--blue); color: var(--blue); }
     .page-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
 
+    /* Offer badge */
+.offer-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Product pricing */
+.price-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.price-original {
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-decoration: line-through;
+  font-weight: 500;
+}
+
+.price-main .sale-price {
+  color: #4caf50;
+  font-weight: 700;
+}
+
+.price-main .regular-price {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.price-discount {
+  color: #4caf50;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+
+/* Wishlist button */
+.wishlist-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid var(--border);
+  border-radius: 50%;
+
+  background: rgba(13, 17, 23, 0.9);
+  color: #ffffff;
+
+  font-size: 18px;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.wishlist-btn:hover {
+  color: #ff4757;
+  transform: scale(1.08);
+}
+
+.wishlist-btn.active {
+  background: #ff4757;
+  border-color: #ff4757;
+  color: #ffffff;
+}
+
+.wishlist-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Out-of-stock overlay */
+.stock-overlay {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  pointer-events: none;
+}
+
+.stock-overlay span {
+  background: var(--red);
+  color: #ffffff;
+
+  padding: 5px 14px;
+  border-radius: 6px;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.wishlist-size-select {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+
+  max-width: 110px;
+  padding: 8px;
+
+  color: #fff;
+  background: #202731;
+  border: 1px solid #444;
+  border-radius: 8px;
+
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 10;
+
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #202731;
+    color: #ffffff;
+
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.wishlist-btn.active {
+    background: #202731;
+    color: #ff4757;
+    border: 1px solid #ff4757;
+}
+.wishlist-btn.active i {
+    color: #ff4757;
+}
+
+
     /* ── FOOTER ── */
     footer { background: var(--bg2); border-top: 1px solid var(--border); margin-top: 60px; padding: 48px 28px 28px; }
     .footer-grid { max-width: 1320px; margin: 0 auto; display: grid; grid-template-columns: 1.6fr 1fr 1fr 1.6fr; gap: 40px; }
@@ -308,17 +485,62 @@
     .footer-bottom-links a:hover { color: var(--text); }
 
     /* ── TOAST ── */
-    #toast {
-      position: fixed; bottom: 28px; right: 28px; z-index: 9999;
-      background: var(--blue); color: #fff;
-      padding: 11px 20px; border-radius: 10px;
-      font-size: 0.88rem; font-weight: 500;
-      box-shadow: 0 6px 24px rgba(41,121,255,.4);
-      opacity: 0; transform: translateY(14px);
-      transition: opacity 0.3s, transform 0.3s;
-      pointer-events: none;
-    }
-    #toast.show { opacity: 1; transform: translateY(0); }
+   /* ── TOAST NOTIFICATION ── */
+
+#toast {
+    position: fixed;
+    top: 85px;
+    right: 25px;
+    z-index: 9999;
+
+    min-width: 280px;
+    max-width: 350px;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 15px 20px;
+
+    background: #1e293b;
+    color: #fff;
+
+    border-radius: 10px;
+    border-left: 4px solid #22c55e;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transform: translateX(120%);
+
+    transition: all 0.3s ease;
+
+    pointer-events: none;
+}
+
+#toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+#toast.success {
+    border-left-color: #22c55e;
+}
+
+#toast.error {
+    border-left-color: #ef4444;
+}
+
+#toast-icon {
+    font-size: 18px;
+    font-weight: bold;
+}
 
     /* ── MOBILE ── */
     .mobile-filters-overlay { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,.6); }
@@ -390,6 +612,7 @@
 
   <nav class="nav-links">
     <a href="/user/homepage">Home</a>
+     <a href="/shop">Shop</a>
     <a href="#">About Us</a>
     <a href="#">Contact Us</a>
   </nav>
@@ -692,6 +915,11 @@
         </div>
         <div class="card-body">
           <div class="card-name"><%= product.productName %></div>
+               <% if (product.category) { %>
+  <div class="product-category">
+    <%= product.category.name %>
+  </div>
+<% } %>
           <div class="card-desc"><%= product.description %></div>
           <div class="card-footer">
             <div class="price-main" style="color:var(--muted); text-decoration:line-through;">₹ <%= activeVariant.price.toLocaleString() %></div>
@@ -705,25 +933,103 @@
         <article class="product-card">
           <div class="card-img-wrap">
             <img src="<%= product.productImage[0] %>" alt="<%= product.productName %>"/>
-            <% if (activeVariant.stock <= 0) { %>
-              <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center;">
-                <span style="background: var(--red); color: #fff; padding: 5px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;">Out of Stock</span>
-              </div>
-            <% } %>
-            <% if (wishlistedProductIds.includes(product._id.toString())) { %>
-              <div class="card-wish-badge" aria-label="In your wishlist">
-                <svg width="14" height="14" viewBox="0 0 24 24">
-                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
-                </svg>
-              </div>
-            <% } %>
+          
+<% if (activeVariant.stock <= 0) { %>
+  <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center;">
+    <span style="background: var(--red); color: #fff; padding: 5px 14px; border-radius: 6px;">
+      Out of Stock
+    </span>
+  </div>
+<% } %>
+
+
+<%
+  const availableVariants = product.variants.filter(
+    variant => variant.status === "ACTIVE" && variant.stock > 0
+  );
+
+  const defaultSize = availableVariants[0]?.size || "";
+%>
+
+<select
+  class="wishlist-size-select"
+  aria-label="Select size for wishlist"
+  onclick="event.preventDefault(); event.stopPropagation();"
+  onchange="event.stopPropagation(); checkWishlistSize(this)"
+>
+  <% availableVariants.forEach(variant => { %>
+    <option
+      value="<%= variant.size %>"
+      <%= variant.size === defaultSize ? "selected" : "" %>
+    >
+      <%= variant.size %>
+    </option>
+  <% }) %>
+</select>
+
+
+<button
+  type="button"
+  class="wishlist-btn"
+  data-product-id="<%= product._id %>"
+  data-wishlisted-sizes='<%- JSON.stringify(
+    wishlistedVariants
+      .filter(item => item.productId === String(product._id))
+      .map(item => item.size)
+  ) %>'
+  onclick="toggleWishlist(event, this)"
+>
+  <i class="fa-regular fa-heart"></i>
+</button>
+
           </div>
           <div class="card-body">
             <div class="card-name"><%= product.productName %></div>
+            <% if (product.category) { %>
+  <div class="product-category">
+    <%= product.category.name %>
+  </div>
+<% } %>
+
             <div class="card-desc"><%= product.description %></div>
             <div class="card-footer">
-              <div class="price-main">₹ <%= activeVariant.price.toLocaleString() %></div>
-            </div>
+  <div class="price-wrap">
+
+    <% if (
+      product.offerPricing &&
+      product.offerPricing.discountAmount > 0
+    ) { %>
+
+      <span class="offer-badge">
+        <%= product.offerPricing.discountPercentage %>% OFF
+      </span>
+
+      <div class="price-original">
+        ₹<%= product.offerPricing.originalPrice.toLocaleString("en-IN") %>
+      </div>
+
+      <div class="price-main">
+        <span class="sale-price">
+          ₹<%= product.offerPricing.salePrice.toLocaleString("en-IN") %>
+        </span>
+      </div>
+
+      <div class="price-discount">
+        You save ₹<%= product.offerPricing.discountAmount.toLocaleString("en-IN") %>
+      </div>
+
+    <% } else { %>
+
+      <div class="price-main">
+        <span class="regular-price">
+          ₹<%= activeVariant.price.toLocaleString("en-IN") %>
+        </span>
+      </div>
+
+    <% } %>
+
+  </div>
+</div>
           </div>
         </article>
       </a>
@@ -804,11 +1110,16 @@
     <div class="footer-col">
       <h4>Shop</h4>
       <ul>
-        <li><a href="/shop">All Products</a></li>
-        <li><a href="#">Full Face</a></li>
-        <li><a href="#">Off-Road</a></li>
-        <li><a href="#">Accessories</a></li>
-      </ul>
+  <li><a href="/shop">All Products</a></li>
+
+  <% categories.slice(0, 4).forEach(category => { %>
+    <li>
+      <a href="/shop?category=<%= category._id %>">
+        <%= category.name %>
+      </a>
+    </li>
+  <% }) %>
+</ul>
     </div>
     <div class="footer-col">
       <h4>Support</h4>
@@ -838,7 +1149,10 @@
   </div>
 </footer>
 
-<div id="toast"></div>
+<div id="toast">
+    <span id="toast-icon"></span>
+    <span id="toast-message"></span>
+</div>
 
 <div id="shopToast" style="
   position: fixed; bottom: 28px; right: 28px; z-index: 9999;
@@ -854,14 +1168,42 @@
 
 <script>
   /* ── TOAST ── */
-  let toastTimer;
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+ /* ── TOAST NOTIFICATION ── */
+
+let toastTimer;
+
+function showToast(message, type = "success") {
+
+    const toast = document.getElementById("toast");
+    const icon = document.getElementById("toast-icon");
+    const msg = document.getElementById("toast-message");
+
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
-  }
+
+    msg.textContent = message;
+
+    toast.classList.remove("success", "error");
+
+    if (type === "success") {
+
+        toast.classList.add("success");
+        icon.innerHTML = "✓";
+
+    } else {
+
+        toast.classList.add("error");
+        icon.innerHTML = "✕";
+
+    }
+
+    toast.classList.add("show");
+
+    toastTimer = setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 3000);
+}
 
   /* ── PRICE SLIDER ── */
   function updatePrice(val) {
@@ -932,11 +1274,157 @@
 
   params.delete(type);
   values.forEach(v => params.append(type, v));
-  params.delete('page'); // reset pagination when filters change
+  params.delete('page'); 
 
   window.location.href = '/shop?' + params.toString();
 }
 
+async function toggleWishlist(event, button) {
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const productId = button.dataset.productId;
+
+    const sizeSelect = button
+        .closest(".card-img-wrap")
+        ?.querySelector(".wishlist-size-select");
+
+    const size = sizeSelect?.value;
+
+   
+    if (!size) {
+        showToast("Please select a size first", "error");
+        return;
+    }
+
+    let wishlistedSizes = [];
+
+    try {
+
+        const rawSizes = button.dataset.wishlistedSizes;
+
+        wishlistedSizes = rawSizes
+            ? JSON.parse(rawSizes)
+            : [];
+
+        if (!Array.isArray(wishlistedSizes)) {
+            wishlistedSizes = [];
+        }
+
+    } catch (error) {
+
+        console.error("Invalid wishlist data:", error);
+
+        wishlistedSizes = [];
+    }
+
+    const isWishlisted = wishlistedSizes.includes(size);
+
+    try {
+
+        const response = await fetch(
+            isWishlisted
+                ? `/user/remove-wishlist/${productId}`
+                : `/user/add-to-wishlist/${productId}`,
+            {
+                method: isWishlisted ? "DELETE" : "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({ size })
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+
+            showToast(
+                data.message || "Unable to update wishlist",
+                "error"
+            );
+
+            return;
+        }
+
+       
+        if (isWishlisted) {
+
+            wishlistedSizes = wishlistedSizes.filter(
+                item => item !== size
+            );
+
+            showToast("Product removed from wishlist", "success");
+
+        } else {
+
+            wishlistedSizes.push(size);
+
+            showToast("Product added to wishlist", "success");
+        }
+
+        
+        button.dataset.wishlistedSizes =
+            JSON.stringify(wishlistedSizes);
+
+       
+        checkWishlistSize(sizeSelect);
+
+        
+        if (typeof updateWishlistCount === "function") {
+            updateWishlistCount();
+        }
+
+    } catch (error) {
+
+        console.error("Wishlist error:", error);
+
+        showToast(
+            error.message || "Something went wrong",
+            "error"
+        );
+    }
+}
+
+function checkWishlistSize(selectElement) {
+  const card = selectElement.closest(".card-img-wrap");
+  if (!card) return;
+
+  const button = card.querySelector(".wishlist-btn");
+  if (!button) return;
+
+  const selectedSize = selectElement.value;
+
+  let wishlistedSizes = [];
+
+  try {
+    const rawSizes = button.dataset.wishlistedSizes;
+    wishlistedSizes = rawSizes ? JSON.parse(rawSizes) : [];
+
+    if (!Array.isArray(wishlistedSizes)) {
+      wishlistedSizes = [];
+    }
+  } catch (error) {
+    console.error("Invalid wishlist sizes:", error);
+    wishlistedSizes = [];
+  }
+
+  const isWishlisted =
+    selectedSize !== "" &&
+    wishlistedSizes.includes(selectedSize);
+
+  button.classList.toggle("active", isWishlisted);
+
+  const icon = button.querySelector("i");
+
+  if (icon) {
+    icon.classList.toggle("fa-solid", isWishlisted);
+    icon.classList.toggle("fa-regular", !isWishlisted);
+  }
+}
 
 </script>
 </body>
